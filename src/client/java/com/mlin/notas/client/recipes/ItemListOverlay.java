@@ -60,7 +60,13 @@ public final class ItemListOverlay {
 	private static boolean handleKey(AbstractContainerScreen<?> screen, AbstractContainerScreenAccessor accessor,
 			ItemGridWidget grid, EditBox search, KeyEvent event) {
 		if (search.isFocused()) {
-			return true; // digitando: nao intercepta
+			// Digitando: Esc so tira o foco; as demais teclas vao para a caixa (e nao fecham o inventario com "E").
+			if (event.isEscape()) {
+				search.setFocused(false);
+				return false;
+			}
+			search.keyPressed(event);
+			return false;
 		}
 		boolean recipes = ModKeys.SHOW_RECIPES.matches(event);
 		boolean usages = ModKeys.SHOW_USAGES.matches(event);
