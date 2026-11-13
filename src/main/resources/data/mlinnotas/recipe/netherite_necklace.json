@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "mlinnotas:diamond_necklace",
+    "minecraft:netherite_ingot"
+  ],
+  "result": {
+    "id": "mlinnotas:netherite_necklace"
+  }
+}

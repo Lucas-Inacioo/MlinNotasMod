@@ -34,7 +34,8 @@
 			"com.mlin.notas.gametest.StorageGameTest",
 			"com.mlin.notas.gametest.SeaStructuresGameTest",
 			"com.mlin.notas.gametest.FoodGameTest",
-			"com.mlin.notas.gametest.CombatGameTest"
+			"com.mlin.notas.gametest.CombatGameTest",
+			"com.mlin.notas.gametest.AccessoriesGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -58,7 +59,8 @@
 			"com.mlin.notas.gametest.StorageClientGameTest",
 			"com.mlin.notas.gametest.SeaStructuresClientGameTest",
 			"com.mlin.notas.gametest.FoodClientGameTest",
-			"com.mlin.notas.gametest.CombatClientGameTest"
+			"com.mlin.notas.gametest.CombatClientGameTest",
+			"com.mlin.notas.gametest.AccessoriesClientGameTest"
 		]
 	},
 	"depends": {

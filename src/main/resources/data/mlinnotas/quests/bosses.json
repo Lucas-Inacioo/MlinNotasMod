@@ -426,6 +426,73 @@
           "xp": 300
         }
       ]
+    },
+    {
+      "id": "first_relic",
+      "icon": "mlinnotas:resonant_pendant",
+      "x": 3,
+      "y": -1,
+      "dependencies": [
+        "cobalt_golem"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:resonant_pendant",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "all_relics",
+      "icon": "mlinnotas:wither_ring",
+      "x": 5,
+      "y": 2.5,
+      "dependencies": [
+        "legends"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:resonant_pendant",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:abyssal_shell",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:colossus_girdle",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:dragonscale_charm",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:herald_star",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:wither_ring",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 300
+        }
+      ]
     }
   ]
 }
