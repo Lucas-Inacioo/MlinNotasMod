@@ -326,5 +326,11 @@
   "block.mlinnotas.ember_nylium": "Nílio de Brasas",
   "block.mlinnotas.ember_sprouts": "Brotos de Brasa",
   "item.mlinnotas.magma_slug_spawn_egg": "Ovo Gerador de Lesma de Magma",
-  "entity.mlinnotas.magma_slug": "Lesma de Magma"
+  "entity.mlinnotas.magma_slug": "Lesma de Magma",
+  "entity.mlinnotas.variant.mossy_zombie": "Zumbi Musgoso",
+  "entity.mlinnotas.variant.snow_spider": "Aranha da Neve",
+  "entity.mlinnotas.variant.blazing_skeleton": "Esqueleto Ardente",
+  "entity.mlinnotas.variant.crystal_creeper": "Creeper de Cristal",
+  "entity.mlinnotas.variant.mangrove_drowned": "Afogado do Mangue",
+  "entity.mlinnotas.variant.ashen_wither_skeleton": "Esqueleto Cinzento"
 }

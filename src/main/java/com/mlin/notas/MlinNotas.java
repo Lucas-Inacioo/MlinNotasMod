@@ -67,6 +67,7 @@ public class MlinNotas implements ModInitializer {
 		SleepServer.init();
 		WailaServer.init();
 		com.mlin.notas.waystone.WaystoneServer.init();
+		com.mlin.notas.variants.MobVariantsServer.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

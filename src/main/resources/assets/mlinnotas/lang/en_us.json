@@ -326,5 +326,11 @@
   "block.mlinnotas.ember_nylium": "Ember Nylium",
   "block.mlinnotas.ember_sprouts": "Ember Sprouts",
   "item.mlinnotas.magma_slug_spawn_egg": "Magma Slug Spawn Egg",
-  "entity.mlinnotas.magma_slug": "Magma Slug"
+  "entity.mlinnotas.magma_slug": "Magma Slug",
+  "entity.mlinnotas.variant.mossy_zombie": "Mossy Zombie",
+  "entity.mlinnotas.variant.snow_spider": "Snow Spider",
+  "entity.mlinnotas.variant.blazing_skeleton": "Blazing Skeleton",
+  "entity.mlinnotas.variant.crystal_creeper": "Crystal Creeper",
+  "entity.mlinnotas.variant.mangrove_drowned": "Mangrove Drowned",
+  "entity.mlinnotas.variant.ashen_wither_skeleton": "Ashen Wither Skeleton"
 }
