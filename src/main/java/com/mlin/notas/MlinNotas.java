@@ -82,6 +82,7 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.tree.FastLeafDecay.init();
 		com.mlin.notas.storage.StorageRegistry.init();
 		com.mlin.notas.food.FoodRegistry.init();
+		com.mlin.notas.combat.CombatRegistry.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

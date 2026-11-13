@@ -1,0 +1,6 @@
+{
+  "parent": "mlinnotas:item/weapon_glaive",
+  "textures": {
+    "layer0": "mlinnotas:item/infernite_glaive"
+  }
+}

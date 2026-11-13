@@ -134,6 +134,7 @@ class QuestContent {
 	}
 
 	static void chapter(String id, int order, String icon, String pt, String en, Q... quests) throws IOException {
+		quests = CombatContent.arsenal(id, quests);
 		text("quest.mlinnotas.chapter." + id, pt, en);
 		List<String> json = new ArrayList<>();
 		for (Q q : quests) {

@@ -239,6 +239,7 @@ public class ContentGen {
 		StorageContent.generate(pickaxeMineable);
 		SeaStructuresContent.generate();
 		FoodContent.generate();
+		CombatContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

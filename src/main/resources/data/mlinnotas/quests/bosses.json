@@ -298,6 +298,134 @@
           "xp": 1000
         }
       ]
+    },
+    {
+      "id": "golem_hammer",
+      "icon": "mlinnotas:golem_hammer",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "cobalt_golem"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:golem_hammer",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "abyssal_blade",
+      "icon": "mlinnotas:abyssal_blade",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "abyssal_guardian"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:abyssal_blade",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "igneous_greatsword",
+      "icon": "mlinnotas:igneous_greatsword",
+      "x": 3,
+      "y": 2,
+      "dependencies": [
+        "igneous_colossus"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:igneous_greatsword",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "dragon_fangs",
+      "icon": "mlinnotas:dragon_fangs",
+      "x": 3,
+      "y": 3,
+      "dependencies": [
+        "ender_dragon"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:dragon_fangs",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "astral_lance",
+      "icon": "mlinnotas:astral_lance",
+      "x": 3,
+      "y": 4,
+      "dependencies": [
+        "astral_herald"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:astral_lance",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "legendary_arsenal",
+      "icon": "mlinnotas:astral_lance",
+      "x": 4,
+      "y": 4.5,
+      "dependencies": [
+        "golem_hammer",
+        "abyssal_blade",
+        "igneous_greatsword",
+        "dragon_fangs",
+        "astral_lance"
+      ],
+      "tasks": [],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 2
+        },
+        {
+          "xp": 300
+        }
+      ]
     }
   ]
 }

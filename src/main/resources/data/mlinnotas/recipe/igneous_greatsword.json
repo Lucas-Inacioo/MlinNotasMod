@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "B": "minecraft:blaze_rod",
+    "E": "mlinnotas:colossus_ember",
+    "N": "minecraft:netherite_ingot"
+  },
+  "pattern": [
+    " N ",
+    " E ",
+    "B#B"
+  ],
+  "result": {
+    "id": "mlinnotas:igneous_greatsword"
+  }
+}
