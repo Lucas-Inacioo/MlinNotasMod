@@ -1,0 +1,16 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "minecraft:beef",
+    "minecraft:potato",
+    "minecraft:carrot",
+    "mlinnotas:onion"
+  ],
+  "container": "minecraft:bowl",
+  "result": {
+    "id": "mlinnotas:beef_stew",
+    "count": 1
+  },
+  "cookingtime": 200,
+  "experience": 0.35
+}

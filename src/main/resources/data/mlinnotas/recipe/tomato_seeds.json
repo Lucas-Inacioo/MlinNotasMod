@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:tomato"
+  ],
+  "result": {
+    "id": "mlinnotas:tomato_seeds",
+    "count": 2
+  }
+}

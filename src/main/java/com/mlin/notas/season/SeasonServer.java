@@ -89,6 +89,7 @@ public final class SeasonServer {
 		int length = length(server);
 		long day = absoluteDay(server);
 		SeasonState.set(enabled ? SeasonCalendar.date(day, length) : null);
+		SeasonState.setSeasonIndex(day, length);
 		if (enabled != lastEnabled || length != lastLength || day != lastDay) {
 			lastEnabled = enabled;
 			lastLength = length;

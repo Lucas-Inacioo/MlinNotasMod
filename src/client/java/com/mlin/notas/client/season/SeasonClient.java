@@ -52,6 +52,7 @@ public final class SeasonClient {
 		SeasonDate now = payload.date();
 		date = now;
 		SeasonState.set(now);
+		SeasonState.setSeasonIndex(payload.absoluteDay(), payload.lengthDays());
 		int oldKey = previous == null ? -1 : previous.visualKey();
 		int newKey = now == null ? -1 : now.visualKey();
 		if (oldKey != newKey) {

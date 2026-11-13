@@ -11,6 +11,7 @@
 		"BiomeTemperatureMixin",
 		"CreeperAccessor",
 		"EnderDragonFightAccessor",
+		"FoodPropertiesMixin",
 		"ItemTooltipImageMixin",
 		"LeavesBlockMixin",
 		"SeasonalGrowthMixin",
