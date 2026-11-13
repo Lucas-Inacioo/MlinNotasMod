@@ -9,6 +9,8 @@ Mod de anotacoes para Minecraft (Fabric, Minecraft 26.3, Java 25).
 
 ## Desenvolvimento
 
+Mantenha o projeto em disco local (nao em pasta sincronizada com Google Drive/OneDrive): o Gradle grava muitos arquivos em `.gradle/` e `build/`.
+
 ```bash
 ./gradlew build              # compila + testes unitarios + game tests de servidor
 ./gradlew runClient          # abre o cliente de desenvolvimento com o mod

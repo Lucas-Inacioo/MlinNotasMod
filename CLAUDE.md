@@ -43,7 +43,7 @@ No Windows use `gradlew.bat`. Se `java` nao estiver no PATH: `JAVA_HOME=C:\Progr
 - Identifiers via `MlinNotas.id("...")`. Nunca `Identifier.parse("mlinnotas:...")` espalhado.
 - Textos para o jogador: `Component.translatable("...")` com chave em `assets/mlinnotas/lang/pt_br.json` e `en_us.json` (literal so em prototipo).
 - Se um nome de classe/metodo do Minecraft nao compilar, **nao chute**: rode `./gradlew genSources` e procure no jar de fontes, ou consulte https://docs.fabricmc.net/develop/ e https://maven.fabricmc.net/docs/.
-- `build/`, `run/`, `.gradle/` nao sao versionados. A pasta do projeto esta num drive sincronizado (Google Drive); evite gravar arquivos enormes fora de `build/`.
+- `build/`, `run/`, `.gradle/`, `logs/` nao sao versionados. Mantenha o projeto em disco local (`C:/Users/lucas/Documents/MlinNotasMod`), nao em pasta sincronizada com nuvem.
 - Commits em portugues ou ingles, mensagem curta no imperativo. Nao commite `.claude/settings.local.json`.
 
 ## Skills disponiveis
