@@ -36,6 +36,7 @@ public final class BossRenderers {
 		EntityRenderers.register(BossRegistry.COBALT_ROCK, c -> new ThrownItemRenderer<>(c, 2.2F, false));
 		EntityRenderers.register(BossRegistry.MAGMA_METEOR, c -> new ThrownItemRenderer<>(c, 2.6F, true));
 		EntityRenderers.register(BossRegistry.STAR_BOLT, c -> new ThrownItemRenderer<>(c, 1.4F, true));
+		EntityRenderers.register(BossRegistry.VOID_METEOR, c -> new ThrownItemRenderer<>(c, 2.8F, true));
 	}
 
 	/** Renderer generico: textura, sombra, escala do modelo e luz minima (brilho proprio). */

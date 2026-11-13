@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
  */
 public class BossProjectile extends ThrowableItemProjectile {
 	private @Nullable LivingEntity homingTarget;
+	/** Dano em area do meteoro do vazio (definido pelo dragao conforme a fase). */
+	private float areaDamage = 8.0F;
 
 	public BossProjectile(EntityType<? extends BossProjectile> type, Level level) {
 		super(type, level);
@@ -40,6 +42,14 @@ public class BossProjectile extends ThrowableItemProjectile {
 		return getType() == BossRegistry.STAR_BOLT;
 	}
 
+	private boolean voidMeteor() {
+		return getType() == BossRegistry.VOID_METEOR;
+	}
+
+	public void setAreaDamage(float damage) {
+		this.areaDamage = damage;
+	}
+
 	private boolean meteor() {
 		return getType() == BossRegistry.MAGMA_METEOR;
 	}
@@ -53,6 +63,9 @@ public class BossProjectile extends ThrowableItemProjectile {
 		if (getType() == BossRegistry.MAGMA_METEOR) {
 			return Items.MAGMA_BLOCK;
 		}
+		if (getType() == BossRegistry.VOID_METEOR) {
+			return Items.CRYING_OBSIDIAN;
+		}
 		if (getType() == BossRegistry.STAR_BOLT) {
 			return Items.NETHER_STAR;
 		}
@@ -61,7 +74,7 @@ public class BossProjectile extends ThrowableItemProjectile {
 
 	@Override
 	protected double getDefaultGravity() {
-		return star() ? 0.0 : meteor() ? 0.06 : 0.04;
+		return star() ? 0.0 : meteor() ? 0.06 : voidMeteor() ? 0.05 : 0.04;
 	}
 
 	@Override
@@ -69,7 +82,7 @@ public class BossProjectile extends ThrowableItemProjectile {
 		super.tick();
 		Level level = level();
 		if (level.isClientSide()) {
-			level.addParticle(star() ? ParticleTypes.END_ROD : meteor() ? ParticleTypes.FLAME : ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
+			level.addParticle(star() ? ParticleTypes.END_ROD : voidMeteor() ? ParticleTypes.REVERSE_PORTAL : meteor() ? ParticleTypes.FLAME : ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
 			return;
 		}
 		if (star()) {
@@ -89,7 +102,7 @@ public class BossProjectile extends ThrowableItemProjectile {
 	protected void onHitEntity(EntityHitResult hitResult) {
 		super.onHitEntity(hitResult);
 		Entity hit = hitResult.getEntity();
-		if (!(level() instanceof ServerLevel level) || hit == getOwner() || hit instanceof BossMob) {
+		if (!(level() instanceof ServerLevel level) || hit == getOwner() || hit instanceof BossMob || voidMeteor()) {
 			return;
 		}
 		float damage = star() ? 7.0F : meteor() ? 9.0F : 10.0F;
@@ -107,7 +120,9 @@ public class BossProjectile extends ThrowableItemProjectile {
 	protected void onHit(HitResult hitResult) {
 		super.onHit(hitResult);
 		if (level() instanceof ServerLevel level) {
-			if (meteor()) {
+			if (voidMeteor()) {
+				voidImpact(level);
+			} else 			if (meteor()) {
 				// estilhaca: dano em area pequena, sem quebrar blocos
 				level.sendParticles(ParticleTypes.LAVA, getX(), getY(), getZ(), 12, 0.6, 0.3, 0.6, 0.1);
 				level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(), getZ(), 6, 0.6, 0.3, 0.6, 0.02);
@@ -124,6 +139,30 @@ public class BossProjectile extends ThrowableItemProjectile {
 				playSound(SoundEvents.STONE_BREAK, 1.2F, 0.7F);
 			}
 			discard();
+		}
+	}
+
+	/** O meteoro do vazio so acerta jogadores (passa pelo dragao e pelos adds). */
+	@Override
+	protected boolean canHitEntity(Entity entity) {
+		if (voidMeteor()) {
+			return entity instanceof net.minecraft.world.entity.player.Player && super.canHitEntity(entity);
+		}
+		return super.canHitEntity(entity);
+	}
+
+	/** Impacto do meteoro do vazio: dano em area so nos jogadores (cheio no centro, metade na borda), sem quebrar blocos. */
+	private void voidImpact(ServerLevel level) {
+		level.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 0.3, getZ(), 40, 1.2, 0.4, 1.2, 0.15);
+		level.sendParticles(ParticleTypes.EXPLOSION, getX(), getY() + 0.5, getZ(), 2, 0.5, 0.2, 0.5, 0);
+		playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.4F, 0.8F);
+		double r = com.mlin.notas.dragon.DragonRules.METEOR_RADIUS;
+		for (net.minecraft.world.entity.player.Player player : level.getEntitiesOfClass(net.minecraft.world.entity.player.Player.class, getBoundingBox().inflate(r + 1),
+				p -> p.isAlive() && !p.isSpectator())) {
+			float damage = com.mlin.notas.dragon.DragonRules.meteorFalloff(Math.sqrt(player.distanceToSqr(position())), areaDamage);
+			if (damage > 0) {
+				player.hurtServer(level, damageSources().indirectMagic(this, getOwner()), damage);
+			}
 		}
 	}
 }

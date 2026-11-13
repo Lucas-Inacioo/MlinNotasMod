@@ -1,0 +1,8 @@
+{
+  "feature": "mlinnotas:dragon_arena",
+  "placement": [
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

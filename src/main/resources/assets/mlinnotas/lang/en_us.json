@@ -442,5 +442,12 @@
   "message.mlinnotas.skills.deposited": "Deposited into %s",
   "message.mlinnotas.skills.nothing": "You have nothing that %s still needs",
   "message.mlinnotas.skills.locked": "%s is still locked",
-  "message.mlinnotas.skills.already": "%s is already unlocked"
+  "message.mlinnotas.skills.already": "%s is already unlocked",
+  "entity.mlinnotas.void_meteor": "Void Meteor",
+  "boss.mlinnotas.dragon.phase": "%s · Phase %s",
+  "message.mlinnotas.dragon.health": "The Ender Dragon senses %s challenger(s): %s health",
+  "message.mlinnotas.dragon.phase_two": "The Ender Dragon roars and crystals regrow on the pillars!",
+  "message.mlinnotas.dragon.phase_three": "The Ender Dragon flies into a rage!",
+  "message.mlinnotas.dragon.dive": "The Ender Dragon dives! Jump over the shockwave!",
+  "message.mlinnotas.dragon.hoard": "The dragon's hoard appeared on the north dais of the sanctuary"
 }

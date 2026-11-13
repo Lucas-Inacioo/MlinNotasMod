@@ -61,6 +61,9 @@ public final class BossRegistry {
 			EntityType.Builder.<BossProjectile>of(BossProjectile::new, MobCategory.MISC).sized(0.8F, 0.8F).fireImmune().clientTrackingRange(6).updateInterval(5));
 	public static final EntityType<BossProjectile> STAR_BOLT = entity("star_bolt",
 			EntityType.Builder.<BossProjectile>of(BossProjectile::new, MobCategory.MISC).sized(0.4F, 0.4F).clientTrackingRange(6).updateInterval(2));
+	/** Meteoro do vazio (Dragao do Ender reformulado). */
+	public static final EntityType<BossProjectile> VOID_METEOR = entity("void_meteor",
+			EntityType.Builder.<BossProjectile>of(BossProjectile::new, MobCategory.MISC).sized(0.9F, 0.9F).fireImmune().clientTrackingRange(8).updateInterval(2));
 
 	// --- itens ---
 	static {
