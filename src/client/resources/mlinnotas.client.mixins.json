@@ -5,6 +5,8 @@
 	"client": [
 		"AbstractContainerScreenAccessor",
 		"BeaconScreenAccessor",
+		"BiomeSeasonColorMixin",
+		"ClientLevelTintMixin",
 		"LightmapRenderStateExtractorMixin",
 		"LivingEntityRendererVariantMixin",
 		"RenderLayerVariantMixin"

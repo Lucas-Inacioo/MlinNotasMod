@@ -36,6 +36,8 @@ public class MlinNotasClient implements ClientModInitializer {
 		com.mlin.notas.client.skills.SkillClient.init();
 		com.mlin.notas.client.vein.VeinMineClient.init();
 		com.mlin.notas.client.quests.QuestClient.init();
+		com.mlin.notas.client.ambient.AmbientClient.init();
+		com.mlin.notas.client.season.SeasonClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}

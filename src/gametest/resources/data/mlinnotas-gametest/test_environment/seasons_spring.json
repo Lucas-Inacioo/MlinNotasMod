@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:function",
+  "setup": "mlinnotas-gametest:seasons/spring",
+  "teardown": "mlinnotas-gametest:seasons/reset"
+}
