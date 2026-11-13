@@ -95,7 +95,7 @@ public class ContentGen {
 				tag("item", "mlinnotas:repairs_" + t.id + "_armor", List.of(t.material), false);
 			}
 		}
-		write("data/mlinnotas/recipe/celestium_ingot.json", "{\"type\":\"minecraft:crafting_shapeless\",\"category\":\"misc\",\"ingredients\":["
+		write("data/mlinnotas/recipe/celestium_ingot.json", "{\"type\":\"mlinnotas:skill_gated_shapeless\",\"category\":\"misc\",\"skill\":\"mining\",\"level\":12,\"ingredients\":["
 				+ quoteAll(List.of("mlinnotas:astralite_ingot", "mlinnotas:astralite_ingot", "mlinnotas:endite_ingot", "mlinnotas:endite_ingot",
 						"mlinnotas:infernite_ingot", "mlinnotas:infernite_ingot", "minecraft:netherite_ingot"))
 				+ "],\"result\":{\"id\":\"mlinnotas:celestium_ingot\"}}");

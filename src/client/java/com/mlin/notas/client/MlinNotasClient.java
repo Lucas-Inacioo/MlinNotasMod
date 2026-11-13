@@ -33,6 +33,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		com.mlin.notas.client.waystone.WaystoneClient.init();
 		WailaClient.init();
 		com.mlin.notas.client.beacon.BeaconScreenExtras.init();
+		com.mlin.notas.client.skills.SkillClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}

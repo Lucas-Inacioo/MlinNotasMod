@@ -1,6 +1,8 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "mlinnotas:skill_gated_shapeless",
   "category": "misc",
+  "skill": "mining",
+  "level": 12,
   "ingredients": [
     "mlinnotas:astralite_ingot",
     "mlinnotas:astralite_ingot",
