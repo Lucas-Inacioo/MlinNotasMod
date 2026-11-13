@@ -119,6 +119,14 @@ public class RuinsGameTest {
 		helper.succeed();
 	}
 
+	@GameTest
+	public void mineAltarRoomUsesTheCobaltGolemAltar(GameTestHelper helper) {
+		helper.assertTrue(RuinPiece.state(com.mlin.notas.ruins.RuinPalette.of(RuinStyle.MOSSY), com.mlin.notas.ruins.RuinPart.BOSS_ALTAR, null, false, true, 0)
+						.is(com.mlin.notas.boss.BossRegistry.COBALT_ALTAR),
+				"o altar da mina desativada invoca o Golem de Cobalto");
+		helper.succeed();
+	}
+
 	private static Direction direction(RuinPlan.Dir dir) {
 		return switch (dir) {
 			case NORTH -> Direction.NORTH;

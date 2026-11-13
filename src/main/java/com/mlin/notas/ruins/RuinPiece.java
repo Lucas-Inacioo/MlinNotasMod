@@ -291,7 +291,7 @@ public class RuinPiece extends StructurePiece {
 			case ALTAR -> palette.altar.defaultBlockState();
 			case LECTERN -> Blocks.LECTERN.defaultBlockState().setValue(LecternBlock.FACING, direction(dir, Direction.SOUTH));
 			// provisorio: o Golem de Cobalto (chefe futuro) vai ser invocado aqui
-			case BOSS_ALTAR -> Blocks.LODESTONE.defaultBlockState();
+			case BOSS_ALTAR -> com.mlin.notas.boss.BossRegistry.COBALT_ALTAR.defaultBlockState();
 			case ORE -> ironVein
 					? (deep ? Blocks.DEEPSLATE_IRON_ORE : Blocks.IRON_ORE).defaultBlockState()
 					: (deep ? Blocks.DEEPSLATE_COPPER_ORE : Blocks.COPPER_ORE).defaultBlockState();
