@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:ruin",
+  "kind": "watchtower",
+  "biomes": "#mlinnotas:has_structure/ruined_watchtower",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

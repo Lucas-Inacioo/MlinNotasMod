@@ -224,6 +224,7 @@ public class ContentGen {
 			shaped(upgrade, "MMM|MCM|MMM", Map.of("M", t.material, "C", "#minecraft:planks"), "misc");
 		}
 		EndContent.generate(pickaxeMineable);
+		RuinsContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

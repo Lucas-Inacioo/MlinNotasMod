@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": "minecraft:ender_pearl",
+    "P": "minecraft:paper"
+  },
+  "pattern": [
+    " P ",
+    "PEP",
+    " P "
+  ],
+  "result": {
+    "id": "mlinnotas:return_scroll",
+    "count": 2
+  }
+}

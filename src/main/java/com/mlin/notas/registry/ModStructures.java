@@ -20,6 +20,12 @@ public final class ModStructures {
 	/** A estrutura em si (data/mlinnotas/worldgen/structure/end_citadel.json). */
 	public static final ResourceKey<Structure> END_CITADEL = ResourceKey.create(Registries.STRUCTURE, MlinNotas.id("end_citadel"));
 
+	/** Ruinas de superficie (um JSON de estrutura por tipo, structure set mlinnotas:ruins). */
+	public static final StructureType<com.mlin.notas.ruins.RuinStructure> RUIN = Registry.register(BuiltInRegistries.STRUCTURE_TYPE,
+			MlinNotas.id("ruin"), () -> com.mlin.notas.ruins.RuinStructure.CODEC);
+	public static final StructurePieceType RUIN_PIECE = Registry.register(BuiltInRegistries.STRUCTURE_PIECE,
+			MlinNotas.id("ruin"), (StructurePieceType.ContextlessType) com.mlin.notas.ruins.RuinPiece::new);
+
 	private ModStructures() {
 	}
 

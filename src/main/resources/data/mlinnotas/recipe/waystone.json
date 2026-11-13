@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "mlinnotas:cobalt_ingot",
+    "E": "minecraft:ender_pearl",
+    "S": "#mlinnotas:polished_stones"
+  },
+  "pattern": [
+    "SES",
+    "SCS",
+    "SSS"
+  ],
+  "result": {
+    "id": "mlinnotas:waystone"
+  }
+}

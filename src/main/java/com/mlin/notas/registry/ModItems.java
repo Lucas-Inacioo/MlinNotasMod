@@ -164,6 +164,16 @@ public final class ModItems {
 	public static final Item CHORUS_HOPPER_SPAWN_EGG = register("chorus_hopper_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(ModEntities.CHORUS_HOPPER));
 
+	// pedras de teleporte (waystone/)
+	public static final Item WAYSTONE = register("waystone", p -> new BlockItem(ModBlocks.WAYSTONE, p.useBlockDescriptionPrefix()) {
+		@Override
+		public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+			tooltip.accept(Component.translatable("block.mlinnotas.waystone.tooltip").withStyle(ChatFormatting.GRAY));
+		}
+	}, new Item.Properties().rarity(Rarity.UNCOMMON));
+	public static final Item RETURN_SCROLL = register("return_scroll", com.mlin.notas.waystone.ReturnScrollItem::new,
+			new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));
 	}

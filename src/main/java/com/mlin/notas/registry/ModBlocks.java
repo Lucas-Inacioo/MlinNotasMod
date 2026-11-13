@@ -85,6 +85,11 @@ public final class ModBlocks {
 		}
 	}
 
+	/** Pedra de teleporte (2 de altura); ver waystone/. */
+	public static final Block WAYSTONE = Blocks.register(key("waystone"), com.mlin.notas.waystone.WaystoneBlock::new, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 1200.0F).sound(SoundType.STONE)
+			.lightLevel(state -> 5).noOcclusion().requiresCorrectToolForDrops().pushReaction(PushReaction.IMMOVEABLE));
+
 	public static final Block IRON_CHEST = chest(ChestTier.IRON);
 	public static final Block GOLD_CHEST = chest(ChestTier.GOLD);
 	public static final Block DIAMOND_CHEST = chest(ChestTier.DIAMOND);

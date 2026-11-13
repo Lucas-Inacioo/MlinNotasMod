@@ -177,11 +177,16 @@ public class WorldMapScreen extends Screen {
 			graphics.blit(RenderPipelines.GUI_TEXTURED, tex.id(), 0, 0, u, v, mw, mh, Math.round(visibleW), Math.round(visibleH), tex.size(), tex.size());
 
 			drawWaypoints(graphics, effectiveZoom, mouseX, mouseY);
+			Component hoveredWaystone = com.mlin.notas.client.waystone.WaystoneMapIcons.drawOnWorldMap(graphics, font,
+					MinimapClient.currentDimension(minecraft), wx -> screenX(wx, effectiveZoom), wz -> screenZ(wz, effectiveZoom),
+					mapWidth(), mapHeight(), mouseX, mouseY);
 			Entity hoveredEntity = drawEntities(graphics, effectiveZoom, mouseX, mouseY);
 			drawPlayers(graphics, effectiveZoom);
 			graphics.disableScissor();
 			if (hoveredEntity != null) {
 				graphics.setTooltipForNextFrame(font, hoveredEntity.getDisplayName(), mouseX, mouseY);
+			} else if (hoveredWaystone != null) {
+				graphics.setTooltipForNextFrame(font, hoveredWaystone, mouseX, mouseY);
 			}
 
 			String coords = Component.translatable("gui.mlinnotas.map.cursor", blockX(mouseX), blockZ(mouseY)).getString();

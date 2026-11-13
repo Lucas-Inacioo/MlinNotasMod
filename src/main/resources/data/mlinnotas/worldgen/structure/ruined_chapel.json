@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:ruin",
+  "kind": "chapel",
+  "biomes": "#mlinnotas:has_structure/ruined_chapel",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

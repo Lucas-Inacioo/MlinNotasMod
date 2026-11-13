@@ -30,6 +30,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		InventorySortClient.init();
 		RecipeViewerClient.init();
 		MinimapClient.init();
+		com.mlin.notas.client.waystone.WaystoneClient.init();
 		WailaClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);

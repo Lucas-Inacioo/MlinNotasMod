@@ -81,6 +81,13 @@ public class TexGen {
 		// Minimapa (icones da HUD)
 		arrow(items, "map_arrow", 0xFFFFFFFF, 0xFF202020);
 		waypoint(items, "waypoint", 0xFFFFD83A);
+
+		// Pedra de teleporte (bloco de 2 de altura, item e icone do minimapa) e Pergaminho de Retorno
+		waystoneSide(blocks, "waystone_side", true);
+		waystoneSide(blocks, "waystone_side_upper", false);
+		waystoneTop(blocks, "waystone_top");
+		waystoneItem(items, "waystone");
+		returnScroll(items, "return_scroll");
 	}
 
 	static BufferedImage img() {
@@ -306,6 +313,87 @@ public class TexGen {
 		}
 		rect(im, 7, 10, 2, 4, color);
 		rect(im, 7, 5, 2, 2, 0xFF202020);
+		save(im, dir, name);
+	}
+
+	static final int RUNE = 0xFFB070FF;
+	static final int RUNE_GLOW = 0xFFE6CCFF;
+
+	/** Lateral da pedra de teleporte: pedra polida com uma runa roxa brilhante (embaixo) ou o topo da runa (em cima). */
+	static void waystoneSide(File dir, String name, boolean lower) throws IOException {
+		BufferedImage im = img();
+		rect(im, 0, 0, 16, 16, 0xFF8E8E8E);
+		frame(im, 0, 0, 16, 16, 0xFF6A6A6A);
+		noise(im, name.hashCode(), 0.18);
+		if (lower) {
+			// runa: losango com traco vertical
+			for (int y = 3; y <= 12; y++) {
+				set(im, 7, y, RUNE);
+				set(im, 8, y, RUNE);
+			}
+			for (int d = 0; d <= 3; d++) {
+				set(im, 4 + d, 7 - d, RUNE);
+				set(im, 11 - d, 7 - d, RUNE);
+				set(im, 4 + d, 8 + d, RUNE);
+				set(im, 11 - d, 8 + d, RUNE);
+			}
+			set(im, 7, 7, RUNE_GLOW);
+			set(im, 8, 8, RUNE_GLOW);
+		} else {
+			for (int y = 0; y <= 6; y++) {
+				set(im, 7, y, RUNE);
+				set(im, 8, y, RUNE);
+			}
+			rect(im, 6, 2, 4, 2, RUNE_GLOW);
+		}
+		save(im, dir, name);
+	}
+
+	/** Topo: cristal roxo. */
+	static void waystoneTop(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		rect(im, 0, 0, 16, 16, 0xFF7A3FBF);
+		frame(im, 0, 0, 16, 16, 0xFF4A2080);
+		rect(im, 4, 4, 8, 8, 0xFFB070FF);
+		rect(im, 6, 6, 4, 4, RUNE_GLOW);
+		noise(im, name.hashCode(), 0.12);
+		save(im, dir, name);
+	}
+
+	/** Icone do item e do minimapa: obelisco cinza com cristal roxo. */
+	static void waystoneItem(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int outline = 0xFF2A2A2A;
+		rect(im, 3, 13, 10, 3, 0xFF8E8E8E);
+		frame(im, 3, 13, 10, 3, outline);
+		rect(im, 5, 4, 6, 10, 0xFFA0A0A0);
+		frame(im, 5, 4, 6, 10, outline);
+		rect(im, 7, 6, 2, 6, RUNE);
+		set(im, 7, 8, RUNE_GLOW);
+		rect(im, 6, 1, 4, 3, 0xFFB070FF);
+		frame(im, 6, 1, 4, 3, 0xFF4A2080);
+		set(im, 7, 2, RUNE_GLOW);
+		save(im, dir, name);
+	}
+
+	/** Pergaminho enrolado com selo roxo. */
+	static void returnScroll(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int paper = 0xFFEADBB0;
+		int edge = 0xFF9C7A48;
+		for (int i = 0; i < 10; i++) {
+			// faixa diagonal (o papel aberto)
+			rect(im, 3 + i, 11 - i, 3, 3, paper);
+		}
+		rect(im, 1, 11, 4, 4, 0xFFD8C090);
+		frame(im, 1, 11, 4, 4, edge);
+		rect(im, 11, 1, 4, 4, 0xFFD8C090);
+		frame(im, 11, 1, 4, 4, edge);
+		for (int i = 2; i < 9; i += 2) {
+			set(im, 4 + i, 10 - i, edge);
+		}
+		rect(im, 7, 6, 3, 3, RUNE);
+		set(im, 8, 7, RUNE_GLOW);
 		save(im, dir, name);
 	}
 }

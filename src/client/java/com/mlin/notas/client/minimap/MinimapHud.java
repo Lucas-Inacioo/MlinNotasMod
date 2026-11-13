@@ -74,6 +74,7 @@ public final class MinimapHud {
 		if (options.showWaypoints) {
 			drawWaypoints(graphics, MinimapClient.waypoints().inDimension(MinimapClient.currentDimension(minecraft)), x, y, size, zoom, px, pz);
 		}
+		com.mlin.notas.client.waystone.WaystoneMapIcons.drawHud(graphics, MinimapClient.currentDimension(minecraft), x, y, size, zoom, px, pz);
 		drawArrow(graphics, x + size / 2.0F, y + size / 2.0F, player.getViewYRot(partial));
 		graphics.disableScissor();
 
@@ -135,6 +136,12 @@ public final class MinimapHud {
 	}
 
 	static void drawWaypoints(GuiGraphicsExtractor graphics, List<Waypoint> waypoints, int x, int y, int size, float zoom, double px, double pz) {
+		drawWaypoints(graphics, waypoints, x, y, size, zoom, px, pz, WAYPOINT_ICON, true);
+	}
+
+	/** Icones no minimapa; {@code clampToEdge}: os de fora ficam presos na borda (senao nao aparecem). */
+	public static void drawWaypoints(GuiGraphicsExtractor graphics, List<Waypoint> waypoints, int x, int y, int size, float zoom, double px, double pz,
+			Identifier iconTexture, boolean clampToEdge) {
 		int half = size / 2;
 		int icon = 8;
 		for (Waypoint w : waypoints) {
@@ -144,12 +151,15 @@ public final class MinimapHud {
 			double limit = half - icon / 2.0;
 			double scale = Math.max(Math.abs(dx) / limit, Math.abs(dz) / limit);
 			if (scale > 1) {
+				if (!clampToEdge) {
+					continue;
+				}
 				dx /= scale;
 				dz /= scale;
 			}
 			int sx = x + half + (int) Math.round(dx);
 			int sy = y + half + (int) Math.round(dz);
-			graphics.blit(RenderPipelines.GUI_TEXTURED, WAYPOINT_ICON, sx - icon / 2, sy - icon / 2, 0, 0, icon, icon, 16, 16, 16, 16, w.color());
+			graphics.blit(RenderPipelines.GUI_TEXTURED, iconTexture, sx - icon / 2, sy - icon / 2, 0, 0, icon, icon, 16, 16, 16, 16, w.color());
 		}
 	}
 

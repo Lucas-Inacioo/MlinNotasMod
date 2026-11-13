@@ -1,0 +1,30 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 739215,
+    "separation": 8,
+    "spacing": 24
+  },
+  "structures": [
+    {
+      "structure": "mlinnotas:ruined_watchtower",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:abandoned_camp",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:old_well",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:ruined_chapel",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:disused_mine",
+      "weight": 1
+    }
+  ]
+}

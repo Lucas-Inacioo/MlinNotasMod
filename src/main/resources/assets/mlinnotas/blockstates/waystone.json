@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "mlinnotas:block/waystone_lower"
+    },
+    "half=upper": {
+      "model": "mlinnotas:block/waystone_upper"
+    }
+  }
+}
