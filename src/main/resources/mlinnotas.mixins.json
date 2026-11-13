@@ -14,7 +14,9 @@
 		"ItemTooltipImageMixin",
 		"SeasonalGrowthMixin",
 		"ServerLevelPrecipitationMixin",
-		"TheEndBiomeSourceMixin"
+		"TheEndBiomeSourceMixin",
+		"VillagerAccessor",
+		"VillagerVillageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

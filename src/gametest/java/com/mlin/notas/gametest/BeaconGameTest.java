@@ -127,6 +127,17 @@ public class BeaconGameTest {
 		helper.assertTrue(BeaconPowers.pyramidTier(level, mixed, 1) == Tier.GOLD, "piramide mista vale o metal mais fraco");
 		helper.assertTrue(BeaconTiers.range(Tier.IRON, 1) == 20 && BeaconTiers.range(Tier.CELESTIUM, 1) == 80, "alcance de 1 camada");
 
+		// o jogador vai 30 blocos para fora da area do teste: forca os chunks para as entidades dali entrarem na busca
+		int[][] forced = {{(iron.getX() + 30) >> 4, iron.getZ() >> 4}, {(celestium.getX() + 30) >> 4, celestium.getZ() >> 4}};
+		java.util.List<int[]> forcedByUs = new java.util.ArrayList<>();
+		for (int[] c : forced) {
+			// so força (e depois solta) o que ninguem forcou: o framework de teste tambem força chunks de outros testes
+			if (level.setChunkForced(c[0], c[1], true)) {
+				forcedByUs.add(c);
+			}
+		}
+		// chunk recem-forcado so expoe as entidades na busca alguns ticks depois
+		helper.runAfterDelay(20, () -> {
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		try {
 			// a 30 blocos: fora do alcance do ferro (20), dentro do celestio (80)
@@ -165,8 +176,12 @@ public class BeaconGameTest {
 			helper.assertTrue(!BeaconBlockEntity.validateEffects(null, ModEffects.BEACON_FLIGHT, 4), "Voo exige primario");
 		} finally {
 			remove(helper, player);
+			for (int[] c : forcedByUs) {
+				level.setChunkForced(c[0], c[1], false);
+			}
 		}
 		helper.succeed();
+		});
 	}
 
 	/**

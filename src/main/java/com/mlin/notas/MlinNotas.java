@@ -74,6 +74,7 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.variants.MobVariantsServer.init();
 		com.mlin.notas.skills.SkillServer.init();
 		com.mlin.notas.vein.VeinMineServer.init();
+		com.mlin.notas.village.VillageServer.init();
 		com.mlin.notas.beacon.BeaconServer.init();
 		com.mlin.notas.quests.QuestServer.init();
 		com.mlin.notas.season.SeasonServer.init();

@@ -233,6 +233,7 @@ public class ContentGen {
 		DragonContent.generate(pickaxeMineable);
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
+		VillageContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

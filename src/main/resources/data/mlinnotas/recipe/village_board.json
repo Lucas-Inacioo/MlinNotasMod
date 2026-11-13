@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "#minecraft:planks",
+    "F": "#minecraft:wooden_fences",
+    "P": "minecraft:paper",
+    "S": "#minecraft:wooden_slabs"
+  },
+  "pattern": [
+    "SSS",
+    "PBP",
+    "F F"
+  ],
+  "result": {
+    "id": "mlinnotas:village_board"
+  }
+}

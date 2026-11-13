@@ -185,6 +185,14 @@ public final class ModItems {
 	// livro de quests (quests/)
 	public static final Item QUEST_BOOK = register("quest_book", com.mlin.notas.quests.QuestBookItem::new, new Item.Properties().stacksTo(1));
 
+	// quadro de missoes da vila (village/)
+	public static final Item VILLAGE_BOARD = register("village_board", p -> new BlockItem(ModBlocks.VILLAGE_BOARD, p.useBlockDescriptionPrefix()) {
+		@Override
+		public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+			tooltip.accept(Component.translatable("block.mlinnotas.village_board.tooltip").withStyle(ChatFormatting.GRAY));
+		}
+	}, new Item.Properties());
+
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));
 	}

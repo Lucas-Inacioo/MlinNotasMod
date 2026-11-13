@@ -107,6 +107,11 @@ public final class ModBlocks {
 			.mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 1200.0F).sound(ModSounds.WAYSTONE)
 			.lightLevel(state -> 5).noOcclusion().requiresCorrectToolForDrops().pushReaction(PushReaction.IMMOVEABLE));
 
+	/** Quadro de missoes da vila (2 de altura); ver village/. */
+	public static final Block VILLAGE_BOARD = Blocks.register(key("village_board"), com.mlin.notas.village.VillageBoardBlock::new,
+			BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F)
+					.sound(SoundType.WOOD).noOcclusion().ignitedByLava());
+
 	public static final Block IRON_CHEST = chest(ChestTier.IRON);
 	public static final Block GOLD_CHEST = chest(ChestTier.GOLD);
 	public static final Block DIAMOND_CHEST = chest(ChestTier.DIAMOND);
