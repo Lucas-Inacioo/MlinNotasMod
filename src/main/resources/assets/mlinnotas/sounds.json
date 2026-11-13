@@ -700,5 +700,65 @@
       "mlinnotas:entity/star_bolt/impact2",
       "mlinnotas:entity/star_bolt/impact3"
     ]
+  },
+  "ambient.wind.mountain": {
+    "subtitle": "subtitles.mlinnotas.ambient.wind.mountain",
+    "sounds": [
+      "mlinnotas:ambient/wind/mountain1"
+    ]
+  },
+  "ambient.desert.wind": {
+    "subtitle": "subtitles.mlinnotas.ambient.desert.wind",
+    "sounds": [
+      "mlinnotas:ambient/desert/wind1"
+    ]
+  },
+  "ambient.river": {
+    "subtitle": "subtitles.mlinnotas.ambient.river",
+    "sounds": [
+      "mlinnotas:ambient/river1"
+    ]
+  },
+  "ambient.forest.crickets": {
+    "subtitle": "subtitles.mlinnotas.ambient.forest.crickets",
+    "sounds": [
+      "mlinnotas:ambient/forest/crickets1"
+    ]
+  },
+  "ambient.forest.birds": {
+    "subtitle": "subtitles.mlinnotas.ambient.forest.birds",
+    "sounds": [
+      "mlinnotas:ambient/forest/birds1",
+      "mlinnotas:ambient/forest/birds2",
+      "mlinnotas:ambient/forest/birds3",
+      "mlinnotas:ambient/forest/birds4",
+      "mlinnotas:ambient/forest/birds5",
+      "mlinnotas:ambient/forest/birds6"
+    ]
+  },
+  "ambient.cave.drip": {
+    "subtitle": "subtitles.mlinnotas.ambient.cave.drip",
+    "sounds": [
+      "mlinnotas:ambient/cave/drip1",
+      "mlinnotas:ambient/cave/drip2",
+      "mlinnotas:ambient/cave/drip3",
+      "mlinnotas:ambient/cave/drip4"
+    ]
+  },
+  "ambient.cave.rumble": {
+    "subtitle": "subtitles.mlinnotas.ambient.cave.rumble",
+    "sounds": [
+      "mlinnotas:ambient/cave/rumble1",
+      "mlinnotas:ambient/cave/rumble2"
+    ]
+  },
+  "ambient.swamp.frog": {
+    "subtitle": "subtitles.mlinnotas.ambient.swamp.frog",
+    "sounds": [
+      "mlinnotas:ambient/swamp/frog1",
+      "mlinnotas:ambient/swamp/frog2",
+      "mlinnotas:ambient/swamp/frog3",
+      "mlinnotas:ambient/swamp/frog4"
+    ]
   }
 }

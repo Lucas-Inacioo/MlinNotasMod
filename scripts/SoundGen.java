@@ -67,6 +67,7 @@ public class SoundGen {
 		abyssalGuardian();
 		igneousColossus();
 		astralHerald();
+		ambient();
 		writeSoundsJson();
 		mergeLang("lang/pt_br.json", PT);
 		mergeLang("lang/en_us.json", EN);
@@ -858,6 +859,156 @@ public class SoundGen {
 			add(x, fm(0.3, expGlide(1800, 700, 0.2), 1.41, c(1.5), ad(0.002, 0.07)), 0, 0.3);
 			return reverb(x, 0.6, 0.35, 0.3);
 		});
+	}
+
+	// ------------------------------------------------------------------ ambiente (estacoes)
+
+	/**
+	 * Sons de ambiente tocados pelo cliente ({@code client/ambient/AmbientClient}): loops sem emenda (vento de
+	 * montanha, vento seco do deserto, rio, grilos) e avulsos (passaros, gotas e ronco de caverna, sapos).
+	 */
+	static void ambient() throws IOException {
+		loopEvent("ambient.wind.mountain", "Wind howls", "Vento uiva", 14, r -> {
+			double dur = 15.5;
+			double[] gust = smoothNoise(dur, r, 0.25);
+			double[] sweep = smoothNoise(dur, r, 0.12);
+			double[] sweep2 = smoothNoise(dur, r, 0.17);
+			double[] x = buf(dur);
+			F gustEnv = t -> 0.55 + 0.45 * at(gust, t);
+			add(x, mul(lp(brown(dur, r), c(260), 0.7), gustEnv), 0, 1.6);
+			add(x, mul(bp(noise(dur, r), t -> 520 + 260 * at(sweep, t), 6), gustEnv), 0, 0.9);
+			add(x, mul(bp(noise(dur, r), t -> 880 + 380 * at(sweep2, t), 9), t -> 0.3 + 0.7 * Math.max(0, at(gust, t))), 0, 0.55);
+			add(x, mul(hp(noise(dur, r), c(2500), 0.7), t -> 0.08 + 0.12 * Math.max(0, at(gust, t))), 0, 1.0);
+			return x;
+		});
+		loopEvent("ambient.desert.wind", "Dry wind hisses", "Vento seco sopra", 14, r -> {
+			double dur = 15.5;
+			double[] gust = smoothNoise(dur, r, 0.3);
+			double[] sweep = smoothNoise(dur, r, 0.2);
+			double[] x = buf(dur);
+			F gustEnv = t -> 0.5 + 0.5 * at(gust, t);
+			add(x, mul(bp(noise(dur, r), t -> 2400 + 900 * at(sweep, t), 1.2), gustEnv), 0, 0.7);
+			add(x, mul(lp(noise(dur, r), c(500), 0.7), gustEnv), 0, 0.5);
+			add(x, grains(dur, r, (int) (dur * 70), 3000, 9000, 0.001, 0.004, t -> 0.3 + 0.7 * Math.max(0, at(gust, t))), 0, 0.35);
+			return x;
+		});
+		loopEvent("ambient.river", "Water flows", "Água corre", 12, r -> {
+			double dur = 13.5;
+			double[] babble = smoothNoise(dur, r, 7);
+			double[] x = buf(dur);
+			add(x, lp(brown(dur, r), c(700), 0.7), 0, 2.2);
+			add(x, mul(bp(noise(dur, r), c(1100), 1.2), t -> 0.35 + 0.25 * at(babble, t)), 0, 0.6);
+			add(x, mul(bp(noise(dur, r), c(2600), 2.0), t -> 0.15 + 0.15 * at(babble, t)), 0, 0.4);
+			add(x, bubbles(dur, r, (int) (dur * 22), 350, 1400, 0.012, 0.05), 0, 0.22);
+			return x;
+		});
+		loopEvent("ambient.forest.crickets", "Crickets chirp", "Grilos cricrilam", 10, r -> {
+			double dur = 11.5;
+			double[] x = buf(dur);
+			for (int k = 0; k < 4; k++) {
+				double carrier = r.range(4200, 5200);
+				double period = r.range(0.45, 0.8);
+				int pulses = 2 + r.nextInt(3);
+				double gain = k == 0 ? 1.0 : r.range(0.25, 0.6);
+				double cutoff = k == 0 ? 9000 : r.range(5000, 7000);
+				double[] voice = buf(dur);
+				for (double t = r.range(0, period); t < dur; t += period * r.range(0.9, 1.1)) {
+					if (r.nextDouble() < 0.12) {
+						continue;
+					}
+					for (int p = 0; p < pulses; p++) {
+						double f = carrier * r.range(0.995, 1.005);
+						add(voice, sine(0.018, c(f), ad(0.003, 0.006)), t + p * 0.032, r.range(0.7, 1.0));
+					}
+				}
+				add(x, lp(voice, c(cutoff), 0.7), 0, gain);
+			}
+			add(x, lp(brown(dur, r), c(300), 0.7), 0, 0.15);
+			return reverb(x, 0.3, 0.6, 0.12);
+		});
+		event("ambient.forest.birds", 6, "Birds sing", "Pássaros cantam", r -> {
+			double[] x = buf(2.2);
+			double base = r.range(2400, 4200);
+			int notes = 3 + r.nextInt(6);
+			double t = 0;
+			int style = r.nextInt(3);
+			for (int i = 0; i < notes && t < 1.7; i++) {
+				double len = r.range(0.05, 0.16);
+				double f0 = base * r.range(0.8, 1.3);
+				double f1 = style == 0 ? f0 * r.range(1.2, 1.6) : style == 1 ? f0 * r.range(0.6, 0.8) : f0 * r.range(0.9, 1.1);
+				double wobble = r.range(25, 60);
+				F freq = tt -> f0 + (f1 - f0) * Math.min(1, tt / len) + (style == 2 ? 300 * Math.sin(2 * Math.PI * wobble * tt) : 0);
+				add(x, fm(len, freq, 2.0, c(0.25), ad(0.008, len * 0.4)), t, r.range(0.6, 1.0));
+				t += len + r.range(0.02, 0.12);
+			}
+			return reverb(lp(x, c(9000), 0.7), 0.35, 0.5, 0.18);
+		});
+		event("ambient.cave.drip", 4, "Water drips", "Água pinga", r -> {
+			double[] x = buf(0.4);
+			double f = r.range(900, 2000);
+			add(x, sine(0.06, t -> f * (1 + 3.5 * t / 0.06), ad(0.001, 0.012)), 0, 1.0);
+			add(x, burst(0.01, r, Filt.HP, c(3000), 0.7, 0.0002, 0.002), 0, 0.2);
+			return reverb(x, 0.9, 0.3, 0.45);
+		});
+		event("ambient.cave.rumble", 2, "Cave rumbles", "Caverna ressoa", r -> {
+			double dur = 3.2;
+			double[] x = buf(dur);
+			add(x, mul(rumble(dur, r, 90), lin(0, 0, 0.8, 1, 2.0, 0.6, dur, 0)), 0, 2.5);
+			add(x, mul(bp(noise(dur, r), c(r.range(120, 200)), 3), lin(0, 0, 0.6, 0.5, dur, 0)), 0, 0.5);
+			add(x, grains(0.6, r, 30, 300, 1500, 0.004, 0.015, expDecay(0.3)), r.range(0.8, 1.4), 0.15);
+			return reverb(x, 0.95, 0.6, 0.5);
+		});
+		event("ambient.swamp.frog", 4, "Frog croaks", "Sapo coaxa", r -> {
+			double[] x = buf(0.9);
+			double f0 = r.range(95, 170);
+			int pulses = 1 + r.nextInt(3);
+			Formants vowel = vowel(r.nextDouble() < 0.5 ? "O" : "A", r.range(0.55, 0.75));
+			for (int p = 0; p < pulses; p++) {
+				double len = r.range(0.07, 0.14);
+				add(x, voice(len, r, expGlide(f0 * 1.1, f0 * 0.9, len), vowel.f1(), vowel.f2(), vowel.f3(), 0.1, 0.12, 0.6, ad(0.01, len * 0.5)),
+						p * r.range(0.11, 0.17), 1.0);
+			}
+			return reverb(drive(x, 1.6), 0.4, 0.5, 0.15);
+		});
+	}
+
+	/** Valor do array de controle no tempo {@code t}. */
+	static double at(double[] control, double t) {
+		return control[Math.min(control.length - 1, Math.max(0, (int) (t * SR)))];
+	}
+
+	/**
+	 * Evento de loop sem emenda: a sintese gera {@code seconds} + 1,5 s; o trecho final e misturado (potencia
+	 * constante) no comeco, entao o ultimo sample emenda com o primeiro. Sem corte de silencio nem fades.
+	 */
+	static void loopEvent(String id, String en, String pt, double seconds, Synth synth) throws IOException {
+		Rnd r = new Rnd(id.hashCode() * 7919L + 104729L);
+		double[] raw = hp(synth.make(r), c(25), 0.7);
+		int len = n(seconds);
+		int xf = n(1.5);
+		if (raw.length < len + xf) {
+			throw new IllegalStateException("loop curto demais: " + id);
+		}
+		double[] out = new double[len];
+		for (int i = 0; i < len; i++) {
+			if (i < xf) {
+				double k = (double) i / xf;
+				out[i] = raw[i] * Math.sqrt(k) + raw[len + i] * Math.sqrt(1 - k);
+			} else {
+				out[i] = raw[i];
+			}
+		}
+		double scale = PEAK / peak(out);
+		for (int i = 0; i < len; i++) {
+			out[i] *= scale;
+		}
+		String path = id.replace('.', '/') + "1";
+		Path file = root.resolve("sounds/" + path + ".ogg");
+		Files.createDirectories(file.getParent());
+		writeOgg(out, file, id.hashCode() + 1);
+		files++;
+		SOUNDS.put(id, List.of("\"mlinnotas:" + path + "\""));
+		subtitle(id, en, pt);
 	}
 
 	// ------------------------------------------------------------------ texturas sonoras compostas

@@ -8,9 +8,12 @@
 		"BeaconBlockEntityAccessor",
 		"BeaconBlockEntityMixin",
 		"BeaconMenuMixin",
+		"BiomeTemperatureMixin",
 		"CreeperAccessor",
 		"EnderDragonFightAccessor",
 		"ItemTooltipImageMixin",
+		"SeasonalGrowthMixin",
+		"ServerLevelPrecipitationMixin",
 		"TheEndBiomeSourceMixin"
 	],
 	"injectors": {

@@ -182,5 +182,12 @@ public final class MinimapHud {
 				.map(key -> (Component) Component.translatable(key.identifier().toLanguageKey("biome")))
 				.orElse(Component.empty());
 		graphics.centeredText(minecraft.font, biome, centerX, y + minecraft.font.lineHeight + 1, 0xFFC0C0C0);
+		com.mlin.notas.season.SeasonDate season = com.mlin.notas.client.season.SeasonClient.date();
+		if (season != null && com.mlin.notas.client.ambient.AmbientClient.options().seasonHud) {
+			Component line = Component.translatable("hud.mlinnotas.season", com.mlin.notas.season.SeasonCommand.name(season.season()),
+					com.mlin.notas.season.SeasonCommand.phaseName(season.phase()), season.displayDay(), season.lengthDays());
+			graphics.centeredText(minecraft.font, line, centerX, y + 2 * (minecraft.font.lineHeight + 1),
+					com.mlin.notas.client.season.SeasonClient.argb(season.season()));
+		}
 	}
 }

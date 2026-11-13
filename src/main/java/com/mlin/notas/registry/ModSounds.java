@@ -110,6 +110,20 @@ public final class ModSounds {
 	public static final SoundEvent ASTRAL_HERALD_SUMMON = sound("entity.astral_herald.summon");
 	public static final SoundEvent STAR_BOLT_IMPACT = sound("entity.star_bolt.impact");
 
+	// ---- ambiente (tocados so no cliente, client/ambient/AmbientClient) ----
+	/** Loop: vento uivando (montanhas, picos, lugares altos). */
+	public static final SoundEvent AMBIENT_MOUNTAIN_WIND = sound("ambient.wind.mountain");
+	/** Loop: vento seco com areia (deserto, badlands). */
+	public static final SoundEvent AMBIENT_DESERT_WIND = sound("ambient.desert.wind");
+	/** Loop: agua correndo (rios, cachoeiras). */
+	public static final SoundEvent AMBIENT_RIVER = sound("ambient.river");
+	/** Loop: grilos (noites de verao). */
+	public static final SoundEvent AMBIENT_CRICKETS = sound("ambient.forest.crickets");
+	public static final SoundEvent AMBIENT_BIRDS = sound("ambient.forest.birds");
+	public static final SoundEvent AMBIENT_CAVE_DRIP = sound("ambient.cave.drip");
+	public static final SoundEvent AMBIENT_CAVE_RUMBLE = sound("ambient.cave.rumble");
+	public static final SoundEvent AMBIENT_FROG = sound("ambient.swamp.frog");
+
 	private ModSounds() {
 	}
 

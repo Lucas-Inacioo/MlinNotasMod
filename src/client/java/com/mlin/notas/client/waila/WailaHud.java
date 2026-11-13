@@ -180,6 +180,10 @@ public final class WailaHud {
 					? Row.text(font, Component.translatable("hud.mlinnotas.waila.mature"), GREEN)
 					: Row.text(font, Component.translatable("hud.mlinnotas.waila.growth", percent), WHITE));
 		}
+		Row season = seasonRow(font, level, pos, block);
+		if (season != null) {
+			rows.add(season);
+		}
 
 		ContainerPeekPayload contents = level.getBlockEntity(pos) instanceof BaseContainerBlockEntity ? WailaClient.contentsFor(pos) : null;
 		if (contents != null) {
@@ -193,6 +197,27 @@ public final class WailaHud {
 			rows.add(contentsRow(font, contents));
 		}
 		return new Info(new ItemStack(block.asItem()), block.getName(), modName(BuiltInRegistries.BLOCK.getKey(block).getNamespace()), rows);
+	}
+
+	/** Estacoes: se a cultura esta na estacao certa (e se esta numa estufa). Null = planta sem estacao aqui. */
+	private static Row seasonRow(Font font, Level level, BlockPos pos, Block block) {
+		float multiplier = com.mlin.notas.season.SeasonGrowth.multiplier(level, pos, block);
+		if (multiplier < 0) {
+			return null;
+		}
+		com.mlin.notas.season.CropSeasons.Status status = com.mlin.notas.season.CropSeasons.Status.of(multiplier);
+		int color = switch (status) {
+			case THRIVING, GOOD -> GREEN;
+			case SLOW -> GOLD;
+			case POOR, DORMANT -> RED;
+		};
+		com.mlin.notas.season.SeasonDate date = com.mlin.notas.season.SeasonState.current();
+		boolean greenhouse = date != null && multiplier >= 1.0F
+				&& com.mlin.notas.season.CropSeasons.seasonal(com.mlin.notas.season.SeasonGrowth.profile(block), date,
+						com.mlin.notas.season.SeasonGrowth.climate(level, pos)) < 1.0F;
+		Component text = Component.translatable(greenhouse ? "hud.mlinnotas.waila.season.greenhouse" : "hud.mlinnotas.waila.season." + status.id(),
+				String.format(java.util.Locale.ROOT, "%.2f", multiplier));
+		return Row.text(font, text, greenhouse ? GREEN : color);
 	}
 
 	private static Row harvestRow(Minecraft minecraft, Font font, Level level, BlockPos pos, BlockState state) {
