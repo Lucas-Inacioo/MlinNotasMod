@@ -98,7 +98,7 @@ class CombatContent {
 					ContentGen.write("data/mlinnotas/recipe/" + id + ".json", "{\"type\":\"minecraft:smithing_transform\",\"addition\":"
 							+ "\"#minecraft:netherite_tool_materials\",\"base\":\"mlinnotas:" + diamond + "\",\"result\":{\"id\":\"mlinnotas:" + id
 							+ "\"},\"template\":\"minecraft:netherite_upgrade_smithing_template\"}");
-				} else {
+				} else if (!ProgressionContent.smithingUpgrade(t[0], c[0])) { // infernita+ = mesa de ferraria (molde do chefe)
 					ContentGen.shaped(id, c[3], Map.of("X", t[4], "#", "minecraft:stick"), "equipment");
 				}
 				if (t[0].equals("diamond")) {

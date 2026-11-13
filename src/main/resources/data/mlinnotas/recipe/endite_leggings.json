@@ -1,15 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "X": "mlinnotas:endite_ingot"
-  },
-  "pattern": [
-    "XXX",
-    "X X",
-    "X X"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:endite_ingot",
+  "base": "mlinnotas:infernite_leggings",
   "result": {
     "id": "mlinnotas:endite_leggings"
-  }
+  },
+  "template": "mlinnotas:end_upgrade_smithing_template"
 }

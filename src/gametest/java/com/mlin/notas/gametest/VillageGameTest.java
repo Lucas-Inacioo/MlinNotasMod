@@ -255,9 +255,9 @@ public class VillageGameTest {
 				throw new IllegalStateException("troca sem o desconto da cidade: " + offer.getSpecialPriceDiff());
 			}
 		}
-		// fora da vila: sem teto
-		if (VillageServer.tradeCap(level, at.offset(500, 0, 0)) != 0) {
-			throw new IllegalStateException("fora da vila nao ha teto");
+		// fora da vila: teto de aldeao selvagem (jornaleiro)
+		if (VillageServer.tradeCap(level, at.offset(500, 0, 0)) != VillageLevel.WILD_TRADE_CAP) {
+			throw new IllegalStateException("fora da vila o teto e jornaleiro (3)");
 		}
 		villager.discard();
 		release(helper, village);

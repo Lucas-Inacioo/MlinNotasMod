@@ -333,7 +333,8 @@ public class BeaconGameTest {
 		helper.assertTrue(biomeHas(helper, Biomes.NETHER_WASTES, ModWorldgen.ORE_INFERNITE_RICH), "veio rico de infernita no Nether");
 		helper.assertTrue(biomeHas(helper, NetherRegistry.INFERNITE_PEAKS, ModWorldgen.ORE_INFERNITE_RICH_PEAKS), "veio extra nos Picos de Infernita");
 		helper.assertTrue(!biomeHas(helper, Biomes.NETHER_WASTES, ModWorldgen.ORE_INFERNITE_RICH_PEAKS), "veio dos picos so nos picos");
-		helper.assertTrue(biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ENDITE_RICH), "veio rico de endita no End");
+		helper.assertTrue(biomeHas(helper, Biomes.END_HIGHLANDS, ModWorldgen.ORE_ENDITE_RICH), "veio rico de endita nas ilhas externas");
+		helper.assertTrue(!biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ENDITE_RICH), "sem veio rico de endita na ilha central");
 		helper.assertTrue(!biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ASTRALITE_RICH), "astralita rica nao na ilha central");
 		helper.assertTrue(biomeHas(helper, Biomes.END_HIGHLANDS, ModWorldgen.ORE_ASTRALITE_RICH), "astralita rica nas ilhas externas");
 		helper.assertTrue(!biomeHas(helper, Biomes.PLAINS, ModWorldgen.ORE_ENDITE_RICH), "endita fora do Overworld");

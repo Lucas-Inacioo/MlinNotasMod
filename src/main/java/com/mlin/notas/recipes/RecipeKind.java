@@ -14,7 +14,9 @@ public enum RecipeKind {
 	/** Tabua de corte. */
 	CUTTING,
 	/** Barril de Conserva: {@code cookTicks} = tempo de cura. */
-	FERMENTING;
+	FERMENTING,
+	/** Mesa de ferraria (molde + peca + adicional). */
+	SMITHING;
 
 	private static final RecipeKind[] VALUES = values();
 

@@ -37,8 +37,12 @@ public class BossAltarBlock extends Block {
 		BossSummoning.Result result = BossSummoning.trySummon(server, pos, player, kind);
 		if (result != BossSummoning.Result.SUMMONED && player instanceof net.minecraft.server.level.ServerPlayer sp && sp.connection != null) {
 			Component message = switch (result) {
-				case MISSING_OFFERING -> Component.translatable("message.mlinnotas.altar.missing", kind.offeringCount(),
-						new net.minecraft.world.item.ItemStack(BossRegistry.offeringItem(kind)).getHoverName());
+				case MISSING_OFFERING -> kind.extraOffering() == null
+						? Component.translatable("message.mlinnotas.altar.missing", kind.offeringCount(),
+								new net.minecraft.world.item.ItemStack(BossRegistry.offeringItem(kind)).getHoverName())
+						: Component.translatable("message.mlinnotas.altar.missing_two", kind.offeringCount(),
+								new net.minecraft.world.item.ItemStack(BossRegistry.offeringItem(kind)).getHoverName(), kind.extraOfferingCount(),
+								new net.minecraft.world.item.ItemStack(BossRegistry.extraOfferingItem(kind)).getHoverName());
 				case BUSY -> Component.translatable("message.mlinnotas.altar.busy");
 				default -> Component.translatable("message.mlinnotas.altar.no_room");
 			};

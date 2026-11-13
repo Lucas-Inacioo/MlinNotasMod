@@ -35,7 +35,9 @@ public final class BossSummoning {
 		}
 		Item offering = BossRegistry.offeringItem(kind);
 		boolean free = player.hasInfiniteMaterials();
-		if (!free && player.getInventory().countItem(offering) < kind.offeringCount()) {
+		Item extra = BossRegistry.extraOfferingItem(kind);
+		if (!free && (player.getInventory().countItem(offering) < kind.offeringCount()
+				|| kind.extraOffering() != null && player.getInventory().countItem(extra) < kind.extraOfferingCount())) {
 			return Result.MISSING_OFFERING;
 		}
 		BossMob boss = type.create(level, EntitySpawnReason.TRIGGERED);
@@ -48,6 +50,9 @@ public final class BossSummoning {
 		}
 		if (!free) {
 			ContainerHelper.clearOrCountMatchingItems(player.getInventory(), stack -> stack.is(offering), kind.offeringCount(), false);
+			if (kind.extraOffering() != null) {
+				ContainerHelper.clearOrCountMatchingItems(player.getInventory(), stack -> stack.is(extra), kind.extraOfferingCount(), false);
+			}
 		}
 		float yaw = (float) (Math.atan2(player.getZ() - spot.z, player.getX() - spot.x) * 180 / Math.PI) - 90.0F;
 		boss.snapTo(spot, yaw, 0.0F);

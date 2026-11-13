@@ -1,14 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "X": "mlinnotas:infernite_ingot"
-  },
-  "pattern": [
-    "X X",
-    "X X"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:infernite_ingot",
+  "base": "minecraft:netherite_boots",
   "result": {
     "id": "mlinnotas:infernite_boots"
-  }
+  },
+  "template": "mlinnotas:infernal_upgrade_smithing_template"
 }

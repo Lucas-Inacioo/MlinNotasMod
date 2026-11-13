@@ -55,23 +55,22 @@ class DungeonContent {
 				+ enchanted("minecraft:iron_chestplate", 3, 5, 15) + "," + enchanted("minecraft:iron_leggings", 3, 5, 15) + ","
 				+ enchanted("minecraft:iron_boots", 4, 5, 15) + "," + enchanted("minecraft:bow", 4, 5, 15) + "," + enchanted("minecraft:crossbow", 3, 5, 15) + ","
 				+ item("minecraft:shield", 4, 1, 1) + "," + item("minecraft:arrow", 10, 8, 20) + "," + item("minecraft:iron_ingot", 8, 2, 5) + ","
-				+ enchanted("minecraft:golden_sword", 3, 10, 20) + "," + enchanted("mlinnotas:cobalt_sword", 1, 5, 15) + ","
-				+ enchanted("mlinnotas:cobalt_pickaxe", 1, 5, 15) + "]", 2, 4, null);
+				+ enchanted("minecraft:golden_sword", 3, 10, 20) + "]", 2, 4, null);
 		chest("dungeon_secret", "[" + item("minecraft:gold_ingot", 10, 2, 6) + "," + item("minecraft:emerald", 8, 1, 4) + ","
 				+ item("minecraft:diamond", 4, 1, 2) + "," + item("mlinnotas:raw_cobalt", 6, 2, 4) + "," + item("minecraft:golden_apple", 4, 1, 2) + ","
 				+ String.format(book, 6) + "," + item("mlinnotas:return_scroll", 5, 1, 2) + "," + item("minecraft:experience_bottle", 6, 2, 6) + "]", 3, 5, null);
 		chest("dungeon_final", "[" + item("mlinnotas:cobalt_ingot", 8, 2, 5) + "," + item("mlinnotas:raw_cobalt", 8, 3, 6) + ","
-				+ item("minecraft:gold_ingot", 10, 3, 8) + "," + item("minecraft:diamond", 5, 1, 3) + "," + item("minecraft:emerald", 6, 2, 5) + ","
+				+ item("minecraft:gold_ingot", 10, 3, 8) + "," + item("minecraft:diamond", 5, 1, 2) + "," + item("minecraft:emerald", 6, 2, 5) + ","
 				+ item("minecraft:experience_bottle", 8, 3, 8) + "," + item("minecraft:golden_apple", 4, 1, 2) + "," + item("mlinnotas:return_scroll", 6, 1, 2)
 				+ "," + enchantedBook(6, 15, 30) + "," + item("minecraft:gold_block", 2, 1, 1) + "]", 5, 8,
 				pool("[{\"type\":\"minecraft:empty\",\"weight\":6}," + item("minecraft:enchanted_golden_apple", 1, 1, 1) + ","
-						+ item("minecraft:totem_of_undying", 1, 1, 1) + "," + item("minecraft:diamond", 2, 2, 4) + "]", 1, 1));
+						+ item("minecraft:diamond", 2, 1, 2) + "]", 1, 1));
 		// cofre: um premio grande + 1 a 2 menores, sorteados para cada jogador que usa a chave
 		String rare = "[" + enchanted("mlinnotas:cobalt_sword", 6, 15, 25) + "," + enchanted("mlinnotas:cobalt_pickaxe", 5, 15, 25) + ","
 				+ enchanted("mlinnotas:cobalt_axe", 4, 15, 25) + "," + enchanted("mlinnotas:cobalt_chestplate", 4, 15, 25) + ","
 				+ enchanted("mlinnotas:cobalt_helmet", 4, 15, 25) + "," + enchanted("minecraft:bow", 4, 20, 30) + ","
 				+ enchantedBook(6, 20, 30) + "," + item("minecraft:diamond", 5, 2, 4) + "," + item("mlinnotas:cobalt_ingot", 6, 4, 8) + ","
-				+ item("minecraft:enchanted_golden_apple", 1, 1, 1) + "," + item("minecraft:totem_of_undying", 1, 1, 1) + "]";
+				+ item("minecraft:enchanted_golden_apple", 1, 1, 1) + "]";
 		String small = "[" + item("minecraft:golden_apple", 6, 1, 2) + "," + item("minecraft:experience_bottle", 8, 4, 10) + ","
 				+ item("mlinnotas:return_scroll", 6, 1, 2) + "," + item("minecraft:emerald", 6, 2, 6) + "," + item("mlinnotas:raw_cobalt", 6, 2, 5) + ","
 				+ item("minecraft:gold_ingot", 8, 3, 8) + "]";

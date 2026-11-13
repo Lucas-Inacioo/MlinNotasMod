@@ -18,7 +18,7 @@
       ],
       "rewards": [
         {
-          "xp": 50
+          "xp": 25
         }
       ]
     },
@@ -39,7 +39,7 @@
       ],
       "rewards": [
         {
-          "xp": 30
+          "xp": 15
         }
       ]
     },
@@ -64,7 +64,7 @@
           "count": 2
         },
         {
-          "xp": 300
+          "xp": 150
         }
       ]
     },
@@ -84,7 +84,7 @@
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
         }
       ]
     },
@@ -105,7 +105,7 @@
       ],
       "rewards": [
         {
-          "xp": 50
+          "xp": 25
         }
       ]
     },
@@ -130,7 +130,7 @@
           "count": 2
         },
         {
-          "xp": 400
+          "xp": 200
         }
       ]
     },
@@ -150,7 +150,29 @@
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "forge_key",
+      "icon": "mlinnotas:forge_key",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "colossus_forge",
+        "abyssal_guardian"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:forge_key",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
         }
       ]
     },
@@ -160,7 +182,7 @@
       "x": 2,
       "y": 2,
       "dependencies": [
-        "colossus_forge"
+        "forge_key"
       ],
       "tasks": [
         {
@@ -175,7 +197,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -200,7 +222,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -210,18 +232,24 @@
       "x": 1,
       "y": 4,
       "dependencies": [
-        "end/citadel"
+        "end/citadel",
+        "ender_dragon"
       ],
       "tasks": [
         {
           "type": "item",
           "target": "mlinnotas:sentinel_core",
           "count": 4
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:dragon_scale",
+          "count": 1
         }
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
         }
       ]
     },
@@ -246,7 +274,7 @@
           "count": 1
         },
         {
-          "xp": 800
+          "xp": 400
         }
       ]
     },
@@ -271,7 +299,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -295,7 +323,7 @@
           "count": 2
         },
         {
-          "xp": 1000
+          "xp": 500
         }
       ]
     },
@@ -316,7 +344,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -337,7 +365,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -358,7 +386,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -379,7 +407,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -400,7 +428,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -423,7 +451,7 @@
           "count": 2
         },
         {
-          "xp": 300
+          "xp": 150
         }
       ]
     },
@@ -444,7 +472,7 @@
       ],
       "rewards": [
         {
-          "xp": 100
+          "xp": 50
         }
       ]
     },
@@ -490,7 +518,7 @@
       ],
       "rewards": [
         {
-          "xp": 300
+          "xp": 150
         }
       ]
     }

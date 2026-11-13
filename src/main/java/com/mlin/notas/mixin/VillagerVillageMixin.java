@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Aldeoes que moram numa vila do mod: o nivel da vila limita ate onde a profissao sobe (Acampamento = aprendiz ...
- * Cidade = mestre) e da desconto em esmeraldas. Nao ha evento da Fabric para o nivel nem para o preco da troca.
+ * Cidade = mestre) e da desconto em esmeraldas; fora de vila fundada o teto e jornaleiro
+ * ({@code VillageLevel.WILD_TRADE_CAP}). Nao ha evento da Fabric para o nivel nem para o preco da troca.
  */
 @Mixin(Villager.class)
 public abstract class VillagerVillageMixin {

@@ -105,14 +105,10 @@ public class BossProjectile extends ThrowableItemProjectile {
 		if (!(level() instanceof ServerLevel level) || hit == getOwner() || hit instanceof BossMob || voidMeteor()) {
 			return;
 		}
-		float damage = star() ? 7.0F : meteor() ? 9.0F : 10.0F;
-		if (star()) {
-			hit.hurtServer(level, damageSources().indirectMagic(this, getOwner()), damage);
-		} else {
-			hit.hurtServer(level, damageSources().mobProjectile(this, getOwner() instanceof LivingEntity l ? l : null), damage);
-			if (meteor()) {
-				hit.igniteForSeconds(5.0F);
-			}
+		float damage = star() ? BossRules.HERALD_STAR : meteor() ? BossRules.COLOSSUS_METEOR : BossRules.GOLEM_ROCK;
+		hit.hurtServer(level, BossRegistry.ability(level, this, getOwner()), damage);
+		if (meteor()) {
+			hit.igniteForSeconds(5.0F);
 		}
 	}
 
@@ -128,7 +124,7 @@ public class BossProjectile extends ThrowableItemProjectile {
 				level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(), getZ(), 6, 0.6, 0.3, 0.6, 0.02);
 				playSound(ModSounds.MAGMA_METEOR_IMPACT, 2.0F, 1.0F);
 				for (LivingEntity near : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(2.5), e -> !(e instanceof BossMob))) {
-					near.hurtServer(level, damageSources().onFire(), 4.0F);
+					near.hurtServer(level, BossRegistry.ability(level, this, getOwner()), BossRules.COLOSSUS_METEOR_SPLASH);
 					near.igniteForSeconds(3.0F);
 				}
 			} else if (star()) {
@@ -161,7 +157,7 @@ public class BossProjectile extends ThrowableItemProjectile {
 				p -> p.isAlive() && !p.isSpectator())) {
 			float damage = com.mlin.notas.dragon.DragonRules.meteorFalloff(Math.sqrt(player.distanceToSqr(position())), areaDamage);
 			if (damage > 0) {
-				player.hurtServer(level, damageSources().indirectMagic(this, getOwner()), damage);
+				player.hurtServer(level, BossRegistry.ability(level, this, getOwner()), damage);
 			}
 		}
 	}

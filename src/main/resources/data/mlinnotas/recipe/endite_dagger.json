@@ -1,15 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:endite_ingot"
-  },
-  "pattern": [
-    "X",
-    "#"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:endite_ingot",
+  "base": "mlinnotas:infernite_dagger",
   "result": {
     "id": "mlinnotas:endite_dagger"
-  }
+  },
+  "template": "mlinnotas:end_upgrade_smithing_template"
 }

@@ -68,16 +68,16 @@ public class DragonGameTest {
 		EnderDragon dragon = dragon(helper);
 		ServerLevel level = helper.getLevel();
 		DragonBoss.scale(level, dragon, 2);
-		helper.assertTrue(dragon.getMaxHealth() == 400.0F && dragon.getHealth() == 400.0F, "2 jogadores: 400 cheio, deu " + dragon.getHealth() + "/" + dragon.getMaxHealth());
-		dragon.setHealth(200.0F);
+		helper.assertTrue(dragon.getMaxHealth() == 1000.0F && dragon.getHealth() == 1000.0F, "2 jogadores: 1000 cheio, deu " + dragon.getHealth() + "/" + dragon.getMaxHealth());
+		dragon.setHealth(500.0F);
 		DragonBoss.scale(level, dragon, 3);
-		helper.assertTrue(dragon.getMaxHealth() == 600.0F && Math.abs(dragon.getHealth() - 300.0F) < 0.01, "3 jogadores: 600 e mantem metade, deu "
+		helper.assertTrue(dragon.getMaxHealth() == 1500.0F && Math.abs(dragon.getHealth() - 750.0F) < 0.01, "3 jogadores: 1500 e mantem metade, deu "
 				+ dragon.getHealth() + "/" + dragon.getMaxHealth());
 		DragonBoss.scale(level, dragon, 1);
-		helper.assertTrue(dragon.getMaxHealth() == 600.0F, "jogador que sai nao diminui a vida");
-		dragon.setHealth(250.0F);
+		helper.assertTrue(dragon.getMaxHealth() == 1500.0F, "jogador que sai nao diminui a vida");
+		dragon.setHealth(600.0F);
 		helper.assertTrue(DragonBoss.phase(dragon) == 2, "abaixo da metade = fase 2");
-		dragon.setHealth(100.0F);
+		dragon.setHealth(250.0F);
 		helper.assertTrue(DragonBoss.phase(dragon) == 3, "abaixo de 20% = fase 3");
 		dragon.discard();
 		helper.succeed();

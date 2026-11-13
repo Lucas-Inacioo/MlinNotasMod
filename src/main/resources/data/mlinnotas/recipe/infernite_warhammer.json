@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:infernite_ingot"
-  },
-  "pattern": [
-    "XXX",
-    "X#X",
-    " # "
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:infernite_ingot",
+  "base": "mlinnotas:netherite_warhammer",
   "result": {
     "id": "mlinnotas:infernite_warhammer"
-  }
+  },
+  "template": "mlinnotas:infernal_upgrade_smithing_template"
 }

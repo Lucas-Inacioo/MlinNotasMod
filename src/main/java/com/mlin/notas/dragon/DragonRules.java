@@ -21,12 +21,14 @@ import java.util.List;
  */
 public final class DragonRules {
 	/** Vida do dragao com ate {@link #BASE_PLAYERS} jogadores (o vanilla tem 200 para qualquer numero). */
-	public static final double BASE_HEALTH = 400.0;
+	public static final double BASE_HEALTH = 1000.0;
 	public static final int BASE_PLAYERS = 2;
 	/** Cada jogador a mais soma esta fracao da vida base (igual aos outros chefes). */
 	public static final double EXTRA_PLAYER_BONUS = 0.5;
 	/** Jogadores contados: ate esta distancia horizontal do portal de saida (a arena inteira). */
 	public static final int PLAYER_SCAN_RADIUS = 150;
+	/** Camas e ancoras de renascimento nao explodem a ate esta distancia horizontal do portal (a ilha da luta). */
+	public static final int EXPLOSION_GUARD_RADIUS = 150;
 	public static final double PHASE_TWO_FRACTION = 0.5;
 	public static final double PHASE_THREE_FRACTION = 0.2;
 
@@ -68,6 +70,11 @@ public final class DragonRules {
 	public static final float RAGE_BREATH_SCALE = 1.5F;
 
 	private DragonRules() {
+	}
+
+	/** Explosoes de cama/ancora sao bloqueadas em ({@code x}, {@code z}) do End: perto do portal de saida (0, 0). */
+	public static boolean guardsExplosionsAt(int x, int z) {
+		return (long) x * x + (long) z * z <= (long) EXPLOSION_GUARD_RADIUS * EXPLOSION_GUARD_RADIUS;
 	}
 
 	/** 1, 2 ou 3 pela fracao de vida. */

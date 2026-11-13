@@ -317,8 +317,8 @@ public abstract class BossMob extends Monster {
 		}
 	}
 
-	/** Dano do chefe num alvo (fonte = ataque de mob). */
+	/** Dano de habilidade especial do chefe num alvo (tipo {@code mlinnotas:boss_ability}: Protecao nao reduz). */
 	protected boolean strike(ServerLevel level, LivingEntity target, float damage) {
-		return target.hurtServer(level, damageSources().mobAttack(this), damage);
+		return target.hurtServer(level, BossRegistry.ability(level, this, this), damage);
 	}
 }

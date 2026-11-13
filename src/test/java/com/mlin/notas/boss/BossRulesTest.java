@@ -24,23 +24,42 @@ class BossRulesTest {
 		assertEquals(1.0, BossRules.healthMultiplier(2));
 		assertEquals(1.5, BossRules.healthMultiplier(3));
 		assertEquals(2.0, BossRules.healthMultiplier(4));
-		assertEquals(330.0, BossRules.scaledHealth(220.0, 3));
+		assertEquals(1800.0, BossRules.scaledHealth(1200.0, 3));
 	}
 
 	@Test
-	void sleepingBossWakesInsideItsRadius() {
-		assertTrue(BossRules.shouldWake(15.9 * 15.9, 16));
-		assertTrue(BossRules.shouldWake(256.0, 16));
-		assertFalse(BossRules.shouldWake(16.1 * 16.1, 16));
-		assertFalse(BossRules.shouldWake(1.0, 0), "chefe sem raio nao dorme");
+	void dragonDropsMoreScalesOnTheFirstKill() {
+		assertEquals(2, BossRules.dragonScales(0, true));
+		assertEquals(4, BossRules.dragonScales(2, true));
+		assertEquals(4, BossRules.dragonScales(9, true));
+		assertEquals(2, BossRules.dragonScales(-1, true));
+		assertEquals(1, BossRules.dragonScales(0, false), "reinvocado: 1 a 2");
+		assertEquals(2, BossRules.dragonScales(2, false));
+		assertEquals(1, BossRules.dragonScales(-1, false));
 	}
 
+	/** Numeros da curva de progressao (plano de ritmo: cada chefe 2-4 min com o equipamento do nivel). */
 	@Test
-	void dragonDropsTwoToFourScales() {
-		assertEquals(2, BossRules.dragonScales(0));
-		assertEquals(4, BossRules.dragonScales(2));
-		assertEquals(4, BossRules.dragonScales(9));
-		assertEquals(2, BossRules.dragonScales(-1));
+	void bossStatsFollowTheProgressionCurve() {
+		assertEquals(1200.0, BossKind.COBALT_GOLEM.baseHealth());
+		assertEquals(12.0, BossKind.COBALT_GOLEM.armor());
+		assertEquals(11.0, BossKind.COBALT_GOLEM.melee());
+		assertEquals(16.0F, BossRules.GOLEM_CHARGE);
+		assertEquals(1600.0, BossKind.ABYSSAL_GUARDIAN.baseHealth());
+		assertEquals(2.0, BossKind.ABYSSAL_GUARDIAN.toughness());
+		assertEquals(1800.0, BossKind.IGNEOUS_COLOSSUS.baseHealth());
+		assertEquals(20.0, BossKind.IGNEOUS_COLOSSUS.melee());
+		assertEquals(2000.0, BossKind.ASTRAL_HERALD.baseHealth());
+		assertEquals(11.0F, BossRules.HERALD_STAR);
+		assertEquals(900.0, BossRules.WITHER_HEALTH);
+		// cada chefe tem mais vida que o anterior e cabe no teto do atributo mesmo com 8 jogadores
+		double previous = 0;
+		for (BossKind kind : BossKind.values()) {
+			assertTrue(kind.baseHealth() > previous, kind + " mais forte que o anterior");
+			previous = kind.baseHealth();
+			assertTrue(BossRules.scaledHealth(kind.baseHealth(), 8) <= BossRules.MAX_HEALTH_CAP);
+			assertTrue(kind.armor() <= 30.0, "armadura cabe no atributo");
+		}
 	}
 
 	@Test
@@ -65,11 +84,13 @@ class BossRulesTest {
 			assertTrue(kind.xp() > 0 && kind.baseHealth() > 100);
 			if (kind == BossKind.IGNEOUS_COLOSSUS) {
 				assertNull(kind.offering());
-				assertEquals(16, kind.wakeRadius());
+				assertEquals("mlinnotas:forge_key", kind.wakeItem(), "o colosso so acorda com a Chave da Forja");
+				assertTrue(kind.sleeps());
 			} else {
 				assertTrue(kind.hasAltar());
 				assertEquals(4, kind.offeringCount());
-				assertEquals(0, kind.wakeRadius());
+				assertEquals(kind == BossKind.ASTRAL_HERALD ? "mlinnotas:dragon_scale" : null, kind.extraOffering(), "o Arauto pede tambem uma escama");
+				assertFalse(kind.sleeps());
 			}
 		}
 	}

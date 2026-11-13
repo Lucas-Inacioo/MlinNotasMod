@@ -14,8 +14,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -82,8 +87,14 @@ public final class BossRegistry {
 			new Item.Properties().rarity(Rarity.EPIC).fireResistant().component(DataComponents.LORE, lore("item.mlinnotas.colossus_ember")));
 	/** Fragmento Astral (Arauto Astral). */
 	public static final Item ASTRAL_FRAGMENT = ModItems.register("astral_fragment", Item::new, new Item.Properties().rarity(Rarity.EPIC).component(DataComponents.LORE, lore("item.mlinnotas.astral_fragment")));
-	/** Escama de Dragao (dragao do End, 2 a 4 por morte). */
+	/** Escama de Dragao (dragao do End: 2 a 4 na primeira morte, 1 a 2 depois). */
 	public static final Item DRAGON_SCALE = ModItems.register("dragon_scale", Item::new, new Item.Properties().rarity(Rarity.EPIC).fireResistant().component(DataComponents.LORE, lore("item.mlinnotas.dragon_scale")));
+	/** Chave da Forja: acorda o Colosso Igneo adormecido (Nucleo Abissal + 8 varas de blaze); gasta ao usar. */
+	public static final Item FORGE_KEY = ModItems.register("forge_key", ForgeKeyItem::new,
+			new Item.Properties().rarity(Rarity.RARE).fireResistant().stacksTo(16).component(DataComponents.LORE, lore("item.mlinnotas.forge_key")));
+
+	/** Dano das habilidades especiais dos chefes (nao do golpe corpo a corpo): tag {@code minecraft:bypasses_enchantments}, entao Protecao so ajuda contra o golpe. */
+	public static final ResourceKey<DamageType> BOSS_ABILITY = ResourceKey.create(Registries.DAMAGE_TYPE, MlinNotas.id("boss_ability"));
 
 	public static final Item COBALT_GOLEM_SPAWN_EGG = ModItems.register("cobalt_golem_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(COBALT_GOLEM));
@@ -142,6 +153,16 @@ public final class BossRegistry {
 		};
 	}
 
+	/** Segundo item da oferenda ({@link BossKind#extraOffering()}), ou ar. */
+	public static Item extraOfferingItem(BossKind kind) {
+		return kind == BossKind.ASTRAL_HERALD ? DRAGON_SCALE : Items.AIR;
+	}
+
+	/** Fonte de dano de habilidade de chefe ({@link #BOSS_ABILITY}); {@code direct} = projetil, ou o proprio chefe. */
+	public static DamageSource ability(Level level, @Nullable Entity direct, @Nullable Entity owner) {
+		return new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(BOSS_ABILITY), direct, owner);
+	}
+
 	public static Item dropItem(BossKind kind) {
 		return switch (kind) {
 			case COBALT_GOLEM -> COBALT_HEART;
@@ -152,10 +173,13 @@ public final class BossRegistry {
 	}
 
 	public static void init() {
+		// chefes passam de 1024 de vida (teto vanilla do atributo): sobe o teto, nos dois lados (o cliente tambem limita)
+		((com.mlin.notas.mixin.RangedAttributeAccessor) Attributes.MAX_HEALTH.value()).mlinnotas$setMaxValue(BossRules.MAX_HEALTH_CAP);
 		FabricDefaultAttributeRegistry.register(COBALT_GOLEM, CobaltGolem.createAttributes());
 		FabricDefaultAttributeRegistry.register(ABYSSAL_GUARDIAN, AbyssalGuardian.createAttributes());
 		FabricDefaultAttributeRegistry.register(IGNEOUS_COLOSSUS, IgneousColossus.createAttributes());
 		FabricDefaultAttributeRegistry.register(ASTRAL_HERALD, AstralHerald.createAttributes());
 		DragonScales.init();
+		WitherBuff.init();
 	}
 }

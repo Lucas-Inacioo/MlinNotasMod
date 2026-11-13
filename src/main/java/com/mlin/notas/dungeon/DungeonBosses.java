@@ -39,8 +39,11 @@ import java.util.Map;
  */
 public final class DungeonBosses {
 	public static final AttachmentType<String> BOSS = AttachmentRegistry.create(MlinNotas.id("dungeon_boss"), b -> b.persistent(Codec.STRING));
-	/** Vida pensada para 2 jogadores com equipamento de ferro. */
-	public static final double HEALTH = 80.0;
+	/** Vida pensada para 2 jogadores com equipamento de ferro (30-45 s de luta). */
+	public static final double HEALTH = 300.0;
+	public static final double ARMOR = 8.0;
+	/** Dano do golpe (a arma na mao e so visual: os modificadores dela sao tirados). */
+	public static final double DAMAGE = 9.0;
 	public static final int BAR_RANGE = 24;
 	public static final int KEY_RANGE = 32;
 
@@ -106,7 +109,8 @@ public final class DungeonBosses {
 		mob.setPersistenceRequired();
 		mob.setHomeTo(pos, 10);
 		attribute(mob, Attributes.MAX_HEALTH, HEALTH);
-		attribute(mob, Attributes.ARMOR, 6.0);
+		attribute(mob, Attributes.ARMOR, ARMOR);
+		attribute(mob, Attributes.ATTACK_DAMAGE, DAMAGE);
 		attribute(mob, Attributes.KNOCKBACK_RESISTANCE, 0.6);
 		attribute(mob, Attributes.FOLLOW_RANGE, 32.0);
 		switch (theme) {
@@ -114,26 +118,22 @@ public final class DungeonBosses {
 				equip(mob, EquipmentSlot.MAINHAND, Items.STONE_SWORD);
 				equip(mob, EquipmentSlot.HEAD, Items.CHAINMAIL_HELMET);
 				equip(mob, EquipmentSlot.CHEST, Items.IRON_CHESTPLATE);
-				attribute(mob, Attributes.ATTACK_DAMAGE, 6.0);
 			}
 			case DWARF -> {
 				equip(mob, EquipmentSlot.MAINHAND, Items.IRON_AXE);
 				equip(mob, EquipmentSlot.HEAD, Items.GOLDEN_HELMET);
 				equip(mob, EquipmentSlot.CHEST, Items.IRON_CHESTPLATE);
-				attribute(mob, Attributes.ATTACK_DAMAGE, 7.0);
 			}
 			case DROWNED -> {
 				equip(mob, EquipmentSlot.MAINHAND, Items.TRIDENT);
 				equip(mob, EquipmentSlot.HEAD, Items.TURTLE_HELMET);
 				equip(mob, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
-				attribute(mob, Attributes.ATTACK_DAMAGE, 6.0);
 			}
 			case SAND -> {
 				equip(mob, EquipmentSlot.MAINHAND, Items.GOLDEN_SWORD);
 				equip(mob, EquipmentSlot.HEAD, Items.GOLDEN_HELMET);
 				equip(mob, EquipmentSlot.CHEST, Items.GOLDEN_CHESTPLATE);
 				equip(mob, EquipmentSlot.LEGS, Items.GOLDEN_LEGGINGS);
-				attribute(mob, Attributes.ATTACK_DAMAGE, 6.0);
 				attribute(mob, Attributes.MOVEMENT_SPEED, 0.26);
 			}
 		}
@@ -141,8 +141,11 @@ public final class DungeonBosses {
 		return mob;
 	}
 
+	/** Equipamento so visual: sem modificadores de atributo (vida, armadura e dano do chefe ficam exatos). */
 	private static void equip(Mob mob, EquipmentSlot slot, net.minecraft.world.item.Item item) {
-		mob.setItemSlot(slot, new ItemStack(item));
+		ItemStack stack = new ItemStack(item);
+		stack.set(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS, net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY);
+		mob.setItemSlot(slot, stack);
 		mob.setDropChance(slot, 0.0F);
 	}
 

@@ -20,6 +20,9 @@ public enum VillageLevel {
 	TOWN(550, 12, new String[] {"wall", "market"}, 5, 2, 40, 1),
 	CAPITAL(1000, 17, new String[] {"inn", "library"}, 5, 3, 44, 1);
 
+	/** Teto de nivel de profissao de aldeoes fora de qualquer vila fundada (jornaleiro): mestre so em vila do mod. */
+	public static final int WILD_TRADE_CAP = 3;
+
 	private final int prosperity;
 	private final int projects;
 	private final String[] required;

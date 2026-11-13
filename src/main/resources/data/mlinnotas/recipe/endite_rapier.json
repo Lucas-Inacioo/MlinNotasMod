@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:endite_ingot"
-  },
-  "pattern": [
-    "  X",
-    " X ",
-    "#  "
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:endite_ingot",
+  "base": "mlinnotas:infernite_rapier",
   "result": {
     "id": "mlinnotas:endite_rapier"
-  }
+  },
+  "template": "mlinnotas:end_upgrade_smithing_template"
 }

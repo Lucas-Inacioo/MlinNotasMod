@@ -38,13 +38,13 @@ public final class VillageShop {
 			new Offer("book", Kind.BOOK, "", 1, 10, VillageLevel.VILLAGE),
 			new Offer("repair", Kind.REPAIR, "", 1, 1, VillageLevel.VILLAGE),
 			new Offer("shrine_map", Kind.MAP, "mlinnotas:on_village_maps/cobalt_shrine", 1, 12, VillageLevel.VILLAGE),
-			new Offer("diamond", Kind.ITEM, "minecraft:diamond", 1, 14, VillageLevel.TOWN),
+			new Offer("diamond", Kind.ITEM, "minecraft:diamond", 1, 20, VillageLevel.TOWN),
 			new Offer("golden_carrot", Kind.ITEM, "minecraft:golden_carrot", 8, 3, VillageLevel.TOWN),
 			new Offer("rare_book", Kind.RARE_BOOK, "", 1, 22, VillageLevel.TOWN),
 			new Offer("abyss_map", Kind.MAP, "mlinnotas:on_village_maps/abyssal_sanctum", 1, 18, VillageLevel.TOWN),
 			new Offer("xp", Kind.ITEM, "minecraft:experience_bottle", 8, 6, VillageLevel.CAPITAL),
-			new Offer("netherite_scrap", Kind.ITEM, "minecraft:netherite_scrap", 1, 32, VillageLevel.CAPITAL),
-			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 28, VillageLevel.CAPITAL));
+			new Offer("netherite_scrap", Kind.ITEM, "minecraft:netherite_scrap", 1, 48, VillageLevel.CAPITAL),
+			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 48, VillageLevel.CAPITAL));
 
 	private VillageShop() {
 	}

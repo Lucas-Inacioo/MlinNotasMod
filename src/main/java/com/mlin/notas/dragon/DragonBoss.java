@@ -106,9 +106,6 @@ public final class DragonBoss {
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
 			if (entity instanceof EnderDragon dragon) {
 				STATES.remove(dragon.getUUID());
-				if (entity.getRemovalReason() == Entity.RemovalReason.KILLED && dragon.getDragonFight() != null) {
-					DragonHoard.place(level);
-				}
 			}
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
@@ -524,7 +521,7 @@ public final class DragonBoss {
 			double dist = Math.sqrt(dx * dx + dz * dz);
 			double above = p.onGround() ? 0.0 : p.getY() - groundBelow(level, p.getX(), p.getY(), p.getZ());
 			if (DragonRules.shockwaveHits(dist, radius, above) && st.waveHit.add(p.getId())) {
-				p.hurtServer(level, dragon.damageSources().mobAttack(dragon), DragonRules.shockwaveDamage(st.wavePhase));
+				p.hurtServer(level, BossRegistry.ability(level, dragon, dragon), DragonRules.shockwaveDamage(st.wavePhase));
 				double len = Math.max(0.1, dist);
 				p.push(dx / len * 0.9, 0.6, dz / len * 0.9);
 			}
