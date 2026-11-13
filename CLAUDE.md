@@ -49,6 +49,10 @@ No Windows use `gradlew.bat`. Se `java` nao estiver no PATH: `JAVA_HOME=C:\Progr
 - `build/`, `run/`, `.gradle/`, `logs/` nao sao versionados. Mantenha o projeto em disco local (`C:/Users/lucas/Documents/MlinNotasMod`), nao em pasta sincronizada com nuvem.
 - Commits em portugues ou ingles, mensagem curta no imperativo. Nao commite `.claude/settings.local.json`.
 
+## Estruturas: referencias de construcoes
+
+Antes de desenhar qualquer estrutura nova (ruinas, covis de chefe, cidadelas, masmorras), pesquise construcoes parecidas em sites onde a comunidade compartilha builds e mapas: Planet Minecraft, Minecraft Maps e galerias de builds. Use-as como referencia de forma, detalhe, camadas e paleta, para a estrutura nao ficar simples demais. Escreva tudo do zero, sem copiar schematics, e cite no commit ou no relatorio quais referencias inspiraram o desenho.
+
 ## Mods de referencia
 
 Quando o usuario citar um mod existente (ex.: "como o Xaero's Minimap", "igual ao Iron Chests"), e **permitido e esperado** baixar esse mod de uma fonte confiavel para estudar e usar como base da implementacao. Fontes aceitas: **Modrinth** (API `https://api.modrinth.com/v2`), **CurseForge** e o **repositorio oficial de fontes** do mod (GitHub/GitLab linkado na pagina do mod). Nada de sites de redistribuicao.

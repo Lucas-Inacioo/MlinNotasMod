@@ -174,7 +174,9 @@ public class EndClientGameTest implements FabricClientGameTest {
 			double meanRun = counted * 16.0 / Math.max(1, runs);
 			MlinNotas.LOGGER.info("[EndClientGameTest] linha z=2400: {} amostras em ilha, {} trechos, media {} blocos, familias {}", counted, runs,
 					meanRun, seen);
-			if (counted < 50 || meanRun < 150.0) {
+			// a semente do mundo e aleatoria e o vazio entre ilhas corta os trechos: medias reais variam de ~130 a ~220.
+			// O bug antigo dava 16-32 blocos; o tamanho das regioes em si e conferido no EndBiomeLayoutTest.
+			if (counted < 50 || meanRun < 96.0) {
 				throw new IllegalStateException("biomas do End externo deveriam vir em trechos longos: media " + meanRun + " blocos em " + runs
 						+ " trechos");
 			}
