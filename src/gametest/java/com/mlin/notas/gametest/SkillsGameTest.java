@@ -177,6 +177,29 @@ public class SkillsGameTest {
 			helper.assertBlockPresent(Blocks.AIR, ironOre);
 			int raw = drops(helper, Items.RAW_IRON);
 			helper.assertTrue(raw == 2, "Prospeccao V: 1 + 1 extra, veio " + raw);
+
+			// 8) mineracao em veio: sem a tecla so o bloco; com a tecla o veio (com diagonal e ardosia), outro minerio fica
+			BlockPos[] vein = {new BlockPos(1, 2, 1), new BlockPos(2, 2, 1), new BlockPos(3, 3, 1)};
+			BlockPos other = new BlockPos(1, 2, 2);
+			helper.setBlock(vein[0], Blocks.COAL_ORE);
+			helper.setBlock(vein[1], Blocks.DEEPSLATE_COAL_ORE);
+			helper.setBlock(vein[2], Blocks.COAL_ORE);
+			helper.setBlock(other, Blocks.DIAMOND_ORE);
+			alice.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_PICKAXE));
+			com.mlin.notas.vein.VeinMineServer.setActive(alice, false);
+			alice.gameMode.destroyBlock(helper.absolutePos(vein[0]));
+			helper.assertBlockPresent(Blocks.AIR, vein[0]);
+			helper.assertBlockPresent(Blocks.DEEPSLATE_COAL_ORE, vein[1]);
+			helper.setBlock(vein[0], Blocks.COAL_ORE);
+			com.mlin.notas.vein.VeinMineServer.setActive(alice, true);
+			int damageBefore = alice.getMainHandItem().getDamageValue();
+			alice.gameMode.destroyBlock(helper.absolutePos(vein[0]));
+			for (BlockPos p : vein) {
+				helper.assertBlockPresent(Blocks.AIR, p);
+			}
+			helper.assertBlockPresent(Blocks.DIAMOND_ORE, other);
+			helper.assertTrue(alice.getMainHandItem().getDamageValue() - damageBefore == 3, "1 de durabilidade por bloco do veio");
+			com.mlin.notas.vein.VeinMineServer.setActive(alice, false);
 		} finally {
 			server.getPlayerList().remove(alice);
 			server.getPlayerList().remove(bob);

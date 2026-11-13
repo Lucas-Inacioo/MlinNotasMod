@@ -394,6 +394,7 @@
   "gui.mlinnotas.beacon.metal.celestium": "Celestium",
   "message.mlinnotas.beacon_flight.lost": "Beacon flight lost",
   "key.mlinnotas.skills": "Skill tree",
+  "key.mlinnotas.vein_mine": "Vein mining (hold)",
   "gui.mlinnotas.skills.title": "World Skill Tree",
   "gui.mlinnotas.skills.deposit": "Deposit",
   "gui.mlinnotas.skills.select": "Click a node to select it, then Deposit",
