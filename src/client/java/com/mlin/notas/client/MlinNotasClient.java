@@ -1,5 +1,6 @@
 package com.mlin.notas.client;
 
+import com.mlin.notas.client.minimap.MinimapClient;
 import com.mlin.notas.tablet.OpenTabletPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -14,6 +15,7 @@ public class MlinNotasClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ModKeys.init();
 		InventorySortClient.init();
+		MinimapClient.init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) {
