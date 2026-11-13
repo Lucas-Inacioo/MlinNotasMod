@@ -1,5 +1,6 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -10,7 +11,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -178,11 +178,11 @@ public class IgneousColossus extends BossMob {
 				animate(level, ANIM_WAVE);
 				waveTick = 0;
 				waveHit.clear();
-				playSound(SoundEvents.BLAZE_SHOOT, 3.0F, 0.5F);
+				playSound(ModSounds.IGNEOUS_COLOSSUS_FIRE_WAVE, 3.0F, 1.0F);
 			}
 			case "meteor" -> {
 				animate(level, ANIM_METEOR);
-				playSound(SoundEvents.GHAST_SHOOT, 3.0F, 0.5F);
+				playSound(ModSounds.IGNEOUS_COLOSSUS_METEOR, 3.0F, 1.0F);
 				for (ServerPlayer player : playersAround(level, 32)) {
 					int count = phase() >= 2 ? 3 : 2;
 					for (int i = 0; i < count; i++) {
@@ -197,7 +197,7 @@ public class IgneousColossus extends BossMob {
 			}
 			case "lava_pool" -> {
 				animate(level, ANIM_LAVA);
-				playSound(SoundEvents.LAVA_AMBIENT, 3.0F, 0.6F);
+				playSound(ModSounds.IGNEOUS_COLOSSUS_LAVA_POOL, 3.0F, 1.0F);
 				long now = level.getGameTime();
 				for (ServerPlayer player : playersAround(level, 24)) {
 					BlockPos feet = player.blockPosition();
@@ -292,7 +292,7 @@ public class IgneousColossus extends BossMob {
 		if (hurt) {
 			target.igniteForSeconds(3.0F);
 		}
-		playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.5F, 0.5F);
+		playSound(ModSounds.IGNEOUS_COLOSSUS_ATTACK, 1.5F, 1.0F);
 		return hurt;
 	}
 
@@ -315,7 +315,7 @@ public class IgneousColossus extends BossMob {
 
 	@Override
 	protected SoundEvent roarSound() {
-		return SoundEvents.RAVAGER_ROAR;
+		return ModSounds.IGNEOUS_COLOSSUS_ROAR;
 	}
 
 	@Override
@@ -325,21 +325,17 @@ public class IgneousColossus extends BossMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return dormant() ? null : SoundEvents.BLAZE_AMBIENT;
+		return dormant() ? null : ModSounds.IGNEOUS_COLOSSUS_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.RAVAGER_HURT;
+		return ModSounds.IGNEOUS_COLOSSUS_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.RAVAGER_DEATH;
+		return ModSounds.IGNEOUS_COLOSSUS_DEATH;
 	}
 
-	@Override
-	public float getVoicePitch() {
-		return 0.5F;
-	}
 }

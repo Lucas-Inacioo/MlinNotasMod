@@ -1,5 +1,6 @@
 package com.mlin.notas.waystone;
 
+import com.mlin.notas.registry.ModSounds;
 import com.mlin.notas.registry.ModBlocks;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -13,7 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 
@@ -64,7 +64,7 @@ public final class WaystoneServer {
 		WaystoneInfo info = existing.orElseGet(() -> activate(level, lower, null));
 		if (activated) {
 			player.sendSystemMessage(Component.translatable("message.mlinnotas.waystone.activated", info.name()));
-			level.playSound(null, lower, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 1.2F);
+			level.playSound(null, lower, ModSounds.WAYSTONE_ACTIVATE, SoundSource.BLOCKS, 1.0F, 1.0F);
 		}
 		data.setLastUsed(player.getStringUUID(), info);
 		if (ServerPlayNetworking.canSend(player, WaystonePayloads.Open.TYPE)) {
@@ -190,10 +190,10 @@ public final class WaystoneServer {
 		}
 		BlockPos lower = new BlockPos(target.x(), target.y(), target.z());
 		BlockPos spot = safeSpot(level, lower);
-		level.playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8F, 1.0F);
+		level.playSound(null, player.blockPosition(), ModSounds.WAYSTONE_TRAVEL, SoundSource.PLAYERS, 0.8F, 1.0F);
 		boolean ok = player.teleportTo(level, spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5, Set.of(), player.getYRot(), player.getXRot(), true);
 		if (ok) {
-			level.playSound(null, spot, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8F, 1.0F);
+			level.playSound(null, spot, ModSounds.WAYSTONE_TRAVEL, SoundSource.PLAYERS, 0.8F, 1.0F);
 		}
 		return ok;
 	}

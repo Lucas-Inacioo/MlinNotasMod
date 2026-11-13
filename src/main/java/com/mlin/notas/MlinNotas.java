@@ -42,6 +42,7 @@ public class MlinNotas implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		com.mlin.notas.registry.ModSounds.init();
 		VanillaRebalance.init();
 		ModDataComponents.init();
 		ModBlocks.init();

@@ -1,10 +1,10 @@
 package com.mlin.notas.end;
 
+import com.mlin.notas.registry.ModSounds;
 import com.mlin.notas.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -62,7 +62,17 @@ public class VoidJelly extends PathfinderMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.AMETHYST_BLOCK_CHIME;
+		return ModSounds.VOID_JELLY_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource source) {
+		return ModSounds.VOID_JELLY_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return ModSounds.VOID_JELLY_DEATH;
 	}
 
 	@Override

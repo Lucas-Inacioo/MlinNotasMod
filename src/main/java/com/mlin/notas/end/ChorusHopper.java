@@ -1,9 +1,9 @@
 package com.mlin.notas.end;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -72,7 +72,7 @@ public class ChorusHopper extends PathfinderMob {
 			double y = getY() + random.nextInt(5) - 2;
 			double z = getZ() + (random.nextDouble() - 0.5) * 12.0;
 			if (randomTeleport(x, y, z, true, state -> !state.getFluidState().isEmpty())) {
-				playSound(SoundEvents.CHORUS_FRUIT_TELEPORT, 0.8F, 1.4F);
+				playSound(ModSounds.CHORUS_HOPPER_TELEPORT, 0.8F, 1.0F);
 			}
 		}
 		return hurt;
@@ -85,17 +85,17 @@ public class ChorusHopper extends PathfinderMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.CHORUS_FLOWER_GROW;
+		return ModSounds.CHORUS_HOPPER_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.RABBIT_HURT;
+		return ModSounds.CHORUS_HOPPER_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.CHORUS_FLOWER_DEATH;
+		return ModSounds.CHORUS_HOPPER_DEATH;
 	}
 
 	@Override

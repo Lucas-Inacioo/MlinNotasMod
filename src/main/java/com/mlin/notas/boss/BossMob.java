@@ -168,7 +168,7 @@ public abstract class BossMob extends Monster {
 							getZ(), 12, getBbWidth() * 0.6, 0.2, getBbWidth() * 0.6, 0.02);
 				}
 				if (spawn == BossRules.SPAWN_TICKS - 1) {
-					playSound(roarSound(), 3.0F, 0.8F);
+					playSound(roarSound(), 3.0F, 1.0F);
 				}
 			}
 			serverTick(server);
@@ -202,7 +202,7 @@ public abstract class BossMob extends Monster {
 
 	/** Troca para a fase 2: rugido, particulas e barra escura. */
 	protected void enterPhaseTwo(ServerLevel level) {
-		playSound(roarSound(), 4.0F, 0.6F);
+		playSound(roarSound(), 4.0F, 0.9F);
 		level.sendParticles(themeParticle(), getX(), getY() + getBbHeight() / 2, getZ(), 60, getBbWidth(), getBbHeight() / 2, getBbWidth(), 0.1);
 		bossEvent.setDarkenScreen(true);
 		for (ServerPlayer player : playersAround(level, BossRules.PLAYER_SCAN_RADIUS)) {

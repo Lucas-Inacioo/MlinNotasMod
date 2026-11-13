@@ -1,11 +1,11 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -96,18 +96,18 @@ public class AbyssalGuardian extends BossMob {
 				animate(level, ANIM_PULSE);
 				pulseTarget = target;
 				pulseDelay = 14;
-				playSound(SoundEvents.WARDEN_SONIC_CHARGE, 3.0F, 0.8F);
+				playSound(ModSounds.ABYSSAL_GUARDIAN_PULSE_CHARGE, 3.0F, 1.0F);
 			}
 			case "darkness" -> {
 				animate(level, ANIM_ROAR);
-				playSound(SoundEvents.WARDEN_ROAR, 3.0F, 0.7F);
+				playSound(ModSounds.ABYSSAL_GUARDIAN_ROAR, 3.0F, 1.1F);
 				for (ServerPlayer player : playersAround(level, 24)) {
 					player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 200, 0), this);
 				}
 			}
 			case "tendrils" -> {
 				animate(level, ANIM_TENDRILS);
-				playSound(SoundEvents.SCULK_SHRIEKER_SHRIEK, 3.0F, 0.6F);
+				playSound(ModSounds.ABYSSAL_GUARDIAN_TENDRILS, 3.0F, 1.0F);
 				for (ServerPlayer player : playersAround(level, 14)) {
 					tendrils(level, player);
 				}
@@ -146,7 +146,7 @@ public class AbyssalGuardian extends BossMob {
 				Vec3 p = from.add(step.scale(d));
 				level.sendParticles(ParticleTypes.SONIC_BOOM, p.x, p.y, p.z, 1, 0, 0, 0, 0);
 			}
-			playSound(SoundEvents.WARDEN_SONIC_BOOM, 3.0F, 0.8F);
+			playSound(ModSounds.ABYSSAL_GUARDIAN_PULSE, 3.0F, 1.0F);
 			if (hasLineOfSight(target)) {
 				target.hurtServer(level, damageSources().sonicBoom(this), phase() >= 2 ? 12.0F : 10.0F);
 				CobaltGolem.fling(target, step.x * 1.2, 0.3, step.z * 1.2);
@@ -158,7 +158,7 @@ public class AbyssalGuardian extends BossMob {
 	public boolean doHurtTarget(ServerLevel level, Entity target) {
 		animate(level, ANIM_PUNCH);
 		boolean hurt = super.doHurtTarget(level, target);
-		playSound(SoundEvents.WARDEN_ATTACK_IMPACT, 1.5F, 0.8F);
+		playSound(ModSounds.ABYSSAL_GUARDIAN_ATTACK, 1.5F, 1.0F);
 		return hurt;
 	}
 
@@ -169,7 +169,7 @@ public class AbyssalGuardian extends BossMob {
 
 	@Override
 	protected SoundEvent roarSound() {
-		return SoundEvents.WARDEN_ROAR;
+		return ModSounds.ABYSSAL_GUARDIAN_ROAR;
 	}
 
 	@Override
@@ -179,21 +179,17 @@ public class AbyssalGuardian extends BossMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.WARDEN_HEARTBEAT;
+		return ModSounds.ABYSSAL_GUARDIAN_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.WARDEN_HURT;
+		return ModSounds.ABYSSAL_GUARDIAN_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.WARDEN_DEATH;
+		return ModSounds.ABYSSAL_GUARDIAN_DEATH;
 	}
 
-	@Override
-	public float getVoicePitch() {
-		return 0.75F;
-	}
 }

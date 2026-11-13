@@ -83,6 +83,30 @@ jar {
 	}
 }
 
+// Sintetizador de sons (scripts/SoundGen.java): source set proprio so com o encoder Vorbis em Java puro
+// (com.tianscar.javasound:javasound-vorbis, porta do libvorbis; LGPL-2.0 + BSD da Xiph). Nao entra no jar do mod.
+sourceSets {
+	soundGen {
+		java {
+			srcDirs = ["scripts"]
+			include "SoundGen.java"
+		}
+		resources.srcDirs = []
+	}
+}
+
+dependencies {
+	soundGenImplementation "com.tianscar.javasound:javasound-vorbis:2.1.0"
+}
+
+tasks.register("soundGen", JavaExec) {
+	group = "mlinnotas"
+	description = "Sintetiza os sons do mod: .ogg, sounds.json e legendas em src/main/resources/assets/mlinnotas"
+	classpath = sourceSets.soundGen.runtimeClasspath
+	mainClass = "SoundGen"
+	args "src/main/resources/assets/mlinnotas"
+}
+
 // Copia o jar construido para a pasta mods do Minecraft instalado (Windows: %APPDATA%\.minecraft\mods)
 tasks.register("installToMinecraft", Copy) {
 	group = "mlinnotas"

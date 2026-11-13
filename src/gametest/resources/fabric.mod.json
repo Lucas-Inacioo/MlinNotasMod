@@ -33,7 +33,8 @@
 			"com.mlin.notas.gametest.MobVariantsClientGameTest",
 			"com.mlin.notas.gametest.BossClientGameTest",
 			"com.mlin.notas.gametest.BeaconClientGameTest",
-			"com.mlin.notas.gametest.SkillsClientGameTest"
+			"com.mlin.notas.gametest.SkillsClientGameTest",
+			"com.mlin.notas.gametest.SoundsClientGameTest"
 		]
 	},
 	"depends": {

@@ -1,11 +1,11 @@
 package com.mlin.notas.end;
 
+import com.mlin.notas.registry.ModSounds;
 import com.mlin.notas.registry.ModBlocks;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 
@@ -57,7 +57,7 @@ public final class Elevators {
 		}
 		player.teleportTo(from.getX() + 0.5, target.getAsInt() + 1.0, from.getZ() + 0.5);
 		player.resetFallDistance();
-		level.playSound(null, from.getX() + 0.5, target.getAsInt() + 1.0, from.getZ() + 0.5, SoundEvents.ENDERMAN_TELEPORT, SoundSource.BLOCKS, 0.5F, 1.6F);
+		level.playSound(null, from.getX() + 0.5, target.getAsInt() + 1.0, from.getZ() + 0.5, up ? ModSounds.ELEVATOR_UP : ModSounds.ELEVATOR_DOWN, SoundSource.BLOCKS, 0.8F, 1.0F);
 		return true;
 	}
 }

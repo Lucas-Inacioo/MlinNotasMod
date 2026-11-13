@@ -1,12 +1,12 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -99,7 +99,7 @@ public class CobaltGolem extends BossMob {
 			case "slam" -> {
 				animate(level, ANIM_SLAM);
 				slamDelay = 10;
-				playSound(SoundEvents.IRON_GOLEM_REPAIR, 2.0F, 0.5F);
+				playSound(ModSounds.COBALT_GOLEM_SLAM_WINDUP, 2.0F, 1.0F);
 			}
 			case "rock" -> {
 				animate(level, ANIM_THROW);
@@ -115,7 +115,7 @@ public class CobaltGolem extends BossMob {
 				chargeTicks = 24;
 				chargeHit.clear();
 				getNavigation().stop();
-				playSound(SoundEvents.RAVAGER_ROAR, 3.0F, 0.7F);
+				playSound(ModSounds.COBALT_GOLEM_CHARGE, 3.0F, 1.0F);
 			}
 			default -> {
 			}
@@ -130,7 +130,7 @@ public class CobaltGolem extends BossMob {
 		double dist = Math.sqrt(dx * dx + dz * dz);
 		rock.shoot(dx, dy + dist * 0.18, dz, 1.25F, 1.5F);
 		level().addFreshEntity(rock);
-		playSound(SoundEvents.SNOW_GOLEM_SHOOT, 2.0F, 0.4F);
+		playSound(ModSounds.COBALT_GOLEM_THROW, 2.0F, 1.0F);
 	}
 
 	@Override
@@ -150,14 +150,14 @@ public class CobaltGolem extends BossMob {
 			}
 			if (horizontalCollision) {
 				chargeTicks = 0;
-				playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.5F, 0.8F);
+				playSound(ModSounds.COBALT_GOLEM_CRASH, 2.0F, 1.0F);
 			}
 		}
 	}
 
 	/** Pancada no chao: anel de particulas e empurrao para fora em quem estiver no raio. */
 	private void slam(ServerLevel level) {
-		playSound(SoundEvents.GENERIC_EXPLODE.value(), 2.0F, 0.6F);
+		playSound(ModSounds.COBALT_GOLEM_SLAM, 3.0F, 1.0F);
 		BlockParticleOption dust = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.COBBLED_DEEPSLATE.defaultBlockState());
 		for (int i = 0; i < 32; i++) {
 			double a = i * Math.PI * 2 / 32;
@@ -194,7 +194,7 @@ public class CobaltGolem extends BossMob {
 		if (hurt) {
 			fling(target, 0, 0.45, 0);
 		}
-		playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.5F, 0.6F);
+		playSound(ModSounds.COBALT_GOLEM_ATTACK, 1.5F, 1.0F);
 		return hurt;
 	}
 
@@ -205,7 +205,7 @@ public class CobaltGolem extends BossMob {
 
 	@Override
 	protected SoundEvent roarSound() {
-		return SoundEvents.IRON_GOLEM_DEATH;
+		return ModSounds.COBALT_GOLEM_ROAR;
 	}
 
 	@Override
@@ -215,21 +215,17 @@ public class CobaltGolem extends BossMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.IRON_GOLEM_STEP;
+		return ModSounds.COBALT_GOLEM_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.IRON_GOLEM_HURT;
+		return ModSounds.COBALT_GOLEM_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.IRON_GOLEM_DEATH;
+		return ModSounds.COBALT_GOLEM_DEATH;
 	}
 
-	@Override
-	public float getVoicePitch() {
-		return 0.6F;
-	}
 }

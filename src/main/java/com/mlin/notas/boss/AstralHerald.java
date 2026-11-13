@@ -1,11 +1,11 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import com.mlin.notas.registry.ModEntities;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -98,7 +98,7 @@ public class AstralHerald extends BossMob {
 		switch (id) {
 			case "star_bolt" -> {
 				animate(level, ANIM_CAST);
-				playSound(SoundEvents.ILLUSIONER_CAST_SPELL, 2.5F, 1.4F);
+				playSound(ModSounds.ASTRAL_HERALD_CAST, 2.5F, 1.0F);
 				int count = phase() >= 2 ? 5 : 3;
 				for (int i = 0; i < count; i++) {
 					double a = getYRot() * Math.PI / 180 + (i - (count - 1) / 2.0) * 0.6;
@@ -112,7 +112,7 @@ public class AstralHerald extends BossMob {
 			case "teleport" -> blink(level, target);
 			case "summon" -> {
 				animate(level, ANIM_SUMMON);
-				playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 3.0F, 0.8F);
+				playSound(ModSounds.ASTRAL_HERALD_SUMMON, 3.0F, 1.0F);
 				int alive = level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(24), e -> e.getType() == ModEntities.PURPUR_SENTINEL).size();
 				for (int i = 0; i < 2 && alive < MAX_SENTINELS; i++, alive++) {
 					Mob sentinel = ModEntities.PURPUR_SENTINEL.create(level, EntitySpawnReason.MOB_SUMMONED);
@@ -144,7 +144,7 @@ public class AstralHerald extends BossMob {
 		level.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1, getZ(), 40, 0.5, 1.0, 0.5, 0.1);
 		teleportTo(spot.x, spot.y, spot.z);
 		level.sendParticles(ParticleTypes.REVERSE_PORTAL, spot.x, spot.y + 1, spot.z, 40, 0.5, 1.0, 0.5, 0.1);
-		playSound(SoundEvents.ENDERMAN_TELEPORT, 2.0F, 0.7F);
+		playSound(ModSounds.ASTRAL_HERALD_TELEPORT, 2.0F, 1.0F);
 	}
 
 	/** Posicao livre (caixa w x h sem colisao) a ate {@code radius} blocos de {@code around}, ou null. */
@@ -168,7 +168,7 @@ public class AstralHerald extends BossMob {
 
 	@Override
 	protected SoundEvent roarSound() {
-		return SoundEvents.ENDER_DRAGON_GROWL;
+		return ModSounds.ASTRAL_HERALD_ROAR;
 	}
 
 	@Override
@@ -186,23 +186,19 @@ public class AstralHerald extends BossMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.EVOKER_AMBIENT;
+		return ModSounds.ASTRAL_HERALD_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.SHULKER_HURT;
+		return ModSounds.ASTRAL_HERALD_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.EVOKER_DEATH;
+		return ModSounds.ASTRAL_HERALD_DEATH;
 	}
 
-	@Override
-	public float getVoicePitch() {
-		return 0.7F;
-	}
 
 	/** Paira em volta do alvo (3 a 5 blocos acima, 4 a 7 de distancia), trocando de ponto de tempos em tempos. */
 	static class HoverGoal extends Goal {

@@ -36,9 +36,9 @@ public final class ModBlocks {
 	public static final Block INFERNITE_ORE = registerOre("infernite_ore", BlockBehaviour.Properties.of().mapColor(MapColor.NETHER)
 			.instrument(NoteBlockInstrument.BASEDRUM).strength(4.5F, 6.0F).sound(SoundType.NETHER_ORE));
 	public static final Block ENDITE_ORE = registerOre("endite_ore", BlockBehaviour.Properties.of().mapColor(MapColor.SAND)
-			.instrument(NoteBlockInstrument.BASEDRUM).strength(5.5F, 9.0F).sound(SoundType.STONE));
+			.instrument(NoteBlockInstrument.BASEDRUM).strength(5.5F, 9.0F).sound(ModSounds.GLINT_ORE));
 	public static final Block ASTRALITE_ORE = registerOre("astralite_ore", BlockBehaviour.Properties.of().mapColor(MapColor.SAND)
-			.instrument(NoteBlockInstrument.BASEDRUM).strength(6.5F, 12.0F).sound(SoundType.STONE).lightLevel(state -> 5));
+			.instrument(NoteBlockInstrument.BASEDRUM).strength(6.5F, 12.0F).sound(ModSounds.GLINT_ORE).lightLevel(state -> 5));
 
 	// blocos de armazenamento dos metais novos (9 lingotes) e do minerio bruto (9 brutos); os de metal servem de base do sinalizador
 	private static final Map<Tier, Block> STORAGE = new EnumMap<>(Tier.class);
@@ -60,23 +60,23 @@ public final class ModBlocks {
 	// End: blocos dos biomas novos e da Cidadela do End (registrados como itens em ModItems, na ordem)
 	private static final List<Block> END_BLOCKS = new ArrayList<>();
 	public static final Block END_MOSS = registerEnd("end_moss", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN)
-			.instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 9.0F).sound(SoundType.MOSS).requiresCorrectToolForDrops());
+			.instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 9.0F).sound(ModSounds.END_MOSS).requiresCorrectToolForDrops());
 	public static final Block VOID_ASH = registerEnd("void_ash", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GRAY)
-			.strength(0.6F).sound(SoundType.SAND));
+			.strength(0.6F).sound(ModSounds.VOID_ASH));
 	public static final Block VOID_GRASS = registerEnd("void_grass", VoidGrassBlock::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE)
 			.replaceable().noCollision().instabreak().sound(SoundType.GRASS).lightLevel(state -> 4).offsetType(BlockBehaviour.OffsetType.XZ)
 			.pushReaction(PushReaction.POPPED));
 	public static final Block ETHER_CRYSTAL_BLOCK = registerEnd("ether_crystal_block", Block::new, BlockBehaviour.Properties.of()
-			.mapColor(MapColor.COLOR_LIGHT_BLUE).strength(1.5F).sound(SoundType.AMETHYST).lightLevel(state -> 6).requiresCorrectToolForDrops());
+			.mapColor(MapColor.COLOR_LIGHT_BLUE).strength(1.5F).sound(ModSounds.ETHER_CRYSTAL).lightLevel(state -> 6).requiresCorrectToolForDrops());
 	public static final Block ETHER_CRYSTAL_CLUSTER = registerEnd("ether_crystal_cluster", p -> new AmethystClusterBlock(7.0F, 3.0F, p),
-			BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).forceSolidOn().noOcclusion().sound(SoundType.AMETHYST_CLUSTER)
+			BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).forceSolidOn().noOcclusion().sound(ModSounds.ETHER_CRYSTAL_CLUSTER)
 					.strength(1.5F).lightLevel(state -> 7).pushReaction(PushReaction.POPPED));
 	public static final Block VOID_BRICKS = registerEnd("void_bricks", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK)
-			.instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 9.0F).requiresCorrectToolForDrops());
+			.instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 9.0F).sound(ModSounds.RESONANT_STONE).requiresCorrectToolForDrops());
 	public static final Block PURPUR_LAMP = registerEnd("purpur_lamp", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_MAGENTA)
 			.strength(1.5F, 6.0F).sound(SoundType.GLASS).lightLevel(state -> 15).requiresCorrectToolForDrops());
 	public static final Block PURPUR_ELEVATOR = registerEnd("purpur_elevator", PurpurElevatorBlock::new, BlockBehaviour.Properties.of()
-			.mapColor(MapColor.COLOR_MAGENTA).instrument(NoteBlockInstrument.BASEDRUM).strength(1.5F, 6.0F).lightLevel(state -> 3)
+			.mapColor(MapColor.COLOR_MAGENTA).instrument(NoteBlockInstrument.BASEDRUM).strength(1.5F, 6.0F).sound(ModSounds.RESONANT_STONE).lightLevel(state -> 3)
 			.requiresCorrectToolForDrops());
 	// decoracao dos biomas grandes: arvores do vazio, lirios, cogumelos e basalto
 	public static final Block VOID_LOG = registerEnd("void_log", net.minecraft.world.level.block.RotatedPillarBlock::new,
@@ -104,7 +104,7 @@ public final class ModBlocks {
 
 	/** Pedra de teleporte (2 de altura); ver waystone/. */
 	public static final Block WAYSTONE = Blocks.register(key("waystone"), com.mlin.notas.waystone.WaystoneBlock::new, BlockBehaviour.Properties.of()
-			.mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 1200.0F).sound(SoundType.STONE)
+			.mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).strength(3.0F, 1200.0F).sound(ModSounds.WAYSTONE)
 			.lightLevel(state -> 5).noOcclusion().requiresCorrectToolForDrops().pushReaction(PushReaction.IMMOVEABLE));
 
 	public static final Block IRON_CHEST = chest(ChestTier.IRON);
@@ -134,7 +134,19 @@ public final class ModBlocks {
 		boolean tough = tier.fireResistant();
 		return BlockBehaviour.Properties.of().mapColor(metalColor(tier)).instrument(NoteBlockInstrument.IRON_XYLOPHONE)
 				.strength(tough ? 25.0F + (tier.level() - 9) * 8.0F : 5.0F, tough ? 1200.0F : 6.0F)
-				.sound(tough ? SoundType.NETHERITE_BLOCK : SoundType.METAL).requiresCorrectToolForDrops();
+				.sound(ModSounds.alloy(alloyPitch(tier))).requiresCorrectToolForDrops();
+	}
+
+	/** Tom do som "liga" por metal: o infernita e mais grave e pesado, os do End vao ficando mais agudos. */
+	private static float alloyPitch(Tier tier) {
+		return switch (tier) {
+			case COBALT -> 0.9F;
+			case INFERNITE -> 0.75F;
+			case ENDITE -> 1.0F;
+			case ASTRALITE -> 1.15F;
+			case CELESTIUM -> 1.3F;
+			default -> 1.0F;
+		};
 	}
 
 	/** Bloco de armazenamento do metal (null para niveis vanilla). */

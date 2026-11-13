@@ -111,7 +111,7 @@ public final class BossRegistry {
 
 	private static Block altar(String name, BossKind kind, MapColor color, int light) {
 		return Blocks.register(ModBlocks.key(name), p -> new BossAltarBlock(kind, p), BlockBehaviour.Properties.of().mapColor(color)
-				.strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.LODESTONE).lightLevel(state -> light).pushReaction(PushReaction.IMMOVEABLE));
+				.strength(-1.0F, 3600000.0F).noLootTable().sound(com.mlin.notas.registry.ModSounds.BOSS_ALTAR).lightLevel(state -> light).pushReaction(PushReaction.IMMOVEABLE));
 	}
 
 	private static <T extends Entity> EntityType<T> entity(String name, EntityType.Builder<T> builder) {
