@@ -236,6 +236,7 @@ public class ContentGen {
 		VillageContent.generate();
 		SNetherContent.generate();
 		CompassContent.generate();
+		StorageContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

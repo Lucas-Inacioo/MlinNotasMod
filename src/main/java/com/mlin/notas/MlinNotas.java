@@ -80,6 +80,7 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.season.SeasonServer.init();
 		com.mlin.notas.compass.Compasses.init();
 		com.mlin.notas.tree.FastLeafDecay.init();
+		com.mlin.notas.storage.StorageRegistry.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

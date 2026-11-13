@@ -227,6 +227,100 @@
           "xp": 300
         }
       ]
+    },
+    {
+      "id": "storage_unit",
+      "icon": "mlinnotas:storage_unit_copper",
+      "x": 0,
+      "y": 5,
+      "dependencies": [
+        "stone_chest",
+        "mining/skill_copper"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:storage_unit_copper",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:redstone",
+          "count": 16
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "storage_terminal",
+      "icon": "mlinnotas:storage_terminal",
+      "x": 1,
+      "y": 5,
+      "dependencies": [
+        "storage_unit"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:storage_terminal",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "mlinnotas:storage_cable",
+          "count": 16
+        },
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "crafting_terminal",
+      "icon": "mlinnotas:crafting_terminal",
+      "x": 2,
+      "y": 5,
+      "dependencies": [
+        "storage_terminal"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:crafting_terminal",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "storage_diamond",
+      "icon": "mlinnotas:storage_unit_diamond",
+      "x": 2,
+      "y": 6,
+      "dependencies": [
+        "storage_terminal",
+        "mining/skill_diamond"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:storage_unit_diamond",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 200
+        }
+      ]
     }
   ]
 }

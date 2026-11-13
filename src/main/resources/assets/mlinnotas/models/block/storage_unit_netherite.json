@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "mlinnotas:block/storage_unit_netherite_front",
+    "side": "mlinnotas:block/storage_unit_netherite_side",
+    "top": "mlinnotas:block/storage_unit_netherite_top"
+  }
+}

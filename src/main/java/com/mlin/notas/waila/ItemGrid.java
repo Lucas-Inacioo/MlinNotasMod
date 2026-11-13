@@ -96,6 +96,6 @@ public final class ItemGrid {
 			int tenths = count / 100;
 			return tenths % 10 == 0 ? (tenths / 10) + "k" : (tenths / 10) + "." + (tenths % 10) + "k";
 		}
-		return (count / 1000) + "k";
+		return count < 1_000_000 ? (count / 1000) + "k" : com.mlin.notas.storage.CountFormat.compact(count);
 	}
 }

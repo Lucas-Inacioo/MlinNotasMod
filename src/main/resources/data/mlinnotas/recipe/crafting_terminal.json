@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:storage_terminal",
+    "minecraft:crafting_table"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mlinnotas:crafting_terminal"
+  }
+}

@@ -33,6 +33,19 @@
     "mlinnotas:raw_endite_block",
     "mlinnotas:astralite_block",
     "mlinnotas:raw_astralite_block",
-    "mlinnotas:celestium_block"
+    "mlinnotas:celestium_block",
+    "mlinnotas:storage_unit_copper",
+    "mlinnotas:storage_unit_iron",
+    "mlinnotas:storage_unit_gold",
+    "mlinnotas:storage_unit_cobalt",
+    "mlinnotas:storage_unit_diamond",
+    "mlinnotas:storage_unit_netherite",
+    "mlinnotas:storage_unit_infernite",
+    "mlinnotas:storage_unit_endite",
+    "mlinnotas:storage_unit_astralite",
+    "mlinnotas:storage_unit_celestium",
+    "mlinnotas:storage_cable",
+    "mlinnotas:storage_terminal",
+    "mlinnotas:crafting_terminal"
   ]
 }
