@@ -46,6 +46,8 @@ public class SkillTreeScreen extends Screen {
 
 	private SkillNode selected;
 	private Button depositButton;
+	private Button guideButton;
+	private boolean guideMode;
 
 	public SkillTreeScreen() {
 		super(Component.translatable("gui.mlinnotas.skills.title"));
@@ -90,9 +92,27 @@ public class SkillTreeScreen extends Screen {
 			if (selected != null) {
 				SkillClient.deposit(selected);
 			}
-		}).bounds(width / 2 - 104, height - 28, 100, 20).build());
-		addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> onClose()).bounds(width / 2 + 4, height - 28, 100, 20).build());
+		}).bounds(width / 2 - 154, height - 28, 100, 20).build());
+		guideButton = addRenderableWidget(Button.builder(guideLabel(), b -> setGuideMode(!guideMode))
+				.bounds(width / 2 - 50, height - 28, 100, 20).build());
+		addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> onClose()).bounds(width / 2 + 54, height - 28, 100, 20).build());
+		if (selected == null) {
+			// abre ja no proximo objetivo do mundo, com o guia "onde achar" visivel
+			selected = SkillTree.nextObjective(SkillClient.progress()::level);
+		}
 		updateButton();
+	}
+
+	private Component guideLabel() {
+		return Component.translatable(guideMode ? "gui.mlinnotas.skills.tree" : "gui.mlinnotas.skills.guide_button");
+	}
+
+	/** Alterna para a pagina de guia (testes de cliente). */
+	public void setGuideMode(boolean value) {
+		guideMode = value;
+		if (guideButton != null) {
+			guideButton.setMessage(guideLabel());
+		}
 	}
 
 	private void updateButton() {
@@ -133,7 +153,15 @@ public class SkillTreeScreen extends Screen {
 		SkillProgress progress = SkillClient.progress();
 		int cx = width / 2;
 		graphics.centeredText(font, title, cx, 6, 0xFFFFFFFF);
-		graphics.centeredText(font, Component.translatable("gui.mlinnotas.skills.shared"), cx, 17, 0xFFA0A0A0);
+		SkillNode objective = SkillTree.nextObjective(progress::level);
+		graphics.centeredText(font, objective == null ? Component.translatable("gui.mlinnotas.skills.objective_done")
+				: Component.translatable("gui.mlinnotas.skills.objective", nodeTitle(objective)), cx, 18, 0xFFFFD040);
+		int levels = minecraft.player == null ? 0 : minecraft.player.experienceLevel;
+		graphics.text(font, Component.translatable("gui.mlinnotas.skills.your_levels", levels), 6, 6, 0xFF80FF20);
+		if (guideMode) {
+			drawGuidePage(graphics, progress);
+			return;
+		}
 
 		int left = left();
 		int bottom = SIDE_Y + 3 * ROW + NODE + 6;
@@ -183,9 +211,11 @@ public class SkillTreeScreen extends Screen {
 		// rodape: selecao e niveis do jogador
 		Component info = selected == null ? Component.translatable("gui.mlinnotas.skills.select")
 				: nodeTitle(selected).copy().withStyle(statusColor(progress.status(selected)));
-		graphics.centeredText(font, info, cx, Math.min(bottom + 6, height - 40), 0xFFFFFFFF);
-		int levels = minecraft.player == null ? 0 : minecraft.player.experienceLevel;
-		graphics.text(font, Component.translatable("gui.mlinnotas.skills.your_levels", levels), 6, height - 22, 0xFF80FF20);
+		int infoY = Math.min(bottom + 6, height - 40);
+		graphics.centeredText(font, info, cx, infoY, 0xFFFFFFFF);
+		if (infoY + 12 + font.lineHeight <= height - 32) {
+			graphics.centeredText(font, Component.translatable("gui.mlinnotas.skills.guide_hint"), cx, infoY + 12, 0xFFA0A0A0);
+		}
 
 		// tooltip
 		SkillNode hovered = nodeAt(mouseX, mouseY);
@@ -222,6 +252,75 @@ public class SkillTreeScreen extends Screen {
 		if (fraction > 0) {
 			graphics.fill(x + 2, y + NODE - 4, x + NODE - 2, y + NODE - 2, 0xFF101018);
 			graphics.fill(x + 2, y + NODE - 4, x + 2 + (int) Math.round((NODE - 4) * fraction), y + NODE - 2, 0xFF60C0FF);
+		}
+	}
+
+	/**
+	 * Pagina de guia (botao Guia), estilo livro de quests: o no selecionado (ou o proximo objetivo), cada item do custo
+	 * com icone, depositado/inventario e onde achar, e o que o nivel libera.
+	 */
+	private void drawGuidePage(GuiGraphicsExtractor graphics, SkillProgress progress) {
+		int left = left();
+		int top = MINING_Y - 8;
+		int right = left + treeWidth() + 4;
+		int limit = height - 34;
+		graphics.fill(left - 6, top, right, limit, 0xC0101014);
+		graphics.outline(left - 6, top, right - left + 6, limit - top, 0xFF3A3A44);
+		SkillNode node = selected;
+		int x = left;
+		int y = top + 6;
+		if (node == null) {
+			graphics.text(font, Component.translatable("gui.mlinnotas.skills.objective_done"), x, y, 0xFFFFFFFF);
+			return;
+		}
+		SkillProgress.Status status = progress.status(node);
+		graphics.item(stack(node.icon()), x, y);
+		graphics.text(font, nodeTitle(node).copy().withStyle(statusColor(status), ChatFormatting.BOLD), x + 20, y + 1, 0xFFFFFFFF);
+		graphics.text(font, Component.translatable("gui.mlinnotas.skills.status." + status.name().toLowerCase(java.util.Locale.ROOT))
+				.withStyle(statusColor(status)), x + 20, y + 10, 0xFFFFFFFF);
+		y += 22;
+		int textWidth = right - x - 26;
+		if (status == SkillProgress.Status.UNLOCKED) {
+			graphics.text(font, Component.translatable("gui.mlinnotas.skills.guide_done").withStyle(ChatFormatting.GREEN), x, y, 0xFFFFFFFF);
+			return;
+		}
+		for (String key : SkillTree.missingPrerequisites(node, progress::level)) {
+			SkillNode missing = SkillTree.byKey(key);
+			if (missing != null && y + font.lineHeight <= limit) {
+				graphics.text(font, Component.translatable("gui.mlinnotas.skills.guide_locked", nodeTitle(missing)).withStyle(ChatFormatting.RED), x, y, 0xFFFFFFFF);
+				y += font.lineHeight + 2;
+			}
+		}
+		for (SkillNode.Cost cost : node.items()) {
+			if (y + 16 > limit) {
+				return;
+			}
+			int have = Math.min(cost.count(), progress.deposited(node, cost.id()));
+			graphics.item(stack(cost.display()), x, y);
+			Component head = Component.translatable("gui.mlinnotas.skills.guide_item", costName(cost), have, cost.count(), inInventory(cost.id()))
+					.withStyle(have >= cost.count() ? ChatFormatting.GREEN : ChatFormatting.YELLOW);
+			graphics.text(font, head, x + 20, y, 0xFFFFFFFF);
+			int ly = y + font.lineHeight + 1;
+			for (var part : font.split(Component.translatable(SkillTree.hintKey(cost.id())).withStyle(ChatFormatting.GRAY), textWidth)) {
+				if (ly + font.lineHeight > limit) {
+					return;
+				}
+				graphics.text(font, part, x + 20, ly, 0xFFFFFFFF);
+				ly += font.lineHeight + 1;
+			}
+			y = Math.max(y + 18, ly + 3);
+		}
+		if (node.xpLevels() > 0 && y + font.lineHeight <= limit) {
+			int have = Math.min(node.xpLevels(), progress.depositedXp(node));
+			graphics.text(font, Component.translatable("gui.mlinnotas.skills.cost_xp", have, node.xpLevels()).withStyle(ChatFormatting.GREEN), x + 20, y, 0xFFFFFFFF);
+			y += font.lineHeight + 3;
+		}
+		for (Component unlock : unlocks(node)) {
+			if (y + font.lineHeight > limit) {
+				return;
+			}
+			graphics.text(font, Component.translatable("gui.mlinnotas.skills.unlocks").append(" ").append(unlock).withStyle(ChatFormatting.LIGHT_PURPLE), x, y, 0xFFFFFFFF);
+			y += font.lineHeight + 1;
 		}
 	}
 
@@ -264,6 +363,13 @@ public class SkillTreeScreen extends Screen {
 		return stack(cost.id()).getHoverName();
 	}
 
+	/** Quanto o jogador local tem no inventario do item de custo. */
+	static int inInventory(String costId) {
+		var player = net.minecraft.client.Minecraft.getInstance().player;
+		return player == null ? 0 : net.minecraft.world.ContainerHelper.clearOrCountMatchingItems(player.getInventory(),
+				com.mlin.notas.skills.SkillServer.matcher(costId), Integer.MAX_VALUE, true);
+	}
+
 	static List<Component> tooltip(SkillNode node, SkillProgress progress) {
 		SkillProgress.Status status = progress.status(node);
 		List<Component> lines = new ArrayList<>();
@@ -283,7 +389,7 @@ public class SkillTreeScreen extends Screen {
 			for (SkillNode.Cost cost : node.items()) {
 				int have = Math.min(cost.count(), progress.deposited(node, cost.id()));
 				missingItems += cost.count() - have;
-				lines.add(Component.literal(" ").append(Component.translatable("gui.mlinnotas.skills.cost_line", costName(cost), have, cost.count()))
+				lines.add(Component.literal(" ").append(Component.translatable("gui.mlinnotas.skills.cost_line", costName(cost), have, cost.count(), inInventory(cost.id())))
 						.withStyle(have >= cost.count() ? ChatFormatting.GREEN : ChatFormatting.WHITE));
 			}
 			if (node.xpLevels() > 0) {

@@ -31,6 +31,38 @@ public class SkillsClientGameTest implements FabricClientGameTest {
 		try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
 			singleplayer.getConnection().waitForChunksRender();
 			singleplayer.getServer().runCommand("gamemode survival @a");
+
+			// mundo novo: 32 pedregulhos no inventario + Depositar em Pedra libera o nivel
+			SkillNode stone = SkillTree.node(SkillBranch.MINING, Tier.STONE.level());
+			singleplayer.getServer().runOnServer(server -> {
+				SkillServer.reset(server);
+				server.getPlayerList().getPlayers().getFirst().getInventory().add(new ItemStack(Items.COBBLESTONE, 32));
+			});
+			context.waitFor(mc -> mc.player.getInventory().countItem(Items.COBBLESTONE) == 32, 100);
+			context.getInput().pressKey(ModKeys.SKILLS);
+			context.waitForScreen(SkillTreeScreen.class);
+			context.waitTicks(3);
+			hover(context, SkillBranch.MINING, stone.level());
+			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitFor(mc -> ((SkillTreeScreen) mc.gui.screen()).selected() == stone, 20);
+			context.clickScreenButton("gui.mlinnotas.skills.deposit");
+			context.waitFor(mc -> SkillClient.progress().level(SkillBranch.MINING) == Tier.STONE.level(), 100);
+			context.runOnClient(mc -> mc.gui.setScreen(null));
+			// reabrir ja seleciona o proximo objetivo (Cobre) e mostra o guia "onde achar"
+			context.getInput().pressKey(ModKeys.SKILLS);
+			context.waitForScreen(SkillTreeScreen.class);
+			context.waitFor(mc -> ((SkillTreeScreen) mc.gui.screen()).selected() == SkillTree.node(SkillBranch.MINING, Tier.COPPER.level()), 20);
+			context.getInput().setCursorPos(0, 0);
+			context.waitTicks(3);
+			context.takeScreenshot("skills_tree_objective");
+			context.runOnClient(mc -> ((SkillTreeScreen) mc.gui.screen()).setGuideMode(true));
+			context.waitTicks(3);
+			context.takeScreenshot("skills_guide");
+			context.runOnClient(mc -> ((SkillTreeScreen) mc.gui.screen()).select(SkillTree.node(SkillBranch.MINING, Tier.NETHERITE.level())));
+			context.waitTicks(3);
+			context.takeScreenshot("skills_guide_boss");
+			context.runOnClient(mc -> mc.gui.setScreen(null));
+
 			SkillNode diamond = SkillTree.node(SkillBranch.MINING, Tier.DIAMOND.level());
 			singleplayer.getServer().runOnServer(server -> {
 				SkillServer.reset(server);

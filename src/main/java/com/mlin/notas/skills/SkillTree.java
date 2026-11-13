@@ -160,6 +160,28 @@ public final class SkillTree {
 		return Collections.unmodifiableMap(SOURCES);
 	}
 
+	/**
+	 * Chave de lang da dica "onde achar" de um item de custo, estilo mapa de quests
+	 * ({@code #mlinnotas:skill_cost/coal} -> {@code skill.mlinnotas.hint.mlinnotas.skill_cost.coal}).
+	 */
+	public static String hintKey(String costId) {
+		String id = costId.startsWith("#") ? costId.substring(1) : costId;
+		return "skill.mlinnotas.hint." + id.replace(':', '.').replace('/', '.');
+	}
+
+	/**
+	 * Proximo objetivo do mundo: o primeiro no de Mineracao ainda nao liberado (o tronco guia a progressao); null quando
+	 * a Mineracao esta completa.
+	 */
+	public static SkillNode nextObjective(java.util.function.ToIntFunction<SkillBranch> levels) {
+		for (SkillNode node : nodes(SkillBranch.MINING)) {
+			if (levels.applyAsInt(SkillBranch.MINING) < node.level()) {
+				return node;
+			}
+		}
+		return null;
+	}
+
 	/** Pre-requisitos que faltam para comprar {@code node} (vazio = pode comprar se ainda nao comprou). */
 	public static List<String> missingPrerequisites(SkillNode node, java.util.function.ToIntFunction<SkillBranch> levels) {
 		List<String> missing = new ArrayList<>();

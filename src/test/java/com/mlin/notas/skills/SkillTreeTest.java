@@ -122,6 +122,31 @@ class SkillTreeTest {
 	}
 
 	@Test
+	void everyCostHasAWhereToFindHintInBothLanguages() throws Exception {
+		for (String lang : List.of("pt_br", "en_us")) {
+			String json = Files.readString(Path.of("src/main/resources/assets/mlinnotas/lang/" + lang + ".json"));
+			for (SkillNode node : SkillTree.nodes()) {
+				for (SkillNode.Cost cost : node.items()) {
+					String key = SkillTree.hintKey(cost.id());
+					assertTrue(json.contains("\"" + key + "\""), lang + " sem dica para " + cost.id() + " (" + key + ")");
+				}
+			}
+		}
+	}
+
+	@Test
+	void nextObjectiveFollowsTheMiningTrunk() {
+		SkillProgress progress = new SkillProgress();
+		assertEquals("mining/2", SkillTree.nextObjective(progress::level).key());
+		progress.setLevel(SkillBranch.MINING, Tier.COBALT.level());
+		assertEquals("mining/" + Tier.DIAMOND.level(), SkillTree.nextObjective(progress::level).key());
+		progress.setLevel(SkillBranch.MINING, Tier.CELESTIUM.level());
+		assertNull(SkillTree.nextObjective(progress::level));
+		assertEquals("skill.mlinnotas.hint.mlinnotas.skill_cost.coal", SkillTree.hintKey(SkillTree.COAL));
+		assertEquals("skill.mlinnotas.hint.minecraft.cobblestone", SkillTree.hintKey("minecraft:cobblestone"));
+	}
+
+	@Test
 	void prerequisitesListMissingLevels() {
 		SkillProgress progress = new SkillProgress();
 		SkillNode combat1 = SkillTree.node(SkillBranch.COMBAT, 1);
