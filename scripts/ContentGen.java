@@ -231,6 +231,7 @@ public class ContentGen {
 		DungeonContent.generate();
 		BeaconContent.generate(pickaxeMineable);
 		DragonContent.generate(pickaxeMineable);
+		AccessoryContent.generate();
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
 		VillageContent.generate();

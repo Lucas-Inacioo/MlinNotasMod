@@ -262,6 +262,56 @@
           "xp": 80
         }
       ]
+    },
+    {
+      "id": "trinkets",
+      "icon": "mlinnotas:copper_ring",
+      "x": 0,
+      "y": 0,
+      "dependencies": [
+        "basics/welcome"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/basic_accessories",
+          "count": 1,
+          "icon": "mlinnotas:copper_ring",
+          "title": "quest.mlinnotas.task.basic_accessory"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "artifact",
+      "icon": "mlinnotas:pocket_watch",
+      "x": 2,
+      "y": 4,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/artifacts",
+          "count": 1,
+          "icon": "mlinnotas:pocket_watch",
+          "title": "quest.mlinnotas.task.artifact"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "mlinnotas:return_scroll",
+          "count": 1
+        },
+        {
+          "xp": 80
+        }
+      ]
     }
   ]
 }

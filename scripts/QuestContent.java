@@ -133,10 +133,15 @@ class QuestContent {
 		ContentGen.EN.put(key, en);
 	}
 
+	/** Quests extras que outros scripts (ex.: AccessoryContent) penduram no fim de um capitulo; preencha antes de {@link #generate}. */
+	static final java.util.Map<String, List<Q>> EXTRA = new java.util.LinkedHashMap<>();
+
 	static void chapter(String id, int order, String icon, String pt, String en, Q... quests) throws IOException {
 		text("quest.mlinnotas.chapter." + id, pt, en);
 		List<String> json = new ArrayList<>();
-		for (Q q : quests) {
+		List<Q> all = new ArrayList<>(List.of(quests));
+		all.addAll(EXTRA.getOrDefault(id, List.of()));
+		for (Q q : all) {
 			json.add(q.json());
 			text("quest.mlinnotas." + id + "." + q.id, q.pt, q.en);
 			text("quest.mlinnotas." + id + "." + q.id + ".desc", q.descPt, q.descEn);

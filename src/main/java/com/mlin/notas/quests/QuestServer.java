@@ -255,7 +255,8 @@ public final class QuestServer {
 
 	/** Quanto o jogador tem do item/tag no inventario. */
 	public static int count(ServerPlayer player, String target) {
-		return ContainerHelper.clearOrCountMatchingItems(player.getInventory(), SkillServer.matcher(target), Integer.MAX_VALUE, true);
+		return ContainerHelper.clearOrCountMatchingItems(player.getInventory(), SkillServer.matcher(target), Integer.MAX_VALUE, true)
+				+ com.mlin.notas.accessories.AccessoryServer.countEquipped(player, SkillServer.matcher(target));
 	}
 
 	/** Uma morte creditada a {@code player} (null = o mundo, ex.: dragao). */

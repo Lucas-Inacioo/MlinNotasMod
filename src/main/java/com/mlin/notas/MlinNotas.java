@@ -78,6 +78,7 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.beacon.BeaconServer.init();
 		com.mlin.notas.quests.QuestServer.init();
 		com.mlin.notas.season.SeasonServer.init();
+		com.mlin.notas.accessories.AccessoryServer.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));
