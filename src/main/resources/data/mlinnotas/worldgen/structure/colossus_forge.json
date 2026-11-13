@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:lair",
+  "kind": "colossus_forge",
+  "biomes": "#mlinnotas:has_structure/colossus_forge",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

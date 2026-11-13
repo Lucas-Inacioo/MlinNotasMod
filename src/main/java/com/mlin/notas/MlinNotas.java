@@ -63,6 +63,7 @@ public class MlinNotas implements ModInitializer {
 		Elevators.init();
 		EndBiomes.init();
 		com.mlin.notas.nether.NetherRegistry.init();
+		com.mlin.notas.boss.BossRegistry.init();
 		CropHarvester.init();
 		SleepServer.init();
 		WailaServer.init();

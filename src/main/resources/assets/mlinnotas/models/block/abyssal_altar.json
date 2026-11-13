@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mlinnotas:block/abyssal_altar_top",
+    "side": "mlinnotas:block/abyssal_altar_side",
+    "bottom": "minecraft:block/deepslate_tiles"
+  }
+}

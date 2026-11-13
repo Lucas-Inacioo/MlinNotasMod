@@ -28,7 +28,9 @@ public enum CitadelPart {
 	END_ROD(false, true),
 	/** Planta do patio (atravessavel). */
 	PLANT(false, false),
-	CHEST(false, true);
+	CHEST(false, true),
+	/** Altar do Arauto Astral (no cofre; recebe 4 nucleos de sentinela). */
+	ASTRAL_ALTAR(true, true);
 
 	private final boolean standable;
 	private final boolean obstacle;

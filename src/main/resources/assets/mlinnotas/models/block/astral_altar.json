@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mlinnotas:block/astral_altar_top",
+    "side": "mlinnotas:block/astral_altar_side",
+    "bottom": "minecraft:block/purpur_block"
+  }
+}
