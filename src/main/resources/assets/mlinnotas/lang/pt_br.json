@@ -315,5 +315,11 @@
   "message.mlinnotas.waystone.traveled_free": "Viajou para %s",
   "message.mlinnotas.waystone.missing": "Essa pedra de teleporte não existe mais",
   "message.mlinnotas.waystone.scroll_none": "Use uma pedra de teleporte antes de ler o pergaminho",
-  "message.mlinnotas.waystone.scroll_used": "O pergaminho levou você de volta a %s"
+  "message.mlinnotas.waystone.scroll_used": "O pergaminho levou você de volta a %s",
+  "entity.mlinnotas.variant.mossy_zombie": "Zumbi Musgoso",
+  "entity.mlinnotas.variant.snow_spider": "Aranha da Neve",
+  "entity.mlinnotas.variant.blazing_skeleton": "Esqueleto Ardente",
+  "entity.mlinnotas.variant.crystal_creeper": "Creeper de Cristal",
+  "entity.mlinnotas.variant.mangrove_drowned": "Afogado do Mangue",
+  "entity.mlinnotas.variant.ashen_wither_skeleton": "Esqueleto Cinzento"
 }

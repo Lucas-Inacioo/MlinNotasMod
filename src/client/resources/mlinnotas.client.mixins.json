@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"AbstractContainerScreenAccessor",
-		"LightmapRenderStateExtractorMixin"
+		"LightmapRenderStateExtractorMixin",
+		"LivingEntityRendererVariantMixin",
+		"RenderLayerVariantMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

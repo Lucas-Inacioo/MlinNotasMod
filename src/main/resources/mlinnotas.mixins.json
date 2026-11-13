@@ -5,6 +5,7 @@
 	"mixins": [
 		"AbstractFurnaceBlockEntityMixin",
 		"AbstractVillagerMixin",
+		"CreeperAccessor",
 		"ItemTooltipImageMixin",
 		"TheEndBiomeSourceMixin"
 	],
