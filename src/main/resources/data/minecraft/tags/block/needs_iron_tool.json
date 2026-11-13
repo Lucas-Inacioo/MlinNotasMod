@@ -1,6 +1,8 @@
 {
   "values": [
     "mlinnotas:cobalt_ore",
-    "mlinnotas:deepslate_cobalt_ore"
+    "mlinnotas:deepslate_cobalt_ore",
+    "mlinnotas:cobalt_block",
+    "mlinnotas:raw_cobalt_block"
   ]
 }

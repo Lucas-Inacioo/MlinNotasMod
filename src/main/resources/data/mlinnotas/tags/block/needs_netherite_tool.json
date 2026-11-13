@@ -1,5 +1,7 @@
 {
   "values": [
-    "mlinnotas:infernite_ore"
+    "mlinnotas:infernite_ore",
+    "mlinnotas:infernite_block",
+    "mlinnotas:raw_infernite_block"
   ]
 }

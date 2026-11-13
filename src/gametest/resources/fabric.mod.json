@@ -19,7 +19,8 @@
 			"com.mlin.notas.gametest.RuinsGameTest",
 			"com.mlin.notas.gametest.WaystoneGameTest",
 			"com.mlin.notas.gametest.NetherGameTest",
-			"com.mlin.notas.gametest.MobVariantsGameTest"
+			"com.mlin.notas.gametest.MobVariantsGameTest",
+			"com.mlin.notas.gametest.BeaconGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -27,7 +28,8 @@
 			"com.mlin.notas.gametest.EndClientGameTest",
 			"com.mlin.notas.gametest.RuinsClientGameTest",
 			"com.mlin.notas.gametest.NetherClientGameTest",
-			"com.mlin.notas.gametest.MobVariantsClientGameTest"
+			"com.mlin.notas.gametest.MobVariantsClientGameTest",
+			"com.mlin.notas.gametest.BeaconClientGameTest"
 		]
 	},
 	"depends": {

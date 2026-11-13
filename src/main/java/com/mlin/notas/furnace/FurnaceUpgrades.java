@@ -10,6 +10,9 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Items;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -66,6 +69,22 @@ public final class FurnaceUpgrades {
 			};
 		}
 		return Tier.WOOD;
+	}
+
+	/** Entradas que a fornalha de endita+ dobra (minerio bruto e blocos de minerio, via tags de convencao). */
+	public static final TagKey<Item> DOUBLED = TagKey.create(Registries.ITEM, MlinNotas.id("doubled_by_furnace"));
+
+	/**
+	 * Resultado final da fundicao: dobrado para minerio em fornalha de endita ou melhor ({@link SmeltYield}). Detritos
+	 * ancestrais ficam de fora (sucata de netherite nao dobra).
+	 */
+	public static ItemStack applyYield(BlockEntity furnace, ItemStack input, ItemStack result) {
+		if (result.isEmpty()) {
+			return result;
+		}
+		boolean ore = input.is(DOUBLED) && !input.is(Items.ANCIENT_DEBRIS);
+		int count = SmeltYield.resultCount(result.getCount(), tierOf(furnace), ore, result.getMaxStackSize());
+		return count == result.getCount() ? result : result.copyWithCount(count);
 	}
 
 	public static void setTier(BlockEntity blockEntity, Tier tier) {

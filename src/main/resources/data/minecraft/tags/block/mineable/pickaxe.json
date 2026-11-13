@@ -24,6 +24,15 @@
     "mlinnotas:purpur_elevator",
     "mlinnotas:void_basalt",
     "mlinnotas:waystone",
-    "mlinnotas:ember_nylium"
+    "mlinnotas:ember_nylium",
+    "mlinnotas:cobalt_block",
+    "mlinnotas:raw_cobalt_block",
+    "mlinnotas:infernite_block",
+    "mlinnotas:raw_infernite_block",
+    "mlinnotas:endite_block",
+    "mlinnotas:raw_endite_block",
+    "mlinnotas:astralite_block",
+    "mlinnotas:raw_astralite_block",
+    "mlinnotas:celestium_block"
   ]
 }

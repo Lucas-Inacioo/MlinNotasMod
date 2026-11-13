@@ -88,6 +88,12 @@ public class TexGen {
 		waystoneTop(blocks, "waystone_top");
 		waystoneItem(items, "waystone");
 		returnScroll(items, "return_scroll");
+
+		// Icones dos efeitos do sinalizador (18x18, atlas mob_effect)
+		File effects = new File(assets, "textures/mob_effect");
+		effects.mkdirs();
+		prospectingIcon(effects, "prospecting");
+		flightIcon(effects, "beacon_flight");
 	}
 
 	static BufferedImage img() {
@@ -313,6 +319,51 @@ public class TexGen {
 		}
 		rect(im, 7, 10, 2, 4, color);
 		rect(im, 7, 5, 2, 2, 0xFF202020);
+		save(im, dir, name);
+	}
+
+	/** Garimpo: picareta sobre uma gema. */
+	static void prospectingIcon(File dir, String name) throws IOException {
+		BufferedImage im = new BufferedImage(18, 18, BufferedImage.TYPE_INT_ARGB);
+		// gema (losango) embaixo a direita
+		int[] gem = {0xFFB8FFF6, 0xFF4CE0D2, 0xFF1E8C84};
+		for (int y = 0; y < 7; y++) {
+			int half = y < 3 ? y + 1 : 6 - y + 1;
+			for (int x = -half; x < half; x++) {
+				int c = y < 2 ? gem[0] : (x < 0 ? gem[1] : gem[2]);
+				set(im, 12 + x, 10 + y, c);
+			}
+		}
+		// cabo de madeira na diagonal
+		for (int i = 0; i < 9; i++) {
+			set(im, 3 + i, 14 - i, 0xFF8B5A2B);
+			set(im, 4 + i, 14 - i, 0xFF5C3A18);
+		}
+		// cabeca da picareta (arco dourado)
+		int[][] head = {{6, 2}, {7, 2}, {8, 2}, {9, 3}, {10, 3}, {11, 4}, {12, 5}, {13, 6}, {13, 7}, {14, 8}, {5, 2}, {4, 3}, {3, 4}};
+		for (int[] p : head) {
+			set(im, p[0], p[1], 0xFFF6D23A);
+			set(im, p[0], p[1] + 1, 0xFF8A6D0E);
+		}
+		save(im, dir, name);
+	}
+
+	/** Voo: asa branca com penas em degrade. */
+	static void flightIcon(File dir, String name) throws IOException {
+		BufferedImage im = new BufferedImage(18, 18, BufferedImage.TYPE_INT_ARGB);
+		int[] feather = {0xFFFFFFFF, 0xFFE6F0FF, 0xFFC8DAF5, 0xFFA8BFE6, 0xFF8AA4D6};
+		for (int f = 0; f < 5; f++) {
+			int length = 13 - f * 2;
+			int y = 4 + f * 2;
+			for (int x = 0; x < length; x++) {
+				set(im, 3 + x, y - x / 4, feather[f]);
+				set(im, 3 + x, y + 1 - x / 4, shade(feather[f], 0.85));
+			}
+		}
+		// osso da asa
+		for (int y = 3; y < 15; y++) {
+			set(im, 2, y, 0xFF5E6E8E);
+		}
 		save(im, dir, name);
 	}
 
