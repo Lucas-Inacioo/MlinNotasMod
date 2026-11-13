@@ -26,10 +26,7 @@ No Windows use `gradlew.bat`. Se `java` nao estiver no PATH: `JAVA_HOME=C:\Progr
 |---|---|
 | `src/main/java/com/mlin/notas/` | codigo comum (servidor + cliente). Entrypoint: `MlinNotas` |
 | `src/main/java/com/mlin/notas/notes/` | **logica pura** das anotacoes (sem classes do Minecraft) — testavel por JUnit |
-| `src/main/java/com/mlin/notas/<feature>/` | um pacote por feature (`tree`, `sorting`, `wand`, `tablet`, `furnace`, `chest`, `backpack`, `recipes`, `compass`, `dynlight`, `accessories`...). Logica pura em classes sem `net.minecraft` (`TreeFeller`, `InventorySorter`, `WandPlanner`), ponte com o jogo em classes separadas no mesmo pacote |
-| `src/main/java/com/mlin/notas/<feature>/` | um pacote por feature (`tree`, `sorting`, `wand`, `tablet`, `furnace`, `chest`, `backpack`, `recipes`, `storage`...). Logica pura em classes sem `net.minecraft` (`TreeFeller`, `InventorySorter`, `WandPlanner`), ponte com o jogo em classes separadas no mesmo pacote |
-| `src/main/java/com/mlin/notas/<feature>/` | um pacote por feature (`tree`, `sorting`, `wand`, `tablet`, `furnace`, `chest`, `backpack`, `recipes`, `food`...). Logica pura em classes sem `net.minecraft` (`TreeFeller`, `InventorySorter`, `WandPlanner`), ponte com o jogo em classes separadas no mesmo pacote |
-| `src/main/java/com/mlin/notas/<feature>/` | um pacote por feature (`tree`, `sorting`, `wand`, `tablet`, `furnace`, `chest`, `backpack`, `recipes`, `combat`...). Logica pura em classes sem `net.minecraft` (`TreeFeller`, `InventorySorter`, `WandPlanner`), ponte com o jogo em classes separadas no mesmo pacote |
+| `src/main/java/com/mlin/notas/<feature>/` | um pacote por feature (`tree`, `sorting`, `wand`, `tablet`, `furnace`, `chest`, `backpack`, `recipes`, `compass`, `dynlight`, `accessories`, `storage`, `food`, `combat`...). Logica pura em classes sem `net.minecraft` (`TreeFeller`, `InventorySorter`, `WandPlanner`), ponte com o jogo em classes separadas no mesmo pacote |
 | `src/main/java/com/mlin/notas/registry/` | registro de itens, blocos, menus, pacotes, aba criativa (`ModItems`, `ModPayloads`, `ModCreativeTab`...) |
 | `src/main/java/com/mlin/notas/util/` | utilitarios puros (`Pos`) |
 | `src/main/java/com/mlin/notas/command/` | comandos Brigadier |
