@@ -1,0 +1,17 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "mlinnotas:beans",
+    "mlinnotas:beans",
+    "minecraft:porkchop",
+    "mlinnotas:garlic",
+    "mlinnotas:onion"
+  ],
+  "container": "minecraft:bowl",
+  "result": {
+    "id": "mlinnotas:feijoada",
+    "count": 1
+  },
+  "cookingtime": 200,
+  "experience": 0.5
+}

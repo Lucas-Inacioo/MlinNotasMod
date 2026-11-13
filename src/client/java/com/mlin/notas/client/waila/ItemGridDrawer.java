@@ -34,7 +34,18 @@ final class ItemGridDrawer {
 			graphics.fill(cx + 1, cy + 1, cx + ItemGrid.CELL - 1, cy + ItemGrid.CELL - 1, SLOT_FILL);
 			ItemGrid.Group<ItemStack> group = groups.get(i);
 			graphics.item(group.sample(), cx + 1, cy + 1);
-			graphics.itemDecorations(font, group.sample(), cx + 1, cy + 1, ItemGrid.countLabel(group.count()));
+			String label = ItemGrid.countLabel(group.count());
+			if (label.length() < 3) {
+				graphics.itemDecorations(font, group.sample(), cx + 1, cy + 1, label);
+			} else {
+				// 999, 1.2k, 34M: meia escala para nao invadir a celula vizinha
+				graphics.itemDecorations(font, group.sample(), cx + 1, cy + 1, "");
+				graphics.pose().pushMatrix();
+				graphics.pose().translate(cx + 17.5F, cy + 13.5F);
+				graphics.pose().scale(0.5F, 0.5F);
+				graphics.text(font, label, -font.width(label), 0, 0xFFFFFFFF, true);
+				graphics.pose().popMatrix();
+			}
 		}
 		int overflow = ItemGrid.overflow(groups.size(), maxRows) + extra;
 		if (overflow > 0) {

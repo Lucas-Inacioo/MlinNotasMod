@@ -45,7 +45,7 @@ public final class BlockTraits {
 		}
 		String id = VPlan.id(state);
 		return !(id.endsWith("_fence") || id.endsWith("_wall") || id.endsWith("fence_gate") || id.equals("iron_bars") || id.endsWith("_pane")
-				|| id.endsWith("lantern") || id.endsWith("chain") || id.equals("pointed_dripstone") || id.endsWith("_bars") || id.equals("end_rod")
+				|| hangingLantern(id) || id.endsWith("chain") || id.equals("pointed_dripstone") || id.endsWith("_bars") || id.equals("end_rod")
 				|| id.equals("lightning_rod"));
 	}
 
@@ -98,7 +98,7 @@ public final class BlockTraits {
 			}
 			return back(facing);
 		}
-		if (id.endsWith("lantern")) {
+		if (hangingLantern(id)) {
 			return "true".equals(VPlan.prop(state, "hanging")) ? new int[] {0, 1, 0} : new int[] {0, -1, 0};
 		}
 		if (id.equals("torch") || id.equals("soul_torch") || id.equals("redstone_torch") || id.equals("redstone_wire") || id.endsWith("rail")
@@ -146,5 +146,10 @@ public final class BlockTraits {
 			case "west" -> new int[] {1, 0, 0};
 			default -> new int[] {0, -1, 0};
 		};
+	}
+
+	/** Lanterna de verdade (comum, de alma, de cobre): lanterna do mar e abobora iluminada sao blocos cheios. */
+	static boolean hangingLantern(String id) {
+		return id.endsWith("lantern") && !id.equals("sea_lantern") && !id.equals("jack_o_lantern");
 	}
 }

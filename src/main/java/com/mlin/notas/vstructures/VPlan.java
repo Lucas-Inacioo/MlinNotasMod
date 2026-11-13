@@ -33,6 +33,8 @@ public final class VPlan {
 	public static final int IF_SOLID = 8;
 	/** Como {@link #FILL_DOWN}, mas preenche com terra (arenito sob areia): chao de acampamento sobre terreno irregular. */
 	public static final int FILL_SOIL = 16;
+	/** Como {@link #FILL_DOWN}, mas desce ate {@code VanillaRemakePiece.DEEP_FILL_DEPTH} (pilares de ponte sobre o mar de lava). */
+	public static final int FILL_DEEP = 32;
 
 	public static final String AIR = "minecraft:air";
 	public static final String CAVE_AIR = "minecraft:cave_air";
@@ -57,6 +59,27 @@ public final class VPlan {
 
 	public VPlan(boolean underground) {
 		this.underground = underground;
+	}
+
+	/** Abaixo deste y o vazio (ar do plano ou fora dele) e agua para os testes: da para nadar em qualquer direcao. */
+	private int waterLevel = Integer.MIN_VALUE;
+
+	/**
+	 * Estrutura no mar: o vazio abaixo de {@code y} (relativo) conta como agua no teste de alcance ("da para chegar a
+	 * nado": qualquer espaco de 1x2 nao solido abaixo do nivel e uma posicao valida e se sobe/desce nadando). A peca
+	 * usa o nivel do mar de verdade para trocar o ar por agua.
+	 */
+	public void setWaterLevel(int y) {
+		this.waterLevel = y;
+	}
+
+	public int waterLevel() {
+		return waterLevel;
+	}
+
+	/** Espaco de agua (para nadar) nesta posicao. */
+	public boolean swimmable(int x, int y, int z) {
+		return y < waterLevel && !solid(x, y, z);
 	}
 
 	public static long key(int x, int y, int z) {
@@ -322,7 +345,7 @@ public final class VPlan {
 			return false;
 		}
 		String here = get(x, y, z);
-		return (here != null && BlockTraits.climbable(here)) || supports(x, y - 1, z);
+		return (here != null && BlockTraits.climbable(here)) || y < waterLevel || supports(x, y - 1, z);
 	}
 
 	/**
@@ -368,7 +391,7 @@ public final class VPlan {
 				}
 			}
 			String here = get(x, y, z);
-			if (here != null && BlockTraits.climbable(here)) {
+			if ((here != null && BlockTraits.climbable(here)) || y < waterLevel) {
 				if (validFeet(x, y + 1, z)) {
 					visit(seen, queue, x, y + 1, z, avoidTraps);
 				}
@@ -428,7 +451,7 @@ public final class VPlan {
 			int x = keyX(k);
 			int y = keyY(k);
 			int z = keyZ(k);
-			boolean grounded = (flags.getOrDefault(k, 0) & (FILL_DOWN | FILL_SOIL)) != 0;
+			boolean grounded = (flags.getOrDefault(k, 0) & (FILL_DOWN | FILL_SOIL | FILL_DEEP)) != 0;
 			for (int[] d : dirs) {
 				if (!grounded && get(x + d[0], y + d[1], z + d[2]) == null && anchored(x + d[0], y + d[1], z + d[2])) {
 					grounded = true;

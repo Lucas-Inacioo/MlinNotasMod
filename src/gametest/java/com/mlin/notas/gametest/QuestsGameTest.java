@@ -65,7 +65,7 @@ public class QuestsGameTest {
 	public void shippedBookTargetsExist(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
 		QuestBook book = QuestServer.loadBook(server.getResourceManager());
-		helper.assertTrue(book.chapters().size() == 7 && book.quests().size() >= 50, "livro carregado: " + book.quests().size());
+		helper.assertTrue(book.chapters().size() == 8 && book.quests().size() >= 50, "livro carregado: " + book.quests().size());
 		helper.assertTrue(book.validate().isEmpty(), "livro valido: " + book.validate());
 		Registry<Structure> structures = server.registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		var biomes = server.registryAccess().lookupOrThrow(Registries.BIOME);

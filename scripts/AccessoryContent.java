@@ -178,7 +178,7 @@ class AccessoryContent {
 
 		// --- quests nos capitulos existentes ---
 		QuestContent.EXTRA.computeIfAbsent("exploration", k -> new ArrayList<>()).addAll(List.of(
-				QuestContent.q("trinkets", "mlinnotas:copper_ring", 0, 0, "Bugigangas", "Trinkets",
+				QuestContent.q("trinkets", "mlinnotas:copper_ring", 0, 1, "Bugigangas", "Trinkets",
 								"Anéis (dano) e colares (defesa) de metal saem da bancada. Equipe pela aba Acessórios do inventário: 2 anéis, colar, cinto, luvas e amuleto. A soma de tudo tem um teto que sobe com a Mineração do mundo.",
 								"Metal rings (damage) and necklaces (defense) come from the crafting table. Equip them through the inventory's Accessories tab: 2 rings, necklace, belt, gloves and charm. Everything adds up to a cap that rises with the world's Mining level.")
 						.dep("basics/welcome").haveTag("mlinnotas:quest/basic_accessories", 1, "mlinnotas:copper_ring", "basic_accessory", "Um anel ou colar de metal",
@@ -191,7 +191,7 @@ class AccessoryContent {
 						.haveTag("mlinnotas:quest/artifacts", 1, "mlinnotas:pocket_watch", "artifact", "Qualquer artefato", "Any artifact")
 						.item("mlinnotas:return_scroll", 1).xp(80)));
 		QuestContent.EXTRA.computeIfAbsent("bosses", k -> new ArrayList<>()).addAll(List.of(
-				QuestContent.q("first_relic", "mlinnotas:resonant_pendant", 3, 0, "Relíquia", "Relic",
+				QuestContent.q("first_relic", "mlinnotas:resonant_pendant", 3, -1, "Relíquia", "Relic",
 						"Cada chefe deixa uma relíquia que ajuda contra o próximo, sem anular a mecânica dele: o Pingente Ressonante do Golem abafa parte do pulso sônico do Guardião.",
 						"Each boss leaves a relic that helps against the next one without cancelling its mechanic: the Golem's Resonant Pendant dampens part of the Guardian's sonic pulse.")
 						.dep("cobalt_golem").have("mlinnotas:resonant_pendant", 1).xp(100),

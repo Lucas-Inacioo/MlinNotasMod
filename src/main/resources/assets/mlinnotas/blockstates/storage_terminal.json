@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/storage_terminal"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/storage_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/storage_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/storage_terminal",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:fermenting",
+  "ingredient": "mlinnotas:fresh_cheese",
+  "result": {
+    "id": "mlinnotas:aged_cheese"
+  },
+  "days": 2.0
+}

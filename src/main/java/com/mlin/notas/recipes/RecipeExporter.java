@@ -71,6 +71,23 @@ public final class RecipeExporter {
 			}
 			return new RecipeView(id, RecipeKind.SHAPELESS, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
 		}
+		if (recipe instanceof net.minecraft.world.item.crafting.TransmuteRecipe transmute) {
+			// item + material -> outro item com os mesmos componentes (caixa de shulker tingida, melhoria da unidade de armazenamento)
+			List<Ingredient> ingredients = transmute.placementInfo().ingredients();
+			List<ItemStack> sample = new ArrayList<>();
+			for (Ingredient ingredient : ingredients) {
+				sample.add(ingredient.items().findFirst().map(ItemStack::new).orElse(ItemStack.EMPTY));
+			}
+			ItemStack result = sample.isEmpty() ? ItemStack.EMPTY : transmute.assemble(CraftingInput.of(sample.size(), 1, sample));
+			if (result.isEmpty()) {
+				return null;
+			}
+			List<List<Integer>> inputs = new ArrayList<>();
+			for (Ingredient ingredient : ingredients) {
+				inputs.add(alternatives(ingredient));
+			}
+			return new RecipeView(id, RecipeKind.SHAPELESS, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
+		}
 		if (recipe instanceof AbstractCookingRecipe cooking) {
 			RecipeKind kind;
 			if (cooking instanceof SmeltingRecipe) {
@@ -99,7 +116,7 @@ public final class RecipeExporter {
 			return new RecipeView(id, RecipeKind.STONECUTTING, 0, 0, List.of(alternatives(stonecutter.input())),
 					itemId(result), result.getCount(), 0, 0);
 		}
-		return null;
+		return com.mlin.notas.food.FoodRecipeExport.export(id, recipe);
 	}
 
 	private static List<Integer> alternatives(Ingredient ingredient) {

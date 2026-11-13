@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mlinnotas:storage_unit_infernite",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "source": "block_entity",
+            "include": [
+              "minecraft:custom_name",
+              "mlinnotas:storage_contents"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "random_sequence": "mlinnotas:blocks/storage_unit_infernite"
+}

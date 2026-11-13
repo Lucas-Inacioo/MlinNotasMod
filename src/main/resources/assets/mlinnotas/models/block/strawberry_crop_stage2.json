@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "mlinnotas:block/strawberry_crop_stage2"
+  }
+}

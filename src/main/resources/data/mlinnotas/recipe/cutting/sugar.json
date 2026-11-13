@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:cutting",
+  "ingredient": "minecraft:sugar_cane",
+  "result": {
+    "id": "minecraft:sugar",
+    "count": 2
+  }
+}

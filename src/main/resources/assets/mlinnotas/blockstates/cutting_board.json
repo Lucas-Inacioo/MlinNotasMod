@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/cutting_board"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/cutting_board",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/cutting_board",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/cutting_board",
+      "y": 270
+    }
+  }
+}

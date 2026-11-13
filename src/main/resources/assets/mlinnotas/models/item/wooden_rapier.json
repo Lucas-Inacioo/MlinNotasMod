@@ -1,0 +1,6 @@
+{
+  "parent": "mlinnotas:item/weapon_rapier",
+  "textures": {
+    "layer0": "mlinnotas:item/wooden_rapier"
+  }
+}

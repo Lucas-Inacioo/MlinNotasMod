@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "I": "mlinnotas:infernite_ingot",
+    "S": "mlinnotas:dragon_scale"
+  },
+  "pattern": [
+    "S",
+    "I",
+    "#"
+  ],
+  "result": {
+    "id": "mlinnotas:dragon_fangs"
+  }
+}

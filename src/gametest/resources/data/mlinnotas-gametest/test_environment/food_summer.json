@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:function",
+  "setup": "mlinnotas-gametest:food/summer",
+  "teardown": "mlinnotas-gametest:food/reset"
+}

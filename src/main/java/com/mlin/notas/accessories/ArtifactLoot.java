@@ -45,6 +45,15 @@ public final class ArtifactLoot {
 		pool("minecraft:chests/buried_treasure", 0.30, "diver_ring");
 		pool("minecraft:chests/shipwreck_treasure", 0.08, "diver_ring", "pocket_watch");
 		pool("minecraft:chests/underwater_ruin_big", 0.10, "diver_ring");
+		// estruturas do mar e pequenas refeitas
+		pool("mlinnotas:chests/monument_treasury", 0.30, "diver_ring", "life_amulet", "frost_ring");
+		pool("mlinnotas:chests/witch_hut", 0.20, "vampire_fang", "lucky_horseshoe", "sun_pendant");
+		pool("minecraft:chests/igloo_chest", 0.15, "frost_ring", "pocket_watch");
+		pool("minecraft:chests/ruined_portal", 0.05, "feather_charm", "anchor_belt");
+		// Nether refeito: fortaleza e bastiao
+		pool("minecraft:chests/nether_bridge", 0.06, "thorn_necklace", "anchor_belt", "duelist_glove");
+		pool("minecraft:chests/bastion_treasure", 0.30, "vampire_fang", "life_amulet", "magnet_ring");
+		pool("minecraft:chests/bastion_bridge", 0.08, "traveler_belt", "duelist_glove");
 		// covis dos chefes e cidadela do End
 		pool("mlinnotas:chests/cobalt_shrine", 0.15, "life_amulet", "duelist_glove", "anchor_belt");
 		pool("mlinnotas:chests/abyssal_sanctum", 0.20, "miner_lantern", "thorn_necklace", "life_amulet");

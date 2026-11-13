@@ -86,6 +86,10 @@ public final class ItemListOverlay {
 			search.keyPressed(event);
 			return false;
 		}
+		if (screen.getFocused() instanceof EditBox own && own.isFocused()) {
+			// a tela tem a propria caixa de texto (ex.: busca do terminal de armazenamento): R/U sao letras
+			return true;
+		}
 		boolean recipes = ModKeys.SHOW_RECIPES.matches(event);
 		boolean usages = ModKeys.SHOW_USAGES.matches(event);
 		if (!recipes && !usages) {
