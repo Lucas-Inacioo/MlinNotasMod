@@ -1,5 +1,6 @@
 package com.mlin.notas.registry;
 
+import com.mlin.notas.enchanting.SelectiveEnchantMenu;
 import com.mlin.notas.MlinNotas;
 import com.mlin.notas.backpack.BackpackMenu;
 import com.mlin.notas.chest.BigChestMenu;
@@ -24,6 +25,10 @@ public final class ModMenus {
 	public static final ExtendedMenuType<BackpackMenu, BackpackMenu.Data> BACKPACK = Registry.register(
 			BuiltInRegistries.MENU, MlinNotas.id("backpack"),
 			new ExtendedMenuType<>(BackpackMenu::new, BackpackMenu.Data.STREAM_CODEC));
+
+	public static final MenuType<SelectiveEnchantMenu> SELECTIVE_ENCHANT = Registry.register(
+			BuiltInRegistries.MENU, MlinNotas.id("selective_enchant"),
+			new MenuType<>(SelectiveEnchantMenu::new, FeatureFlags.VANILLA_SET));
 
 	private ModMenus() {
 	}

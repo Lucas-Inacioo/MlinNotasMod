@@ -1,5 +1,14 @@
 package com.mlin.notas.gametest;
 
+import com.mlin.notas.client.screen.SelectiveEnchantScreen;
+import com.mlin.notas.enchanting.SelectiveEnchantMenu;
+import com.mlin.notas.enchanting.SelectiveEnchanting;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.level.block.Blocks;
 import com.mlin.notas.client.GammaBright;
 import com.mlin.notas.client.ModKeys;
 import com.mlin.notas.client.minimap.MinimapOptionsScreen;
@@ -41,6 +50,32 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			singleplayer.getServer().runCommand("time set noon");
 			context.waitTicks(20);
 			context.takeScreenshot("mlinnotas-minimap-entities");
+
+			// Mesa de encantamento com escolha: anel de estantes, espada e lapis no menu, 30 niveis
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				ServerLevel level = player.level();
+				BlockPos table = player.blockPosition().offset(0, 0, 3);
+				for (int dx = -2; dx <= 2; dx++) {
+					for (int dz = -2; dz <= 2; dz++) {
+						if (Math.abs(dx) == 2 || Math.abs(dz) == 2) {
+							level.setBlockAndUpdate(table.offset(dx, 0, dz), Blocks.BOOKSHELF.defaultBlockState());
+							level.setBlockAndUpdate(table.offset(dx, 1, dz), Blocks.BOOKSHELF.defaultBlockState());
+						}
+					}
+				}
+				level.setBlockAndUpdate(table, Blocks.ENCHANTING_TABLE.defaultBlockState());
+				player.giveExperienceLevels(30);
+				SelectiveEnchanting.open(player, ContainerLevelAccess.create(level, table));
+				player.containerMenu.slots.get(SelectiveEnchantMenu.ITEM_SLOT).set(new ItemStack(Items.DIAMOND_SWORD));
+				player.containerMenu.slots.get(SelectiveEnchantMenu.LAPIS_SLOT).set(new ItemStack(Items.LAPIS_LAZULI, 32));
+				player.containerMenu.broadcastChanges();
+			});
+			context.waitForScreen(SelectiveEnchantScreen.class);
+			context.waitTicks(10);
+			context.takeScreenshot("mlinnotas-selective-enchant");
+			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+			context.waitForScreen(null);
 
 			// Gammabright ligado
 			context.getInput().pressKey(ModKeys.GAMMABRIGHT);

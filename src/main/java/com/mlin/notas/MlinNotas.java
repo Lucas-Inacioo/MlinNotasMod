@@ -3,6 +3,7 @@ package com.mlin.notas;
 import com.mlin.notas.command.NotaCommand;
 import com.mlin.notas.chest.ChestUpgrades;
 import com.mlin.notas.chest.ChestUpgrades;
+import com.mlin.notas.enchanting.SelectiveEnchanting;
 import com.mlin.notas.furnace.FurnaceUpgrades;
 import com.mlin.notas.notes.NotebookManager;
 import com.mlin.notas.registry.ModBlockEntities;
@@ -49,6 +50,7 @@ public class MlinNotas implements ModInitializer {
 		InventorySortServer.init();
 		FurnaceUpgrades.init();
 		RecipeSyncServer.init();
+		SelectiveEnchanting.init();
 		ChestUpgrades.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->

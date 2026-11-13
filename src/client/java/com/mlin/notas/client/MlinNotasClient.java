@@ -5,6 +5,7 @@ import com.mlin.notas.client.minimap.MinimapClient;
 import com.mlin.notas.backpack.OpenBackpackPayload;
 import com.mlin.notas.client.screen.BackpackScreen;
 import com.mlin.notas.client.screen.BigChestScreen;
+import com.mlin.notas.client.screen.SelectiveEnchantScreen;
 import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModBlockEntities;
 import com.mlin.notas.client.render.BigChestRenderer;
@@ -30,6 +31,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		MenuScreens.register(ModMenus.GOLD_CHEST, BigChestScreen::new);
 		MenuScreens.register(ModMenus.DIAMOND_CHEST, BigChestScreen::new);
 		MenuScreens.register(ModMenus.BACKPACK, BackpackScreen::new);
+		MenuScreens.register(ModMenus.SELECTIVE_ENCHANT, SelectiveEnchantScreen::new);
 		BlockEntityRenderers.register(ModBlockEntities.BIG_CHEST, BigChestRenderer::new);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
