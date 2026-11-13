@@ -65,6 +65,9 @@ public final class WailaServer {
 			return Optional.empty();
 		}
 		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if (blockEntity instanceof com.mlin.notas.storage.StorageUnitBlockEntity unit) {
+			return Optional.of(com.mlin.notas.storage.StorageWaila.peek(pos, unit));
+		}
 		if (!(blockEntity instanceof BaseContainerBlockEntity containerEntity) || !containerEntity.canOpen(player)) {
 			return Optional.empty();
 		}

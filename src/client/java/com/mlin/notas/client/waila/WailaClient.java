@@ -77,7 +77,7 @@ public final class WailaClient {
 		HitResult hit = minecraft.hitResult;
 		if (hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK) {
 			BlockPos pos = blockHit.getBlockPos();
-			if (minecraft.level.getBlockEntity(pos) instanceof BaseContainerBlockEntity
+			if ((minecraft.level.getBlockEntity(pos) instanceof BaseContainerBlockEntity || minecraft.level.getBlockEntity(pos) instanceof com.mlin.notas.storage.StorageUnitBlockEntity)
 					&& ClientPlayNetworking.canSend(ContainerPeekRequestPayload.TYPE)) {
 				ClientPlayNetworking.send(new ContainerPeekRequestPayload(pos));
 			}

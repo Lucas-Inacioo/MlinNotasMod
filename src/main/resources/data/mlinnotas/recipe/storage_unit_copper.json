@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "H": "minecraft:chest",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "CRC",
+    "RHR",
+    "CRC"
+  ],
+  "result": {
+    "id": "mlinnotas:storage_unit_copper"
+  }
+}
