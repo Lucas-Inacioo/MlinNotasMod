@@ -87,16 +87,21 @@ class RuinPlannerTest {
 			assertNotNull(tower.marker(RuinPlan.MARKER_WAYSTONE), "torre com pedra de teleporte");
 			assertEquals(1, tower.count(RuinPart.WAYSTONE));
 			Pos chest = tower.marker(RuinPlan.MARKER_CHEST);
-			assertTrue(chest.y() >= RuinPlanner.TOWER_TOP, "bau no topo da torre, ficou em y=" + chest.y());
+			assertTrue(chest.y() > RuinPlanner.TOWER_MIN_TOP, "bau no deque do topo da torre, ficou em y=" + chest.y());
+			assertTrue(tower.count(RuinPart.WOOD_STAIRS) >= 10, "escada de degraus por dentro da torre");
 
 			RuinPlan camp = RuinPlanner.plan(RuinKind.CAMP, seed);
 			assertEquals(1, camp.count(RuinPart.CAMPFIRE));
-			assertEquals(1, camp.count(RuinPart.BARREL));
-			assertTrue(camp.count(RuinPart.TENT) >= 10, "barracas de la");
+			assertTrue(camp.count(RuinPart.BARREL) >= 1, "barril com loot");
+			assertTrue(camp.count(RuinPart.TENT) + camp.count(RuinPart.TENT_ALT) >= 30, "barracas de la listrada");
+			assertTrue(camp.count(RuinPart.TRAPDOOR) >= 2, "rodas da carroca");
+			assertTrue(camp.count(RuinPart.FENCE) >= 10, "curral e postes");
 
 			RuinPlan well = RuinPlanner.plan(RuinKind.WELL, seed);
-			assertTrue(well.marker(RuinPlan.MARKER_CHEST).y() < -5, "bau na sala embaixo do poco");
-			assertTrue(well.count(RuinPart.LADDER) >= 8, "escada de mao ate o fundo");
+			assertTrue(well.marker(RuinPlan.MARKER_CHEST).y() < -5, "bau na cisterna embaixo do poco");
+			assertTrue(well.count(RuinPart.LADDER) >= 12, "escada de mao ate o fundo");
+			assertTrue(well.count(RuinPart.WOOD_STAIRS) >= 30, "telhado de duas aguas");
+			assertTrue(well.count(RuinPart.WATER) >= 6, "agua no fundo do poco");
 
 			RuinPlan chapel = RuinPlanner.plan(RuinKind.CHAPEL, seed);
 			assertNotNull(chapel.marker(RuinPlan.MARKER_WAYSTONE), "capela com pedra de teleporte");
@@ -108,8 +113,106 @@ class RuinPlannerTest {
 			Pos altar = mine.marker(RuinPlan.MARKER_BOSS_ALTAR);
 			assertEquals(RuinPart.BOSS_ALTAR, mine.get(altar.x(), altar.y(), altar.z()), "bloco provisorio da sala do chefe");
 			assertTrue(mine.count(RuinPart.ORE) >= 8, "veio de minerio: " + mine.count(RuinPart.ORE));
-			assertTrue(mine.count(RuinPart.FENCE) >= 8, "escoras");
+			assertTrue(mine.count(RuinPart.BEAM) >= 20, "escoras de tronco");
+			assertTrue(mine.count(RuinPart.RAIL) + mine.count(RuinPart.RAIL_UP) >= 15, "trilhos");
+			assertEquals(1, mine.count(RuinPart.MINECART), "carrinho de mina");
+			assertTrue(chapel.count(RuinPart.GLASS_PANE) + chapel.count(RuinPart.IRON_BARS) >= 3, "vitrais quebrados");
+			assertEquals(1, chapel.count(RuinPart.BELL), "sino caido na torre");
+			assertTrue(chapel.count(RuinPart.WOOD_STAIRS) >= 40, "bancos e telhado");
 		}
+	}
+
+	/** Tamanhos pedidos: torre 9x9 com 14-18 de altura, capela ~11x17. */
+	@Test
+	void sizesFollowTheBrief() {
+		for (long seed : SEEDS) {
+			RuinPlan tower = RuinPlanner.plan(RuinKind.WATCHTOWER, seed);
+			int[] b = tower.bounds();
+			assertTrue(b[4] >= 14 && b[4] <= 19, "altura da torre " + b[4]);
+			RuinPlan chapel = RuinPlanner.plan(RuinKind.CHAPEL, seed);
+			// nave de 11x17: o perimetro de parede no chao passa de 50 blocos (menos a porta)
+			long walls = chapel.blocks().entrySet().stream().filter(e -> RuinPlan.keyY(e.getKey()) == 0).map(Map.Entry::getValue)
+					.filter(p -> p == RuinPart.WALL || p == RuinPart.WALL_ALT || p == RuinPart.WALL_MOSSY || p == RuinPart.WALL_CRACKED
+							|| p == RuinPart.ACCENT).count();
+			assertTrue(walls >= 50, "paredes da nave: " + walls);
+			int[] c = chapel.surfaceBounds();
+			assertTrue(Math.max(c[2] - c[0], c[3] - c[1]) >= 17, "capela comprida");
+		}
+	}
+
+	/** Paredes com textura: as quatro pedras da mistura aparecem, e cada ruina usa muitos tipos de bloco de detalhe. */
+	@Test
+	void wallsAreTexturedAndDetailed() {
+		for (RuinKind kind : RuinKind.values()) {
+			for (long seed : SEEDS) {
+				RuinPlan plan = RuinPlanner.plan(kind, seed);
+				for (RuinPart stone : new RuinPart[] {RuinPart.WALL, RuinPart.WALL_ALT, RuinPart.WALL_MOSSY, RuinPart.WALL_CRACKED}) {
+					assertTrue(plan.count(stone) > 0, kind + " seed " + seed + " sem " + stone);
+				}
+				long kinds = plan.blocks().values().stream().distinct().count();
+				assertTrue(kinds >= 22, kind + " seed " + seed + ": so " + kinds + " tipos de bloco");
+				assertTrue(plan.count(RuinPart.PLANT) + plan.count(RuinPart.VINE) + plan.count(RuinPart.LEAVES) + plan.count(RuinPart.MOSS_CARPET) >= 10,
+						kind + " seed " + seed + ": pouca vegetacao");
+			}
+		}
+	}
+
+	/** Entulho solto tem que estar apoiado logo embaixo (nao basta encostar de lado). */
+	@Test
+	void looseRubbleRestsOnSomething() {
+		for (RuinKind kind : RuinKind.values()) {
+			for (long seed : SEEDS) {
+				RuinPlan plan = RuinPlanner.plan(kind, seed);
+				for (long k : plan.loose()) {
+					int x = RuinPlan.keyX(k);
+					int y = RuinPlan.keyY(k);
+					int z = RuinPlan.keyZ(k);
+					assertTrue(plan.get(x, y, z) != RuinPart.AIR, kind + " seed " + seed + ": entulho marcado e vazio em " + x + "," + y + "," + z);
+					RuinPart below = plan.get(x, y - 1, z);
+					boolean rests = below != null ? below.obstacle() && below.standable() : y - 1 < 0;
+					assertTrue(rests, kind + " seed " + seed + ": entulho sem apoio em " + x + "," + y + "," + z + " (embaixo " + below + ")");
+				}
+				assertTrue(kind == RuinKind.CAMP || kind == RuinKind.WELL || plan.loose().size() >= 3, kind + " seed " + seed + ": sem entulho");
+			}
+		}
+	}
+
+	/** Plantas, tapetes, velas e trilhos tem chao; trepadeiras tem parede; lanternas penduradas tem onde pendurar. */
+	@Test
+	void decorationsAreAttached() {
+		for (RuinKind kind : RuinKind.values()) {
+			for (long seed : SEEDS) {
+				RuinPlan plan = RuinPlanner.plan(kind, seed);
+				for (Map.Entry<Long, RuinPart> e : plan.blocks().entrySet()) {
+					int x = RuinPlan.keyX(e.getKey());
+					int y = RuinPlan.keyY(e.getKey());
+					int z = RuinPlan.keyZ(e.getKey());
+					RuinPart part = e.getValue();
+					String where = kind + " seed " + seed + ": " + part + " em " + x + "," + y + "," + z;
+					if (part.needsFloor()) {
+						RuinPart below = plan.get(x, y - 1, z);
+						assertTrue(below != null ? below.obstacle() : y - 1 < 0, where + " sem chao (" + below + ")");
+					}
+					if (part == RuinPart.VINE) {
+						RuinPlan.Dir d = plan.facing(x, y, z);
+						RuinPart wall = plan.get(x + d.dx, y, z + d.dz);
+						assertTrue(wall != null && wall.obstacle() && wall.standable(), where + " sem parede");
+					}
+					if (part == RuinPart.LANTERN_HANGING || part == RuinPart.CHAIN && plan.facing(x, y, z) == null) {
+						RuinPart above = plan.get(x, y + 1, z);
+						assertTrue(above != null && above.obstacle(), where + " sem nada em cima (" + above + ")");
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	void mirrorTwiceIsTheSamePlan() {
+		RuinPlan plan = RuinPlanner.plan(RuinKind.WATCHTOWER, 9);
+		assertEquals(plan.blocks(), plan.mirrored().mirrored().blocks());
+		assertEquals(plan.markers(), plan.mirrored().mirrored().markers());
+		assertEquals(plan.loose(), plan.mirrored().mirrored().loose());
 	}
 
 	@Test
