@@ -241,6 +241,7 @@ public class ContentGen {
 		SeaStructuresContent.generate();
 		FoodContent.generate();
 		CombatContent.generate();
+		SmainContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

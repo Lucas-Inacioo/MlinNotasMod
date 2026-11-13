@@ -57,6 +57,13 @@ public class VanillaRemakeStructure extends Structure {
 		boolean mirror = random.nextBoolean();
 		ChunkGenerator generator = context.chunkGenerator();
 		int surface = generator.getFirstOccupiedHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState());
+		if (kind == VKind.STRONGHOLD) {
+			// sempre gera (o anel concentrico conta com isso: o olho do fim aponta para este chunk), abaixo do fundo do mar
+			int floor = generator.getFirstOccupiedHeight(x, z, Heightmap.Types.OCEAN_FLOOR_WG, context.heightAccessor(), context.randomState());
+			int y = Math.clamp(floor - 32L - random.nextInt(16), context.heightAccessor().getMinY() + 34, 16);
+			BlockPos origin = new BlockPos(x, y, z);
+			return Optional.of(new Structure.GenerationStub(origin, b -> b.addPiece(new VanillaRemakePiece(kind, 0, seed, origin, turns, mirror))));
+		}
 		if (kind.underground()) {
 			int y;
 			if (kind == VKind.MINESHAFT_MESA) {

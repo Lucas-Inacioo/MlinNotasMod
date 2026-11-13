@@ -30,6 +30,8 @@ public final class VariantRules {
 			case NETHER_FORTRESS, BASTION_REMNANT -> 0; // bastiao: tipo sorteado na colocacao (NetherRemakePlacement)
 			case MONUMENT, SHIPWRECK, SHIPWRECK_BEACHED, OCEAN_RUIN_WARM, OCEAN_RUIN_COLD, BURIED_TREASURE, IGLOO, SWAMP_HUT, RUINED_PORTAL, RUINED_PORTAL_DESERT,
 					RUINED_PORTAL_JUNGLE, RUINED_PORTAL_SWAMP, RUINED_PORTAL_MOUNTAIN, RUINED_PORTAL_OCEAN, RUINED_PORTAL_NETHER, TRAIL_RUINS -> seaVariant(kind, b);
+			case STRONGHOLD -> 0;
+			case WOODLAND_MANSION -> b.contains("pale") ? MansionPlanner.PALE : 0;
 			case JUNGLE_TEMPLE -> b.contains("bamboo") ? JUNGLE_BAMBOO : JUNGLE_PLAIN;
 			case PILLAGER_OUTPOST -> {
 				if (b.contains("desert") || b.contains("badlands")) {

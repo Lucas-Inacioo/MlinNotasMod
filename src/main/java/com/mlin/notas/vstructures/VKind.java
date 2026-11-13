@@ -31,7 +31,9 @@ public enum VKind {
 	RUINED_PORTAL_MOUNTAIN("ruined_portal_mountain", 10, Placement.LAND),
 	RUINED_PORTAL_OCEAN("ruined_portal_ocean", 8, Placement.SEAFLOOR),
 	RUINED_PORTAL_NETHER("ruined_portal_nether", 5, Placement.NETHER),
-	TRAIL_RUINS("trail_ruins", 8, Placement.LAND);
+	TRAIL_RUINS("trail_ruins", 8, Placement.LAND),
+	STRONGHOLD("stronghold", true, 0),
+	WOODLAND_MANSION("mansion", false, 12);
 
 	/**
 	 * Como a estrutura acha o lugar. {@code LAND}/{@code UNDERGROUND}: as regras antigas (superficie seca / subsolo).
@@ -116,6 +118,8 @@ public enum VKind {
 			case RUINED_PORTAL, RUINED_PORTAL_DESERT, RUINED_PORTAL_JUNGLE, RUINED_PORTAL_SWAMP, RUINED_PORTAL_MOUNTAIN, RUINED_PORTAL_OCEAN,
 					RUINED_PORTAL_NETHER -> RuinedPortalPlanner.plan(seed, variant, this);
 			case TRAIL_RUINS -> TrailRuinsPlanner.plan(seed, variant);
+			case STRONGHOLD -> StrongholdPlanner.plan(seed, variant);
+			case WOODLAND_MANSION -> MansionPlanner.plan(seed, variant);
 		};
 	}
 

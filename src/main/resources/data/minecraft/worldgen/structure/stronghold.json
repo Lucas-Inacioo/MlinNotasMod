@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:vanilla_remake",
+  "kind": "stronghold",
+  "biomes": "#minecraft:has_structure/stronghold",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "encapsulate"
+}
