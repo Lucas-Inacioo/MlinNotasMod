@@ -311,10 +311,15 @@ public class VanillaRemakePiece extends StructurePiece {
 	@Override
 	public void postProcess(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator, RandomSource random,
 			BoundingBox chunkBB, ChunkPos chunkPos, BlockPos referencePos) {
+		placeIn(level, random, chunkBB, chunkPos, generator.getSeaLevel());
+	}
+
+	/** Coloca o que cai no chunk; {@code seaLevel}: abaixo dele o ar do plano vira agua nas estruturas do mar (testes passam o seu). */
+	public void placeIn(WorldGenLevel level, RandomSource random, BoundingBox chunkBB, ChunkPos chunkPos, int seaLevel) {
 		VPlan plan = plan();
 		List<Long> keys = byChunk().get(ChunkPos.pack(chunkPos.x(), chunkPos.z()));
 		if (keys != null) {
-			place(level, random, chunkBB, plan, keys);
+			place(level, random, chunkBB, plan, keys, seaLevel);
 		}
 		for (VPlan.Spawn spawn : plan.entities()) {
 			double[] w = worldPoint(spawn.x(), spawn.y(), spawn.z());
@@ -325,7 +330,7 @@ public class VanillaRemakePiece extends StructurePiece {
 		}
 	}
 
-	private void place(WorldGenLevel level, RandomSource random, BoundingBox chunkBB, VPlan plan, List<Long> keys) {
+	private void place(WorldGenLevel level, RandomSource random, BoundingBox chunkBB, VPlan plan, List<Long> keys, int seaLevel) {
 		Map<Long, Integer> groups = plan.groupMap();
 		Set<Integer> wet = new HashSet<>();
 		if (!groups.isEmpty()) {
@@ -362,6 +367,12 @@ public class VanillaRemakePiece extends StructurePiece {
 				continue;
 			}
 			BlockState state = transform(parse(plan.blocks().get(k)));
+			if (kind.placement().aquatic()) {
+				state = SeaBlocks.forDepth(state, pos.getY() < seaLevel);
+				if (state == null) {
+					continue;
+				}
+			}
 			level.setBlock(pos, state, Block.UPDATE_CLIENTS);
 			String table = plan.lootTables().get(k);
 			if (table != null) {
@@ -465,6 +476,7 @@ public class VanillaRemakePiece extends StructurePiece {
 				raider.setItemSlot(EquipmentSlot.HEAD, Raid.getOminousBannerInstance(level.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
 				raider.setDropChance(EquipmentSlot.HEAD, 2.0f);
 			}
+			SeaSpawns.apply(level, mob, tag);
 		}
 		level.addFreshEntityWithPassengers(entity);
 	}

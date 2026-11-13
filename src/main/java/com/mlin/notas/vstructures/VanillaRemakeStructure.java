@@ -45,6 +45,9 @@ public class VanillaRemakeStructure extends Structure {
 		if (kind.nether()) {
 			return NetherRemakePlacement.find(kind, context);
 		}
+		if (kind.placement() != VKind.Placement.LAND && kind.placement() != VKind.Placement.UNDERGROUND) {
+			return SeaPlacement.find(kind, context);
+		}
 		ChunkPos chunkPos = context.chunkPos();
 		int x = chunkPos.getMiddleBlockX();
 		int z = chunkPos.getMiddleBlockZ();

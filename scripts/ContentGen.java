@@ -237,6 +237,7 @@ public class ContentGen {
 		SNetherContent.generate();
 		CompassContent.generate();
 		StorageContent.generate(pickaxeMineable);
+		SeaStructuresContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
