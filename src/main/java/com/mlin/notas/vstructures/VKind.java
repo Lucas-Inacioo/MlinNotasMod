@@ -12,7 +12,9 @@ public enum VKind {
 	JUNGLE_TEMPLE("jungle_pyramid", false, 12),
 	PILLAGER_OUTPOST("pillager_outpost", false, 8),
 	MINESHAFT("mineshaft", true, 0),
-	MINESHAFT_MESA("mineshaft_mesa", true, 0);
+	MINESHAFT_MESA("mineshaft_mesa", true, 0),
+	NETHER_FORTRESS("fortress", false, 99),
+	BASTION_REMNANT("bastion_remnant", false, 99);
 
 	private final String id;
 	private final boolean underground;
@@ -59,6 +61,16 @@ public enum VKind {
 			case PILLAGER_OUTPOST -> OutpostPlanner.plan(seed, variant);
 			case MINESHAFT -> MineshaftPlanner.plan(seed, variant, false);
 			case MINESHAFT_MESA -> MineshaftPlanner.plan(seed, variant, true);
+			case NETHER_FORTRESS -> FortressPlanner.plan(seed, variant);
+			case BASTION_REMNANT -> BastionPlanner.plan(seed, variant);
 		};
+	}
+
+	/**
+	 * Estrutura do Nether: assenta no chao do terreno novo ({@code NetherRemakePlacement}) e vira uma peca por fatia de
+	 * 16x16 (o {@code spawn_overrides} da fortaleza vale so nas caixas das fatias).
+	 */
+	public boolean nether() {
+		return this == NETHER_FORTRESS || this == BASTION_REMNANT;
 	}
 }

@@ -33,6 +33,8 @@ public final class VPlan {
 	public static final int IF_SOLID = 8;
 	/** Como {@link #FILL_DOWN}, mas preenche com terra (arenito sob areia): chao de acampamento sobre terreno irregular. */
 	public static final int FILL_SOIL = 16;
+	/** Como {@link #FILL_DOWN}, mas desce ate {@code VanillaRemakePiece.DEEP_FILL_DEPTH} (pilares de ponte sobre o mar de lava). */
+	public static final int FILL_DEEP = 32;
 
 	public static final String AIR = "minecraft:air";
 	public static final String CAVE_AIR = "minecraft:cave_air";
@@ -428,7 +430,7 @@ public final class VPlan {
 			int x = keyX(k);
 			int y = keyY(k);
 			int z = keyZ(k);
-			boolean grounded = (flags.getOrDefault(k, 0) & (FILL_DOWN | FILL_SOIL)) != 0;
+			boolean grounded = (flags.getOrDefault(k, 0) & (FILL_DOWN | FILL_SOIL | FILL_DEEP)) != 0;
 			for (int[] d : dirs) {
 				if (!grounded && get(x + d[0], y + d[1], z + d[2]) == null && anchored(x + d[0], y + d[1], z + d[2])) {
 					grounded = true;

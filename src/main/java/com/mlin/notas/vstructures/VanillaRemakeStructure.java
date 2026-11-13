@@ -42,6 +42,9 @@ public class VanillaRemakeStructure extends Structure {
 
 	@Override
 	public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
+		if (kind.nether()) {
+			return NetherRemakePlacement.find(kind, context);
+		}
 		ChunkPos chunkPos = context.chunkPos();
 		int x = chunkPos.getMiddleBlockX();
 		int z = chunkPos.getMiddleBlockZ();

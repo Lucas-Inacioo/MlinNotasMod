@@ -64,7 +64,7 @@ public class GroundedStructure extends Structure {
 	}
 
 	/** Chao da coluna (primeiro ar sobre rocha acima do mar de lava) no terreno base. */
-	static int floorAt(Structure.GenerationContext context, int x, int z) {
+	public static int floorAt(Structure.GenerationContext context, int x, int z) {
 		LevelHeightAccessor height = context.heightAccessor();
 		NoiseColumn column = context.chunkGenerator().getBaseColumn(x, z, height, context.randomState());
 		int minY = height.getMinY();

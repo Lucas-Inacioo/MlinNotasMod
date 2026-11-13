@@ -63,6 +63,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class VanillaRemakePiece extends StructurePiece {
 	public static final int FILL_DEPTH = 32;
+	/** Profundidade de {@link VPlan#FILL_DEEP}. */
+	public static final int DEEP_FILL_DEPTH = 72;
+	/** Peca com o plano inteiro (sem fatia). */
+	public static final long ALL = Long.MIN_VALUE;
+	/** Lado da fatia de {@link #tileOf}. */
+	public static final int TILE = 16;
+	private static final Map<VPlan, Map<Long, int[]>> TILE_BOUNDS = Collections.synchronizedMap(new java.util.WeakHashMap<>());
 	private static final Map<String, BlockState> STATES = new ConcurrentHashMap<>();
 	private static final Map<String, VPlan> PLANS = Collections.synchronizedMap(new LinkedHashMap<>(16, 0.75f, true) {
 		@Override
@@ -77,16 +84,58 @@ public class VanillaRemakePiece extends StructurePiece {
 	private final BlockPos origin;
 	private final int turns;
 	private final boolean mirror;
+	private final long tile;
 	private volatile @Nullable Map<Long, List<Long>> byChunk;
 
 	public VanillaRemakePiece(VKind kind, int variant, long seed, BlockPos origin, int turns, boolean mirror) {
-		super(ModStructures.VANILLA_REMAKE_PIECE, 0, box(planFor(kind, seed, variant), origin, turns, mirror));
+		this(kind, variant, seed, origin, turns, mirror, ALL);
+	}
+
+	/**
+	 * Peca que coloca so a fatia {@code tile} do plano (colunas de 16x16 em coordenadas do plano, {@link #tileOf}), com a
+	 * caixa justa do que ha nela: estruturas grandes e vazadas (fortaleza) viram varias caixas pequenas, entao o
+	 * {@code spawn_overrides} com {@code bounding_box: piece} vale so na construcao e nao no morro em volta.
+	 */
+	public VanillaRemakePiece(VKind kind, int variant, long seed, BlockPos origin, int turns, boolean mirror, long tile) {
+		super(ModStructures.VANILLA_REMAKE_PIECE, 0, box(planFor(kind, seed, variant), origin, turns, mirror, tile));
 		this.kind = kind;
 		this.variant = variant;
 		this.seed = seed;
 		this.origin = origin;
 		this.turns = turns;
 		this.mirror = mirror;
+		this.tile = tile;
+	}
+
+	/** Fatia de 16x16 (coordenadas do plano) que contem a coluna {@code (x, z)}. */
+	public static long tileOf(int x, int z) {
+		return ChunkPos.pack(Math.floorDiv(x, TILE), Math.floorDiv(z, TILE));
+	}
+
+	/** Caixa ({min x, min y, min z, max x, max y, max z} do plano) de cada fatia que tem blocos. */
+	public static Map<Long, int[]> tileBounds(VPlan plan) {
+		Map<Long, int[]> out = new LinkedHashMap<>();
+		for (long k : plan.blocks().keySet()) {
+			int x = VPlan.keyX(k);
+			int y = VPlan.keyY(k);
+			int z = VPlan.keyZ(k);
+			int[] b = out.computeIfAbsent(tileOf(x, z), t -> new int[] {x, y, z, x, y, z});
+			b[0] = Math.min(b[0], x);
+			b[1] = Math.min(b[1], y);
+			b[2] = Math.min(b[2], z);
+			b[3] = Math.max(b[3], x);
+			b[4] = Math.max(b[4], y);
+			b[5] = Math.max(b[5], z);
+		}
+		return out;
+	}
+
+	public long tile() {
+		return tile;
+	}
+
+	private boolean inTile(int x, int z) {
+		return tile == ALL || tileOf(x, z) == tile;
 	}
 
 	public VanillaRemakePiece(CompoundTag tag) {
@@ -97,6 +146,7 @@ public class VanillaRemakePiece extends StructurePiece {
 		this.origin = new BlockPos(tag.getIntOr("OX", 0), tag.getIntOr("OY", 64), tag.getIntOr("OZ", 0));
 		this.turns = tag.getIntOr("Turns", 0);
 		this.mirror = tag.getBooleanOr("Mirror", false);
+		this.tile = tag.getLongOr("Tile", ALL);
 	}
 
 	@Override
@@ -109,6 +159,9 @@ public class VanillaRemakePiece extends StructurePiece {
 		tag.putInt("OZ", origin.getZ());
 		tag.putInt("Turns", turns);
 		tag.putBoolean("Mirror", mirror);
+		if (tile != ALL) {
+			tag.putLong("Tile", tile);
+		}
 	}
 
 	public static VPlan planFor(VKind kind, long seed, int variant) {
@@ -181,8 +234,8 @@ public class VanillaRemakePiece extends StructurePiece {
 		return out.rotate(rotation());
 	}
 
-	private static BoundingBox box(VPlan plan, BlockPos origin, int turns, boolean mirror) {
-		int[] b = plan.bounds();
+	private static BoundingBox box(VPlan plan, BlockPos origin, int turns, boolean mirror, long tile) {
+		int[] b = tile == ALL ? plan.bounds() : TILE_BOUNDS.computeIfAbsent(plan, VanillaRemakePiece::tileBounds).get(tile);
 		int minX = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
 		int maxX = Integer.MIN_VALUE;
@@ -244,6 +297,9 @@ public class VanillaRemakePiece extends StructurePiece {
 		if (byChunk == null) {
 			Map<Long, List<Long>> out = new HashMap<>();
 			for (long k : plan().blocks().keySet()) {
+				if (!inTile(VPlan.keyX(k), VPlan.keyZ(k))) {
+					continue;
+				}
 				BlockPos p = world(VPlan.keyX(k), VPlan.keyY(k), VPlan.keyZ(k));
 				out.computeIfAbsent(ChunkPos.pack(p.getX() >> 4, p.getZ() >> 4), c -> new ArrayList<>()).add(k);
 			}
@@ -263,7 +319,7 @@ public class VanillaRemakePiece extends StructurePiece {
 		for (VPlan.Spawn spawn : plan.entities()) {
 			double[] w = worldPoint(spawn.x(), spawn.y(), spawn.z());
 			BlockPos at = BlockPos.containing(w[0], w[1], w[2]);
-			if (chunkBB.isInside(at)) {
+			if (chunkBB.isInside(at) && inTile((int) Math.floor(spawn.x()), (int) Math.floor(spawn.z()))) {
 				spawn(level, random, spawn, w, at);
 			}
 		}
@@ -328,6 +384,9 @@ public class VanillaRemakePiece extends StructurePiece {
 			if ((flag & VPlan.FILL_SOIL) != 0) {
 				fillBelow(level, pos, soilFor(state));
 			}
+			if ((flag & VPlan.FILL_DEEP) != 0) {
+				fillBelow(level, pos, state, DEEP_FILL_DEPTH);
+			}
 			if ("ominous".equals(plan.tagMap().get(k)) && level.getBlockEntity(pos) instanceof BannerBlockEntity banner) {
 				banner.applyComponentsFromItemStack(Raid.getOminousBannerInstance(level.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
 			}
@@ -366,8 +425,12 @@ public class VanillaRemakePiece extends StructurePiece {
 
 	/** Desce o bloco ate achar chao firme (ar, plantas e liquidos sao substituidos). */
 	private static void fillBelow(WorldGenLevel level, BlockPos top, BlockState fill) {
+		fillBelow(level, top, fill, FILL_DEPTH);
+	}
+
+	private static void fillBelow(WorldGenLevel level, BlockPos top, BlockState fill, int depth) {
 		BlockPos.MutableBlockPos pos = top.mutable();
-		for (int i = 0; i < FILL_DEPTH; i++) {
+		for (int i = 0; i < depth; i++) {
 			pos.move(Direction.DOWN);
 			if (pos.getY() <= level.getMinY()) {
 				return;
