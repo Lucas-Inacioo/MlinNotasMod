@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:celestium_ingot",
+  "base": "mlinnotas:astralite_warhammer",
+  "result": {
+    "id": "mlinnotas:celestium_warhammer"
+  },
+  "template": "mlinnotas:celestial_upgrade_smithing_template"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "mlinnotas:corn"
+  ],
+  "result": {
+    "id": "mlinnotas:popcorn",
+    "count": 3
+  },
+  "cookingtime": 200,
+  "experience": 0.1
+}

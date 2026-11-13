@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:fermenting",
+  "ingredient": "mlinnotas:cabbage",
+  "result": {
+    "id": "mlinnotas:sauerkraut"
+  },
+  "days": 1.0
+}

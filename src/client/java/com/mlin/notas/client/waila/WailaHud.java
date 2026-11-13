@@ -185,7 +185,7 @@ public final class WailaHud {
 			rows.add(season);
 		}
 
-		ContainerPeekPayload contents = level.getBlockEntity(pos) instanceof BaseContainerBlockEntity ? WailaClient.contentsFor(pos) : null;
+		ContainerPeekPayload contents = level.getBlockEntity(pos) instanceof BaseContainerBlockEntity || level.getBlockEntity(pos) instanceof com.mlin.notas.storage.StorageUnitBlockEntity ? WailaClient.contentsFor(pos) : null;
 		if (contents != null) {
 			if (contents.furnaceTier() > 0 && contents.furnaceTier() < Tier.values().length) {
 				Tier tier = Tier.values()[contents.furnaceTier()];

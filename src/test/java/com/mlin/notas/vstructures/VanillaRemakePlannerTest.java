@@ -20,6 +20,8 @@ class VanillaRemakePlannerTest {
 			case PILLAGER_OUTPOST -> new int[] {0, 1, 2, 3, 4, 5};
 			case MINESHAFT -> new int[] {0, 1, 2, 3, 4, 5, 6};
 			case JUNGLE_TEMPLE -> new int[] {0, 1};
+			case BASTION_REMNANT -> new int[] {0, 1, 2, 3};
+			case RUINED_PORTAL, RUINED_PORTAL_MOUNTAIN, RUINED_PORTAL_OCEAN -> new int[] {0, 1};
 			default -> new int[] {0};
 		};
 	}
@@ -74,6 +76,7 @@ class VanillaRemakePlannerTest {
 			for (int variant : variants(kind)) {
 				for (long seed : SEEDS) {
 					VPlan plan = kind.plan(seed, variant);
+					SeaStructuresTest.prepareForWalking(kind, plan);
 					if (kind == VKind.JUNGLE_TEMPLE) {
 						// a porta secreta aberta (o teste de jogo confere que as alavancas abrem)
 						Pos door = plan.marker(JungleTemplePlanner.MARKER_SECRET_DOOR);
@@ -84,6 +87,9 @@ class VanillaRemakePlannerTest {
 					assertNotNull(start, kind + " sem entrada");
 					Set<Long> reach = plan.reachableFrom(start.x(), start.y(), start.z(), kind == VKind.DESERT_PYRAMID);
 					assertTrue(reach.size() > 50, kind + " seed " + seed + ": entrada presa");
+					if (SeaStructuresTest.DIG_SITES.contains(kind)) {
+						continue; // achados para cavar: testes proprios em SeaStructuresTest
+					}
 					assertTrue(!plan.lootTables().isEmpty(), kind + " sem loot");
 					for (long k : plan.lootTables().keySet()) {
 						assertTrue(VPlan.usableFrom(reach, VPlan.keyX(k), VPlan.keyY(k), VPlan.keyZ(k)),

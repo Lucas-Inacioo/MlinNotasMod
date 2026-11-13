@@ -1,0 +1,15 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "mlinnotas:cornmeal",
+    "mlinnotas:cornmeal",
+    "#mlinnotas:cheese"
+  ],
+  "container": "minecraft:bowl",
+  "result": {
+    "id": "mlinnotas:polenta",
+    "count": 1
+  },
+  "cookingtime": 200,
+  "experience": 0.35
+}

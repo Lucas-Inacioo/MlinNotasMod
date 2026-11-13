@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mlinnotas:item/biome_compass_25"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "mlinnotas:item/weapon_dagger",
+  "textures": {
+    "layer0": "mlinnotas:item/golden_dagger"
+  }
+}

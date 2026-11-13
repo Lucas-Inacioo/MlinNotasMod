@@ -30,15 +30,24 @@ class SmithingChainTest {
 		assertNull(SmithingChain.forTier(Tier.COBALT), "cobalto continua na mesa de trabalho");
 	}
 
+	/** Ferramentas/armaduras + as classes de arma do combate ({@code WeaponClass.ALL}). */
+	private static java.util.List<String> pieces() {
+		java.util.List<String> all = new java.util.ArrayList<>(SmithingChain.PIECES);
+		for (com.mlin.notas.combat.WeaponClass weapon : com.mlin.notas.combat.WeaponClass.ALL) {
+			all.add(weapon.suffix());
+		}
+		return all;
+	}
+
 	@Test
 	void everyPieceIsASmithingUpgrade() throws IOException {
 		for (SmithingChain step : SmithingChain.values()) {
-			for (String piece : SmithingChain.PIECES) {
+			for (String piece : pieces()) {
 				Path recipe = RES.resolve("data/mlinnotas/recipe/" + step.to().id() + "_" + piece + ".json");
 				String json = Files.readString(recipe, StandardCharsets.UTF_8);
 				assertTrue(json.contains("\"minecraft:smithing_transform\""), recipe + " e de ferraria");
 				assertTrue(json.contains("\"mlinnotas:" + step.templateId() + "\""), recipe + " usa o molde");
-				String base = step.from() == Tier.NETHERITE ? "minecraft:netherite_" + piece : "mlinnotas:" + step.from().id() + "_" + piece;
+				String base = step.from() == Tier.NETHERITE && SmithingChain.PIECES.contains(piece) ? "minecraft:netherite_" + piece : "mlinnotas:" + step.from().id() + "_" + piece;
 				assertTrue(json.contains("\"" + base + "\""), recipe + " parte de " + base);
 				assertTrue(json.contains("\"" + step.ingot() + "\""), recipe + " gasta " + step.ingot());
 				assertFalse(json.contains("crafting_shaped"), recipe + " sem receita de mesa");

@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:cutting",
+  "ingredient": "mlinnotas:corn",
+  "result": {
+    "id": "mlinnotas:cornmeal",
+    "count": 2
+  }
+}

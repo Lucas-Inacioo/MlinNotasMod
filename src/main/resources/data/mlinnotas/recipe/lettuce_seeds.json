@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:lettuce"
+  ],
+  "result": {
+    "id": "mlinnotas:lettuce_seeds",
+    "count": 2
+  }
+}

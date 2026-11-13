@@ -44,6 +44,9 @@ public final class CropSeasons {
 			Map.entry("minecraft:torchflower_crop", FLOWER),
 			Map.entry("minecraft:pitcher_crop", PITCHER));
 
+	/** Culturas da cozinha do mod (alface, tomate, milho...), definidas em {@code food/FoodCatalog}. */
+	private static final Map<String, Profile> MOD_CROPS = com.mlin.notas.food.FoodCatalog.cropProfiles();
+
 	/** Quao bem a cultura vai na data, para o HUD. */
 	public enum Status {
 		/** >= 1,15 */
@@ -81,6 +84,10 @@ public final class CropSeasons {
 	/** Perfil do bloco (id {@code ns:caminho}); mudas de qualquer madeira contam. Null = nao e sazonal. */
 	public static Profile profile(String blockId) {
 		Profile profile = BY_ID.get(blockId);
+		if (profile != null) {
+			return profile;
+		}
+		profile = MOD_CROPS.get(blockId);
 		if (profile != null) {
 			return profile;
 		}

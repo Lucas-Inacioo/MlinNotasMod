@@ -262,6 +262,57 @@
           "xp": 80
         }
       ]
+    },
+    {
+      "id": "biome_compass",
+      "icon": "mlinnotas:biome_compass",
+      "x": 0,
+      "y": 0,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:biome_compass",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:map",
+          "count": 2
+        },
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "structure_compass",
+      "icon": "mlinnotas:structure_compass",
+      "x": 3,
+      "y": 2,
+      "dependencies": [
+        "biome_compass",
+        "mining/cobalt"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:structure_compass",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "mlinnotas:return_scroll",
+          "count": 1
+        },
+        {
+          "xp": 80
+        }
+      ]
     }
   ]
 }

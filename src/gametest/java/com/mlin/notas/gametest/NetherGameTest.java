@@ -74,10 +74,12 @@ public class NetherGameTest {
 
 	@GameTest
 	public void fortressAndBastionAreGrounded(GameTestHelper helper) {
+		// refeitas em vstructures/ (assentam no chao por NetherSiting); detalhes em SNetherGameTest
 		var structures = helper.getLevel().registryAccess().lookupOrThrow(Registries.STRUCTURE);
 		for (String id : List.of("fortress", "bastion_remnant")) {
 			Structure structure = structures.getOrThrow(ResourceKey.create(Registries.STRUCTURE, Identifier.withDefaultNamespace(id))).value();
-			helper.assertTrue(structure.type() == NetherRegistry.GROUNDED, id + " deveria usar mlinnotas:grounded, usa " + structure.type());
+			helper.assertTrue(structure.type() == com.mlin.notas.registry.ModStructures.VANILLA_REMAKE,
+					id + " deveria usar mlinnotas:vanilla_remake, usa " + structure.type());
 		}
 		helper.succeed();
 	}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/crafting_terminal"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/crafting_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/crafting_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/crafting_terminal",
+      "y": 270
+    }
+  }
+}

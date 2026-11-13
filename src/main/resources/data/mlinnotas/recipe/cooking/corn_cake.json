@@ -1,0 +1,16 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "mlinnotas:cornmeal",
+    "mlinnotas:cornmeal",
+    "#minecraft:eggs",
+    "minecraft:sugar",
+    "minecraft:milk_bucket"
+  ],
+  "result": {
+    "id": "mlinnotas:corn_cake",
+    "count": 2
+  },
+  "cookingtime": 200,
+  "experience": 0.2
+}

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_transmute",
+  "category": "misc",
+  "group": "storage_unit_upgrade",
+  "input": "mlinnotas:storage_unit_endite",
+  "material": "mlinnotas:astralite_block",
+  "result": {
+    "id": "mlinnotas:storage_unit_astralite"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:infernite_ingot",
+  "base": "mlinnotas:netherite_glaive",
+  "result": {
+    "id": "mlinnotas:infernite_glaive"
+  },
+  "template": "mlinnotas:infernal_upgrade_smithing_template"
+}
