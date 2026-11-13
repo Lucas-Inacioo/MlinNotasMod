@@ -568,5 +568,20 @@
   "message.mlinnotas.dragon.phase_two": "O Dragão do Ender ruge e os cristais renascem nos pilares!",
   "message.mlinnotas.dragon.phase_three": "O Dragão do Ender entra em fúria!",
   "message.mlinnotas.dragon.dive": "O Dragão do Ender mergulha! Pule a onda de choque!",
-  "message.mlinnotas.dragon.hoard": "O tesouro do dragão apareceu no estrado norte do santuário"
+  "message.mlinnotas.dragon.hoard": "O tesouro do dragão apareceu no estrado norte do santuário",
+  "structure.mlinnotas.forgotten_crypt": "Cripta Esquecida",
+  "entity.mlinnotas.dungeon_boss.forgotten_crypt": "Senhor da Cripta",
+  "structure.mlinnotas.sunken_hold": "Fortaleza Anã Afundada",
+  "entity.mlinnotas.dungeon_boss.sunken_hold": "Rei Anão Caído",
+  "structure.mlinnotas.drowned_temple": "Templo Afogado",
+  "entity.mlinnotas.dungeon_boss.drowned_temple": "Sumo Sacerdote Afogado",
+  "structure.mlinnotas.sand_catacomb": "Catacumba de Areia",
+  "entity.mlinnotas.dungeon_boss.sand_catacomb": "Faraó Mumificado",
+  "block.mlinnotas.dungeon_gate": "Portão Selado",
+  "block.mlinnotas.dungeon_gate.tooltip": "Abre com a Chave da Masmorra",
+  "item.mlinnotas.dungeon_key": "Chave da Masmorra",
+  "item.mlinnotas.dungeon_key.tooltip": "Abre o Portão Selado e, no cofre, rende um prêmio para quem a usar",
+  "message.mlinnotas.dungeon.gate_locked": "O portão está selado. Derrote o guardião da masmorra para conseguir a chave.",
+  "message.mlinnotas.dungeon.gate_opened": "A chave gira e o portão se abre",
+  "message.mlinnotas.dungeon.boss_defeated": "%s caiu! Soltou %s Chave(s) da Masmorra: uma para cada um abrir o cofre."
 }

@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:dungeon",
+  "theme": "sunken_hold",
+  "biomes": "#mlinnotas:has_structure/sunken_hold",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

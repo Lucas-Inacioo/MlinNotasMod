@@ -228,6 +228,7 @@ public class ContentGen {
 		RuinsContent.generate(pickaxeMineable);
 		NetherContent.generate(pickaxeMineable);
 		BossContent.generate(pickaxeMineable);
+		DungeonContent.generate();
 		BeaconContent.generate(pickaxeMineable);
 		DragonContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);

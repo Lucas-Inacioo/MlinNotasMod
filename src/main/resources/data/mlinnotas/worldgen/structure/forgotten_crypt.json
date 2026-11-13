@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:dungeon",
+  "theme": "forgotten_crypt",
+  "biomes": "#mlinnotas:has_structure/forgotten_crypt",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

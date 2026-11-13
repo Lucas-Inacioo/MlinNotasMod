@@ -1,0 +1,26 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 915377,
+    "separation": 10,
+    "spacing": 30
+  },
+  "structures": [
+    {
+      "structure": "mlinnotas:forgotten_crypt",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:sunken_hold",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:drowned_temple",
+      "weight": 1
+    },
+    {
+      "structure": "mlinnotas:sand_catacomb",
+      "weight": 1
+    }
+  ]
+}

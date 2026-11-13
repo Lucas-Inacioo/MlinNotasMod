@@ -568,5 +568,20 @@
   "message.mlinnotas.dragon.phase_two": "The Ender Dragon roars and crystals regrow on the pillars!",
   "message.mlinnotas.dragon.phase_three": "The Ender Dragon flies into a rage!",
   "message.mlinnotas.dragon.dive": "The Ender Dragon dives! Jump over the shockwave!",
-  "message.mlinnotas.dragon.hoard": "The dragon's hoard appeared on the north dais of the sanctuary"
+  "message.mlinnotas.dragon.hoard": "The dragon's hoard appeared on the north dais of the sanctuary",
+  "structure.mlinnotas.forgotten_crypt": "Forgotten Crypt",
+  "entity.mlinnotas.dungeon_boss.forgotten_crypt": "Crypt Lord",
+  "structure.mlinnotas.sunken_hold": "Sunken Dwarven Hold",
+  "entity.mlinnotas.dungeon_boss.sunken_hold": "Fallen Dwarf King",
+  "structure.mlinnotas.drowned_temple": "Drowned Temple",
+  "entity.mlinnotas.dungeon_boss.drowned_temple": "Drowned High Priest",
+  "structure.mlinnotas.sand_catacomb": "Sand Catacomb",
+  "entity.mlinnotas.dungeon_boss.sand_catacomb": "Mummified Pharaoh",
+  "block.mlinnotas.dungeon_gate": "Sealed Gate",
+  "block.mlinnotas.dungeon_gate.tooltip": "Opens with a Dungeon Key",
+  "item.mlinnotas.dungeon_key": "Dungeon Key",
+  "item.mlinnotas.dungeon_key.tooltip": "Opens the Sealed Gate; use it on the vault for your own reward",
+  "message.mlinnotas.dungeon.gate_locked": "The gate is sealed. Defeat the dungeon's guardian to get the key.",
+  "message.mlinnotas.dungeon.gate_opened": "The key turns and the gate opens",
+  "message.mlinnotas.dungeon.boss_defeated": "%s has fallen! It dropped %s Dungeon Key(s): one for each of you to open the vault."
 }
