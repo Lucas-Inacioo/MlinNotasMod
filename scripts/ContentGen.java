@@ -52,6 +52,7 @@ public class ContentGen {
 		NEEDS.put("#mlinnotas:needs_netherite_tool", 7);
 		NEEDS.put("#mlinnotas:needs_infernite_tool", 8);
 		NEEDS.put("#mlinnotas:needs_endite_tool", 9);
+		NEEDS.put("#mlinnotas:needs_astralite_tool", 10);
 	}
 
 	// ferramentas: sufixo, nome pt, nome en, padrao de receita
@@ -227,6 +228,7 @@ public class ContentGen {
 		RuinsContent.generate(pickaxeMineable);
 		NetherContent.generate(pickaxeMineable);
 		BossContent.generate(pickaxeMineable);
+		BeaconContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

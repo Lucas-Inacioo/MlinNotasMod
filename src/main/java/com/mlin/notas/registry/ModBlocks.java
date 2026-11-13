@@ -40,6 +40,23 @@ public final class ModBlocks {
 	public static final Block ASTRALITE_ORE = registerOre("astralite_ore", BlockBehaviour.Properties.of().mapColor(MapColor.SAND)
 			.instrument(NoteBlockInstrument.BASEDRUM).strength(6.5F, 12.0F).sound(SoundType.STONE).lightLevel(state -> 5));
 
+	// blocos de armazenamento dos metais novos (9 lingotes) e do minerio bruto (9 brutos); os de metal servem de base do sinalizador
+	private static final Map<Tier, Block> STORAGE = new EnumMap<>(Tier.class);
+	private static final Map<Tier, Block> RAW_STORAGE = new EnumMap<>(Tier.class);
+
+	static {
+		for (Tier tier : Tier.values()) {
+			if (tier.modGear()) {
+				STORAGE.put(tier, Blocks.register(key(tier.id() + "_block"), Block::new, storageProperties(tier)));
+			}
+			if (tier.hasOre()) {
+				RAW_STORAGE.put(tier, Blocks.register(key("raw_" + tier.id() + "_block"), Block::new, BlockBehaviour.Properties.of()
+						.mapColor(metalColor(tier)).instrument(NoteBlockInstrument.BASEDRUM).strength(5.0F, tier.fireResistant() ? 1200.0F : 6.0F)
+						.requiresCorrectToolForDrops()));
+			}
+		}
+	}
+
 	// End: blocos dos biomas novos e da Cidadela do End (registrados como itens em ModItems, na ordem)
 	private static final List<Block> END_BLOCKS = new ArrayList<>();
 	public static final Block END_MOSS = registerEnd("end_moss", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN)
@@ -99,6 +116,35 @@ public final class ModBlocks {
 
 	public static ResourceKey<Block> key(String name) {
 		return ResourceKey.create(Registries.BLOCK, MlinNotas.id(name));
+	}
+
+	private static MapColor metalColor(Tier tier) {
+		return switch (tier) {
+			case COBALT -> MapColor.COLOR_BLUE;
+			case INFERNITE -> MapColor.COLOR_RED;
+			case ENDITE -> MapColor.COLOR_PURPLE;
+			case ASTRALITE -> MapColor.COLOR_PINK;
+			case CELESTIUM -> MapColor.GOLD;
+			default -> MapColor.METAL;
+		};
+	}
+
+	/** Bloco de metal: dureza cresce com o nivel; do netherite para cima resiste a explosoes como o bloco de netherite. */
+	private static BlockBehaviour.Properties storageProperties(Tier tier) {
+		boolean tough = tier.fireResistant();
+		return BlockBehaviour.Properties.of().mapColor(metalColor(tier)).instrument(NoteBlockInstrument.IRON_XYLOPHONE)
+				.strength(tough ? 25.0F + (tier.level() - 9) * 8.0F : 5.0F, tough ? 1200.0F : 6.0F)
+				.sound(tough ? SoundType.NETHERITE_BLOCK : SoundType.METAL).requiresCorrectToolForDrops();
+	}
+
+	/** Bloco de armazenamento do metal (null para niveis vanilla). */
+	public static Block storage(Tier tier) {
+		return STORAGE.get(tier);
+	}
+
+	/** Bloco de minerio bruto (null para niveis sem minerio). */
+	public static Block rawStorage(Tier tier) {
+		return RAW_STORAGE.get(tier);
 	}
 
 	private static Block registerOre(String name, BlockBehaviour.Properties properties) {

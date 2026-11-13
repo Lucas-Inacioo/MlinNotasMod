@@ -77,6 +77,15 @@ public final class ModItems {
 		for (Block ore : ModBlocks.ores()) {
 			registerBlock(ore, BuiltInRegistries.BLOCK.getKey(ore).getPath(), new Item.Properties());
 		}
+		// blocos de metal e de minerio bruto
+		for (Tier tier : Tier.values()) {
+			if (ModBlocks.storage(tier) != null) {
+				registerBlock(ModBlocks.storage(tier), tier.id() + "_block", materialProperties(tier));
+			}
+			if (ModBlocks.rawStorage(tier) != null) {
+				registerBlock(ModBlocks.rawStorage(tier), "raw_" + tier.id() + "_block", materialProperties(tier));
+			}
+		}
 		// ferramentas e armaduras dos niveis novos
 		for (Tier tier : Tier.values()) {
 			if (tier.modGear()) {

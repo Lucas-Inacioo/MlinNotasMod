@@ -43,8 +43,11 @@ public class TierTexGen {
 				write(recolor(vanilla("item/iron_" + g), m, true), items, m.id + "_" + g);
 			}
 			write(recolor(vanilla("item/iron_ingot"), m, false), items, m.id + "_ingot");
+			// blocos de armazenamento (base do sinalizador) e de minerio bruto
+			write(recolor(vanilla("block/iron_block"), m, false), blocks, m.id + "_block");
 			if (m.ore) {
 				write(recolor(vanilla("item/raw_iron"), m, false), items, "raw_" + m.id);
+				write(recolor(vanilla("block/raw_iron_block"), m, false), blocks, "raw_" + m.id + "_block");
 			}
 			write(recolor(vanilla("entity/equipment/humanoid/iron"), m, false), humanoid, m.id);
 			write(recolor(vanilla("entity/equipment/humanoid_leggings/iron"), m, false), leggings, m.id);

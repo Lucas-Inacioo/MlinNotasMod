@@ -32,6 +32,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		MinimapClient.init();
 		com.mlin.notas.client.waystone.WaystoneClient.init();
 		WailaClient.init();
+		com.mlin.notas.client.beacon.BeaconScreenExtras.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}

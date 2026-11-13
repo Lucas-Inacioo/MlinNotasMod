@@ -1,5 +1,7 @@
 {
   "values": [
-    "mlinnotas:astralite_ore"
+    "mlinnotas:astralite_ore",
+    "mlinnotas:astralite_block",
+    "mlinnotas:raw_astralite_block"
   ]
 }

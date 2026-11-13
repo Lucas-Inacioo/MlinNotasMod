@@ -18,6 +18,7 @@ public final class WailaRules {
 
 	/** Tag -> nivel exigido, do mais exigente para o menos (o primeiro que o bloco tiver vale). */
 	private static final List<Requirement> REQUIREMENTS = List.of(
+			new Requirement("mlinnotas:needs_astralite_tool", Tier.ASTRALITE),
 			new Requirement("mlinnotas:needs_endite_tool", Tier.ENDITE),
 			new Requirement("mlinnotas:needs_infernite_tool", Tier.INFERNITE),
 			new Requirement("mlinnotas:needs_netherite_tool", Tier.NETHERITE),

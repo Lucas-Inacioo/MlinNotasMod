@@ -1,5 +1,7 @@
 {
   "values": [
-    "mlinnotas:endite_ore"
+    "mlinnotas:endite_ore",
+    "mlinnotas:endite_block",
+    "mlinnotas:raw_endite_block"
   ]
 }

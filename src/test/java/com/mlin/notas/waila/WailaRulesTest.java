@@ -23,6 +23,7 @@ class WailaRulesTest {
 		assertEquals(Tier.NETHERITE, WailaRules.requiredTier(Set.of("mlinnotas:needs_netherite_tool")::contains));
 		assertEquals(Tier.INFERNITE, WailaRules.requiredTier(Set.of("mlinnotas:needs_infernite_tool")::contains));
 		assertEquals(Tier.ENDITE, WailaRules.requiredTier(Set.of("mlinnotas:needs_endite_tool")::contains));
+		assertEquals(Tier.ASTRALITE, WailaRules.requiredTier(Set.of("mlinnotas:needs_astralite_tool")::contains));
 	}
 
 	@Test
