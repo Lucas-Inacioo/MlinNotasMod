@@ -1,0 +1,14 @@
+{
+  "values": [
+    "mlinnotas:lettuce_crop",
+    "mlinnotas:onion_crop",
+    "mlinnotas:strawberry_crop",
+    "mlinnotas:tomato_crop",
+    "mlinnotas:corn_crop",
+    "mlinnotas:bell_pepper_crop",
+    "mlinnotas:rice_crop",
+    "mlinnotas:beans_crop",
+    "mlinnotas:garlic_crop",
+    "mlinnotas:cabbage_crop"
+  ]
+}

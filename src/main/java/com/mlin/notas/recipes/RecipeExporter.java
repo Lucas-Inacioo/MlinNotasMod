@@ -99,7 +99,7 @@ public final class RecipeExporter {
 			return new RecipeView(id, RecipeKind.STONECUTTING, 0, 0, List.of(alternatives(stonecutter.input())),
 					itemId(result), result.getCount(), 0, 0);
 		}
-		return null;
+		return com.mlin.notas.food.FoodRecipeExport.export(id, recipe);
 	}
 
 	private static List<Integer> alternatives(Ingredient ingredient) {

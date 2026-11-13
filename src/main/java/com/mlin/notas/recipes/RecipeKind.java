@@ -8,7 +8,13 @@ public enum RecipeKind {
 	BLASTING,
 	SMOKING,
 	CAMPFIRE,
-	STONECUTTING;
+	STONECUTTING,
+	/** Panela da cozinha: ingredientes e, se {@code width == 1}, o ultimo input e o recipiente. */
+	COOKING_POT,
+	/** Tabua de corte. */
+	CUTTING,
+	/** Barril de Conserva: {@code cookTicks} = tempo de cura. */
+	FERMENTING;
 
 	private static final RecipeKind[] VALUES = values();
 

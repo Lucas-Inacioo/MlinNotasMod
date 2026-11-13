@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:bell_pepper"
+  ],
+  "result": {
+    "id": "mlinnotas:bell_pepper_seeds",
+    "count": 2
+  }
+}

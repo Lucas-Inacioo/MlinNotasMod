@@ -1,0 +1,16 @@
+{
+  "type": "mlinnotas:cooking",
+  "ingredients": [
+    "mlinnotas:tomato",
+    "mlinnotas:tomato",
+    "mlinnotas:garlic",
+    "mlinnotas:onion"
+  ],
+  "container": "minecraft:glass_bottle",
+  "result": {
+    "id": "mlinnotas:tomato_sauce",
+    "count": 1
+  },
+  "cookingtime": 200,
+  "experience": 0.3
+}

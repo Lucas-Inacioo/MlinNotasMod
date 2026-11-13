@@ -36,10 +36,10 @@ class QuestContentTest {
 	void shippedBookIsValid() throws IOException {
 		QuestBook book = load();
 		assertEquals(List.of(), book.validate());
-		assertEquals(List.of("basics", "mining", "exploration", "bosses", "nether", "end", "tech"),
+		assertEquals(List.of("basics", "mining", "exploration", "bosses", "nether", "end", "tech", "kitchen"),
 				book.chapters().stream().map(QuestChapter::id).toList());
 		int total = book.quests().size();
-		assertTrue(total >= 50 && total <= 90, "quests: " + total);
+		assertTrue(total >= 50 && total <= 100, "quests: " + total);
 	}
 
 	@Test

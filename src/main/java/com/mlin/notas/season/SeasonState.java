@@ -9,8 +9,18 @@ package com.mlin.notas.season;
 public final class SeasonState {
 	private static volatile SeasonDate current;
 	private static volatile float temperatureOffset;
+	private static volatile long seasonIndex;
 
 	private SeasonState() {
+	}
+
+	/** Numero absoluto da estacao (dia absoluto / duracao): conta quantas estacoes passaram, para o frescor da comida. */
+	public static long seasonIndex() {
+		return seasonIndex;
+	}
+
+	public static void setSeasonIndex(long absoluteDay, int lengthDays) {
+		seasonIndex = Math.floorDiv(absoluteDay, Math.max(1, lengthDays));
 	}
 
 	public static SeasonDate current() {
