@@ -34,3 +34,6 @@ replay_*.log
 
 # claude code (local)
 .claude/settings.local.json
+
+# logs do fabric-loader-junit
+logs/
