@@ -234,6 +234,7 @@ public class ContentGen {
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
 		VillageContent.generate();
+		SmainContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

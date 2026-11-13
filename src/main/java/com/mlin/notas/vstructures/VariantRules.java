@@ -27,6 +27,8 @@ public final class VariantRules {
 		String b = biomeId == null ? "" : biomeId;
 		return switch (kind) {
 			case DESERT_PYRAMID, MINESHAFT_MESA -> 0;
+			case STRONGHOLD -> 0;
+			case WOODLAND_MANSION -> b.contains("pale") ? MansionPlanner.PALE : 0;
 			case JUNGLE_TEMPLE -> b.contains("bamboo") ? JUNGLE_BAMBOO : JUNGLE_PLAIN;
 			case PILLAGER_OUTPOST -> {
 				if (b.contains("desert") || b.contains("badlands")) {

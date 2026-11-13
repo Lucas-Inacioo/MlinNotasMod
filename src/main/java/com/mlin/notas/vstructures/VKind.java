@@ -12,7 +12,9 @@ public enum VKind {
 	JUNGLE_TEMPLE("jungle_pyramid", false, 12),
 	PILLAGER_OUTPOST("pillager_outpost", false, 8),
 	MINESHAFT("mineshaft", true, 0),
-	MINESHAFT_MESA("mineshaft_mesa", true, 0);
+	MINESHAFT_MESA("mineshaft_mesa", true, 0),
+	STRONGHOLD("stronghold", true, 0),
+	WOODLAND_MANSION("mansion", false, 12);
 
 	private final String id;
 	private final boolean underground;
@@ -59,6 +61,8 @@ public enum VKind {
 			case PILLAGER_OUTPOST -> OutpostPlanner.plan(seed, variant);
 			case MINESHAFT -> MineshaftPlanner.plan(seed, variant, false);
 			case MINESHAFT_MESA -> MineshaftPlanner.plan(seed, variant, true);
+			case STRONGHOLD -> StrongholdPlanner.plan(seed, variant);
+			case WOODLAND_MANSION -> MansionPlanner.plan(seed, variant);
 		};
 	}
 }

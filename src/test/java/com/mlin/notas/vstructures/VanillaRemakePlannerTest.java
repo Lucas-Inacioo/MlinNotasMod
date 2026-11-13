@@ -20,6 +20,7 @@ class VanillaRemakePlannerTest {
 			case PILLAGER_OUTPOST -> new int[] {0, 1, 2, 3, 4, 5};
 			case MINESHAFT -> new int[] {0, 1, 2, 3, 4, 5, 6};
 			case JUNGLE_TEMPLE -> new int[] {0, 1};
+			case WOODLAND_MANSION -> new int[] {0, 1};
 			default -> new int[] {0};
 		};
 	}
@@ -79,6 +80,10 @@ class VanillaRemakePlannerTest {
 						Pos door = plan.marker(JungleTemplePlanner.MARKER_SECRET_DOOR);
 						plan.set(door.x(), door.y(), door.z(), VPlan.AIR);
 						plan.set(door.x(), door.y() + 1, door.z(), VPlan.AIR);
+					}
+					if (kind == VKind.STRONGHOLD || kind == VKind.WOODLAND_MANSION) {
+						// portas fechadas abrem com a mao ou botao (o teste de jogo confere as portas de ferro)
+						SmainPlannerTest.openDoors(plan);
 					}
 					Pos start = plan.marker(VPlan.MARKER_ENTRANCE);
 					assertNotNull(start, kind + " sem entrada");
