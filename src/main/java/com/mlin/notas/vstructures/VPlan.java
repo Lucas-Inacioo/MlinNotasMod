@@ -59,6 +59,27 @@ public final class VPlan {
 		this.underground = underground;
 	}
 
+	/** Abaixo deste y o vazio (ar do plano ou fora dele) e agua para os testes: da para nadar em qualquer direcao. */
+	private int waterLevel = Integer.MIN_VALUE;
+
+	/**
+	 * Estrutura no mar: o vazio abaixo de {@code y} (relativo) conta como agua no teste de alcance ("da para chegar a
+	 * nado": qualquer espaco de 1x2 nao solido abaixo do nivel e uma posicao valida e se sobe/desce nadando). A peca
+	 * usa o nivel do mar de verdade para trocar o ar por agua.
+	 */
+	public void setWaterLevel(int y) {
+		this.waterLevel = y;
+	}
+
+	public int waterLevel() {
+		return waterLevel;
+	}
+
+	/** Espaco de agua (para nadar) nesta posicao. */
+	public boolean swimmable(int x, int y, int z) {
+		return y < waterLevel && !solid(x, y, z);
+	}
+
 	public static long key(int x, int y, int z) {
 		return ((long) (x + 2048) << 36) | ((long) (y + 2048) << 18) | (z + 2048);
 	}
@@ -322,7 +343,7 @@ public final class VPlan {
 			return false;
 		}
 		String here = get(x, y, z);
-		return (here != null && BlockTraits.climbable(here)) || supports(x, y - 1, z);
+		return (here != null && BlockTraits.climbable(here)) || y < waterLevel || supports(x, y - 1, z);
 	}
 
 	/**
@@ -368,7 +389,7 @@ public final class VPlan {
 				}
 			}
 			String here = get(x, y, z);
-			if (here != null && BlockTraits.climbable(here)) {
+			if ((here != null && BlockTraits.climbable(here)) || y < waterLevel) {
 				if (validFeet(x, y + 1, z)) {
 					visit(seen, queue, x, y + 1, z, avoidTraps);
 				}

@@ -28,6 +28,7 @@
 			"com.mlin.notas.gametest.SeasonsGameTest",
 			"com.mlin.notas.gametest.DungeonGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresGameTest",
+			"com.mlin.notas.gametest.SeaStructuresGameTest",
 			"com.mlin.notas.gametest.VillageGameTest"
 		],
 		"fabric-client-gametest": [
@@ -46,6 +47,7 @@
 			"com.mlin.notas.gametest.SeasonsClientGameTest",
 			"com.mlin.notas.gametest.DungeonClientGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresClientGameTest",
+			"com.mlin.notas.gametest.SeaStructuresClientGameTest",
 			"com.mlin.notas.gametest.VillageClientGameTest"
 		]
 	},

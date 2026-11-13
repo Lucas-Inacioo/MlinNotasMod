@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:vanilla_remake",
+  "kind": "ruined_portal",
+  "biomes": "#minecraft:has_structure/ruined_portal_standard",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}
