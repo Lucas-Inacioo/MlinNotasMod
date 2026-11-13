@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "L": "mlinnotas:void_log"
+  },
+  "pattern": [
+    "L"
+  ],
+  "result": {
+    "id": "mlinnotas:void_planks",
+    "count": 4
+  }
+}

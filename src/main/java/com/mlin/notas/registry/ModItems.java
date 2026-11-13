@@ -161,6 +161,8 @@ public final class ModItems {
 	public static final Item VOID_JELLY_SPAWN_EGG = register("void_jelly_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(ModEntities.VOID_JELLY));
 	public static final Item CRYSTAL_MITE_SPAWN_EGG = register("crystal_mite_spawn_egg", SpawnEggItem::new,
 			new Item.Properties().spawnEgg(ModEntities.CRYSTAL_MITE));
+	public static final Item CHORUS_HOPPER_SPAWN_EGG = register("chorus_hopper_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(ModEntities.CHORUS_HOPPER));
 
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));

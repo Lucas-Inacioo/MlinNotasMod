@@ -26,10 +26,16 @@ public final class Elevators {
 		ServerPlayNetworking.registerGlobalReceiver(ElevatorPayload.TYPE, (payload, context) -> use(context.player(), payload.up()));
 	}
 
-	/** Bloco sob os pes do jogador, se for um elevador. */
+	/**
+	 * Elevador sob os pes do jogador, ou ate {@link ElevatorLogic#MAX_DEPTH} blocos abaixo com so ar no meio: quando o
+	 * pedido chega ao servidor o jogador pode estar no meio do pulo.
+	 */
 	public static BlockPos elevatorBelow(Level level, double x, double y, double z) {
-		BlockPos pos = BlockPos.containing(x, y - 0.2, z);
-		return level.getBlockState(pos).is(ModBlocks.PURPUR_ELEVATOR) ? pos : null;
+		BlockPos feet = BlockPos.containing(x, y - 0.2, z);
+		OptionalInt found = ElevatorLogic.elevatorBelow(feet.getY(),
+				by -> level.getBlockState(feet.atY(by)).is(ModBlocks.PURPUR_ELEVATOR),
+				by -> !level.getBlockState(feet.atY(by)).getCollisionShape(level, feet.atY(by)).isEmpty());
+		return found.isPresent() ? feet.atY(found.getAsInt()) : null;
 	}
 
 	/** Teleporta o jogador para o proximo elevador acima/abaixo. Devolve true se teleportou. */

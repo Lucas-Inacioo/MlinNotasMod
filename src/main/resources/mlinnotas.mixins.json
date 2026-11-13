@@ -5,7 +5,8 @@
 	"mixins": [
 		"AbstractFurnaceBlockEntityMixin",
 		"AbstractVillagerMixin",
-		"ItemTooltipImageMixin"
+		"ItemTooltipImageMixin",
+		"TheEndBiomeSourceMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

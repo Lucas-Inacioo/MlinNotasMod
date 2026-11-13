@@ -31,7 +31,7 @@ public final class ModWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD), step, ORE_COBALT);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_NETHER), step, ORE_INFERNITE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END), step, ORE_ENDITE);
-		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, EndBiomes.MOSS_FIELDS, EndBiomes.CRYSTAL_GROVE, EndBiomes.VOID_WASTES,
+		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, EndBiomes.MOSS_FIELDS, EndBiomes.CRYSTAL_GROVE, EndBiomes.VOID_WASTES, EndBiomes.CHORUS_FOREST,
 				Biomes.SMALL_END_ISLANDS), step, ORE_ASTRALITE);
 	}
 

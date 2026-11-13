@@ -283,5 +283,14 @@
   "biome.mlinnotas.end_moss_fields": "Campos de Musgo do End",
   "biome.mlinnotas.ether_crystal_grove": "Bosque Cristalino",
   "biome.mlinnotas.void_wastes": "Ermos do Vazio",
-  "block.mlinnotas.purpur_elevator.tooltip": "Pule em cima para subir até o próximo elevador; agache para descer"
+  "block.mlinnotas.purpur_elevator.tooltip": "Pule em cima para subir até o próximo elevador; agache para descer",
+  "biome.mlinnotas.chorus_forest": "Floresta de Coro",
+  "block.mlinnotas.void_log": "Tronco do Vazio",
+  "block.mlinnotas.void_basalt": "Basalto do Vazio",
+  "block.mlinnotas.void_planks": "Tábuas do Vazio",
+  "block.mlinnotas.void_leaves": "Folhas do Vazio",
+  "block.mlinnotas.void_lily": "Lírio do Vazio",
+  "block.mlinnotas.end_mushroom": "Cogumelo do End",
+  "item.mlinnotas.chorus_hopper_spawn_egg": "Ovo Gerador de Saltador de Coro",
+  "entity.mlinnotas.chorus_hopper": "Saltador de Coro"
 }
