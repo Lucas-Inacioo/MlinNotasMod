@@ -2,6 +2,8 @@ package com.mlin.notas.gametest;
 
 import com.mlin.notas.client.GammaBright;
 import com.mlin.notas.client.ModKeys;
+import com.mlin.notas.client.minimap.MinimapOptionsScreen;
+import com.mlin.notas.client.minimap.WorldMapScreen;
 import com.mlin.notas.client.recipes.RecipeScreen;
 import com.mlin.notas.client.recipes.RecipeViewerClient;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -31,6 +33,20 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			}
 			context.takeScreenshot("mlinnotas-gammabright");
 			context.getInput().pressKey(ModKeys.GAMMABRIGHT);
+
+			// Mapa grande do minimapa (tecla M) e tela de opcoes
+			context.getInput().pressKey(ModKeys.MAP);
+			context.waitForScreen(WorldMapScreen.class);
+			context.waitTicks(10);
+			context.takeScreenshot("mlinnotas-world-map");
+			context.clickScreenButton("gui.mlinnotas.map.options");
+			context.waitForScreen(MinimapOptionsScreen.class);
+			context.waitTicks(5);
+			context.takeScreenshot("mlinnotas-minimap-options");
+			context.clickScreenButton("gui.done");
+			context.waitForScreen(WorldMapScreen.class);
+			context.clickScreenButton("gui.done");
+			context.waitForScreen(null);
 
 			// Receitas recebidas do servidor integrado
 			context.waitFor(mc -> RecipeViewerClient.index().size() > 0, 200);
