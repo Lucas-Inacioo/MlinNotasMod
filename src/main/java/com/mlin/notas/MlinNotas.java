@@ -5,6 +5,7 @@ import com.mlin.notas.furnace.FurnaceUpgrades;
 import com.mlin.notas.notes.NotebookManager;
 import com.mlin.notas.registry.ModCreativeTab;
 import com.mlin.notas.registry.ModItems;
+import com.mlin.notas.recipes.RecipeSyncServer;
 import com.mlin.notas.registry.ModPayloads;
 import com.mlin.notas.sorting.InventorySortServer;
 import com.mlin.notas.tree.TreeCapitator;
@@ -33,6 +34,7 @@ public class MlinNotas implements ModInitializer {
 		TreeCapitator.init();
 		InventorySortServer.init();
 		FurnaceUpgrades.init();
+		RecipeSyncServer.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

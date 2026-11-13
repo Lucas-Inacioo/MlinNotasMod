@@ -10,7 +10,9 @@ public final class ModKeys {
 	public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(MlinNotas.id("main"));
 
 	public static final KeyMapping GAMMABRIGHT = register("gammabright", InputConstants.KEY_G);
-	public static final KeyMapping SORT = register("sort", InputConstants.KEY_R);
+	public static final KeyMapping SORT = register("sort", InputConstants.KEY_O);
+	public static final KeyMapping SHOW_RECIPES = register("show_recipes", InputConstants.KEY_R);
+	public static final KeyMapping SHOW_USAGES = register("show_usages", InputConstants.KEY_U);
 	public static final KeyMapping CRAFTING_TABLET = register("crafting_tablet", InputConstants.KEY_C);
 
 	private ModKeys() {

@@ -18,4 +18,7 @@ public interface AbstractContainerScreenAccessor {
 
 	@Accessor("imageHeight")
 	int mlinnotas$imageHeight();
+
+	@Accessor("hoveredSlot")
+	net.minecraft.world.inventory.Slot mlinnotas$hoveredSlot();
 }

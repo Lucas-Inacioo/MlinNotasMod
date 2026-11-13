@@ -70,8 +70,9 @@ Quando o usuario citar um mod existente (ex.: "como o Xaero's Minimap", "igual a
 - Gammabright: tecla G (cliente, mixin em `LightmapRenderStateExtractor`).
 - Quebrar arvore inteira: machado + tronco com folhas, sem agachar (`tree/`).
 - Laco em aldeao: mixin `AbstractVillagerMixin`.
-- Organizador de inventario: tecla R (mundo ou tela), Shift+R inventario do jogador numa tela de bau, botao "Ord" nas telas de container (`sorting/`, pacote `SortRequestPayload`).
+- Organizador de inventario: tecla O (mundo ou tela), Shift+O inventario do jogador numa tela de bau, botao "Ord" nas telas de container (`sorting/`, pacote `SortRequestPayload`).
 - Varinhas de construcao (madeira 9, pedra 27, ferro 81, diamante 256 blocos) (`wand/`).
 - Tablet de crafting: item ou tecla C com o tablet no inventario (`tablet/`).
 - Upgrades de fornalha (ferro 2x, ouro 4x, diamante 8x) via attachment + mixin (`furnace/`).
+- Visualizador de receitas (estilo NEI/JEI): o servidor envia as receitas achatadas (`recipes/RecipeSyncPayload`, lotes de 300) ao entrar e no `/reload`; o cliente mostra lista de itens com busca (`@mod` filtra namespace) a direita de qualquer tela de container, R = receitas e U = usos do item sob o cursor (lista ou slot), clique esquerdo/direito na lista idem, `client/recipes/RecipeScreen` navega entre receitas (crafting, fornalha, alto-forno, defumador, fogueira, cortador). Receitas especiais (tingir, fogos...) ficam de fora. Nao ha "colocar na grade".
 - Texturas geradas por programa (nao ha arte manual): `java scripts/TexGen.java src/main/resources/assets/mlinnotas` regenera todas (edite o TexGen para novos icones).

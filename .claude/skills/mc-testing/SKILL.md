@@ -50,7 +50,7 @@ static void bootstrap() {
 - Classe implementa `FabricClientGameTest`, metodo `runTest(ClientGameTestContext ctx)`. Registre em `fabric-client-gametest`.
 - Mundo: `try (TestSingleplayerContext sp = ctx.worldBuilder().create()) { ... }`. Nivel/jogador via `sp.getConnection().getClientLevel()` / `.getClientPlayer()`; esperar chunks: `sp.getConnection().waitForChunksRender()`.
 - Input: `ctx.getInput().pressKey(...)`, `ctx.getInput().typeChars("...")`.
-- Telas: `ctx.waitForScreen(MinhaScreen.class)`, `ctx.clickScreenButton("gui.done")`.
+- Telas: `ctx.waitForScreen(MinhaScreen.class)`, `ctx.clickScreenButton("chave.de.lang.do.botao")`, `ctx.runOnClient(mc -> ...)` / `ctx.computeOnClient(mc -> ...)` para mexer no cliente na thread certa; tela atual: `mc.gui.screen()`; trocar: `mc.gui.setScreen(...)`. Teclas: `ctx.getInput().pressKey(ModKeys.X)` ou `pressKey(options -> options.keyInventory)`; mouse: `setCursorPos(x, y)`, `pressMouse(botao)`. Esperar condicao: `ctx.waitFor(mc -> cond, timeoutTicks)`.
 - `ctx.takeScreenshot("nome")` -> `build/run/clientGameTest/screenshots/`.
 - Um unico processo roda todos os client tests em sequencia; feche o que abrir.
 
