@@ -89,6 +89,9 @@ public class TexGen {
 		waystoneItem(items, "waystone");
 		returnScroll(items, "return_scroll");
 
+		// Livro de quests
+		questBook(items, "quest_book");
+
 		// Icones dos efeitos do sinalizador (18x18, atlas mob_effect)
 		File effects = new File(assets, "textures/mob_effect");
 		effects.mkdirs();
@@ -445,6 +448,35 @@ public class TexGen {
 		}
 		rect(im, 7, 6, 3, 3, RUNE);
 		set(im, 8, 7, RUNE_GLOW);
+		save(im, dir, name);
+	}
+
+	/** Livro de capa verde com fecho dourado e um ponto de exclamacao (quest). */
+	static void questBook(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int outline = 0xFF1E2A14;
+		int cover = 0xFF3E7A2E;
+		int coverDark = 0xFF2A5420;
+		int pages = 0xFFF2E8C8;
+		int gold = 0xFFF2C230;
+		// paginas (lado direito e base)
+		rect(im, 4, 13, 10, 2, pages);
+		rect(im, 13, 3, 2, 11, pages);
+		for (int y = 4; y < 14; y += 2) {
+			set(im, 14, y, 0xFFC8BC98);
+		}
+		// capa
+		rect(im, 2, 1, 11, 13, cover);
+		rect(im, 2, 1, 2, 13, coverDark);
+		frame(im, 1, 0, 13, 15, outline);
+		rect(im, 3, 15, 12, 1, outline);
+		rect(im, 15, 2, 1, 13, outline);
+		// moldura dourada e exclamacao
+		frame(im, 5, 2, 7, 11, gold);
+		rect(im, 8, 4, 1, 5, gold);
+		set(im, 8, 10, gold);
+		set(im, 7, 4, 0xFFFFE680);
+		noise(im, 77, 0.12);
 		save(im, dir, name);
 	}
 }

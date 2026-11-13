@@ -1,0 +1,301 @@
+{
+  "icon": "minecraft:end_stone",
+  "order": 5,
+  "quests": [
+    {
+      "id": "eyes",
+      "icon": "minecraft:ender_eye",
+      "x": 0,
+      "y": 1,
+      "dependencies": [
+        "nether/blaze_rods"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:ender_eye",
+          "count": 12
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "stronghold",
+      "icon": "minecraft:end_portal_frame",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "eyes"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:stronghold"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "enter_end",
+      "icon": "minecraft:end_stone",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "stronghold"
+      ],
+      "tasks": [
+        {
+          "type": "dimension",
+          "target": "minecraft:the_end"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "outer_islands",
+      "icon": "minecraft:ender_pearl",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "enter_end",
+        "bosses/ender_dragon"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "minecraft:end_highlands"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:ender_pearl",
+          "count": 4
+        },
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "moss_fields",
+      "icon": "mlinnotas:end_moss",
+      "x": 4,
+      "y": 0,
+      "dependencies": [
+        "outer_islands"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:end_moss_fields"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "void_jelly",
+      "icon": "mlinnotas:void_jelly",
+      "x": 5,
+      "y": 0,
+      "dependencies": [
+        "moss_fields"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:void_jelly",
+          "count": 3
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "crystal_grove",
+      "icon": "mlinnotas:ether_crystal_cluster",
+      "x": 4,
+      "y": 1,
+      "dependencies": [
+        "outer_islands"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:ether_crystal_grove"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "crystal_mite",
+      "icon": "mlinnotas:ether_crystal_shard",
+      "x": 5,
+      "y": 1,
+      "dependencies": [
+        "crystal_grove"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:crystal_mite",
+          "count": 3
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "void_wastes",
+      "icon": "mlinnotas:void_ash",
+      "x": 4,
+      "y": 2,
+      "dependencies": [
+        "outer_islands"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:void_wastes"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "chorus_forest",
+      "icon": "minecraft:chorus_flower",
+      "x": 4,
+      "y": 3,
+      "dependencies": [
+        "outer_islands"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:chorus_forest"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "chorus_hopper",
+      "icon": "minecraft:chorus_fruit",
+      "x": 5,
+      "y": 3,
+      "dependencies": [
+        "chorus_forest"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:chorus_hopper",
+          "count": 2
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "citadel",
+      "icon": "minecraft:purpur_block",
+      "x": 4,
+      "y": 4,
+      "dependencies": [
+        "outer_islands"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:end_citadel"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 150
+        }
+      ]
+    },
+    {
+      "id": "elevator",
+      "icon": "mlinnotas:purpur_elevator",
+      "x": 5,
+      "y": 4,
+      "dependencies": [
+        "citadel"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:purpur_elevator",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "elytra",
+      "icon": "minecraft:elytra",
+      "x": 5,
+      "y": 5,
+      "dependencies": [
+        "citadel"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:elytra",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:firework_rocket",
+          "count": 32
+        },
+        {
+          "xp": 200
+        }
+      ]
+    }
+  ]
+}

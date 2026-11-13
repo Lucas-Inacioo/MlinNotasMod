@@ -1,0 +1,267 @@
+{
+  "icon": "minecraft:compass",
+  "order": 2,
+  "quests": [
+    {
+      "id": "explore",
+      "icon": "minecraft:filled_map",
+      "x": 0,
+      "y": 2,
+      "dependencies": [
+        "basics/minimap"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bread",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "id": "watchtower",
+      "icon": "minecraft:stone_bricks",
+      "x": 1,
+      "y": 0,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:ruined_watchtower"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "mlinnotas:return_scroll",
+          "count": 1
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "camp",
+      "icon": "minecraft:campfire",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:abandoned_camp"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:cooked_porkchop",
+          "count": 8
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "well",
+      "icon": "minecraft:bucket",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:old_well"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bucket",
+          "count": 1
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "chapel",
+      "icon": "minecraft:lectern",
+      "x": 1,
+      "y": 3,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:ruined_chapel"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 1
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "mine",
+      "icon": "minecraft:rail",
+      "x": 1,
+      "y": 4,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:disused_mine"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:torch",
+          "count": 16
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "all_ruins",
+      "icon": "mlinnotas:return_scroll",
+      "x": 2,
+      "y": 2,
+      "dependencies": [
+        "watchtower",
+        "camp",
+        "well",
+        "chapel",
+        "mine"
+      ],
+      "tasks": [],
+      "rewards": [
+        {
+          "item": "mlinnotas:return_scroll",
+          "count": 2
+        },
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "waystone",
+      "icon": "mlinnotas:waystone",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "watchtower"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "mlinnotas:return_scroll",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "waystone_craft",
+      "icon": "mlinnotas:waystone",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "waystone",
+        "mining/cobalt"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:waystone",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "biomes",
+      "icon": "minecraft:jungle_sapling",
+      "x": 0,
+      "y": 4,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "#minecraft:is_jungle"
+        },
+        {
+          "type": "biome",
+          "target": "minecraft:desert"
+        },
+        {
+          "type": "biome",
+          "target": "minecraft:swamp"
+        },
+        {
+          "type": "biome",
+          "target": "#c:is_snowy"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_carrot",
+          "count": 8
+        },
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "deep_dark",
+      "icon": "minecraft:sculk_shrieker",
+      "x": 1,
+      "y": 5,
+      "dependencies": [
+        "biomes"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "minecraft:deep_dark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,7 @@ public final class ModKeys {
 	public static final KeyMapping BACKPACK = register("backpack", InputConstants.KEY_V);
 	public static final KeyMapping WAILA = register("waila", InputConstants.KEY_N);
 	public static final KeyMapping SKILLS = register("skills", InputConstants.KEY_K);
+	public static final KeyMapping QUESTS = register("quests", InputConstants.KEY_L);
 
 	private ModKeys() {
 	}

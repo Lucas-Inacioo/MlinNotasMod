@@ -1,0 +1,232 @@
+{
+  "icon": "mlinnotas:furnace_upgrade_iron",
+  "order": 6,
+  "quests": [
+    {
+      "id": "furnace_stone",
+      "icon": "mlinnotas:furnace_upgrade_stone",
+      "x": 0,
+      "y": 0,
+      "dependencies": [
+        "basics/stone_tools"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:furnace_upgrade_stone",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:charcoal",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "id": "furnace_iron",
+      "icon": "mlinnotas:furnace_upgrade_iron",
+      "x": 1,
+      "y": 0,
+      "dependencies": [
+        "furnace_stone",
+        "mining/skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:furnace_upgrade_iron",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "furnace_endite",
+      "icon": "mlinnotas:furnace_upgrade_endite",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "furnace_iron",
+        "mining/skill_endite"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:furnace_upgrade_endite",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 300
+        }
+      ]
+    },
+    {
+      "id": "stone_chest",
+      "icon": "mlinnotas:stone_chest",
+      "x": 0,
+      "y": 1,
+      "dependencies": [
+        "basics/stone_tools"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/stone_chest",
+          "count": 1,
+          "icon": "mlinnotas:stone_chest",
+          "title": "quest.mlinnotas.task.stone_chest"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "iron_chest",
+      "icon": "mlinnotas:iron_chest",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "stone_chest",
+        "mining/skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/iron_chest",
+          "count": 1,
+          "icon": "mlinnotas:iron_chest",
+          "title": "quest.mlinnotas.task.iron_chest"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "diamond_chest",
+      "icon": "mlinnotas:diamond_chest",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "iron_chest",
+        "mining/skill_diamond"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/diamond_chest",
+          "count": 1,
+          "icon": "mlinnotas:diamond_chest",
+          "title": "quest.mlinnotas.task.diamond_chest"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 150
+        }
+      ]
+    },
+    {
+      "id": "backpack_size",
+      "icon": "mlinnotas:backpack_upgrade_size",
+      "x": 0,
+      "y": 2,
+      "dependencies": [
+        "basics/backpack"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:backpack_upgrade_size",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "backpack_tools",
+      "icon": "mlinnotas:backpack_upgrade_furnace",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "backpack_size"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:backpack_upgrade_furnace",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "enchanting",
+      "icon": "minecraft:enchanting_table",
+      "x": 0,
+      "y": 3,
+      "dependencies": [
+        "mining/skill_diamond"
+      ],
+      "tasks": [
+        {
+          "type": "advancement",
+          "target": "minecraft:story/enchant_item",
+          "icon": "minecraft:enchanted_book",
+          "title": "quest.mlinnotas.task.enchant"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:lapis_lazuli",
+          "count": 16
+        },
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "beacon",
+      "icon": "minecraft:beacon",
+      "x": 0,
+      "y": 4,
+      "dependencies": [
+        "bosses/wither"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:beacon",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 300
+        }
+      ]
+    }
+  ]
+}

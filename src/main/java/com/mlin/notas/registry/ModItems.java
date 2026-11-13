@@ -182,6 +182,8 @@ public final class ModItems {
 	}, new Item.Properties().rarity(Rarity.UNCOMMON));
 	public static final Item RETURN_SCROLL = register("return_scroll", com.mlin.notas.waystone.ReturnScrollItem::new,
 			new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+	// livro de quests (quests/)
+	public static final Item QUEST_BOOK = register("quest_book", com.mlin.notas.quests.QuestBookItem::new, new Item.Properties().stacksTo(1));
 
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));

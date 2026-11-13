@@ -230,6 +230,7 @@ public class ContentGen {
 		BossContent.generate(pickaxeMineable);
 		BeaconContent.generate(pickaxeMineable);
 		DragonContent.generate(pickaxeMineable);
+		QuestContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
