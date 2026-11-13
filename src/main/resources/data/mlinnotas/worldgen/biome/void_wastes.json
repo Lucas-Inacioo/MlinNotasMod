@@ -30,7 +30,7 @@
           "particle": {
             "type": "minecraft:white_ash"
           },
-          "probability": 0.02
+          "probability": 0.06
         }
       ],
       "modifier": "append"
@@ -45,9 +45,14 @@
   "features": [
     [],
     [],
+    [
+      "mlinnotas:void_craters"
+    ],
     [],
-    [],
-    [],
+    [
+      "mlinnotas:giant_fossils",
+      "mlinnotas:void_basalt_pillars"
+    ],
     [],
     [],
     [],

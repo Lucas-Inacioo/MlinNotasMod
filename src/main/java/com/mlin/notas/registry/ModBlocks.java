@@ -61,6 +61,23 @@ public final class ModBlocks {
 	public static final Block PURPUR_ELEVATOR = registerEnd("purpur_elevator", PurpurElevatorBlock::new, BlockBehaviour.Properties.of()
 			.mapColor(MapColor.COLOR_MAGENTA).instrument(NoteBlockInstrument.BASEDRUM).strength(1.5F, 6.0F).lightLevel(state -> 3)
 			.requiresCorrectToolForDrops());
+	// decoracao dos biomas grandes: arvores do vazio, lirios, cogumelos e basalto
+	public static final Block VOID_LOG = registerEnd("void_log", net.minecraft.world.level.block.RotatedPillarBlock::new,
+			Blocks.logProperties(MapColor.COLOR_PURPLE, MapColor.TERRACOTTA_PURPLE, SoundType.WOOD));
+	public static final Block VOID_PLANKS = registerEnd("void_planks", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE)
+			.instrument(NoteBlockInstrument.BASS).strength(2.0F, 3.0F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block VOID_LEAVES = registerEnd("void_leaves", p -> new net.minecraft.world.level.block.LeavesBlock(
+			net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer.noAmbientSound(), p),
+			Blocks.leavesProperties(SoundType.AZALEA_LEAVES).mapColor(MapColor.COLOR_CYAN).lightLevel(state -> 3));
+	public static final Block VOID_LILY = registerEnd("void_lily", com.mlin.notas.end.EndPlantBlock::lily, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_LIGHT_BLUE).noCollision().instabreak().sound(SoundType.GRASS).lightLevel(state -> 9)
+			.offsetType(BlockBehaviour.OffsetType.XZ).pushReaction(PushReaction.POPPED));
+	public static final Block END_MUSHROOM = registerEnd("end_mushroom", com.mlin.notas.end.EndPlantBlock::mushroom, BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_MAGENTA).noCollision().instabreak().sound(SoundType.FUNGUS).lightLevel(state -> 6)
+			.offsetType(BlockBehaviour.OffsetType.XZ).pushReaction(PushReaction.POPPED));
+	public static final Block VOID_BASALT = registerEnd("void_basalt", net.minecraft.world.level.block.RotatedPillarBlock::new,
+			BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).instrument(NoteBlockInstrument.BASEDRUM).strength(1.5F, 6.0F)
+					.sound(SoundType.BASALT).requiresCorrectToolForDrops());
 
 	static {
 		for (ChestTier tier : ChestTier.values()) {

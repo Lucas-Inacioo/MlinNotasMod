@@ -11,6 +11,29 @@ public final class ElevatorLogic {
 	private ElevatorLogic() {
 	}
 
+	/** Quantos blocos abaixo dos pes ainda contam como "em cima do elevador" (o pulo ja tirou o jogador do chao). */
+	public static final int MAX_DEPTH = 2;
+
+	/**
+	 * Elevador sob o jogador: procura de cima para baixo a partir do bloco dos pes ({@code feetY}, ja com a folga de
+	 * -0.2) ate {@link #MAX_DEPTH} blocos abaixo, parando no primeiro bloco solido que nao seja elevador. Assim o
+	 * pulo (jogador ate ~1,25 bloco acima) ainda acha o elevador, mas um elevador escondido sob outro piso nao conta.
+	 *
+	 * @param isElevator se ha elevador no y dado (mesma coluna)
+	 * @param isSolid    se o y dado tem colisao
+	 */
+	public static OptionalInt elevatorBelow(int feetY, IntPredicate isElevator, IntPredicate isSolid) {
+		for (int y = feetY; y >= feetY - MAX_DEPTH; y--) {
+			if (isElevator.test(y)) {
+				return OptionalInt.of(y);
+			}
+			if (isSolid.test(y)) {
+				return OptionalInt.empty();
+			}
+		}
+		return OptionalInt.empty();
+	}
+
 	/**
 	 * Y do elevador de destino.
 	 *

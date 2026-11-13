@@ -269,5 +269,14 @@
   "biome.mlinnotas.end_moss_fields": "End Moss Fields",
   "biome.mlinnotas.ether_crystal_grove": "Ether Crystal Grove",
   "biome.mlinnotas.void_wastes": "Void Wastes",
-  "block.mlinnotas.purpur_elevator.tooltip": "Jump on it to go up to the next elevator; sneak to go down"
+  "block.mlinnotas.purpur_elevator.tooltip": "Jump on it to go up to the next elevator; sneak to go down",
+  "biome.mlinnotas.chorus_forest": "Chorus Forest",
+  "block.mlinnotas.void_log": "Void Log",
+  "block.mlinnotas.void_basalt": "Void Basalt",
+  "block.mlinnotas.void_planks": "Void Planks",
+  "block.mlinnotas.void_leaves": "Void Leaves",
+  "block.mlinnotas.void_lily": "Void Lily",
+  "block.mlinnotas.end_mushroom": "End Mushroom",
+  "item.mlinnotas.chorus_hopper_spawn_egg": "Chorus Hopper Spawn Egg",
+  "entity.mlinnotas.chorus_hopper": "Chorus Hopper"
 }

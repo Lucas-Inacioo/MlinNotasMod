@@ -86,6 +86,8 @@ public class EndGameTest {
 			helper.assertTrue(Elevators.use(player, true), "pular no elevador deveria subir; jogador em " + player.position() + ", elevador em " + low + ", bloco sob os pes " + helper.getLevel().getBlockState(net.minecraft.core.BlockPos.containing(player.getX(), player.getY() - 0.2, player.getZ())));
 			helper.assertTrue(player.getBlockY() == low.getY() + 4, "chega em cima do elevador de cima, y=" + player.getBlockY());
 			helper.assertTrue(!Elevators.use(player, true), "nao ha elevador mais acima");
+			// no meio do pulo (pes 1 bloco acima do elevador) ainda vale
+			player.teleportTo(low.getX() + 0.5, low.getY() + 4 + 2.1, low.getZ() + 0.5);
 			helper.assertTrue(Elevators.use(player, false), "agachar desce");
 			helper.assertTrue(player.getBlockY() == low.getY() + 1, "volta para baixo");
 			helper.setBlock(2, 5, 2, Blocks.STONE);
@@ -138,5 +140,88 @@ public class EndGameTest {
 		jellyFood.finishUsingItem(helper.getLevel(), eater);
 		helper.assertTrue(eater.hasEffect(MobEffects.SLOW_FALLING), "geleia do vazio da queda lenta");
 		helper.succeed();
+	}
+
+	@GameTest
+	public void chorusForestIsAnEndBiomeWithOres(GameTestHelper helper) {
+		var biomes = helper.getLevel().registryAccess().lookupOrThrow(Registries.BIOME);
+		Holder<Biome> forest = biomes.getOrThrow(EndBiomes.CHORUS_FOREST);
+		helper.assertTrue(forest.is(BiomeTags.IS_END), "floresta de coro na tag is_end");
+		helper.assertTrue(biomeHas(forest.value(), ModWorldgen.ORE_ENDITE) && biomeHas(forest.value(), ModWorldgen.ORE_ASTRALITE), "minerios do End");
+		helper.assertTrue(biomeHas(forest.value(), placed("giant_chorus_plants")), "coro gigante");
+		helper.assertTrue(biomeHas(biomes.getOrThrow(EndBiomes.MOSS_FIELDS).value(), placed("void_trees")), "arvores do vazio nos campos");
+		helper.assertTrue(biomeHas(biomes.getOrThrow(EndBiomes.CRYSTAL_GROVE).value(), placed("crystal_geodes")), "geodos no bosque");
+		helper.assertTrue(biomeHas(biomes.getOrThrow(EndBiomes.VOID_WASTES).value(), placed("giant_fossils")), "fosseis nos ermos");
+		helper.succeed();
+	}
+
+	private static ResourceKey<PlacedFeature> placed(String name) {
+		return ResourceKey.create(Registries.PLACED_FEATURE, com.mlin.notas.MlinNotas.id(name));
+	}
+
+	@GameTest
+	public void newEndBlocksBehave(GameTestHelper helper) {
+		for (int x = 0; x < 6; x++) {
+			helper.setBlock(x, 0, 1, ModBlocks.END_MOSS);
+		}
+		helper.setBlock(0, 1, 1, ModBlocks.VOID_LILY);
+		helper.setBlock(1, 1, 1, ModBlocks.END_MUSHROOM);
+		helper.assertBlockPresent(ModBlocks.VOID_LILY, 0, 1, 1);
+		helper.assertTrue(ModBlocks.VOID_LILY.defaultBlockState().canSurvive(helper.getLevel(), helper.absolutePos(new BlockPos(0, 1, 1))), "lirio fica no musgo");
+		helper.assertTrue(!ModBlocks.END_MUSHROOM.defaultBlockState().canSurvive(helper.getLevel(), helper.absolutePos(new BlockPos(3, 4, 3))), "cogumelo nao flutua");
+		helper.assertTrue(ModBlocks.VOID_LOG.defaultBlockState().is(net.minecraft.tags.BlockTags.LOGS), "tronco na tag logs");
+		helper.assertTrue(ModBlocks.VOID_LEAVES.defaultBlockState().is(net.minecraft.tags.BlockTags.LEAVES), "folhas na tag leaves");
+		helper.assertTrue(ModBlocks.VOID_PLANKS.defaultBlockState().is(net.minecraft.tags.BlockTags.PLANKS), "tabuas na tag planks");
+		helper.assertTrue(new ItemStack(net.minecraft.world.item.Items.DIAMOND_PICKAXE).isCorrectToolForDrops(ModBlocks.VOID_BASALT.defaultBlockState()),
+				"basalto do vazio sai com picareta");
+		helper.succeed();
+	}
+
+	@GameTest(maxTicks = 60)
+	public void biomeFeaturesBuildTheirShapes(GameTestHelper helper) {
+		endFloor(helper);
+		var features = helper.getLevel().registryAccess().lookupOrThrow(Registries.FEATURE);
+		var generator = helper.getLevel().getChunkSource().getGenerator();
+		RandomSource random = RandomSource.create(7);
+		helper.assertTrue(features.getOrThrow(feature("void_tree")).value().place(helper.getLevel(), generator, random, helper.absolutePos(new BlockPos(2, 1, 2))),
+				"arvore do vazio");
+		helper.assertTrue(features.getOrThrow(feature("giant_chorus")).value().place(helper.getLevel(), generator, random, helper.absolutePos(new BlockPos(6, 1, 6))),
+				"coro gigante");
+		helper.assertBlockPresent(ModBlocks.VOID_LOG, 2, 1, 2);
+		helper.assertBlockPresent(Blocks.CHORUS_PLANT, 6, 1, 6);
+		helper.assertTrue(countAround(helper, ModBlocks.VOID_LEAVES) >= 15, "copa de folhas do vazio");
+		helper.assertTrue(countAround(helper, Blocks.CHORUS_PLANT) >= 5, "coro gigante alto, " + countAround(helper, Blocks.CHORUS_PLANT) + " blocos");
+		helper.succeed();
+	}
+
+	private static ResourceKey<net.minecraft.world.level.levelgen.feature.Feature> feature(String name) {
+		return ResourceKey.create(Registries.FEATURE, com.mlin.notas.MlinNotas.id(name));
+	}
+
+	private static int countAround(GameTestHelper helper, net.minecraft.world.level.block.Block block) {
+		int count = 0;
+		for (BlockPos pos : BlockPos.betweenClosed(helper.absolutePos(new BlockPos(-6, 0, -6)), helper.absolutePos(new BlockPos(14, 30, 14)))) {
+			if (helper.getLevel().getBlockState(pos).is(block)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/** Chao de pedra do End (as features so crescem em chao do End). */
+	private static void endFloor(GameTestHelper helper) {
+		for (int x = 0; x < 8; x++) {
+			for (int z = 0; z < 8; z++) {
+				helper.setBlock(x, 0, z, Blocks.END_STONE);
+			}
+		}
+	}
+
+	@GameTest(maxTicks = 40)
+	public void chorusHopperDropsChorusFruit(GameTestHelper helper) {
+		var hopper = helper.spawn(ModEntities.CHORUS_HOPPER, 3, 1, 3);
+		helper.assertTrue(hopper.getAttributeValue(Attributes.MAX_HEALTH) == 8.0, "saltador com 8 de vida");
+		hopper.kill(helper.getLevel());
+		helper.succeedWhen(() -> helper.assertItemEntityPresent(net.minecraft.world.item.Items.CHORUS_FRUIT));
 	}
 }

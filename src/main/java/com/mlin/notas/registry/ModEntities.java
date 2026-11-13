@@ -25,6 +25,8 @@ public final class ModEntities {
 			EntityType.Builder.of(VoidJelly::new, MobCategory.CREATURE).sized(0.8F, 0.8F).eyeHeight(0.4F).clientTrackingRange(8));
 	public static final EntityType<CrystalMite> CRYSTAL_MITE = register("crystal_mite",
 			EntityType.Builder.of(CrystalMite::new, MobCategory.MONSTER).sized(0.5F, 0.35F).eyeHeight(0.15F).clientTrackingRange(8));
+	public static final EntityType<com.mlin.notas.end.ChorusHopper> CHORUS_HOPPER = register("chorus_hopper",
+			EntityType.Builder.of(com.mlin.notas.end.ChorusHopper::new, MobCategory.CREATURE).sized(0.6F, 0.7F).eyeHeight(0.45F).clientTrackingRange(8));
 
 	private ModEntities() {
 	}
@@ -38,6 +40,9 @@ public final class ModEntities {
 		FabricDefaultAttributeRegistry.register(PURPUR_SENTINEL, PurpurSentinel.createAttributes());
 		FabricDefaultAttributeRegistry.register(VOID_JELLY, VoidJelly.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_MITE, CrystalMite.createAttributes());
+		FabricDefaultAttributeRegistry.register(CHORUS_HOPPER, com.mlin.notas.end.ChorusHopper.createAttributes());
+		SpawnPlacements.register(CHORUS_HOPPER, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				com.mlin.notas.end.ChorusHopper::checkSpawnRules);
 		SpawnPlacements.register(VOID_JELLY, SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, VoidJelly::checkSpawnRules);
 		SpawnPlacements.register(CRYSTAL_MITE, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 				Monster::checkAnyLightMonsterSpawnRules);

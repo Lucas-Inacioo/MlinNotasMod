@@ -20,6 +20,7 @@ public final class EndBiomes {
 	public static final ResourceKey<Biome> MOSS_FIELDS = key("end_moss_fields");
 	public static final ResourceKey<Biome> CRYSTAL_GROVE = key("ether_crystal_grove");
 	public static final ResourceKey<Biome> VOID_WASTES = key("void_wastes");
+	public static final ResourceKey<Biome> CHORUS_FOREST = key("chorus_forest");
 
 	private EndBiomes() {
 	}
@@ -31,8 +32,11 @@ public final class EndBiomes {
 	public static void init() {
 		TheEndBiomes.addHighlandsBiome(MOSS_FIELDS, 1.0);
 		TheEndBiomes.addHighlandsBiome(CRYSTAL_GROVE, 0.7);
+		TheEndBiomes.addHighlandsBiome(CHORUS_FOREST, 0.7);
 		TheEndBiomes.addBarrensBiome(Biomes.END_HIGHLANDS, VOID_WASTES, 0.5);
 		TheEndBiomes.addBarrensBiome(MOSS_FIELDS, VOID_WASTES, 1.0);
 		TheEndBiomes.addBarrensBiome(CRYSTAL_GROVE, VOID_WASTES, 1.0);
+		TheEndBiomes.addBarrensBiome(CHORUS_FOREST, VOID_WASTES, 1.0);
+		EndFeatures.init();
 	}
 }

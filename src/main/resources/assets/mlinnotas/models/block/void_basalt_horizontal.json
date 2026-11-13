@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column_horizontal",
+  "textures": {
+    "end": "mlinnotas:block/void_basalt_top",
+    "side": "mlinnotas:block/void_basalt"
+  }
+}

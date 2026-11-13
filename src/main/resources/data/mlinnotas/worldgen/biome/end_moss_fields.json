@@ -9,10 +9,10 @@
               "type": "mlinnotas:void_jelly",
               "count": {
                 "type": "minecraft:uniform",
-                "min_inclusive": 1,
-                "max_inclusive": 3
+                "min_inclusive": 2,
+                "max_inclusive": 4
               },
-              "weight": 8
+              "weight": 14
             }
           ],
           "monster": [
@@ -46,7 +46,9 @@
   },
   "features": [
     [],
-    [],
+    [
+      "mlinnotas:void_ponds"
+    ],
     [],
     [],
     [
@@ -57,7 +59,10 @@
     [],
     [],
     [
+      "mlinnotas:void_trees",
+      "mlinnotas:void_bushes",
       "mlinnotas:patch_void_grass",
+      "mlinnotas:patch_void_lily",
       "minecraft:chorus_plant"
     ]
   ],

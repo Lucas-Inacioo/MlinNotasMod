@@ -17,7 +17,8 @@
 			"com.mlin.notas.gametest.EndGameTest"
 		],
 		"fabric-client-gametest": [
-			"com.mlin.notas.gametest.MlinNotasClientGameTest"
+			"com.mlin.notas.gametest.MlinNotasClientGameTest",
+			"com.mlin.notas.gametest.EndClientGameTest"
 		]
 	},
 	"depends": {

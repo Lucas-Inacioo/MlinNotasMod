@@ -28,6 +28,17 @@
               "type": "minecraft:block",
               "result_state": "mlinnotas:void_ash"
             }
+          },
+          {
+            "type": "minecraft:condition",
+            "if_true": {
+              "type": "minecraft:biome",
+              "biome_is": "mlinnotas:chorus_forest"
+            },
+            "then_run": {
+              "type": "minecraft:block",
+              "result_state": "minecraft:end_stone"
+            }
           }
         ]
       }

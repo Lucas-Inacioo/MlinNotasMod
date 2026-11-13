@@ -97,25 +97,36 @@ class EndContent {
 				+ "\"advancements.end.find_end_city.title\"}},\"requirements\":[[\"in_city\"]],\"sends_telemetry_event\":true}");
 
 		// biomas
-		ContentGen.tag("worldgen/biome", "minecraft:is_end", List.of("mlinnotas:end_moss_fields", "mlinnotas:ether_crystal_grove", "mlinnotas:void_wastes"), false);
-		ContentGen.tag("worldgen/biome", "minecraft:has_structure/end_city", List.of("mlinnotas:end_moss_fields", "mlinnotas:ether_crystal_grove"), false);
-		biome("end_moss_fields", true, "[\"mlinnotas:patch_void_grass\",\"minecraft:chorus_plant\"]",
-				"\"creature\":[{\"type\":\"mlinnotas:void_jelly\",\"count\":{\"type\":\"minecraft:uniform\",\"min_inclusive\":1,\"max_inclusive\":3},\"weight\":8}],",
-				"#1b3a3c", "minecraft:spore_blossom_air", 0.006, "");
-		biome("ether_crystal_grove", true, "[\"mlinnotas:ether_crystal_spikes\",\"mlinnotas:patch_ether_crystal_cluster\"]",
-				"", "#2a2450", "minecraft:end_rod", 0.003, ",{\"type\":\"mlinnotas:crystal_mite\",\"count\":{\"type\":\"minecraft:uniform\","
-						+ "\"min_inclusive\":1,\"max_inclusive\":3},\"weight\":6}");
-		biome("void_wastes", false, "[\"mlinnotas:patch_void_grass_sparse\"]", "", "#1a1520", "minecraft:white_ash", 0.02,
-				",{\"type\":\"mlinnotas:crystal_mite\",\"count\":{\"type\":\"minecraft:uniform\",\"min_inclusive\":1,\"max_inclusive\":2},\"weight\":3}");
+		ContentGen.tag("worldgen/biome", "minecraft:is_end", List.of("mlinnotas:end_moss_fields", "mlinnotas:ether_crystal_grove", "mlinnotas:void_wastes",
+				"mlinnotas:chorus_forest"), false);
+		ContentGen.tag("worldgen/biome", "minecraft:has_structure/end_city", List.of("mlinnotas:end_moss_fields", "mlinnotas:ether_crystal_grove",
+				"mlinnotas:chorus_forest"), false);
+		String spawn = "{\"type\":\"mlinnotas:%s\",\"count\":{\"type\":\"minecraft:uniform\",\"min_inclusive\":%d,\"max_inclusive\":%d},\"weight\":%d}";
+		biome("end_moss_fields", List.of("void_ponds", "end_gateway_return", "void_trees", "void_bushes", "patch_void_grass", "patch_void_lily",
+						"minecraft:chorus_plant"),
+				"\"creature\":[" + spawn.formatted("void_jelly", 2, 4, 14) + "],", "#1b3a3c", "minecraft:spore_blossom_air", 0.006, "");
+		biome("ether_crystal_grove", List.of("crystal_geodes", "calcite_patches", "end_gateway_return", "giant_ether_crystal_spikes",
+						"ether_crystal_spikes", "patch_ether_crystal_cluster"),
+				"", "#2a2450", "minecraft:end_rod", 0.003, "," + spawn.formatted("crystal_mite", 1, 3, 8));
+		biome("void_wastes", List.of("void_craters", "giant_fossils", "void_basalt_pillars", "patch_void_grass_sparse"), "", "#1a1520",
+				"minecraft:white_ash", 0.06, "," + spawn.formatted("crystal_mite", 1, 2, 3));
+		biome("chorus_forest", List.of("end_gateway_return", "giant_chorus_plants", "minecraft:chorus_plant", "patch_chorus_flower", "patch_end_mushroom"),
+				"\"creature\":[" + spawn.formatted("chorus_hopper", 2, 4, 12) + "],", "#2b1a33", "minecraft:reverse_portal", 0.004, "");
+		ContentGen.name("biome", "chorus_forest", "Floresta de Coro", "Chorus Forest");
 
-		// superficie por bioma: musgo nos Campos, cinza nos Ermos, pedra do End no resto
+		// superficie por bioma: musgo nos Campos, cinza nos Ermos, pedra do End no resto (a Floresta de Coro precisa de
+		// pedra do End para o coro crescer)
 		ContentGen.write("data/minecraft/worldgen/material_rule/end.json", "{\"type\":\"minecraft:sequence\",\"sequence\":[{\"type\":\"minecraft:condition\","
 				+ "\"if_true\":\"minecraft:on_floor\",\"then_run\":{\"type\":\"minecraft:sequence\",\"sequence\":["
 				+ "{\"type\":\"minecraft:condition\",\"if_true\":{\"type\":\"minecraft:biome\",\"biome_is\":\"mlinnotas:end_moss_fields\"},"
 				+ "\"then_run\":{\"type\":\"minecraft:block\",\"result_state\":\"mlinnotas:end_moss\"}},"
 				+ "{\"type\":\"minecraft:condition\",\"if_true\":{\"type\":\"minecraft:biome\",\"biome_is\":\"mlinnotas:void_wastes\"},"
-				+ "\"then_run\":{\"type\":\"minecraft:block\",\"result_state\":\"mlinnotas:void_ash\"}}]}},"
+				+ "\"then_run\":{\"type\":\"minecraft:block\",\"result_state\":\"mlinnotas:void_ash\"}},"
+				+ "{\"type\":\"minecraft:condition\",\"if_true\":{\"type\":\"minecraft:biome\",\"biome_is\":\"mlinnotas:chorus_forest\"},"
+				+ "\"then_run\":{\"type\":\"minecraft:block\",\"result_state\":\"minecraft:end_stone\"}}]}},"
 				+ "{\"type\":\"minecraft:block\",\"result_state\":\"minecraft:end_stone\"}]}");
+		biomeDecor();
+		pickaxeMineable.add("mlinnotas:void_basalt");
 
 		// vegetacao
 		String onGround = "{\"type\":\"minecraft:all_of\",\"predicates\":[{\"type\":\"minecraft:matching_block_tag\",\"tag\":\"minecraft:air\"},"
@@ -181,11 +192,130 @@ class EndContent {
 				+ ",\"min\":-" + spread + ",\"plateau\":0}},{\"type\":\"minecraft:block_predicate_filter\",\"predicate\":" + predicate + "}]}");
 	}
 
+	/** Ordem global das features por etapa de geracao (1 = lagos, 2 = modificacoes locais, 4 = estruturas de superficie, 9 = vegetacao). */
+	static final String[][] FEATURE_ORDER = {
+			{"1", "void_ponds"},
+			{"2", "void_craters"}, {"2", "crystal_geodes"}, {"2", "calcite_patches"},
+			{"4", "end_gateway_return"}, {"4", "giant_fossils"}, {"4", "void_basalt_pillars"}, {"4", "giant_ether_crystal_spikes"},
+			{"9", "void_trees"}, {"9", "void_bushes"}, {"9", "patch_void_grass"}, {"9", "patch_void_grass_sparse"}, {"9", "patch_void_lily"},
+			{"9", "ether_crystal_spikes"}, {"9", "patch_ether_crystal_cluster"}, {"9", "giant_chorus_plants"}, {"9", "minecraft:chorus_plant"},
+			{"9", "patch_chorus_flower"}, {"9", "patch_end_mushroom"}};
+
+	/** Blocos, features e criatura novos dos biomas grandes (arvores do vazio, coro gigante, geodos, crateras, fosseis). */
+	static void biomeDecor() throws IOException {
+		// tronco e basalto: pilar com eixo, como os vanilla
+		pillar("void_log", "Tronco do Vazio", "Void Log");
+		pillar("void_basalt", "Basalto do Vazio", "Void Basalt");
+		cubeAll("void_planks", "Tábuas do Vazio", "Void Planks");
+		ContentGen.write("assets/mlinnotas/blockstates/void_leaves.json", "{\"variants\":{\"\":{\"model\":\"mlinnotas:block/void_leaves\"}}}");
+		ContentGen.write("assets/mlinnotas/models/block/void_leaves.json", "{\"parent\":\"minecraft:block/cube_all\",\"textures\":{\"all\":\"mlinnotas:block/void_leaves\"}}");
+		ContentGen.write("assets/mlinnotas/items/void_leaves.json", "{\"model\":{\"type\":\"minecraft:model\",\"model\":\"mlinnotas:block/void_leaves\"}}");
+		ContentGen.name("block", "void_leaves", "Folhas do Vazio", "Void Leaves");
+		ContentGen.write("data/mlinnotas/loot_table/blocks/void_leaves.json", "{\"type\":\"minecraft:block\",\"pools\":[{\"entries\":[{\"type\":"
+				+ "\"minecraft:alternatives\",\"children\":[{\"type\":\"minecraft:item\",\"condition\":{\"type\":\"minecraft:any_of\",\"terms\":["
+				+ "{\"type\":\"minecraft:match_tool\",\"predicate\":{\"items\":\"minecraft:shears\"}},\"minecraft:tool/can_silk_touch\"]},"
+				+ "\"name\":\"mlinnotas:void_leaves\"},{\"type\":\"minecraft:item\",\"condition\":{\"type\":\"minecraft:random_chance\",\"chance\":0.05},"
+				+ "\"name\":\"mlinnotas:void_lily\"}]}],\"rolls\":1}],\"random_sequence\":\"mlinnotas:blocks/void_leaves\"}");
+		for (String[] plant : new String[][] {{"void_lily", "Lírio do Vazio", "Void Lily"}, {"end_mushroom", "Cogumelo do End", "End Mushroom"}}) {
+			ContentGen.write("assets/mlinnotas/blockstates/" + plant[0] + ".json", "{\"variants\":{\"\":{\"model\":\"mlinnotas:block/" + plant[0] + "\"}}}");
+			ContentGen.write("assets/mlinnotas/models/block/" + plant[0] + ".json", "{\"parent\":\"minecraft:block/cross\",\"textures\":{\"cross\":\"mlinnotas:block/"
+					+ plant[0] + "\"}}");
+			flatBlockItem(plant[0]);
+			ContentGen.name("block", plant[0], plant[1], plant[2]);
+			selfDrop(plant[0]);
+		}
+		ContentGen.tag("block", "minecraft:logs", List.of("mlinnotas:void_log"), false);
+		ContentGen.tag("item", "minecraft:logs", List.of("mlinnotas:void_log"), false);
+		ContentGen.tag("block", "minecraft:planks", List.of("mlinnotas:void_planks"), false);
+		ContentGen.tag("item", "minecraft:planks", List.of("mlinnotas:void_planks"), false);
+		ContentGen.tag("block", "minecraft:leaves", List.of("mlinnotas:void_leaves"), false);
+		ContentGen.tag("block", "minecraft:mineable/axe", List.of("mlinnotas:void_log", "mlinnotas:void_planks"), false);
+		ContentGen.tag("block", "minecraft:mineable/hoe", List.of("mlinnotas:void_leaves"), false);
+		ContentGen.shaped("void_planks", "L", Map.of("L", "mlinnotas:void_log"), "building", 4);
+
+		// Saltador de Coro
+		item("chorus_hopper_spawn_egg", "Ovo Gerador de Saltador de Coro", "Chorus Hopper Spawn Egg");
+		ContentGen.name("entity", "chorus_hopper", "Saltador de Coro", "Chorus Hopper");
+		entityLoot("chorus_hopper", "{\"entries\":[{\"type\":\"minecraft:item\",\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":{\"type\":"
+				+ "\"minecraft:uniform\",\"min\":1,\"max\":2}}],\"name\":\"minecraft:chorus_fruit\"}],\"rolls\":1}");
+
+		// features (tipos mlinnotas:* em EndFeatures) e onde/quantas vezes aparecem
+		String feature = "data/mlinnotas/worldgen/feature/";
+		ContentGen.write(feature + "void_tree.json", "{\"type\":\"mlinnotas:void_tree\"}");
+		ContentGen.write(feature + "void_bush.json", "{\"type\":\"mlinnotas:void_tree\",\"bush\":true}");
+		ContentGen.write(feature + "giant_ether_crystal_spike.json", "{\"type\":\"mlinnotas:giant_crystal_spike\",\"min_height\":6,\"max_height\":14}");
+		ContentGen.write(feature + "crystal_geode.json", "{\"type\":\"mlinnotas:crystal_geode\"}");
+		ContentGen.write(feature + "void_crater.json", "{\"type\":\"mlinnotas:void_crater\"}");
+		ContentGen.write(feature + "giant_fossil.json", "{\"type\":\"mlinnotas:giant_fossil\"}");
+		ContentGen.write(feature + "void_basalt_pillars.json", "{\"type\":\"mlinnotas:void_basalt_pillars\"}");
+		ContentGen.write(feature + "void_pond.json", "{\"type\":\"mlinnotas:void_pond\"}");
+		ContentGen.write(feature + "giant_chorus.json", "{\"type\":\"mlinnotas:giant_chorus\"}");
+		ContentGen.write(feature + "calcite_patch.json", "{\"type\":\"mlinnotas:surface_patch\",\"state\":\"minecraft:calcite\",\"radius\":3}");
+		ContentGen.write(feature + "void_lily.json", "{\"type\":\"minecraft:simple_block\",\"to_place\":{\"id\":\"mlinnotas:void_lily\"}}");
+		ContentGen.write(feature + "end_mushroom.json", "{\"type\":\"minecraft:simple_block\",\"to_place\":{\"id\":\"mlinnotas:end_mushroom\"}}");
+		ContentGen.write(feature + "chorus_flower.json", "{\"type\":\"minecraft:simple_block\",\"to_place\":{\"id\":\"minecraft:chorus_flower\"}}");
+
+		surface("void_trees", "void_tree", "{\"type\":\"minecraft:count\",\"count\":{\"type\":\"minecraft:uniform\",\"min_inclusive\":0,\"max_inclusive\":2}}");
+		surface("void_bushes", "void_bush", "{\"type\":\"minecraft:count\",\"count\":2}");
+		surface("giant_ether_crystal_spikes", "giant_ether_crystal_spike", "{\"type\":\"minecraft:count\",\"count\":{\"type\":\"minecraft:uniform\","
+				+ "\"min_inclusive\":0,\"max_inclusive\":2}}");
+		surface("crystal_geodes", "crystal_geode", "{\"type\":\"minecraft:rarity_filter\",\"chance\":4}");
+		surface("calcite_patches", "calcite_patch", "{\"type\":\"minecraft:count\",\"count\":1}");
+		surface("void_craters", "void_crater", "{\"type\":\"minecraft:rarity_filter\",\"chance\":3}");
+		surface("giant_fossils", "giant_fossil", "{\"type\":\"minecraft:rarity_filter\",\"chance\":8}");
+		surface("void_basalt_pillars", "void_basalt_pillars", "{\"type\":\"minecraft:count\",\"count\":{\"type\":\"minecraft:uniform\","
+				+ "\"min_inclusive\":0,\"max_inclusive\":2}}");
+		surface("void_ponds", "void_pond", "{\"type\":\"minecraft:rarity_filter\",\"chance\":3}");
+		surface("giant_chorus_plants", "giant_chorus", "{\"type\":\"minecraft:count\",\"count\":4}");
+		String onGround = "{\"type\":\"minecraft:all_of\",\"predicates\":[{\"type\":\"minecraft:matching_block_tag\",\"tag\":\"minecraft:air\"},"
+				+ "{\"type\":\"minecraft:matching_blocks\",\"blocks\":[\"mlinnotas:end_moss\",\"minecraft:end_stone\",\"mlinnotas:void_ash\"],\"offset\":[0,-1,0]}]}";
+		patch("patch_void_lily", "void_lily", 2, 10, 5, onGround);
+		patch("patch_end_mushroom", "end_mushroom", 3, 8, 5, onGround);
+		patch("patch_chorus_flower", "chorus_flower", 2, 6, 6, onGround);
+	}
+
+	/** Placed feature de superficie: frequencia, ponto aleatorio no chunk, topo do terreno, so no bioma certo. */
+	static void surface(String id, String feature, String frequency) throws IOException {
+		ContentGen.write("data/mlinnotas/worldgen/placed_feature/" + id + ".json", "{\"feature\":\"mlinnotas:" + feature + "\",\"placement\":["
+				+ frequency + ",{\"type\":\"minecraft:in_square\"},{\"type\":\"minecraft:heightmap\",\"heightmap\":\"WORLD_SURFACE_WG\"},"
+				+ "{\"type\":\"minecraft:biome\"}]}");
+	}
+
+	/** Bloco com eixo (tronco, basalto): lateral {@code <id>} e topo {@code <id>_top}. */
+	static void pillar(String id, String pt, String en) throws IOException {
+		ContentGen.write("assets/mlinnotas/blockstates/" + id + ".json", "{\"variants\":{\"axis=x\":{\"model\":\"mlinnotas:block/" + id
+				+ "_horizontal\",\"x\":90,\"y\":90},\"axis=y\":{\"model\":\"mlinnotas:block/" + id + "\"},\"axis=z\":{\"model\":\"mlinnotas:block/"
+				+ id + "_horizontal\",\"x\":90}}}");
+		ContentGen.write("assets/mlinnotas/models/block/" + id + ".json", "{\"parent\":\"minecraft:block/cube_column\",\"textures\":{\"end\":"
+				+ "\"mlinnotas:block/" + id + "_top\",\"side\":\"mlinnotas:block/" + id + "\"}}");
+		ContentGen.write("assets/mlinnotas/models/block/" + id + "_horizontal.json", "{\"parent\":\"minecraft:block/cube_column_horizontal\","
+				+ "\"textures\":{\"end\":\"mlinnotas:block/" + id + "_top\",\"side\":\"mlinnotas:block/" + id + "\"}}");
+		ContentGen.write("assets/mlinnotas/items/" + id + ".json", "{\"model\":{\"type\":\"minecraft:model\",\"model\":\"mlinnotas:block/" + id + "\"}}");
+		ContentGen.name("block", id, pt, en);
+		selfDrop(id);
+	}
+
 	/** Bioma no formato do 26.3 (atributos de ambiente). {@code extraMonster} comeca com virgula (ou vazio). */
-	static void biome(String id, boolean gateways, String vegetation, String creatures, String fog, String particle, double chance,
+	static void biome(String id, List<String> decor, String creatures, String fog, String particle, double chance,
 			String extraMonster) throws IOException {
 		String monsters = "{\"type\":\"minecraft:enderman\",\"count\":4,\"weight\":10}" + extraMonster;
-		String features = "[[],[],[],[]," + (gateways ? "[\"minecraft:end_gateway_return\"]" : "[]") + ",[],[],[],[]," + vegetation + "]";
+		// cada etapa segue a ordem global de FEATURE_ORDER (a ordem tem que ser a mesma em todos os biomas)
+		StringBuilder steps = new StringBuilder("[");
+		for (int step = 0; step < 10; step++) {
+			List<String> inStep = new java.util.ArrayList<>();
+			for (String[] entry : FEATURE_ORDER) {
+				if (Integer.parseInt(entry[0]) == step && decor.contains(entry[1])) {
+					inStep.add(entry[1].contains(":") ? entry[1] : (entry[1].equals("end_gateway_return") ? "minecraft:" : "mlinnotas:") + entry[1]);
+				}
+			}
+			steps.append(step > 0 ? "," : "").append("[").append(ContentGen.quoteAll(inStep)).append("]");
+		}
+		for (String feature : decor) {
+			if (java.util.Arrays.stream(FEATURE_ORDER).noneMatch(e -> e[1].equals(feature))) {
+				throw new IllegalArgumentException("feature fora de FEATURE_ORDER: " + feature);
+			}
+		}
+		String features = steps.append("]").toString();
 		ContentGen.write("data/mlinnotas/worldgen/biome/" + id + ".json", "{\"attributes\":{\"minecraft:gameplay/natural_mob_spawns\":{\"argument\":"
 				+ "{\"spawn_costs\":{},\"spawns_by_category\":{" + creatures + "\"monster\":[" + monsters + "]}},\"modifier\":\"overlay\"},"
 				+ "\"minecraft:visual/ambient_particles\":{\"argument\":[{\"particle\":{\"type\":\"" + particle + "\"},\"probability\":" + chance + "}],"
