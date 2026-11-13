@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "minecraft:diamond",
-    "C": "mlinnotas:gold_chest"
+    "C": "mlinnotas:cobalt_chest",
+    "M": "minecraft:diamond"
   },
   "pattern": [
     "MMM",

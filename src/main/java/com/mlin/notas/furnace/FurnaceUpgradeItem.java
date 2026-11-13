@@ -1,5 +1,6 @@
 package com.mlin.notas.furnace;
 
+import com.mlin.notas.tier.Tier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -10,22 +11,22 @@ import java.util.function.Consumer;
 
 /**
  * Upgrade de fornalha. Use com o botao direito numa fornalha, alto-forno ou defumador.
- * Cada nivel dobra a velocidade (ferro 2x, ouro 4x, diamante 8x).
+ * A velocidade vem da escada {@link Tier#furnaceSpeed()} (pedra 1,25x ate celestio 32x).
  */
 public class FurnaceUpgradeItem extends Item {
-	private final int tier;
+	private final Tier tier;
 
-	public FurnaceUpgradeItem(Properties properties, int tier) {
+	public FurnaceUpgradeItem(Properties properties, Tier tier) {
 		super(properties);
 		this.tier = tier;
 	}
 
-	public int tier() {
+	public Tier tier() {
 		return tier;
 	}
 
 	@Override
 	public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
-		tooltip.accept(Component.translatable("item.mlinnotas.furnace_upgrade.tooltip", FurnaceUpgrades.speedMultiplier(tier)));
+		tooltip.accept(Component.translatable("item.mlinnotas.furnace_upgrade.tooltip", FurnaceUpgrades.formatMultiplier(tier.furnaceSpeed())));
 	}
 }

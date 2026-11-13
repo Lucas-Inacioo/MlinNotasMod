@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 1.0,
+  "group": "astralite_ingot",
+  "ingredient": "mlinnotas:astralite_ore",
+  "result": {
+    "id": "mlinnotas:astralite_ingot"
+  }
+}

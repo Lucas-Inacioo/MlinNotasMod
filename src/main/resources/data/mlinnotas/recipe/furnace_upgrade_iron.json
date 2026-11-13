@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "I": "minecraft:iron_ingot",
-    "F": "minecraft:furnace"
+    "F": "mlinnotas:furnace_upgrade_copper",
+    "I": "minecraft:iron_ingot"
   },
   "pattern": [
     "III",

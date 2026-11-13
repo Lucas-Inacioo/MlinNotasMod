@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mlinnotas:astralite"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mlinnotas:astralite"
+      }
+    ]
+  }
+}

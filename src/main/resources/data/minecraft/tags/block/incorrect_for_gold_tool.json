@@ -1,0 +1,10 @@
+{
+  "replace": true,
+  "values": [
+    "#mlinnotas:needs_cobalt_tool",
+    "#minecraft:needs_diamond_tool",
+    "#mlinnotas:needs_netherite_tool",
+    "#mlinnotas:needs_infernite_tool",
+    "#mlinnotas:needs_endite_tool"
+  ]
+}

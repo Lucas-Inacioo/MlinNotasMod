@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "minecraft:gold_ingot",
-    "C": "mlinnotas:chest_upgrade_iron"
+    "C": "#minecraft:planks",
+    "M": "minecraft:gold_ingot"
   },
   "pattern": [
     "MMM",

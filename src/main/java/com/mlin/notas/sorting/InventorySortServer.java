@@ -1,5 +1,6 @@
 package com.mlin.notas.sorting;
 
+import com.mlin.notas.chest.BigChestMenu;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,6 +58,21 @@ public final class InventorySortServer {
 	/** Ordena os slots do container aberto (bau, mochila...), ignorando o inventario do jogador. */
 	public static void sortOpenContainer(ServerPlayer player) {
 		AbstractContainerMenu menu = player.containerMenu;
+		if (menu instanceof BigChestMenu big) {
+			// bau com rolagem: ordena o conteudo inteiro, nao so a parte visivel
+			Container container = big.getContainer();
+			List<ItemStack> stacks = new ArrayList<>();
+			for (int i = 0; i < container.getContainerSize(); i++) {
+				stacks.add(container.getItem(i));
+			}
+			List<ItemStack> sorted = sortStacks(stacks);
+			for (int i = 0; i < sorted.size(); i++) {
+				container.setItem(i, sorted.get(i));
+			}
+			container.setChanged();
+			menu.broadcastChanges();
+			return;
+		}
 		Map<Container, List<Slot>> byContainer = new LinkedHashMap<>();
 		for (Slot slot : menu.slots) {
 			if (isSortable(slot, player)) {

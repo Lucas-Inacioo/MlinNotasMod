@@ -44,6 +44,32 @@ public class TexGen {
 		upgrade(items, "chest_upgrade_gold", 0xFFF6D23A, 0xFFD8D8D8);
 		upgrade(items, "chest_upgrade_diamond", 0xFF8FF3EF, 0xFFF6D23A);
 
+		// Escada de 12 niveis: os niveis que nao existiam antes (iron/gold/diamond acima mantem as cores originais).
+		// Cores por material: claro, base, escuro.
+		String[] ids = {"wood", "stone", "copper", "iron", "gold", "cobalt", "diamond", "netherite", "infernite", "endite", "astralite", "celestium"};
+		int[][] palette = {
+				{0xFFC8A060, 0xFF9C7A48, 0xFF8B5A2B}, {0xFFA0A0A0, 0xFF7F7F7F, 0xFF606060}, {0xFFF0A07A, 0xFFD7754A, 0xFF8E4A2C},
+				{0xFFE8E8E8, 0xFF9A9A9A, 0xFF6E6E6E}, {0xFFF6D23A, 0xFFC9A520, 0xFF8A6D0E}, {0xFF6E9CFF, 0xFF2F5FD0, 0xFF1A3478},
+				{0xFF8FF3EF, 0xFF4CC9C3, 0xFF2B8A86}, {0xFF6E6268, 0xFF4A3F44, 0xFF2A2326}, {0xFFFF8A3C, 0xFFE0401A, 0xFF8A1C08},
+				{0xFFD8B8FF, 0xFFA77BE8, 0xFF5E3A9A}, {0xFFFF9CE6, 0xFFE45CC8, 0xFF7A1E6A}, {0xFFFFFFFF, 0xFFFFF0A8, 0xFFC8A84A}};
+		java.util.Set<String> original = java.util.Set.of("iron", "gold", "diamond");
+		for (int i = 0; i < ids.length; i++) {
+			String id = ids[i];
+			int light = palette[i][0];
+			int base = palette[i][1];
+			int dark = palette[i][2];
+			if (!id.equals("wood") && !id.equals("stone") && !id.equals("iron") && !id.equals("diamond")) {
+				wand(items, id + "_wand", light, dark);
+			}
+			if (id.equals("wood") || original.contains(id)) {
+				continue;
+			}
+			furnaceUpgrade(items, "furnace_upgrade_" + id, light, dark);
+			chest(blocks, id + "_chest", light, base, dark);
+			chestEntity(chestEntities, id, base, dark, shade(dark, 0.6));
+			upgrade(items, "chest_upgrade_" + id, light, palette[i - 1][1]);
+		}
+
 		// Mochila
 		backpack(items, "backpack", 0xFF8B5A2B, 0xFF5C3A18);
 		upgrade(items, "backpack_upgrade_size", 0xFF8B5A2B, 0xFFE8E8E8);

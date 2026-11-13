@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mlinnotas:celestium"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mlinnotas:celestium"
+      }
+    ]
+  }
+}

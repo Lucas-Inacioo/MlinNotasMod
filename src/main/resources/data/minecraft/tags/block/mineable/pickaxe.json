@@ -1,7 +1,20 @@
 {
   "values": [
+    "mlinnotas:cobalt_ore",
+    "mlinnotas:deepslate_cobalt_ore",
+    "mlinnotas:infernite_ore",
+    "mlinnotas:endite_ore",
+    "mlinnotas:astralite_ore",
+    "mlinnotas:stone_chest",
+    "mlinnotas:copper_chest",
     "mlinnotas:iron_chest",
     "mlinnotas:gold_chest",
-    "mlinnotas:diamond_chest"
+    "mlinnotas:cobalt_chest",
+    "mlinnotas:diamond_chest",
+    "mlinnotas:netherite_chest",
+    "mlinnotas:infernite_chest",
+    "mlinnotas:endite_chest",
+    "mlinnotas:astralite_chest",
+    "mlinnotas:celestium_chest"
   ]
 }

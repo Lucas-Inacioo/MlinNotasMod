@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractFurnaceBlockEntityMixin {
 	@Inject(method = "getSpeedMultiplier", at = @At("RETURN"), cancellable = true)
 	private void mlinnotas$applyUpgrade(ServerLevel level, ItemStack fuelItem, CallbackInfoReturnable<Float> cir) {
-		int tier = FurnaceUpgrades.tierOf((BlockEntity) (Object) this);
-		if (tier > 0) {
-			cir.setReturnValue(cir.getReturnValueF() * FurnaceUpgrades.speedMultiplier(tier));
+		float multiplier = FurnaceUpgrades.tierOf((BlockEntity) (Object) this).furnaceSpeed();
+		if (multiplier != 1.0F) {
+			cir.setReturnValue(cir.getReturnValueF() * multiplier);
 		}
 	}
 }

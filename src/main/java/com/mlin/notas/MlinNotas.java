@@ -2,17 +2,12 @@ package com.mlin.notas;
 
 import com.mlin.notas.command.NotaCommand;
 import com.mlin.notas.chest.ChestUpgrades;
-import com.mlin.notas.chest.ChestUpgrades;
 import com.mlin.notas.enchanting.SelectiveEnchanting;
 import com.mlin.notas.furnace.FurnaceUpgrades;
 import com.mlin.notas.notes.NotebookManager;
 import com.mlin.notas.registry.ModBlockEntities;
 import com.mlin.notas.registry.ModBlocks;
-import com.mlin.notas.registry.ModBlockEntities;
-import com.mlin.notas.registry.ModBlocks;
 import com.mlin.notas.registry.ModCreativeTab;
-import com.mlin.notas.registry.ModDataComponents;
-import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModDataComponents;
 import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModItems;
@@ -20,6 +15,8 @@ import com.mlin.notas.recipes.RecipeSyncServer;
 import com.mlin.notas.registry.ModPayloads;
 import com.mlin.notas.sorting.InventorySortServer;
 import com.mlin.notas.tree.TreeCapitator;
+import com.mlin.notas.tier.ModWorldgen;
+import com.mlin.notas.tier.VanillaRebalance;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.resources.Identifier;
@@ -38,6 +35,7 @@ public class MlinNotas implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		VanillaRebalance.init();
 		ModDataComponents.init();
 		ModBlocks.init();
 		ModItems.init();
@@ -52,6 +50,7 @@ public class MlinNotas implements ModInitializer {
 		RecipeSyncServer.init();
 		SelectiveEnchanting.init();
 		ChestUpgrades.init();
+		ModWorldgen.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

@@ -12,7 +12,8 @@
 			"com.mlin.notas.gametest.MinimapGameTest",
 			"com.mlin.notas.gametest.ChestGameTest",
 			"com.mlin.notas.gametest.BackpackGameTest",
-			"com.mlin.notas.gametest.EnchantingGameTest"
+			"com.mlin.notas.gametest.EnchantingGameTest",
+			"com.mlin.notas.gametest.TierGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest"

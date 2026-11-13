@@ -2,6 +2,7 @@ package com.mlin.notas.furnace;
 
 import com.mlin.notas.MlinNotas;
 import com.mlin.notas.registry.ModItems;
+import com.mlin.notas.tier.Tier;
 import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
@@ -27,7 +28,11 @@ import net.minecraft.world.phys.BlockHitResult;
  * O mixin {@code AbstractFurnaceBlockEntityMixin} le o nivel para multiplicar a velocidade.
  */
 public final class FurnaceUpgrades {
-	public static final AttachmentType<Integer> TIER = AttachmentRegistry.create(MlinNotas.id("furnace_tier"),
+	/** Id do material do upgrade (ver {@link Tier}). */
+	public static final AttachmentType<String> UPGRADE = AttachmentRegistry.create(MlinNotas.id("furnace_upgrade"),
+			builder -> builder.persistent(Codec.STRING));
+	/** Formato antigo (1 ferro, 2 ouro, 3 diamante), so lido para converter fornalhas de mundos antigos. */
+	public static final AttachmentType<Integer> LEGACY_TIER = AttachmentRegistry.create(MlinNotas.id("furnace_tier"),
 			builder -> builder.persistent(Codec.INT));
 
 	private FurnaceUpgrades() {
@@ -38,32 +43,44 @@ public final class FurnaceUpgrades {
 		PlayerBlockBreakEvents.BEFORE.register(FurnaceUpgrades::dropUpgradeOnBreak);
 	}
 
-	/** Multiplicador de velocidade do nivel: 1 -> 2x, 2 -> 4x, 3 -> 8x. */
-	public static float speedMultiplier(int tier) {
-		return tier <= 0 ? 1.0F : (float) (1 << tier);
+	/** Texto do multiplicador sem casas inuteis: 2, 1.25, 32. */
+	public static String formatMultiplier(float multiplier) {
+		return multiplier == (int) multiplier ? Integer.toString((int) multiplier) : Float.toString(multiplier);
 	}
 
-	public static int tierOf(BlockEntity blockEntity) {
-		Integer tier = ((AttachmentTarget) blockEntity).getAttached(TIER);
-		return tier == null ? 0 : tier;
+	/** Nivel do upgrade da fornalha; {@link Tier#WOOD} = sem upgrade. Converte o formato antigo (1 ferro, 2 ouro, 3 diamante). */
+	public static Tier tierOf(BlockEntity blockEntity) {
+		AttachmentTarget target = (AttachmentTarget) blockEntity;
+		String id = target.getAttached(UPGRADE);
+		Tier tier = id == null ? null : Tier.byId(id);
+		if (tier != null) {
+			return tier;
+		}
+		Integer legacy = target.getAttached(LEGACY_TIER);
+		if (legacy != null) {
+			return switch (legacy) {
+				case 1 -> Tier.IRON;
+				case 2 -> Tier.GOLD;
+				case 3 -> Tier.DIAMOND;
+				default -> Tier.WOOD;
+			};
+		}
+		return Tier.WOOD;
 	}
 
-	public static void setTier(BlockEntity blockEntity, int tier) {
-		if (tier <= 0) {
-			((AttachmentTarget) blockEntity).removeAttached(TIER);
+	public static void setTier(BlockEntity blockEntity, Tier tier) {
+		AttachmentTarget target = (AttachmentTarget) blockEntity;
+		target.removeAttached(LEGACY_TIER);
+		if (tier == Tier.WOOD) {
+			target.removeAttached(UPGRADE);
 		} else {
-			((AttachmentTarget) blockEntity).setAttached(TIER, tier);
+			target.setAttached(UPGRADE, tier.id());
 		}
 		blockEntity.setChanged();
 	}
 
-	public static Item itemForTier(int tier) {
-		return switch (tier) {
-			case 1 -> ModItems.FURNACE_UPGRADE_IRON;
-			case 2 -> ModItems.FURNACE_UPGRADE_GOLD;
-			case 3 -> ModItems.FURNACE_UPGRADE_DIAMOND;
-			default -> null;
-		};
+	public static Item itemForTier(Tier tier) {
+		return ModItems.furnaceUpgrade(tier);
 	}
 
 	/**
@@ -76,13 +93,13 @@ public final class FurnaceUpgrades {
 		if (!(level.getBlockEntity(pos) instanceof AbstractFurnaceBlockEntity furnace)) {
 			return false;
 		}
-		int current = tierOf(furnace);
-		if (upgrade.tier() <= current) {
+		Tier current = tierOf(furnace);
+		if (upgrade.tier().ordinal() <= current.ordinal()) {
 			player.sendOverlayMessage(Component.translatable("message.mlinnotas.furnace_upgrade.already"));
 			return false;
 		}
 		if (!level.isClientSide()) {
-			if (current > 0) {
+			if (current != Tier.WOOD) {
 				Item previous = itemForTier(current);
 				if (previous != null) {
 					Block.popResource(level, pos.above(), new ItemStack(previous));
@@ -92,7 +109,7 @@ public final class FurnaceUpgrades {
 			if (!player.hasInfiniteMaterials()) {
 				stack.shrink(1);
 			}
-			player.sendOverlayMessage(Component.translatable("message.mlinnotas.furnace_upgrade.applied", (int) speedMultiplier(upgrade.tier())));
+			player.sendOverlayMessage(Component.translatable("message.mlinnotas.furnace_upgrade.applied", formatMultiplier(upgrade.tier().furnaceSpeed())));
 		}
 		return true;
 	}
@@ -107,11 +124,11 @@ public final class FurnaceUpgrades {
 
 	private static boolean dropUpgradeOnBreak(Level level, Player player, BlockPos pos, BlockState state, BlockEntity blockEntity) {
 		if (blockEntity instanceof AbstractFurnaceBlockEntity && !level.isClientSide()) {
-			int tier = tierOf(blockEntity);
+			Tier tier = tierOf(blockEntity);
 			Item item = itemForTier(tier);
 			if (item != null) {
 				Block.popResource(level, pos, new ItemStack(item));
-				setTier(blockEntity, 0);
+				setTier(blockEntity, Tier.WOOD);
 			}
 		}
 		return true;

@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": "minecraft:diamond",
-    "C": "mlinnotas:chest_upgrade_gold"
+    "C": "#minecraft:planks",
+    "M": "minecraft:diamond"
   },
   "pattern": [
     "MMM",

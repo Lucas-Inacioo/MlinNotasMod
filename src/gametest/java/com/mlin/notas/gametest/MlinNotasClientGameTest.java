@@ -1,6 +1,12 @@
 package com.mlin.notas.gametest;
 
 import com.mlin.notas.client.screen.SelectiveEnchantScreen;
+import com.mlin.notas.client.screen.BigChestScreen;
+import com.mlin.notas.chest.BigChestBlockEntity;
+import com.mlin.notas.chest.BigChestMenu;
+import com.mlin.notas.chest.ChestTier;
+import com.mlin.notas.registry.ModBlocks;
+import com.mlin.notas.registry.ModItems;
 import com.mlin.notas.enchanting.SelectiveEnchantMenu;
 import com.mlin.notas.enchanting.SelectiveEnchanting;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -120,6 +126,54 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			context.takeScreenshot("mlinnotas-recipe-chest");
 			context.clickScreenButton("gui.mlinnotas.recipes.close");
 			context.waitForScreen(InventoryScreen.class);
+			context.getInput().pressKey(options -> options.keyInventory);
+			context.waitForScreen(null);
+
+			// Escada de 12 niveis: suportes com as armaduras e espadas novas, minerios novos ao lado
+			String[] tiers = {"cobalt", "infernite", "endite", "astralite", "celestium"};
+			for (int i = 0; i < tiers.length; i++) {
+				String t = tiers[i];
+				singleplayer.getServer().runCommand("execute at @p run summon minecraft:armor_stand ~" + (i * 2 - 4) + " ~ ~-8 {Rotation:[0f,0f],ShowArms:1b,NoGravity:1b,"
+						+ "equipment:{head:{id:\"mlinnotas:" + t + "_helmet\"},chest:{id:\"mlinnotas:" + t + "_chestplate\"},legs:{id:\"mlinnotas:" + t + "_leggings\"},"
+						+ "feet:{id:\"mlinnotas:" + t + "_boots\"},mainhand:{id:\"mlinnotas:" + t + "_sword\"}}}");
+			}
+			String[] ores = {"cobalt_ore", "deepslate_cobalt_ore", "infernite_ore", "endite_ore", "astralite_ore"};
+			for (int i = 0; i < ores.length; i++) {
+				singleplayer.getServer().runCommand("execute at @p run setblock ~" + (i * 2 - 4) + " ~1 ~-11 mlinnotas:" + ores[i]);
+			}
+			context.getInput().lookAt(180, 15);
+			context.waitTicks(10);
+			context.takeScreenshot("mlinnotas-tier-armor");
+
+			// Bau de celestio (243 slots, 27 linhas): janela de 6 linhas com barra de rolagem
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				BlockPos pos = player.blockPosition().offset(3, 0, -3);
+				player.level().setBlockAndUpdate(pos, ModBlocks.chest(ChestTier.CELESTIUM).defaultBlockState());
+				BigChestBlockEntity chest = (BigChestBlockEntity) player.level().getBlockEntity(pos);
+				chest.setItem(0, new ItemStack(ModItems.CELESTIUM_INGOT, 12));
+				chest.setItem(10, new ItemStack(Items.DIAMOND, 30));
+				chest.setItem(240, new ItemStack(Items.EMERALD, 7));
+				chest.setItem(242, new ItemStack(Items.NETHER_STAR));
+				player.openMenu(chest);
+			});
+			context.waitForScreen(BigChestScreen.class);
+			context.waitTicks(5);
+			context.takeScreenshot("mlinnotas-celestium-chest");
+			context.runOnClient(mc -> {
+				BigChestScreen screen = (BigChestScreen) mc.gui.screen();
+				for (int i = 0; i < 30; i++) {
+					screen.mouseScrolled(screen.width / 2.0, screen.height / 2.0, 0, -1);
+				}
+			});
+			context.waitTicks(5);
+			context.takeScreenshot("mlinnotas-celestium-chest-scrolled");
+			context.runOnClient(mc -> {
+				BigChestMenu menu = ((BigChestScreen) mc.gui.screen()).getMenu();
+				if (menu.scrollRow() != ChestTier.CELESTIUM.maxScroll() || !menu.slots.get(53).getItem().is(Items.NETHER_STAR)) {
+					throw new IllegalStateException("rolagem deveria mostrar o ultimo slot (estrela do Nether), linha " + menu.scrollRow());
+				}
+			});
 			context.getInput().pressKey(options -> options.keyInventory);
 			context.waitForScreen(null);
 		}

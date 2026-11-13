@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": "mlinnotas:furnace_upgrade_astralite",
+    "I": "mlinnotas:celestium_ingot"
+  },
+  "pattern": [
+    "III",
+    "IFI",
+    "III"
+  ],
+  "result": {
+    "id": "mlinnotas:furnace_upgrade_celestium"
+  }
+}

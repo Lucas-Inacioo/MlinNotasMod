@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/template_chest",
+  "textures": {
+    "particle": "mlinnotas:block/celestium_chest_side"
+  }
+}

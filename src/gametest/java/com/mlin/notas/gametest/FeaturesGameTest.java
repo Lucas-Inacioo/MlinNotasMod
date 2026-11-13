@@ -1,6 +1,7 @@
 package com.mlin.notas.gametest;
 
 import com.mlin.notas.furnace.FurnaceUpgrades;
+import com.mlin.notas.tier.Tier;
 import com.mlin.notas.registry.ModItems;
 import com.mlin.notas.sorting.InventorySortServer;
 import com.mlin.notas.tablet.CraftingTabletItem;
@@ -155,18 +156,18 @@ public class FeaturesGameTest {
 		AbstractFurnaceBlockEntity fast = helper.getBlockEntity(new BlockPos(3, 1, 1), AbstractFurnaceBlockEntity.class);
 
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		ItemStack upgrade = new ItemStack(ModItems.FURNACE_UPGRADE_GOLD);
+		ItemStack upgrade = new ItemStack(ModItems.FURNACE_UPGRADE_DIAMOND);
 		boolean applied = FurnaceUpgrades.apply(helper.getLevel(), helper.absolutePos(new BlockPos(3, 1, 1)), player, upgrade);
 		helper.assertTrue(applied, "upgrade deveria aplicar");
 		// jogador mock in-level e criativo: o upgrade nao e consumido
-		helper.assertTrue(FurnaceUpgrades.tierOf(fast) == 2, "nivel 2 (ouro)");
+		helper.assertTrue(FurnaceUpgrades.tierOf(fast) == Tier.DIAMOND, "nivel diamante");
 
 		for (AbstractFurnaceBlockEntity furnace : List.of(slow, fast)) {
 			furnace.setItem(0, new ItemStack(Items.RAW_IRON, 8));
 			furnace.setItem(1, new ItemStack(Items.COAL, 8));
 		}
 
-		// Normal: 200 ticks por item. Ouro (4x): 50 ticks. Em 120 ticks a rapida deve ter >= 2 e a lenta 0.
+		// Normal: 200 ticks por item. Diamante (6x): ~34 ticks. Em 120 ticks a rapida deve ter >= 2 e a lenta 0.
 		helper.runAfterDelay(120, () -> {
 			int fastCount = fast.getItem(2).getCount();
 			int slowCount = slow.getItem(2).getCount();

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mlinnotas:cobalt"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mlinnotas:cobalt"
+      }
+    ]
+  }
+}

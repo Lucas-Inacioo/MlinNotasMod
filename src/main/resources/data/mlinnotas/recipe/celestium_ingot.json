@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:astralite_ingot",
+    "mlinnotas:astralite_ingot",
+    "mlinnotas:endite_ingot",
+    "mlinnotas:endite_ingot",
+    "mlinnotas:infernite_ingot",
+    "mlinnotas:infernite_ingot",
+    "minecraft:netherite_ingot"
+  ],
+  "result": {
+    "id": "mlinnotas:celestium_ingot"
+  }
+}

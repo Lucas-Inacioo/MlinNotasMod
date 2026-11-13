@@ -12,7 +12,7 @@ import java.util.Set;
 public final class ModBlockEntities {
 	public static final BlockEntityType<BigChestBlockEntity> BIG_CHEST = Registry.register(
 			BuiltInRegistries.BLOCK_ENTITY_TYPE, MlinNotas.id("big_chest"),
-			new BlockEntityType<>(BigChestBlockEntity::new, Set.of(ModBlocks.IRON_CHEST, ModBlocks.GOLD_CHEST, ModBlocks.DIAMOND_CHEST)));
+			new BlockEntityType<>(BigChestBlockEntity::new, Set.copyOf(ModBlocks.chests())));
 
 	private ModBlockEntities() {
 	}

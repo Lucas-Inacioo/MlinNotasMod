@@ -5,6 +5,7 @@ import com.mlin.notas.client.minimap.MinimapClient;
 import com.mlin.notas.backpack.OpenBackpackPayload;
 import com.mlin.notas.client.screen.BackpackScreen;
 import com.mlin.notas.client.screen.BigChestScreen;
+import com.mlin.notas.chest.ChestTier;
 import com.mlin.notas.client.screen.SelectiveEnchantScreen;
 import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModBlockEntities;
@@ -27,9 +28,9 @@ public class MlinNotasClient implements ClientModInitializer {
 		InventorySortClient.init();
 		RecipeViewerClient.init();
 		MinimapClient.init();
-		MenuScreens.register(ModMenus.IRON_CHEST, BigChestScreen::new);
-		MenuScreens.register(ModMenus.GOLD_CHEST, BigChestScreen::new);
-		MenuScreens.register(ModMenus.DIAMOND_CHEST, BigChestScreen::new);
+		for (ChestTier tier : ChestTier.values()) {
+			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
+		}
 		MenuScreens.register(ModMenus.BACKPACK, BackpackScreen::new);
 		MenuScreens.register(ModMenus.SELECTIVE_ENCHANT, SelectiveEnchantScreen::new);
 		BlockEntityRenderers.register(ModBlockEntities.BIG_CHEST, BigChestRenderer::new);

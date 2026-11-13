@@ -18,9 +18,11 @@ import java.util.Map;
 public final class ModMenus {
 	private static final Map<ChestTier, MenuType<BigChestMenu>> CHESTS = new EnumMap<>(ChestTier.class);
 
-	public static final MenuType<BigChestMenu> IRON_CHEST = registerChest(ChestTier.IRON);
-	public static final MenuType<BigChestMenu> GOLD_CHEST = registerChest(ChestTier.GOLD);
-	public static final MenuType<BigChestMenu> DIAMOND_CHEST = registerChest(ChestTier.DIAMOND);
+	static {
+		for (ChestTier tier : ChestTier.values()) {
+			registerChest(tier);
+		}
+	}
 
 	public static final ExtendedMenuType<BackpackMenu, BackpackMenu.Data> BACKPACK = Registry.register(
 			BuiltInRegistries.MENU, MlinNotas.id("backpack"),

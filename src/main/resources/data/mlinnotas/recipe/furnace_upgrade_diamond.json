@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "I": "minecraft:diamond",
-    "F": "mlinnotas:furnace_upgrade_gold"
+    "F": "mlinnotas:furnace_upgrade_cobalt",
+    "I": "minecraft:diamond"
   },
   "pattern": [
     "III",

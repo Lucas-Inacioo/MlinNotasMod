@@ -46,10 +46,11 @@ public class ChestGameTest {
 		vanilla.setItem(26, new ItemStack(Items.STONE, 64));
 
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
-		ItemStack upgrade = new ItemStack(ModItems.CHEST_UPGRADE_IRON);
+		ItemStack upgrade = new ItemStack(ModItems.chestUpgrade(ChestTier.STONE));
+		helper.assertTrue(!ChestUpgrades.apply(helper.getLevel(), pos, player, new ItemStack(ModItems.CHEST_UPGRADE_IRON)), "ferro nao pula a pedra e o cobre");
 		boolean applied = ChestUpgrades.apply(helper.getLevel(), pos, player, upgrade);
-		helper.assertTrue(applied, "upgrade de ferro deveria aplicar no bau vanilla");
-		helper.assertBlockPresent(ModBlocks.IRON_CHEST, 1, 1, 1);
+		helper.assertTrue(applied, "upgrade de pedra deveria aplicar no bau vanilla");
+		helper.assertBlockPresent(ModBlocks.chest(ChestTier.STONE), 1, 1, 1);
 		helper.assertTrue(helper.getBlockState(new BlockPos(1, 1, 1)).getValue(ChestBlock.FACING) == Direction.EAST, "facing preservado");
 		BigChestBlockEntity big = helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class);
 		helper.assertTrue(big.getItem(0).is(Items.APPLE) && big.getItem(0).getCount() == 5, "apple preservada no slot 0");
@@ -62,7 +63,7 @@ public class ChestGameTest {
 
 	@SuppressWarnings("removal")
 	@GameTest
-	public void upgradeChainIronToGoldToDiamond(GameTestHelper helper) {
+	public void upgradeChainIronToGoldToCobaltToDiamond(GameTestHelper helper) {
 		helper.setBlock(1, 1, 1, ModBlocks.IRON_CHEST);
 		BlockPos pos = helper.absolutePos(new BlockPos(1, 1, 1));
 		BigChestBlockEntity iron = helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class);
@@ -78,7 +79,10 @@ public class ChestGameTest {
 		helper.assertTrue(gold.getItem(53).is(Items.GOLD_INGOT), "item preservado na mesma posicao");
 		helper.assertTrue(gold.getCustomName() != null && gold.getCustomName().getString().equals("Tesouro"), "nome preservado");
 
-		helper.assertTrue(ChestUpgrades.apply(helper.getLevel(), pos, player, new ItemStack(ModItems.CHEST_UPGRADE_DIAMOND)), "diamante aplica em ouro");
+		helper.assertTrue(!ChestUpgrades.apply(helper.getLevel(), pos, player, new ItemStack(ModItems.CHEST_UPGRADE_DIAMOND)), "diamante nao pula o cobalto");
+		helper.assertTrue(ChestUpgrades.apply(helper.getLevel(), pos, player, new ItemStack(ModItems.chestUpgrade(ChestTier.COBALT))), "cobalto aplica em ouro");
+		helper.assertTrue(helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class).getContainerSize() == 99, "99 slots");
+		helper.assertTrue(ChestUpgrades.apply(helper.getLevel(), pos, player, new ItemStack(ModItems.CHEST_UPGRADE_DIAMOND)), "diamante aplica em cobalto");
 		helper.assertBlockPresent(ModBlocks.DIAMOND_CHEST, 1, 1, 1);
 		BigChestBlockEntity diamond = helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class);
 		helper.assertTrue(diamond.getContainerSize() == 108, "108 slots");
@@ -118,7 +122,11 @@ public class ChestGameTest {
 			helper.assertTrue(player.containerMenu instanceof BigChestMenu, "menu do bau grande aberto");
 			BigChestMenu menu = (BigChestMenu) player.containerMenu;
 			helper.assertTrue(menu.containerSlotCount() == 108, "108 slots de container");
-			helper.assertTrue(menu.slots.size() == 108 + 36, "slots do container + 36 do jogador");
+			helper.assertTrue(menu.slots.size() == 54 + 36, "janela de 6 linhas + 36 do jogador");
+			helper.assertTrue(menu.slots.get(53).getItem().isEmpty(), "sem rolar, o ultimo slot da janela e o indice 53");
+			helper.assertTrue(menu.clickMenuButton(player, ChestTier.DIAMOND.maxScroll()), "rolar ate o fim");
+			helper.assertTrue(menu.slots.get(53).getItem().is(Items.STONE) && menu.slots.get(53).getItem().getCount() == 40, "rolado, o ultimo slot da janela e o indice 107");
+			helper.assertTrue(!menu.clickMenuButton(player, 99), "linha invalida recusada");
 
 			InventorySortServer.sortOpenContainer(player);
 			helper.assertTrue(chest.getItem(0).is(Items.APPLE) && chest.getItem(0).getCount() == 2, "apple primeiro apos ordenar");
@@ -144,6 +152,30 @@ public class ChestGameTest {
 			helper.assertTrue(chest.openerCount() == 1, "abrir conta 1 espectador (tampa abre)");
 			player.closeContainer();
 			helper.assertTrue(chest.openerCount() == 0, "fechar zera os espectadores (tampa fecha)");
+		} finally {
+			helper.getLevel().getServer().getPlayerList().remove(player);
+		}
+		helper.succeed();
+	}
+
+	@SuppressWarnings("removal")
+	@GameTest
+	public void shiftClickFillsTheWholeChestNotOnlyTheVisibleRows(GameTestHelper helper) {
+		helper.setBlock(1, 1, 1, ModBlocks.DIAMOND_CHEST);
+		BigChestBlockEntity chest = helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class);
+		for (int i = 0; i < 54; i++) {
+			chest.setItem(i, new ItemStack(Items.DIRT, 64));
+		}
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		try {
+			player.openMenu(chest);
+			BigChestMenu menu = (BigChestMenu) player.containerMenu;
+			int firstPlayerSlot = menu.windowSlotCount();
+			menu.slots.get(firstPlayerSlot).set(new ItemStack(Items.EMERALD, 5));
+			menu.quickMoveStack(player, firstPlayerSlot);
+			helper.assertTrue(chest.getItem(54).is(Items.EMERALD) && chest.getItem(54).getCount() == 5, "esmeraldas no indice 54 (fora da janela visivel)");
+			helper.assertTrue(menu.slots.get(firstPlayerSlot).getItem().isEmpty(), "saiu do inventario");
+			player.closeContainer();
 		} finally {
 			helper.getLevel().getServer().getPlayerList().remove(player);
 		}

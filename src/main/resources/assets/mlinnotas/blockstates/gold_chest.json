@@ -1,8 +1,19 @@
 {
   "variants": {
-    "facing=east": { "model": "mlinnotas:block/gold_chest", "y": 90 },
-    "facing=north": { "model": "mlinnotas:block/gold_chest" },
-    "facing=south": { "model": "mlinnotas:block/gold_chest", "y": 180 },
-    "facing=west": { "model": "mlinnotas:block/gold_chest", "y": 270 }
+    "facing=east": {
+      "model": "mlinnotas:block/gold_chest",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mlinnotas:block/gold_chest"
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/gold_chest",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/gold_chest",
+      "y": 270
+    }
   }
 }

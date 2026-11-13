@@ -1,8 +1,19 @@
 {
   "variants": {
-    "facing=east": { "model": "mlinnotas:block/iron_chest", "y": 90 },
-    "facing=north": { "model": "mlinnotas:block/iron_chest" },
-    "facing=south": { "model": "mlinnotas:block/iron_chest", "y": 180 },
-    "facing=west": { "model": "mlinnotas:block/iron_chest", "y": 270 }
+    "facing=east": {
+      "model": "mlinnotas:block/iron_chest",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mlinnotas:block/iron_chest"
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/iron_chest",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/iron_chest",
+      "y": 270
+    }
   }
 }

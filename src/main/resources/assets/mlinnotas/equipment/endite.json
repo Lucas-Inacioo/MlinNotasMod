@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mlinnotas:endite"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mlinnotas:endite"
+      }
+    ]
+  }
+}
