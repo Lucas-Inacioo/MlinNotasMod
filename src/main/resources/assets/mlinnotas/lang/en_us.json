@@ -838,5 +838,20 @@
   "message.mlinnotas.season.start.spring": "Spring has begun",
   "message.mlinnotas.season.start.summer": "Summer has begun",
   "message.mlinnotas.season.start.autumn": "Autumn has begun",
-  "message.mlinnotas.season.start.winter": "Winter has begun"
+  "message.mlinnotas.season.start.winter": "Winter has begun",
+  "structure.mlinnotas.forgotten_crypt": "Forgotten Crypt",
+  "entity.mlinnotas.dungeon_boss.forgotten_crypt": "Crypt Lord",
+  "structure.mlinnotas.sunken_hold": "Sunken Dwarven Hold",
+  "entity.mlinnotas.dungeon_boss.sunken_hold": "Fallen Dwarf King",
+  "structure.mlinnotas.drowned_temple": "Drowned Temple",
+  "entity.mlinnotas.dungeon_boss.drowned_temple": "Drowned High Priest",
+  "structure.mlinnotas.sand_catacomb": "Sand Catacomb",
+  "entity.mlinnotas.dungeon_boss.sand_catacomb": "Mummified Pharaoh",
+  "block.mlinnotas.dungeon_gate": "Sealed Gate",
+  "block.mlinnotas.dungeon_gate.tooltip": "Opens with a Dungeon Key",
+  "item.mlinnotas.dungeon_key": "Dungeon Key",
+  "item.mlinnotas.dungeon_key.tooltip": "Opens the Sealed Gate; use it on the vault for your own reward",
+  "message.mlinnotas.dungeon.gate_locked": "The gate is sealed. Defeat the dungeon's guardian to get the key.",
+  "message.mlinnotas.dungeon.gate_opened": "The key turns and the gate opens",
+  "message.mlinnotas.dungeon.boss_defeated": "%s has fallen! It dropped %s Dungeon Key(s): one for each of you to open the vault."
 }

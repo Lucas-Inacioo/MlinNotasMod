@@ -91,6 +91,9 @@ public class TexGen {
 
 		// Livro de quests
 		questBook(items, "quest_book");
+		// Masmorras: Chave da Masmorra e Portao Selado
+		dungeonKey(items, "dungeon_key");
+		dungeonGate(blocks, "dungeon_gate");
 
 		// Icones dos efeitos do sinalizador (18x18, atlas mob_effect)
 		File effects = new File(assets, "textures/mob_effect");
@@ -427,6 +430,67 @@ public class TexGen {
 		rect(im, 6, 1, 4, 3, 0xFFB070FF);
 		frame(im, 6, 1, 4, 3, 0xFF4A2080);
 		set(im, 7, 2, RUNE_GLOW);
+		save(im, dir, name);
+	}
+
+	/** Chave antiga de latao com argola e uma gema azul (cobalto) no cabo. */
+	static void dungeonKey(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int outline = 0xFF1E1A16;
+		int metal = 0xFFB8A27A;
+		int light = 0xFFE8D7A8;
+		int dark = 0xFF7A6340;
+		// argola (canto de cima a esquerda)
+		rect(im, 1, 1, 6, 6, outline);
+		rect(im, 2, 2, 4, 4, metal);
+		set(im, 2, 2, light);
+		set(im, 5, 5, dark);
+		set(im, 3, 3, 0xFF3A7BFF);
+		set(im, 4, 4, 0xFF9CC4FF);
+		set(im, 3, 4, 0xFF2050C0);
+		set(im, 4, 3, 0xFF2050C0);
+		// haste diagonal
+		for (int i = 0; i < 8; i++) {
+			set(im, 6 + i, 6 + i, metal);
+			set(im, 7 + i, 6 + i, outline);
+			set(im, 6 + i, 7 + i, dark);
+		}
+		set(im, 7, 7, light);
+		set(im, 9, 9, light);
+		// dentes
+		rect(im, 9, 12, 3, 3, outline);
+		rect(im, 10, 12, 1, 2, metal);
+		rect(im, 12, 9, 3, 3, outline);
+		rect(im, 12, 10, 2, 1, metal);
+		save(im, dir, name);
+	}
+
+	/** Portao selado: grade de ferro escuro sobre pedra, com fechadura dourada e runas azuis. */
+	static void dungeonGate(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		rect(im, 0, 0, 16, 16, 0xFF2B2B30);
+		noise(im, name.hashCode(), 0.25);
+		int bar = 0xFF55555E;
+		int barLight = 0xFF8A8A95;
+		for (int x = 1; x < 16; x += 4) {
+			rect(im, x, 0, 2, 16, bar);
+			rect(im, x, 0, 1, 16, barLight);
+		}
+		for (int y : new int[] {1, 13}) {
+			rect(im, 0, y, 16, 2, bar);
+			rect(im, 0, y, 16, 1, barLight);
+		}
+		frame(im, 0, 0, 16, 16, 0xFF18181C);
+		// fechadura
+		rect(im, 6, 6, 4, 5, 0xFFD8B040);
+		frame(im, 6, 6, 4, 5, 0xFF6E5414);
+		set(im, 7, 7, 0xFFFFE89A);
+		rect(im, 7, 8, 2, 1, 0xFF1A1206);
+		set(im, 7, 9, 0xFF1A1206);
+		// runas
+		for (int[] r : new int[][] {{3, 5}, {12, 10}, {12, 5}, {3, 10}}) {
+			set(im, r[0], r[1], 0xFF5AA0FF);
+		}
 		save(im, dir, name);
 	}
 

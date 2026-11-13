@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:dungeon",
+  "theme": "sand_catacomb",
+  "biomes": "#mlinnotas:has_structure/sand_catacomb",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}
