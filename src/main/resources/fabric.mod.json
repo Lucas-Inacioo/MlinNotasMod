@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "mlinnotas",
+	"version": "${version}",
+	"name": "Mlin Notas",
+	"description": "Anotacoes dentro do Minecraft.",
+	"authors": [
+		"Lucas Inacio"
+	],
+	"contact": {
+		"sources": "https://github.com/Lucas-Inacioo/MlinNotasMod"
+	},
+	"license": "MIT",
+	"icon": "assets/mlinnotas/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.mlin.notas.MlinNotas"
+		],
+		"client": [
+			"com.mlin.notas.client.MlinNotasClient"
+		]
+	},
+	"mixins": [
+		"mlinnotas.mixins.json",
+		{
+			"config": "mlinnotas.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

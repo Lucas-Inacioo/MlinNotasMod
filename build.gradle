@@ -1,0 +1,107 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+repositories {
+	// Loom ja adiciona os repositorios do Minecraft e do Fabric.
+	// Adicione aqui apenas repositorios de outros mods (ex.: Modrinth maven).
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"mlinnotas" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+fabricApi {
+	configureTests {
+		// Cria o source set src/gametest com seu proprio fabric.mod.json
+		createSourceSet = true
+		modId = "mlinnotas-gametest"
+		// Game tests de servidor rodam automaticamente no `gradlew build`
+		enableGameTests = true
+		// Game tests de cliente rodam com `gradlew runClientGameTest` (precisa de GPU/janela)
+		enableClientGameTests = true
+		// Ao definir como true voce aceita o EULA do Minecraft: https://aka.ms/MinecraftEULA
+		eula = true
+	}
+}
+
+dependencies {
+	// Versoes em gradle.properties
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Testes unitarios (JUnit 5) com o classloader do Fabric
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+	testImplementation platform("org.junit:junit-bom:5.13.4")
+	testImplementation "org.junit.jupiter:junit-jupiter"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+	}
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	def projectName = project.name
+	inputs.property "projectName", projectName
+
+	from("LICENSE") {
+		rename { "${it}_$projectName" }
+	}
+}
+
+// Copia o jar construido para a pasta mods do Minecraft instalado (Windows: %APPDATA%\.minecraft\mods)
+tasks.register("installToMinecraft", Copy) {
+	group = "mlinnotas"
+	description = "Copia o jar do mod para a pasta mods do Minecraft local"
+	dependsOn tasks.named("remapJar")
+	def appData = System.getenv("APPDATA")
+	def modsDir = appData != null ? "${appData}/.minecraft/mods" : "${System.getProperty('user.home')}/.minecraft/mods"
+	from(tasks.named("remapJar").map { it.archiveFile })
+	into(modsDir)
+	doLast { println "Instalado em ${modsDir}" }
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+		// Repositorios de publicacao (nao confundir com o bloco repositories do topo)
+	}
+}

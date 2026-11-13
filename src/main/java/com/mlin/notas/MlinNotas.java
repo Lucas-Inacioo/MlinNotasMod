@@ -1,0 +1,31 @@
+package com.mlin.notas;
+
+import com.mlin.notas.command.NotaCommand;
+import com.mlin.notas.notes.NotebookManager;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.resources.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Entrypoint principal (comum a cliente e servidor).
+ */
+public class MlinNotas implements ModInitializer {
+	public static final String MOD_ID = "mlinnotas";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	/** Estado das anotacoes por jogador, vivo enquanto o servidor estiver de pe. */
+	public static final NotebookManager NOTEBOOKS = new NotebookManager();
+
+	@Override
+	public void onInitialize() {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+				NotaCommand.register(dispatcher));
+		LOGGER.info("[{}] inicializado", MOD_ID);
+	}
+
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
+	}
+}
