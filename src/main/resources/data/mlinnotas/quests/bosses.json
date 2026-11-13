@@ -1,0 +1,303 @@
+{
+  "icon": "mlinnotas:cobalt_heart",
+  "order": 3,
+  "quests": [
+    {
+      "id": "cobalt_shrine",
+      "icon": "mlinnotas:cobalt_altar",
+      "x": 0,
+      "y": 0,
+      "dependencies": [
+        "mining/skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:cobalt_shrine"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "iron_blocks",
+      "icon": "minecraft:iron_block",
+      "x": 1,
+      "y": 0,
+      "dependencies": [
+        "cobalt_shrine"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:iron_block",
+          "count": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "cobalt_golem",
+      "icon": "mlinnotas:cobalt_heart",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "iron_blocks"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:cobalt_golem",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 2
+        },
+        {
+          "xp": 300
+        }
+      ]
+    },
+    {
+      "id": "abyssal_sanctum",
+      "icon": "mlinnotas:abyssal_altar",
+      "x": 0,
+      "y": 1,
+      "dependencies": [
+        "exploration/deep_dark"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:abyssal_sanctum"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "echo_shards",
+      "icon": "minecraft:echo_shard",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "abyssal_sanctum"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:echo_shard",
+          "count": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "abyssal_guardian",
+      "icon": "mlinnotas:abyssal_core",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "echo_shards"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:abyssal_guardian",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 2
+        },
+        {
+          "xp": 400
+        }
+      ]
+    },
+    {
+      "id": "colossus_forge",
+      "icon": "minecraft:blackstone",
+      "x": 0,
+      "y": 2,
+      "dependencies": [
+        "nether/infernite_peaks"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "mlinnotas:colossus_forge"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "igneous_colossus",
+      "icon": "mlinnotas:colossus_ember",
+      "x": 2,
+      "y": 2,
+      "dependencies": [
+        "colossus_forge"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:igneous_colossus",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 3
+        },
+        {
+          "xp": 500
+        }
+      ]
+    },
+    {
+      "id": "ender_dragon",
+      "icon": "minecraft:dragon_head",
+      "x": 2,
+      "y": 3,
+      "dependencies": [
+        "end/enter_end"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "minecraft:ender_dragon",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 3
+        },
+        {
+          "xp": 500
+        }
+      ]
+    },
+    {
+      "id": "sentinel_cores",
+      "icon": "mlinnotas:sentinel_core",
+      "x": 1,
+      "y": 4,
+      "dependencies": [
+        "end/citadel"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:sentinel_core",
+          "count": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "astral_herald",
+      "icon": "mlinnotas:astral_fragment",
+      "x": 2,
+      "y": 4,
+      "dependencies": [
+        "sentinel_cores"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:astral_herald",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:enchanted_golden_apple",
+          "count": 1
+        },
+        {
+          "xp": 800
+        }
+      ]
+    },
+    {
+      "id": "wither",
+      "icon": "minecraft:nether_star",
+      "x": 2,
+      "y": 5,
+      "dependencies": [
+        "nether/wither_skulls"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "minecraft:wither",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 3
+        },
+        {
+          "xp": 500
+        }
+      ]
+    },
+    {
+      "id": "legends",
+      "icon": "minecraft:totem_of_undying",
+      "x": 4,
+      "y": 2.5,
+      "dependencies": [
+        "cobalt_golem",
+        "abyssal_guardian",
+        "igneous_colossus",
+        "ender_dragon",
+        "astral_herald",
+        "wither"
+      ],
+      "tasks": [],
+      "rewards": [
+        {
+          "item": "minecraft:enchanted_golden_apple",
+          "count": 2
+        },
+        {
+          "xp": 1000
+        }
+      ]
+    }
+  ]
+}

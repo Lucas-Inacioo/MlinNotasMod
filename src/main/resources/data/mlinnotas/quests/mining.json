@@ -1,0 +1,333 @@
+{
+  "icon": "minecraft:iron_pickaxe",
+  "order": 1,
+  "quests": [
+    {
+      "id": "skill_stone",
+      "icon": "minecraft:stone_pickaxe",
+      "x": 0,
+      "y": 1,
+      "dependencies": [
+        "basics/stone_tools"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 2
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:torch",
+          "count": 16
+        },
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "skill_copper",
+      "icon": "minecraft:copper_ingot",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "skill_stone"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 3
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "side_branch",
+      "icon": "minecraft:iron_sword",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "skill_copper"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "combat",
+          "level": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "skill_iron",
+      "icon": "minecraft:iron_ingot",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "skill_copper"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "iron_gear",
+      "icon": "minecraft:iron_pickaxe",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:iron_pickaxe",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "skill_gold",
+      "icon": "minecraft:gold_ingot",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 5
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "skill_cobalt",
+      "icon": "mlinnotas:cobalt_ingot",
+      "x": 4,
+      "y": 1,
+      "dependencies": [
+        "skill_gold"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 6
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "cobalt",
+      "icon": "mlinnotas:raw_cobalt",
+      "x": 4,
+      "y": 0,
+      "dependencies": [
+        "skill_cobalt"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:cobalt_ingot",
+          "count": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "skill_diamond",
+      "icon": "minecraft:diamond",
+      "x": 5,
+      "y": 1,
+      "dependencies": [
+        "skill_cobalt"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 7
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:diamond",
+          "count": 1
+        },
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "skill_netherite",
+      "icon": "minecraft:netherite_scrap",
+      "x": 6,
+      "y": 1,
+      "dependencies": [
+        "skill_diamond"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 8
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 150
+        }
+      ]
+    },
+    {
+      "id": "skill_infernite",
+      "icon": "mlinnotas:raw_infernite",
+      "x": 7,
+      "y": 1,
+      "dependencies": [
+        "skill_netherite"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 9
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 200
+        }
+      ]
+    },
+    {
+      "id": "skill_endite",
+      "icon": "mlinnotas:raw_endite",
+      "x": 8,
+      "y": 1,
+      "dependencies": [
+        "skill_infernite"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 10
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 250
+        }
+      ]
+    },
+    {
+      "id": "skill_astralite",
+      "icon": "mlinnotas:raw_astralite",
+      "x": 9,
+      "y": 1,
+      "dependencies": [
+        "skill_endite"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 11
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 300
+        }
+      ]
+    },
+    {
+      "id": "skill_celestium",
+      "icon": "minecraft:nether_star",
+      "x": 10,
+      "y": 1,
+      "dependencies": [
+        "skill_astralite"
+      ],
+      "tasks": [
+        {
+          "type": "skill",
+          "target": "mining",
+          "level": 12
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 400
+        }
+      ]
+    },
+    {
+      "id": "celestium",
+      "icon": "mlinnotas:celestium_ingot",
+      "x": 11,
+      "y": 1,
+      "dependencies": [
+        "skill_celestium"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:celestium_ingot",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:enchanted_golden_apple",
+          "count": 1
+        },
+        {
+          "xp": 500
+        }
+      ]
+    }
+  ]
+}

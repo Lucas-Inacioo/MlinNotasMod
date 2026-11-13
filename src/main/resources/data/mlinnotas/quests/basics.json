@@ -1,0 +1,245 @@
+{
+  "icon": "mlinnotas:quest_book",
+  "order": 0,
+  "quests": [
+    {
+      "id": "welcome",
+      "icon": "mlinnotas:quest_book",
+      "x": 0,
+      "y": 2,
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bread",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "id": "wood",
+      "icon": "minecraft:oak_log",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "welcome"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#minecraft:logs",
+          "count": 16,
+          "icon": "minecraft:oak_log",
+          "title": "quest.mlinnotas.task.logs"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:apple",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "id": "stone_tools",
+      "icon": "minecraft:stone_pickaxe",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "wood"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:stone_pickaxe",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:torch",
+          "count": 16
+        },
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "wand",
+      "icon": "mlinnotas:wooden_wand",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "stone_tools"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:wooden_wand",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "harvest",
+      "icon": "minecraft:wheat",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "wood"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:wheat",
+          "count": 16
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bone_meal",
+          "count": 16
+        }
+      ]
+    },
+    {
+      "id": "crafting_tablet",
+      "icon": "mlinnotas:crafting_tablet",
+      "x": 2,
+      "y": 2,
+      "dependencies": [
+        "wood"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:crafting_tablet",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "backpack",
+      "icon": "mlinnotas:backpack",
+      "x": 3,
+      "y": 2,
+      "dependencies": [
+        "crafting_tablet"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:backpack",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:leather",
+          "count": 4
+        },
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "hud",
+      "icon": "minecraft:spyglass",
+      "x": 1,
+      "y": 3,
+      "dependencies": [
+        "welcome"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "minimap",
+      "icon": "minecraft:compass",
+      "x": 2,
+      "y": 3,
+      "dependencies": [
+        "hud"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:map",
+          "count": 1
+        },
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "recipes",
+      "icon": "minecraft:crafting_table",
+      "x": 2,
+      "y": 4,
+      "dependencies": [
+        "hud"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "sleep",
+      "icon": "minecraft:red_bed",
+      "x": 0,
+      "y": 4,
+      "dependencies": [
+        "welcome"
+      ],
+      "tasks": [
+        {
+          "type": "advancement",
+          "target": "minecraft:adventure/sleep_in_bed",
+          "icon": "minecraft:red_bed",
+          "title": "quest.mlinnotas.task.sleep"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:cooked_beef",
+          "count": 8
+        }
+      ]
+    }
+  ]
+}

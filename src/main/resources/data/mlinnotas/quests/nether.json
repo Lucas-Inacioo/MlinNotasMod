@@ -1,0 +1,215 @@
+{
+  "icon": "minecraft:netherrack",
+  "order": 4,
+  "quests": [
+    {
+      "id": "enter_nether",
+      "icon": "minecraft:obsidian",
+      "x": 0,
+      "y": 2,
+      "dependencies": [
+        "mining/skill_iron"
+      ],
+      "tasks": [
+        {
+          "type": "dimension",
+          "target": "minecraft:the_nether"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_carrot",
+          "count": 8
+        },
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "ashen_plains",
+      "icon": "mlinnotas:nether_ash",
+      "x": 1,
+      "y": 0,
+      "dependencies": [
+        "enter_nether"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:ashen_plains"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "burning_grove",
+      "icon": "mlinnotas:burning_cap",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "enter_nether"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:burning_grove"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "magma_slug",
+      "icon": "minecraft:magma_cream",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "burning_grove"
+      ],
+      "tasks": [
+        {
+          "type": "kill",
+          "target": "mlinnotas:magma_slug",
+          "count": 3
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "infernite_peaks",
+      "icon": "mlinnotas:raw_infernite",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "enter_nether"
+      ],
+      "tasks": [
+        {
+          "type": "biome",
+          "target": "mlinnotas:infernite_peaks"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "infernite",
+      "icon": "mlinnotas:infernite_ingot",
+      "x": 2,
+      "y": 2,
+      "dependencies": [
+        "infernite_peaks",
+        "mining/skill_infernite"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:infernite_ingot",
+          "count": 4
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 150
+        }
+      ]
+    },
+    {
+      "id": "fortress",
+      "icon": "minecraft:nether_bricks",
+      "x": 1,
+      "y": 3,
+      "dependencies": [
+        "enter_nether"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:fortress"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "blaze_rods",
+      "icon": "minecraft:blaze_rod",
+      "x": 2,
+      "y": 3,
+      "dependencies": [
+        "fortress"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:blaze_rod",
+          "count": 6
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "wither_skulls",
+      "icon": "minecraft:wither_skeleton_skull",
+      "x": 2,
+      "y": 4,
+      "dependencies": [
+        "fortress"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:wither_skeleton_skull",
+          "count": 3
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 100
+        }
+      ]
+    },
+    {
+      "id": "bastion",
+      "icon": "minecraft:gilded_blackstone",
+      "x": 1,
+      "y": 4,
+      "dependencies": [
+        "enter_nether"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:bastion_remnant"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    }
+  ]
+}
