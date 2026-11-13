@@ -26,6 +26,12 @@ public final class ModStructures {
 	public static final StructurePieceType RUIN_PIECE = Registry.register(BuiltInRegistries.STRUCTURE_PIECE,
 			MlinNotas.id("ruin"), (StructurePieceType.ContextlessType) com.mlin.notas.ruins.RuinPiece::new);
 
+	/** Estruturas vanilla refeitas (templos, posto de saqueadores, mina abandonada): os JSONs vanilla apontam para ela. */
+	public static final StructureType<com.mlin.notas.vstructures.VanillaRemakeStructure> VANILLA_REMAKE = Registry.register(
+			BuiltInRegistries.STRUCTURE_TYPE, MlinNotas.id("vanilla_remake"), () -> com.mlin.notas.vstructures.VanillaRemakeStructure.CODEC);
+	public static final StructurePieceType VANILLA_REMAKE_PIECE = Registry.register(BuiltInRegistries.STRUCTURE_PIECE,
+			MlinNotas.id("vanilla_remake"), (StructurePieceType.ContextlessType) com.mlin.notas.vstructures.VanillaRemakePiece::new);
+
 	private ModStructures() {
 	}
 
