@@ -11,7 +11,9 @@
 		"CreeperAccessor",
 		"EnderDragonFightAccessor",
 		"ItemTooltipImageMixin",
-		"TheEndBiomeSourceMixin"
+		"TheEndBiomeSourceMixin",
+		"VillagerAccessor",
+		"VillagerVillageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

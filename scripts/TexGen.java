@@ -89,6 +89,10 @@ public class TexGen {
 		waystoneItem(items, "waystone");
 		returnScroll(items, "return_scroll");
 
+		// Quadro de missoes da vila
+		villageBoard(blocks, "village_board");
+		villageBoardItem(items, "village_board");
+
 		// Icones dos efeitos do sinalizador (18x18, atlas mob_effect)
 		File effects = new File(assets, "textures/mob_effect");
 		effects.mkdirs();
@@ -445,6 +449,63 @@ public class TexGen {
 		}
 		rect(im, 7, 6, 3, 3, RUNE);
 		set(im, 8, 7, RUNE_GLOW);
+		save(im, dir, name);
+	}
+
+	/** Frente do quadro de missoes: tabuas escuras com papeis pregados (linhas de texto, mapinho e alfinetes coloridos). */
+	static void villageBoard(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int wood = 0xFF6B4A2B;
+		rect(im, 0, 0, 16, 16, wood);
+		for (int y = 3; y < 16; y += 4) {
+			rect(im, 0, y, 16, 1, 0xFF4A3018);
+		}
+		noise(im, name.hashCode(), 0.22);
+		frame(im, 0, 0, 16, 16, 0xFF3A2410);
+		int paper = 0xFFEFE3C2;
+		int ink = 0xFF5A4A3A;
+		// bilhete grande a esquerda
+		rect(im, 2, 2, 6, 7, paper);
+		for (int y = 4; y <= 7; y += 2) {
+			rect(im, 3, y, 4, 1, ink);
+		}
+		set(im, 4, 2, 0xFFD03030);
+		// mapinho a direita
+		rect(im, 9, 3, 5, 5, 0xFFD8C890);
+		set(im, 10, 4, 0xFF4E8A3E);
+		set(im, 11, 5, 0xFF4E8A3E);
+		set(im, 12, 6, 0xFF3A6FB0);
+		set(im, 12, 4, 0xFFC03030);
+		set(im, 11, 3, 0xFF3060D0);
+		// bilhetes de baixo
+		rect(im, 3, 10, 4, 4, 0xFFF6EED8);
+		rect(im, 4, 11, 2, 1, ink);
+		rect(im, 4, 13, 2, 1, ink);
+		set(im, 5, 10, 0xFF30A040);
+		rect(im, 9, 10, 5, 5, paper);
+		rect(im, 10, 12, 3, 1, ink);
+		set(im, 11, 10, 0xFFE0B020);
+		save(im, dir, name);
+	}
+
+	/** Icone do quadro: dois postes, quadro com papeis e telhadinho. */
+	static void villageBoardItem(File dir, String name) throws IOException {
+		BufferedImage im = img();
+		int post = 0xFF5A3A1E;
+		int outline = 0xFF2A1A0A;
+		rect(im, 2, 3, 2, 13, post);
+		rect(im, 12, 3, 2, 13, post);
+		rect(im, 1, 1, 14, 2, 0xFF3E2A1A);
+		rect(im, 0, 3, 16, 1, 0xFF2E1E10);
+		rect(im, 3, 4, 10, 7, 0xFF7A5634);
+		frame(im, 3, 4, 10, 7, outline);
+		rect(im, 4, 5, 3, 4, 0xFFEFE3C2);
+		set(im, 5, 6, 0xFF5A4A3A);
+		set(im, 5, 5, 0xFFD03030);
+		rect(im, 8, 5, 4, 3, 0xFFD8C890);
+		set(im, 9, 6, 0xFF4E8A3E);
+		set(im, 10, 6, 0xFF3A6FB0);
+		rect(im, 8, 8, 3, 2, 0xFFF6EED8);
 		save(im, dir, name);
 	}
 }

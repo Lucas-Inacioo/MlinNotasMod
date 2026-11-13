@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "mlinnotas:village_board",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "mlinnotas:village_board"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mlinnotas:blocks/village_board"
+}

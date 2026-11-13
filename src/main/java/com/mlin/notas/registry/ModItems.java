@@ -183,6 +183,14 @@ public final class ModItems {
 	public static final Item RETURN_SCROLL = register("return_scroll", com.mlin.notas.waystone.ReturnScrollItem::new,
 			new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
 
+	// quadro de missoes da vila (village/)
+	public static final Item VILLAGE_BOARD = register("village_board", p -> new BlockItem(ModBlocks.VILLAGE_BOARD, p.useBlockDescriptionPrefix()) {
+		@Override
+		public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+			tooltip.accept(Component.translatable("block.mlinnotas.village_board.tooltip").withStyle(ChatFormatting.GRAY));
+		}
+	}, new Item.Properties());
+
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));
 	}
