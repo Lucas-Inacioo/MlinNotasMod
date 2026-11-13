@@ -1,0 +1,190 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 5,
+              "min": 2
+            }
+          },
+          "name": "minecraft:diamond",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 5,
+              "min": 2
+            }
+          },
+          "name": "mlinnotas:raw_endite",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 8,
+              "min": 3
+            }
+          },
+          "name": "minecraft:ender_pearl",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 12,
+              "min": 6
+            }
+          },
+          "name": "minecraft:experience_bottle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 3,
+              "min": 1
+            }
+          },
+          "name": "minecraft:golden_apple",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 4,
+              "min": 2
+            }
+          },
+          "name": "minecraft:shulker_shell",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 16,
+              "min": 6
+            }
+          },
+          "name": "minecraft:chorus_fruit",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 2,
+              "min": 1
+            }
+          },
+          "name": "mlinnotas:raw_astralite",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 2,
+              "min": 1
+            }
+          },
+          "name": "minecraft:netherite_scrap",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_golden_apple",
+          "weight": 1
+        }
+      ],
+      "rolls": {
+        "type": "minecraft:uniform",
+        "max": 9,
+        "min": 6
+      }
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:elytra",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:dragon_head",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:totem_of_undying",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "max": 2,
+              "min": 1
+            }
+          },
+          "name": "mlinnotas:dragon_scale",
+          "weight": 4
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_book",
+          "functions": [
+            {
+              "function": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "minecraft:uniform",
+                "min": 30,
+                "max": 40
+              },
+              "options": "#minecraft:on_random_loot"
+            }
+          ]
+        }
+      ],
+      "rolls": 2
+    }
+  ],
+  "random_sequence": "mlinnotas:chests/dragon_hoard"
+}

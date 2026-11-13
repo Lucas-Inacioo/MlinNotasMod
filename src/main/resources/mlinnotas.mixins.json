@@ -9,6 +9,7 @@
 		"BeaconBlockEntityMixin",
 		"BeaconMenuMixin",
 		"CreeperAccessor",
+		"EnderDragonFightAccessor",
 		"ItemTooltipImageMixin",
 		"TheEndBiomeSourceMixin"
 	],

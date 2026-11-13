@@ -22,7 +22,8 @@
 			"com.mlin.notas.gametest.MobVariantsGameTest",
 			"com.mlin.notas.gametest.BossGameTest",
 			"com.mlin.notas.gametest.BeaconGameTest",
-			"com.mlin.notas.gametest.SkillsGameTest"
+			"com.mlin.notas.gametest.SkillsGameTest",
+			"com.mlin.notas.gametest.DragonGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -34,7 +35,8 @@
 			"com.mlin.notas.gametest.BossClientGameTest",
 			"com.mlin.notas.gametest.BeaconClientGameTest",
 			"com.mlin.notas.gametest.SkillsClientGameTest",
-			"com.mlin.notas.gametest.SoundsClientGameTest"
+			"com.mlin.notas.gametest.SoundsClientGameTest",
+			"com.mlin.notas.gametest.DragonClientGameTest"
 		]
 	},
 	"depends": {

@@ -561,5 +561,12 @@
   "subtitles.mlinnotas.entity.astral_herald.cast": "Astral Herald casts star bolts",
   "subtitles.mlinnotas.entity.astral_herald.teleport": "Astral Herald blinks",
   "subtitles.mlinnotas.entity.astral_herald.summon": "Astral Herald summons Sentinels",
-  "subtitles.mlinnotas.entity.star_bolt.impact": "Star bolt bursts"
+  "subtitles.mlinnotas.entity.star_bolt.impact": "Star bolt bursts",
+  "entity.mlinnotas.void_meteor": "Void Meteor",
+  "boss.mlinnotas.dragon.phase": "%s · Phase %s",
+  "message.mlinnotas.dragon.health": "The Ender Dragon senses %s challenger(s): %s health",
+  "message.mlinnotas.dragon.phase_two": "The Ender Dragon roars and crystals regrow on the pillars!",
+  "message.mlinnotas.dragon.phase_three": "The Ender Dragon flies into a rage!",
+  "message.mlinnotas.dragon.dive": "The Ender Dragon dives! Jump over the shockwave!",
+  "message.mlinnotas.dragon.hoard": "The dragon's hoard appeared on the north dais of the sanctuary"
 }

@@ -561,5 +561,12 @@
   "subtitles.mlinnotas.entity.astral_herald.cast": "Arauto Astral lança raios estelares",
   "subtitles.mlinnotas.entity.astral_herald.teleport": "Arauto Astral se teleporta",
   "subtitles.mlinnotas.entity.astral_herald.summon": "Arauto Astral invoca Sentinelas",
-  "subtitles.mlinnotas.entity.star_bolt.impact": "Raio estelar estoura"
+  "subtitles.mlinnotas.entity.star_bolt.impact": "Raio estelar estoura",
+  "entity.mlinnotas.void_meteor": "Meteoro do Vazio",
+  "boss.mlinnotas.dragon.phase": "%s · Fase %s",
+  "message.mlinnotas.dragon.health": "O Dragão do Ender sente %s desafiante(s): %s de vida",
+  "message.mlinnotas.dragon.phase_two": "O Dragão do Ender ruge e os cristais renascem nos pilares!",
+  "message.mlinnotas.dragon.phase_three": "O Dragão do Ender entra em fúria!",
+  "message.mlinnotas.dragon.dive": "O Dragão do Ender mergulha! Pule a onda de choque!",
+  "message.mlinnotas.dragon.hoard": "O tesouro do dragão apareceu no estrado norte do santuário"
 }
