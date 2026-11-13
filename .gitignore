@@ -37,3 +37,4 @@ replay_*.log
 
 # logs do fabric-loader-junit
 logs/
+mods/
