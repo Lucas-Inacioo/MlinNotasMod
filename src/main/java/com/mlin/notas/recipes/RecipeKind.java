@@ -8,7 +8,9 @@ public enum RecipeKind {
 	BLASTING,
 	SMOKING,
 	CAMPFIRE,
-	STONECUTTING;
+	STONECUTTING,
+	/** Mesa de ferraria (molde + peca + adicional). */
+	SMITHING;
 
 	private static final RecipeKind[] VALUES = values();
 

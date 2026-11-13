@@ -56,8 +56,9 @@ public class CobaltGolem extends BossMob {
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, BossKind.COBALT_GOLEM.baseHealth())
-				.add(Attributes.ARMOR, 10.0)
-				.add(Attributes.ATTACK_DAMAGE, 11.0)
+				.add(Attributes.ARMOR, BossKind.COBALT_GOLEM.armor())
+				.add(Attributes.ARMOR_TOUGHNESS, BossKind.COBALT_GOLEM.toughness())
+				.add(Attributes.ATTACK_DAMAGE, BossKind.COBALT_GOLEM.melee())
 				.add(Attributes.MOVEMENT_SPEED, 0.26)
 				.add(Attributes.FOLLOW_RANGE, 40.0)
 				.add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
@@ -144,7 +145,7 @@ public class CobaltGolem extends BossMob {
 			level.sendParticles(ParticleTypes.CLOUD, getX(), getY() + 0.2, getZ(), 3, 0.6, 0.1, 0.6, 0.01);
 			for (LivingEntity hit : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(0.6), e -> e != this && !(e instanceof BossMob))) {
 				if (chargeHit.add(hit.getId())) {
-					strike(level, hit, 13.0F);
+					strike(level, hit, BossRules.GOLEM_CHARGE);
 					fling(hit, chargeDir.x * 1.6, 0.7, chargeDir.z * 1.6);
 				}
 			}
@@ -172,7 +173,7 @@ public class CobaltGolem extends BossMob {
 			if (push <= 0) {
 				continue;
 			}
-			strike(level, near, phase() >= 2 ? 12.0F : 9.0F);
+			strike(level, near, phase() >= 2 ? BossRules.GOLEM_SLAM_PHASE_TWO : BossRules.GOLEM_SLAM);
 			Vec3 out = new Vec3(near.getX() - getX(), 0, near.getZ() - getZ());
 			out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
 			fling(near, out.x * push, 0.55, out.z * push);

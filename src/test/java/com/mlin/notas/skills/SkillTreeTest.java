@@ -48,18 +48,35 @@ class SkillTreeTest {
 	@Test
 	void miningCostsMatchTheDesign() {
 		assertEquals(32, SkillTree.node(SkillBranch.MINING, Tier.STONE.level()).itemCount("minecraft:cobblestone"));
-		assertEquals(10, SkillTree.node(SkillBranch.MINING, Tier.COPPER.level()).itemCount(SkillTree.COAL));
+		assertEquals(24, SkillTree.node(SkillBranch.MINING, Tier.COPPER.level()).itemCount(SkillTree.COAL));
 		SkillNode iron = SkillTree.node(SkillBranch.MINING, Tier.IRON.level());
-		assertEquals(10, iron.itemCount(SkillTree.COPPER));
+		assertEquals(32, iron.itemCount(SkillTree.COPPER));
 		assertEquals(3, iron.xpLevels());
+		assertEquals(27, iron.xpPoints(), "XP cobrado em pontos: 0 -> 3 niveis");
+		SkillNode gold = SkillTree.node(SkillBranch.MINING, Tier.GOLD.level());
+		assertEquals(32, gold.itemCount(SkillTree.IRON));
+		assertEquals(1, gold.itemCount("minecraft:iron_block"));
 		SkillNode cobalt = SkillTree.node(SkillBranch.MINING, Tier.COBALT.level());
 		assertEquals(1, cobalt.itemCount("mlinnotas:cobalt_heart"));
-		assertEquals(10, cobalt.itemCount(SkillTree.GOLD));
+		assertEquals(32, cobalt.itemCount(SkillTree.GOLD));
 		assertEquals(10, cobalt.xpLevels());
+		SkillNode diamond = SkillTree.node(SkillBranch.MINING, Tier.DIAMOND.level());
+		assertEquals(32, diamond.itemCount("mlinnotas:raw_cobalt"));
+		assertEquals(1, diamond.itemCount("mlinnotas:cobalt_block"));
+		assertEquals(12, SkillTree.node(SkillBranch.MINING, Tier.NETHERITE.level()).itemCount("minecraft:diamond"));
+		assertEquals(8, SkillTree.node(SkillBranch.MINING, Tier.INFERNITE.level()).itemCount("minecraft:netherite_scrap"));
+		assertEquals(32, SkillTree.node(SkillBranch.MINING, Tier.ENDITE.level()).itemCount("mlinnotas:raw_infernite"));
+		SkillNode astralite = SkillTree.node(SkillBranch.MINING, Tier.ASTRALITE.level());
+		assertEquals(32, astralite.itemCount("mlinnotas:raw_endite"));
+		assertEquals(4, astralite.itemCount("mlinnotas:sentinel_core"));
 		SkillNode celestium = SkillTree.node(SkillBranch.MINING, Tier.CELESTIUM.level());
 		assertEquals(1, celestium.itemCount("minecraft:nether_star"));
-		assertEquals(10, celestium.itemCount("mlinnotas:raw_astralite"));
+		assertEquals(24, celestium.itemCount("mlinnotas:raw_astralite"));
 		assertEquals(40, celestium.xpLevels());
+		assertEquals(2920, celestium.xpPoints());
+		// ramos laterais: o dobro do custo antigo
+		assertEquals(32, SkillTree.node(SkillBranch.COMBAT, 1).itemCount("minecraft:copper_ingot"));
+		assertEquals(4, SkillTree.node(SkillBranch.VIGOR, 5).itemCount("minecraft:netherite_ingot"));
 	}
 
 	/** Todo item de custo e obtenivel com o nivel anterior (ou vem de um chefe). */
@@ -160,7 +177,7 @@ class SkillTreeTest {
 
 	@Test
 	void effectsScaleWithLevel() {
-		assertEquals(5.0, SkillEffects.meleeBonus(5));
+		assertEquals(2.5, SkillEffects.meleeBonus(5), "Combate: +0,5 por nivel");
 		assertEquals(10.0, SkillEffects.healthBonus(5));
 		assertEquals(0.2, SkillEffects.speedBonus(5), 1e-9);
 		assertEquals(0.5, SkillEffects.fallReduction(5), 1e-9);

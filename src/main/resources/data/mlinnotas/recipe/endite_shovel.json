@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:endite_ingot"
-  },
-  "pattern": [
-    "X",
-    "#",
-    "#"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:endite_ingot",
+  "base": "mlinnotas:infernite_shovel",
   "result": {
     "id": "mlinnotas:endite_shovel"
-  }
+  },
+  "template": "mlinnotas:end_upgrade_smithing_template"
 }

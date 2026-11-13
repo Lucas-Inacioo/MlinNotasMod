@@ -17,6 +17,26 @@ public final class BossRules {
 	public static final int SPAWN_TICKS = 40;
 	/** Raio sem outro chefe do mesmo tipo para o altar aceitar invocar. */
 	public static final int ALTAR_BUSY_RADIUS = 48;
+	/** Teto da vida maxima (a vanilla limita em 1024; os chefes passam disso com 3+ jogadores). */
+	public static final double MAX_HEALTH_CAP = 16384.0;
+	/** Vida do Wither com ate 2 jogadores (a vanilla tem 300). */
+	public static final double WITHER_HEALTH = 900.0;
+
+	// dano das habilidades especiais (tipo {@code mlinnotas:boss_ability}: armadura vale, Protecao nao); o golpe corpo a
+	// corpo esta em BossKind#melee
+	public static final float GOLEM_CHARGE = 16.0F;
+	public static final float GOLEM_SLAM = 9.0F;
+	public static final float GOLEM_SLAM_PHASE_TWO = 12.0F;
+	public static final float GOLEM_ROCK = 10.0F;
+	public static final float GUARDIAN_TENDRIL = 5.0F;
+	/** Pulso sonico (tipo vanilla sonic_boom: ignora armadura e encantamentos). */
+	public static final float GUARDIAN_PULSE = 10.0F;
+	public static final float GUARDIAN_PULSE_PHASE_TWO = 12.0F;
+	public static final float COLOSSUS_WAVE = 8.0F;
+	public static final float COLOSSUS_WAVE_PHASE_TWO = 10.0F;
+	public static final float COLOSSUS_METEOR = 9.0F;
+	public static final float COLOSSUS_METEOR_SPLASH = 4.0F;
+	public static final float HERALD_STAR = 11.0F;
 
 	private BossRules() {
 	}
@@ -35,14 +55,12 @@ public final class BossRules {
 		return baseHealth * healthMultiplier(players);
 	}
 
-	/** O chefe adormecido acorda com alguem a ate {@code radius} blocos. */
-	public static boolean shouldWake(double distanceSqr, int radius) {
-		return radius > 0 && distanceSqr <= (double) radius * radius;
-	}
-
-	/** Escamas soltas pelo dragao: 2 a 4 ({@code roll} em 0..2). */
-	public static int dragonScales(int roll) {
-		return 2 + Math.max(0, Math.min(2, roll));
+	/**
+	 * Escamas soltas pelo dragao: 2 a 4 na primeira morte do mundo, 1 a 2 quando ele renasce ({@code roll} em 0..2;
+	 * na reinvocacao so 0..1 conta).
+	 */
+	public static int dragonScales(int roll, boolean firstKill) {
+		return firstKill ? 2 + Math.max(0, Math.min(2, roll)) : 1 + Math.max(0, Math.min(1, roll));
 	}
 
 	/** Raio da onda de fogo no tick {@code tick} (0..duration): cresce linear ate {@code maxRadius}. */

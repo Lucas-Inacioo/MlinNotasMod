@@ -23,7 +23,7 @@ public final class VeinPlanner {
 	/** Raio maximo (Chebyshev) a partir do bloco inicial. */
 	public static final int MAX_RADIUS = 8;
 	/** Teto absoluto de blocos extras por quebra. */
-	public static final int HARD_CAP = 64;
+	public static final int HARD_CAP = 32;
 
 	private VeinPlanner() {
 	}
@@ -31,7 +31,7 @@ public final class VeinPlanner {
 	/** Blocos extras que um veio pode levar com Mineracao {@code miningLevel} (1 = Madeira .. 12 = Celestio). */
 	public static int maxBlocks(int miningLevel) {
 		int level = Math.max(1, miningLevel);
-		return Math.min(HARD_CAP, 8 + 4 * (level - 1));
+		return Math.min(HARD_CAP, 8 + 2 * (level - 1));
 	}
 
 	/** Grupo do minerio: {@code minecraft:deepslate_iron_ore} e {@code minecraft:iron_ore} -> {@code minecraft:iron_ore}. */

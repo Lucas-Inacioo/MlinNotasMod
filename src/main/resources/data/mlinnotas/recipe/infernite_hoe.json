@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:infernite_ingot"
-  },
-  "pattern": [
-    "XX",
-    " #",
-    " #"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:infernite_ingot",
+  "base": "minecraft:netherite_hoe",
   "result": {
     "id": "mlinnotas:infernite_hoe"
-  }
+  },
+  "template": "mlinnotas:infernal_upgrade_smithing_template"
 }

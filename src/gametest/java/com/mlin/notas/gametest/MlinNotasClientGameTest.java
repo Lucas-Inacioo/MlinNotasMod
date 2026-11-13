@@ -81,10 +81,13 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 				SelectiveEnchanting.open(player, ContainerLevelAccess.create(level, table));
 				player.containerMenu.slots.get(SelectiveEnchantMenu.ITEM_SLOT).set(new ItemStack(Items.DIAMOND_SWORD));
 				player.containerMenu.slots.get(SelectiveEnchantMenu.LAPIS_SLOT).set(new ItemStack(Items.LAPIS_LAZULI, 32));
+				player.containerMenu.slots.get(SelectiveEnchantMenu.REAGENT_SLOT).set(new ItemStack(Items.FLINT, 2));
 				player.containerMenu.broadcastChanges();
 			});
 			context.waitForScreen(SelectiveEnchantScreen.class);
 			context.waitTicks(10);
+			context.runOnClient(mc -> ((SelectiveEnchantScreen) mc.gui.screen()).selectFirstUsable());
+			context.waitTicks(3);
 			context.takeScreenshot("mlinnotas-selective-enchant");
 			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
 			context.waitForScreen(null);

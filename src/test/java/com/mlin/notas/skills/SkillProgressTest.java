@@ -46,17 +46,19 @@ class SkillProgressTest {
 	void xpIsDepositedToo() {
 		SkillProgress progress = new SkillProgress();
 		progress.setLevel(SkillBranch.MINING, Tier.COPPER.level());
-		SkillProgress.Deposit onlyXp = progress.deposit(IRON, Map.of(), 2);
+		// Ferro custa 3 niveis nominais = 7 + 9 + 11 = 27 pontos
+		assertEquals(27, IRON.xpPoints());
+		SkillProgress.Deposit onlyXp = progress.deposit(IRON, Map.of(), 20);
 		assertEquals(SkillProgress.Outcome.PARTIAL, onlyXp.outcome());
-		assertEquals(2, onlyXp.xpTaken());
-		assertEquals(1, progress.remainingXp(IRON));
-		SkillProgress.Deposit items = progress.deposit(IRON, Map.of(SkillTree.COPPER, 10), 0);
-		assertEquals(SkillProgress.Outcome.PARTIAL, items.outcome(), "ainda falta 1 nivel");
+		assertEquals(20, onlyXp.xpTaken());
+		assertEquals(7, progress.remainingXp(IRON));
+		SkillProgress.Deposit items = progress.deposit(IRON, Map.of(SkillTree.COPPER, 32), 0);
+		assertEquals(SkillProgress.Outcome.PARTIAL, items.outcome(), "ainda faltam 7 pontos");
 		assertFalse(progress.complete(IRON));
-		SkillProgress.Deposit done = progress.deposit(IRON, Map.of(SkillTree.COPPER, 5), 7);
+		SkillProgress.Deposit done = progress.deposit(IRON, Map.of(SkillTree.COPPER, 5), 300);
 		assertEquals(SkillProgress.Outcome.UNLOCKED, done.outcome());
 		assertTrue(done.taken().isEmpty(), "cobre ja estava completo");
-		assertEquals(1, done.xpTaken());
+		assertEquals(7, done.xpTaken(), "so leva os pontos que faltam");
 	}
 
 	@Test
@@ -73,9 +75,9 @@ class SkillProgressTest {
 	void sideBranchNeedsMiningLevel() {
 		SkillProgress progress = new SkillProgress();
 		SkillNode combat1 = SkillTree.node(SkillBranch.COMBAT, 1);
-		assertEquals(SkillProgress.Outcome.LOCKED, progress.deposit(combat1, Map.of("minecraft:copper_ingot", 16), 5).outcome());
+		assertEquals(SkillProgress.Outcome.LOCKED, progress.deposit(combat1, Map.of("minecraft:copper_ingot", 32), 55).outcome());
 		progress.setLevel(SkillBranch.MINING, Tier.COPPER.level());
-		assertEquals(SkillProgress.Outcome.UNLOCKED, progress.deposit(combat1, Map.of("minecraft:copper_ingot", 16), 5).outcome());
+		assertEquals(SkillProgress.Outcome.UNLOCKED, progress.deposit(combat1, Map.of("minecraft:copper_ingot", 32), 55).outcome());
 		assertEquals(1, progress.level(SkillBranch.COMBAT));
 	}
 

@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:celestium_ingot"
-  },
-  "pattern": [
-    "XXX",
-    " # ",
-    " # "
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:celestium_ingot",
+  "base": "mlinnotas:astralite_pickaxe",
   "result": {
     "id": "mlinnotas:celestium_pickaxe"
-  }
+  },
+  "template": "mlinnotas:celestial_upgrade_smithing_template"
 }

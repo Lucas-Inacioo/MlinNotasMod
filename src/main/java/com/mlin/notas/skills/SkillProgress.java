@@ -32,7 +32,7 @@ public final class SkillProgress {
 		UNLOCKED
 	}
 
-	/** Resultado de um deposito: o que tirar do jogador. */
+	/** Resultado de um deposito: o que tirar do jogador ({@code xpTaken} em pontos de XP). */
 	public record Deposit(Outcome outcome, Map<String, Integer> taken, int xpTaken) {
 		public boolean accepted() {
 			return outcome == Outcome.PARTIAL || outcome == Outcome.UNLOCKED;
@@ -134,7 +134,7 @@ public final class SkillProgress {
 	}
 
 	public int remainingXp(SkillNode node) {
-		return Math.max(0, node.xpLevels() - depositedXp(node));
+		return Math.max(0, node.xpPoints() - depositedXp(node));
 	}
 
 	public boolean complete(SkillNode node) {
@@ -148,9 +148,9 @@ public final class SkillProgress {
 
 	/**
 	 * Entrega para {@code node} tudo o que o jogador tem do que falta. {@code available} = quanto o jogador tem de cada
-	 * id de custo; {@code xpLevels} = niveis de XP dele. O progresso so muda se o deposito for aceito.
+	 * id de custo; {@code xpPoints} = pontos de XP dele. O progresso so muda se o deposito for aceito.
 	 */
-	public Deposit deposit(SkillNode node, Map<String, Integer> available, int xpLevels) {
+	public Deposit deposit(SkillNode node, Map<String, Integer> available, int xpPoints) {
 		Status status = status(node);
 		if (status == Status.UNLOCKED) {
 			return new Deposit(Outcome.ALREADY_UNLOCKED, Map.of(), 0);
@@ -165,7 +165,7 @@ public final class SkillProgress {
 				taken.put(cost.id(), give);
 			}
 		}
-		int xp = Math.min(remainingXp(node), Math.max(0, xpLevels));
+		int xp = Math.min(remainingXp(node), Math.max(0, xpPoints));
 		if (taken.isEmpty() && xp == 0) {
 			return new Deposit(Outcome.NOTHING, Map.of(), 0);
 		}

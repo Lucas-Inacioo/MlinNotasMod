@@ -18,6 +18,10 @@ import java.util.Map;
  *
  * <p>Ramos laterais (Combate, Vigor, Agilidade, Prospeccao), 5 niveis cada, pagos com lingotes/gemas; o nivel n
  * exige Mineracao {@link #SIDE_REQUIREMENTS}[n-1].</p>
+ *
+ * <p>O XP de cada no e dado em niveis nominais ({@link SkillNode#xpLevels()}) mas cobrado em pontos
+ * ({@link SkillNode#xpPoints()} = pontos do nivel 0 ate ele), para depositar aos poucos custar o mesmo que de uma vez
+ * (niveis altos valem mais pontos).</p>
  */
 public final class SkillTree {
 	public static final String COAL = "#mlinnotas:skill_cost/coal";
@@ -63,6 +67,11 @@ public final class SkillTree {
 		SOURCES.put("minecraft:iron_ingot", Source.mined(Tier.IRON));
 		SOURCES.put("mlinnotas:cobalt_ingot", Source.mined(Tier.COBALT));
 		SOURCES.put("minecraft:netherite_ingot", Source.mined(Tier.NETHERITE));
+		// blocos de metal (9 lingotes)
+		SOURCES.put("minecraft:iron_block", Source.mined(Tier.IRON));
+		SOURCES.put("mlinnotas:cobalt_block", Source.mined(Tier.COBALT));
+		// Sentinelas de Purpur da Cidadela do End (ilhas externas: depois do dragao, ja com Endita)
+		SOURCES.put("mlinnotas:sentinel_core", Source.mined(Tier.ENDITE));
 		// chefes
 		SOURCES.put("mlinnotas:cobalt_heart", Source.boss("cobalt_golem"));
 		SOURCES.put("mlinnotas:abyssal_core", Source.boss("abyssal_guardian"));
@@ -72,24 +81,24 @@ public final class SkillTree {
 		SOURCES.put("minecraft:nether_star", Source.boss("wither"));
 
 		mining(Tier.STONE, 0, cost("minecraft:cobblestone", 32));
-		mining(Tier.COPPER, 0, cost(COAL, 10, "minecraft:coal_ore"));
-		mining(Tier.IRON, 3, cost(COPPER, 10, "minecraft:copper_ore"));
-		mining(Tier.GOLD, 5, cost(IRON, 10, "minecraft:iron_ore"));
-		mining(Tier.COBALT, 10, cost("mlinnotas:cobalt_heart", 1), cost(GOLD, 10, "minecraft:gold_ore"));
-		mining(Tier.DIAMOND, 15, cost("mlinnotas:raw_cobalt", 10));
-		mining(Tier.NETHERITE, 20, cost("mlinnotas:abyssal_core", 1), cost("minecraft:diamond", 5));
-		mining(Tier.INFERNITE, 20, cost("mlinnotas:colossus_ember", 1), cost("minecraft:netherite_scrap", 4));
-		mining(Tier.ENDITE, 25, cost("mlinnotas:dragon_scale", 1), cost("mlinnotas:raw_infernite", 10));
-		mining(Tier.ASTRALITE, 30, cost("mlinnotas:astral_fragment", 1), cost("mlinnotas:raw_endite", 10));
-		mining(Tier.CELESTIUM, 40, cost("minecraft:nether_star", 1), cost("mlinnotas:raw_astralite", 10));
+		mining(Tier.COPPER, 0, cost(COAL, 24, "minecraft:coal_ore"));
+		mining(Tier.IRON, 3, cost(COPPER, 32, "minecraft:copper_ore"));
+		mining(Tier.GOLD, 5, cost(IRON, 32, "minecraft:iron_ore"), cost("minecraft:iron_block", 1));
+		mining(Tier.COBALT, 10, cost("mlinnotas:cobalt_heart", 1), cost(GOLD, 32, "minecraft:gold_ore"));
+		mining(Tier.DIAMOND, 15, cost("mlinnotas:raw_cobalt", 32), cost("mlinnotas:cobalt_block", 1));
+		mining(Tier.NETHERITE, 20, cost("mlinnotas:abyssal_core", 1), cost("minecraft:diamond", 12));
+		mining(Tier.INFERNITE, 20, cost("mlinnotas:colossus_ember", 1), cost("minecraft:netherite_scrap", 8));
+		mining(Tier.ENDITE, 25, cost("mlinnotas:dragon_scale", 1), cost("mlinnotas:raw_infernite", 32));
+		mining(Tier.ASTRALITE, 30, cost("mlinnotas:astral_fragment", 1), cost("mlinnotas:raw_endite", 32), cost("mlinnotas:sentinel_core", 4));
+		mining(Tier.CELESTIUM, 40, cost("minecraft:nether_star", 1), cost("mlinnotas:raw_astralite", 24));
 
 		for (SkillBranch branch : SkillBranch.values()) {
 			if (branch != SkillBranch.MINING) {
-				side(branch, 1, 5, cost("minecraft:copper_ingot", 16));
-				side(branch, 2, 10, cost("minecraft:iron_ingot", 12));
-				side(branch, 3, 15, cost("mlinnotas:cobalt_ingot", 10));
-				side(branch, 4, 20, cost("minecraft:diamond", 8));
-				side(branch, 5, 25, cost("minecraft:netherite_ingot", 2));
+				side(branch, 1, 5, cost("minecraft:copper_ingot", 32));
+				side(branch, 2, 10, cost("minecraft:iron_ingot", 24));
+				side(branch, 3, 15, cost("mlinnotas:cobalt_ingot", 20));
+				side(branch, 4, 20, cost("minecraft:diamond", 16));
+				side(branch, 5, 25, cost("minecraft:netherite_ingot", 4));
 			}
 		}
 	}

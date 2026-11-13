@@ -5,6 +5,7 @@
 	"mixins": [
 		"AbstractFurnaceBlockEntityMixin",
 		"AbstractVillagerMixin",
+		"AnvilMenuMixin",
 		"BeaconBlockEntityAccessor",
 		"BeaconBlockEntityMixin",
 		"BeaconMenuMixin",
@@ -12,6 +13,7 @@
 		"CreeperAccessor",
 		"EnderDragonFightAccessor",
 		"ItemTooltipImageMixin",
+		"RangedAttributeAccessor",
 		"SeasonalGrowthMixin",
 		"ServerLevelPrecipitationMixin",
 		"TheEndBiomeSourceMixin",

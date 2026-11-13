@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:astralite_ingot"
-  },
-  "pattern": [
-    "X",
-    "X",
-    "#"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:astralite_ingot",
+  "base": "mlinnotas:endite_sword",
   "result": {
     "id": "mlinnotas:astralite_sword"
-  }
+  },
+  "template": "mlinnotas:astral_upgrade_smithing_template"
 }

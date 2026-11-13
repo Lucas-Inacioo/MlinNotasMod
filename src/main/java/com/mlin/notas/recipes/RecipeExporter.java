@@ -16,6 +16,8 @@ import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
+import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.ArrayList;
@@ -98,6 +100,17 @@ public final class RecipeExporter {
 			}
 			return new RecipeView(id, RecipeKind.STONECUTTING, 0, 0, List.of(alternatives(stonecutter.input())),
 					itemId(result), result.getCount(), 0, 0);
+		}
+		if (recipe instanceof SmithingTransformRecipe smithing) {
+			ItemStack result = smithing.assemble(new SmithingRecipeInput(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
+			if (result.isEmpty()) {
+				return null;
+			}
+			List<List<Integer>> inputs = new ArrayList<>();
+			inputs.add(smithing.templateIngredient().map(RecipeExporter::alternatives).orElse(List.of()));
+			inputs.add(alternatives(smithing.baseIngredient()));
+			inputs.add(smithing.additionIngredient().map(RecipeExporter::alternatives).orElse(List.of()));
+			return new RecipeView(id, RecipeKind.SMITHING, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
 		}
 		return null;
 	}

@@ -157,7 +157,8 @@ public class SkillTreeScreen extends Screen {
 		graphics.centeredText(font, objective == null ? Component.translatable("gui.mlinnotas.skills.objective_done")
 				: Component.translatable("gui.mlinnotas.skills.objective", nodeTitle(objective)), cx, 18, 0xFFFFD040);
 		int levels = minecraft.player == null ? 0 : minecraft.player.experienceLevel;
-		graphics.text(font, Component.translatable("gui.mlinnotas.skills.your_levels", levels), 6, 6, 0xFF80FF20);
+		int points = minecraft.player == null ? 0 : com.mlin.notas.skills.SkillServer.experiencePoints(minecraft.player);
+		graphics.text(font, Component.translatable("gui.mlinnotas.skills.your_levels", levels, points), 6, 6, 0xFF80FF20);
 		if (guideMode) {
 			drawGuidePage(graphics, progress);
 			return;
@@ -311,8 +312,7 @@ public class SkillTreeScreen extends Screen {
 			y = Math.max(y + 18, ly + 3);
 		}
 		if (node.xpLevels() > 0 && y + font.lineHeight <= limit) {
-			int have = Math.min(node.xpLevels(), progress.depositedXp(node));
-			graphics.text(font, Component.translatable("gui.mlinnotas.skills.cost_xp", have, node.xpLevels()).withStyle(ChatFormatting.GREEN), x + 20, y, 0xFFFFFFFF);
+			graphics.text(font, xpLine(node, progress).withStyle(ChatFormatting.GREEN), x + 20, y, 0xFFFFFFFF);
 			y += font.lineHeight + 3;
 		}
 		for (Component unlock : unlocks(node)) {
@@ -324,15 +324,26 @@ public class SkillTreeScreen extends Screen {
 		}
 	}
 
-	/** Fracao do custo ja depositada (itens + XP). */
+	/** "XP: 120/550 pontos (faltam ~12 níveis)": o custo e cobrado em pontos. */
+	static net.minecraft.network.chat.MutableComponent xpLine(SkillNode node, SkillProgress progress) {
+		int have = Math.min(node.xpPoints(), progress.depositedXp(node));
+		return Component.translatable("gui.mlinnotas.skills.cost_xp", have, node.xpPoints(),
+				com.mlin.notas.util.XpMath.levelsCovering(progress.remainingXp(node)));
+	}
+
+	/** Fracao do custo ja depositada: media das partes (cada item e o XP pesam igual). */
 	static double fraction(SkillProgress progress, SkillNode node) {
-		int total = node.xpLevels();
-		int done = progress.depositedXp(node);
+		double sum = 0;
+		int parts = 0;
 		for (SkillNode.Cost cost : node.items()) {
-			total += cost.count();
-			done += Math.min(cost.count(), progress.deposited(node, cost.id()));
+			sum += Math.min(cost.count(), progress.deposited(node, cost.id())) / (double) cost.count();
+			parts++;
 		}
-		return total == 0 ? 0 : (double) done / total;
+		if (node.xpPoints() > 0) {
+			sum += Math.min(node.xpPoints(), progress.depositedXp(node)) / (double) node.xpPoints();
+			parts++;
+		}
+		return parts == 0 ? 0 : sum / parts;
 	}
 
 	static ItemStack stack(String id) {
@@ -393,11 +404,11 @@ public class SkillTreeScreen extends Screen {
 						.withStyle(have >= cost.count() ? ChatFormatting.GREEN : ChatFormatting.WHITE));
 			}
 			if (node.xpLevels() > 0) {
-				int have = Math.min(node.xpLevels(), progress.depositedXp(node));
-				lines.add(Component.literal(" ").append(Component.translatable("gui.mlinnotas.skills.cost_xp", have, node.xpLevels()))
-						.withStyle(have >= node.xpLevels() ? ChatFormatting.GREEN : ChatFormatting.WHITE));
+				lines.add(Component.literal(" ").append(xpLine(node, progress))
+						.withStyle(progress.remainingXp(node) == 0 ? ChatFormatting.GREEN : ChatFormatting.WHITE));
 			}
-			lines.add(Component.translatable("gui.mlinnotas.skills.remaining", missingItems, progress.remainingXp(node)).withStyle(ChatFormatting.AQUA));
+			lines.add(Component.translatable("gui.mlinnotas.skills.remaining", missingItems, progress.remainingXp(node),
+					com.mlin.notas.util.XpMath.levelsCovering(progress.remainingXp(node))).withStyle(ChatFormatting.AQUA));
 		}
 		lines.add(Component.translatable("gui.mlinnotas.skills.unlocks").withStyle(ChatFormatting.GRAY));
 		for (Component unlock : unlocks(node)) {

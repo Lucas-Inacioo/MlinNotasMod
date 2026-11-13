@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 /**
  * Coloca os minerios novos na geracao de mundo. Os features ficam em
  * {@code data/mlinnotas/worldgen/feature} e {@code worldgen/placed_feature}; aqui so escolhemos os biomas:
- * cobalto no Overworld, infernita so no Nether, endita em todo o End e astralita so nas ilhas externas do End.
+ * cobalto no Overworld, infernita so no Nether, endita fora da ilha central do End e astralita so nas ilhas externas do End.
  * Usa as tags de bioma por dimensao (e nao "biomas que a dimensao gera"), entao vale para qualquer preset de mundo.
  */
 public final class ModWorldgen {
@@ -36,7 +36,7 @@ public final class ModWorldgen {
 		GenerationStep.Decoration step = GenerationStep.Decoration.UNDERGROUND_ORES;
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD), step, ORE_COBALT);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_NETHER), step, ORE_INFERNITE);
-		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END), step, ORE_ENDITE);
+		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END).and(BiomeSelectors.excludeByKey(Biomes.THE_END)), step, ORE_ENDITE);
 		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, EndBiomes.MOSS_FIELDS, EndBiomes.CRYSTAL_GROVE, EndBiomes.VOID_WASTES, EndBiomes.CHORUS_FOREST,
 				Biomes.SMALL_END_ISLANDS), step, ORE_ASTRALITE);
 		// veios ricos (cobalto fundo no Overworld, infernita no Nether e mais nos Picos de Infernita, endita no End,
@@ -44,7 +44,7 @@ public final class ModWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD), step, ORE_COBALT_RICH);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_NETHER), step, ORE_INFERNITE_RICH);
 		BiomeModifications.addFeature(BiomeSelectors.includeByKey(com.mlin.notas.nether.NetherRegistry.INFERNITE_PEAKS), step, ORE_INFERNITE_RICH_PEAKS);
-		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END), step, ORE_ENDITE_RICH);
+		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END).and(BiomeSelectors.excludeByKey(Biomes.THE_END)), step, ORE_ENDITE_RICH);
 		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, EndBiomes.MOSS_FIELDS,
 				EndBiomes.CRYSTAL_GROVE, EndBiomes.VOID_WASTES, EndBiomes.CHORUS_FOREST, Biomes.SMALL_END_ISLANDS), step, ORE_ASTRALITE_RICH);
 	}

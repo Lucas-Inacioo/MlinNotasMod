@@ -153,6 +153,14 @@ public class RecipeScreen extends Screen {
 			String xp = String.format(java.util.Locale.ROOT, "%.1f xp", recipe.experience());
 			graphics.text(font, time, inX + SLOT + 14, top + 2 * SLOT + 6, 0xFF404040);
 			graphics.text(font, xp, inX + SLOT + 14, top + 2 * SLOT + 16, 0xFF404040);
+		} else if (recipe.kind() == com.mlin.notas.recipes.RecipeKind.SMITHING) {
+			// molde + peca + adicional -> resultado (como a mesa de ferraria)
+			int inX = panelX + 12;
+			for (int i = 0; i < 3; i++) {
+				addSlot(inX + i * SLOT, top + SLOT, i < recipe.inputs().size() ? recipe.inputs().get(i) : List.of(), null, false);
+			}
+			drawArrow(graphics, inX + 3 * SLOT + 10, top + SLOT + 5);
+			addSlot(inX + 3 * SLOT + 40, top + SLOT, List.of(), output, true);
 		} else {
 			int inX = panelX + 30;
 			addSlot(inX, top + SLOT, recipe.inputs().getFirst(), null, false);

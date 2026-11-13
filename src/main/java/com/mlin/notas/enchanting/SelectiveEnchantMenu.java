@@ -34,13 +34,17 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 	public static final int ITEM_SLOT = 0;
 	public static final int LAPIS_SLOT = 1;
 	public static final int ITEM_X = 20;
-	public static final int ITEM_Y = 30;
+	public static final int ITEM_Y = 20;
 	public static final int LAPIS_X = 20;
-	public static final int LAPIS_Y = 56;
+	public static final int LAPIS_Y = 42;
+	/** Slot do reagente tematico do encantamento ({@link EnchantReagents}). */
+	public static final int REAGENT_SLOT = 2;
+	public static final int REAGENT_X = 20;
+	public static final int REAGENT_Y = 64;
 	public static final int INVENTORY_X = 57;
 	public static final int INVENTORY_Y = 104;
 
-	private final Container enchantSlots = new SimpleContainer(2) {
+	private final Container enchantSlots = new SimpleContainer(3) {
 		@Override
 		public void setChanged() {
 			super.setChanged();
@@ -49,6 +53,8 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 	};
 	private final ContainerLevelAccess access;
 	private final DataSlot bookshelves = DataSlot.standalone();
+	/** Nivel de Mineracao do mundo (teto dos encantamentos, {@link EnchantRules#miningCap}). */
+	private final DataSlot miningLevel = DataSlot.standalone();
 
 	/** Construtor do cliente (o tipo de menu cria o menu sem acesso ao mundo). */
 	public SelectiveEnchantMenu(int containerId, Inventory inventory) {
@@ -75,9 +81,12 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 				return stack.is(Items.LAPIS_LAZULI);
 			}
 		});
+		this.addSlot(new Slot(enchantSlots, REAGENT_SLOT, REAGENT_X, REAGENT_Y));
 		this.addStandardInventorySlots(inventory, INVENTORY_X, INVENTORY_Y);
 		this.addDataSlot(bookshelves);
 		this.bookshelves.set(access.evaluate(SelectiveEnchantMenu::countBookshelves, 0));
+		this.addDataSlot(miningLevel);
+		this.miningLevel.set(access.evaluate((level, pos) -> worldMiningLevel(level), 1));
 	}
 
 	/** Estantes validas ao redor da mesa (mesma regra da vanilla, incluindo o espaco livre entre mesa e estante). */
@@ -95,6 +104,15 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 		return bookshelves.get();
 	}
 
+	/** Nivel de Mineracao do mundo (1 = Madeira .. 12 = Celestio), sincronizado com o cliente. */
+	public int miningLevel() {
+		return Math.max(1, miningLevel.get());
+	}
+
+	static int worldMiningLevel(Level level) {
+		return level.getServer() == null ? 1 : com.mlin.notas.skills.SkillServer.progress(level.getServer()).level(com.mlin.notas.skills.SkillBranch.MINING);
+	}
+
 	public ItemStack item() {
 		return enchantSlots.getItem(ITEM_SLOT);
 	}
@@ -103,10 +121,24 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 		return enchantSlots.getItem(LAPIS_SLOT);
 	}
 
+	public ItemStack reagentStack() {
+		return enchantSlots.getItem(REAGENT_SLOT);
+	}
+
+	/** Quanto do reagente {@code reagent} esta no slot de reagente (0 se o item e outro). */
+	public int reagentCount(EnchantReagents.Reagent reagent) {
+		ItemStack stack = reagentStack();
+		return !stack.isEmpty() && net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(reagent.item())
+				? stack.getCount() : 0;
+	}
+
 	@Override
 	public void slotsChanged(Container container) {
 		super.slotsChanged(container);
-		access.execute((level, pos) -> bookshelves.set(countBookshelves(level, pos)));
+		access.execute((level, pos) -> {
+			bookshelves.set(countBookshelves(level, pos));
+			miningLevel.set(worldMiningLevel(level));
+		});
 		broadcastChanges();
 	}
 
@@ -124,8 +156,11 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 				option.map(EnchantOptions.Option::maxLevel).orElse(0),
 				option.map(EnchantOptions.Option::anvilCost).orElse(1),
 				bookshelves(),
+				worldMiningLevel(player.level()),
 				player.experienceLevel,
 				lapis().getCount(),
+				option.map(o -> o.reagent().base()).orElse(1),
+				option.map(o -> reagentCount(o.reagent())).orElse(0),
 				player.hasInfiniteMaterials());
 		if (check != EnchantRules.Check.OK) {
 			return check;
@@ -144,6 +179,10 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 			lapis().shrink(lapisCost);
 			if (lapis().isEmpty()) {
 				enchantSlots.setItem(LAPIS_SLOT, ItemStack.EMPTY);
+			}
+			reagentStack().shrink(EnchantReagents.cost(option.get().reagent().base(), current, level));
+			if (reagentStack().isEmpty()) {
+				enchantSlots.setItem(REAGENT_SLOT, ItemStack.EMPTY);
 			}
 		}
 		player.awardStat(Stats.ENCHANT_ITEM);
@@ -173,7 +212,7 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 		}
 		ItemStack stack = slot.getItem();
 		ItemStack original = stack.copy();
-		int inventoryStart = 2;
+		int inventoryStart = 3;
 		int inventoryEnd = this.slots.size();
 		if (index < inventoryStart) {
 			if (!moveItemStackTo(stack, inventoryStart, inventoryEnd, true)) {
@@ -185,7 +224,7 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 			}
 		} else if (EnchantOptions.canHold(stack) && !this.slots.get(ITEM_SLOT).hasItem()) {
 			this.slots.get(ITEM_SLOT).setByPlayer(stack.split(1));
-		} else {
+		} else if (!moveItemStackTo(stack, REAGENT_SLOT, REAGENT_SLOT + 1, false)) {
 			return ItemStack.EMPTY;
 		}
 		if (stack.isEmpty()) {

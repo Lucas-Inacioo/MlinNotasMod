@@ -278,7 +278,7 @@ class NetherContent {
 				+ "\"targets\":" + targets + "}");
 		ContentGen.tag("block", "mlinnotas:infernite_peaks_stone", List.of("minecraft:basalt", "minecraft:blackstone", "minecraft:netherrack"), false);
 		ContentGen.write(placed + "ore_infernite_exposed.json", "{\"feature\":\"mlinnotas:ore_infernite_exposed\",\"placement\":["
-				+ "{\"type\":\"minecraft:count\",\"count\":10},{\"type\":\"minecraft:in_square\"},{\"type\":\"minecraft:height_range\",\"height\":"
+				+ "{\"type\":\"minecraft:count\",\"count\":4},{\"type\":\"minecraft:in_square\"},{\"type\":\"minecraft:height_range\",\"height\":"
 				+ "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":100},\"min_inclusive\":{\"absolute\":32}}},{\"type\":\"minecraft:biome\"}]}");
 		// afloramento: procura o chao (de cima para baixo a partir de uma altura no vao) e poe o veio ali, exposto
 		String findFloor = "{\"type\":\"minecraft:environment_scan\",\"allowed_search_condition\":{\"type\":\"minecraft:matching_block_tag\","
