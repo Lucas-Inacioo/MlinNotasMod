@@ -80,7 +80,7 @@ public final class InventorySortServer {
 	}
 
 	static boolean isSortable(Slot slot, ServerPlayer player) {
-		if (slot.getClass() != Slot.class) {
+		if (slot.getClass() != Slot.class && !(slot instanceof SortableSlot)) {
 			return false; // slots especiais (resultado, combustivel, armadura...)
 		}
 		Container container = slot.container;

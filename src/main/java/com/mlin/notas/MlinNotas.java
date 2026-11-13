@@ -1,9 +1,19 @@
 package com.mlin.notas;
 
 import com.mlin.notas.command.NotaCommand;
+import com.mlin.notas.chest.ChestUpgrades;
+import com.mlin.notas.chest.ChestUpgrades;
 import com.mlin.notas.furnace.FurnaceUpgrades;
 import com.mlin.notas.notes.NotebookManager;
+import com.mlin.notas.registry.ModBlockEntities;
+import com.mlin.notas.registry.ModBlocks;
+import com.mlin.notas.registry.ModBlockEntities;
+import com.mlin.notas.registry.ModBlocks;
 import com.mlin.notas.registry.ModCreativeTab;
+import com.mlin.notas.registry.ModDataComponents;
+import com.mlin.notas.registry.ModMenus;
+import com.mlin.notas.registry.ModDataComponents;
+import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModItems;
 import com.mlin.notas.recipes.RecipeSyncServer;
 import com.mlin.notas.registry.ModPayloads;
@@ -27,7 +37,11 @@ public class MlinNotas implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModDataComponents.init();
+		ModBlocks.init();
 		ModItems.init();
+		ModBlockEntities.init();
+		ModMenus.init();
 		ModCreativeTab.init();
 		ModPayloads.init();
 
@@ -35,6 +49,7 @@ public class MlinNotas implements ModInitializer {
 		InventorySortServer.init();
 		FurnaceUpgrades.init();
 		RecipeSyncServer.init();
+		ChestUpgrades.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

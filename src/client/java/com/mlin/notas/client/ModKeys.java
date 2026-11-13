@@ -18,6 +18,7 @@ public final class ModKeys {
 	public static final KeyMapping WAYPOINT = register("waypoint", InputConstants.KEY_B);
 	public static final KeyMapping CAVE_MODE = register("cave_mode", InputConstants.KEY_J);
 	public static final KeyMapping TOGGLE_MINIMAP = register("toggle_minimap", InputConstants.KEY_H);
+	public static final KeyMapping BACKPACK = register("backpack", InputConstants.KEY_V);
 
 	private ModKeys() {
 	}

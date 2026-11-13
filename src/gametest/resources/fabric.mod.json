@@ -9,7 +9,9 @@
 			"com.mlin.notas.gametest.MlinNotasGameTest",
 			"com.mlin.notas.gametest.FeaturesGameTest",
 			"com.mlin.notas.gametest.RecipeViewerGameTest",
-			"com.mlin.notas.gametest.MinimapGameTest"
+			"com.mlin.notas.gametest.MinimapGameTest",
+			"com.mlin.notas.gametest.ChestGameTest",
+			"com.mlin.notas.gametest.BackpackGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest"
