@@ -251,6 +251,8 @@ public class BeaconGameTest {
 	@GameTest
 	public void prospectingGivesExtraOre(GameTestHelper helper) {
 		ServerPlayer player = survivalPlayer(helper);
+		// minerio de ferro exige Mineracao: Ferro na arvore de habilidades do mundo
+		com.mlin.notas.skills.SkillServer.ensureLevel(helper.getLevel().getServer(), com.mlin.notas.skills.SkillBranch.MINING, Tier.IRON.level());
 		try {
 			int ores = 24;
 			// sem Garimpo: exatamente 1 ferro bruto por minerio

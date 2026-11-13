@@ -42,6 +42,7 @@ static void bootstrap() {
 - Estrutura customizada: salve um `.nbt` em `src/gametest/resources/data/mlinnotas-gametest/structure/` e use `@GameTest(structure = "mlinnotas-gametest:nome")`.
 - Jogador fake: `(ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL)` para inventario/itens. Ele **nao tem conexao** (`connection == null`): qualquer coisa que mande pacote (`openMenu`, `sendOverlayMessage`, `displayClientMessage`) da NPE. Para isso use `helper.makeMockServerPlayerInLevel()` (deprecated, jogador CRIATIVO com conexao fake; `@SuppressWarnings("removal")`) e remova no fim com `helper.getLevel().getServer().getPlayerList().remove(player)`.
 - A estrutura padrao (`fabric-gametest-api-v1:empty`) tem 8x8x8 blocos; coordenadas relativas 0..7.
+- Lote = ambiente: testes que mexem em estado global do mundo (ex.: arvore de habilidades) usam `@GameTest(environment = "mlinnotas-gametest:x")` com `data/mlinnotas-gametest/test_environment/x.json` (`{"type":"minecraft:all_of","definitions":[]}`); lotes rodam um depois do outro, testes do mesmo lote em paralelo.
 - Acesso ao servidor: `helper.getLevel().getServer()`.
 - Exemplos em `src/gametest/java/com/mlin/notas/gametest/MlinNotasGameTest.java`.
 

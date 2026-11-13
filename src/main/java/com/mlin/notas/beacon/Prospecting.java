@@ -42,6 +42,12 @@ public final class Prospecting {
 		if (player.hasEffect(ModEffects.PROSPECTING)) {
 			sources.add(new OreYield.Source("beacon_prospecting", BeaconTiers.PROSPECTING_CHANCE));
 		}
+		if (player.level() instanceof ServerLevel serverLevel) {
+			double skill = com.mlin.notas.skills.SkillServer.prospectingChance(serverLevel.getServer());
+			if (skill > 0) {
+				sources.add(new OreYield.Source("skill_prospecting", skill));
+			}
+		}
 		return sources;
 	}
 
@@ -65,7 +71,7 @@ public final class Prospecting {
 	}
 
 	private static void afterBreak(Level level, Player player, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-		if (!(level instanceof ServerLevel serverLevel) || player.isCreative() || !player.hasEffect(ModEffects.PROSPECTING)) {
+		if (!(level instanceof ServerLevel serverLevel) || player.isCreative() || sources(player).isEmpty()) {
 			return;
 		}
 		ItemStack extra = extraDrop(serverLevel, pos, state, blockEntity, player, player.getMainHandItem(), serverLevel.getRandom()::nextDouble);
