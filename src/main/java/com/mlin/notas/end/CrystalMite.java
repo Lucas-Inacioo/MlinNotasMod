@@ -1,8 +1,8 @@
 package com.mlin.notas.end;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -53,6 +53,7 @@ public class CrystalMite extends Monster {
 	@Override
 	public boolean doHurtTarget(ServerLevel level, Entity target) {
 		boolean hurt = super.doHurtTarget(level, target);
+		playSound(ModSounds.CRYSTAL_MITE_BITE, 1.0F, 1.0F);
 		if (hurt && target instanceof LivingEntity living) {
 			living.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100), this);
 			living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40), this);
@@ -62,16 +63,16 @@ public class CrystalMite extends Monster {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.AMETHYST_CLUSTER_HIT;
+		return ModSounds.CRYSTAL_MITE_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.AMETHYST_CLUSTER_BREAK;
+		return ModSounds.CRYSTAL_MITE_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.AMETHYST_BLOCK_BREAK;
+		return ModSounds.CRYSTAL_MITE_DEATH;
 	}
 }

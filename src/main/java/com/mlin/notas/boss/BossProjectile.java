@@ -1,8 +1,8 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -111,17 +111,17 @@ public class BossProjectile extends ThrowableItemProjectile {
 				// estilhaca: dano em area pequena, sem quebrar blocos
 				level.sendParticles(ParticleTypes.LAVA, getX(), getY(), getZ(), 12, 0.6, 0.3, 0.6, 0.1);
 				level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY(), getZ(), 6, 0.6, 0.3, 0.6, 0.02);
-				playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.2F, 1.3F);
+				playSound(ModSounds.MAGMA_METEOR_IMPACT, 2.0F, 1.0F);
 				for (LivingEntity near : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(2.5), e -> !(e instanceof BossMob))) {
 					near.hurtServer(level, damageSources().onFire(), 4.0F);
 					near.igniteForSeconds(3.0F);
 				}
 			} else if (star()) {
 				level.sendParticles(ParticleTypes.END_ROD, getX(), getY(), getZ(), 14, 0.3, 0.3, 0.3, 0.15);
-				playSound(SoundEvents.AMETHYST_BLOCK_BREAK, 1.0F, 1.6F);
+				playSound(ModSounds.STAR_BOLT_IMPACT, 1.0F, 1.0F);
 			} else {
 				level.sendParticles(ParticleTypes.POOF, getX(), getY(), getZ(), 8, 0.3, 0.3, 0.3, 0.05);
-				playSound(SoundEvents.STONE_BREAK, 1.2F, 0.7F);
+				playSound(ModSounds.COBALT_ROCK_IMPACT, 1.5F, 1.0F);
 			}
 			discard();
 		}

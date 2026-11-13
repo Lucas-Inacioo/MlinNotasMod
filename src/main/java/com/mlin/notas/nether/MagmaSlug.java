@@ -1,9 +1,9 @@
 package com.mlin.notas.nether;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -61,17 +61,17 @@ public class MagmaSlug extends PathfinderMob {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.MAGMA_CUBE_SQUISH_SMALL;
+		return ModSounds.MAGMA_SLUG_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.MAGMA_CUBE_HURT_SMALL;
+		return ModSounds.MAGMA_SLUG_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.MAGMA_CUBE_DEATH_SMALL;
+		return ModSounds.MAGMA_SLUG_DEATH;
 	}
 
 	@Override

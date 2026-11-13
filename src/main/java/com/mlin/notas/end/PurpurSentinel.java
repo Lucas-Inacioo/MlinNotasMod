@@ -1,9 +1,9 @@
 package com.mlin.notas.end;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -77,7 +77,7 @@ public class PurpurSentinel extends Monster {
 			double resistance = target instanceof LivingEntity living ? living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) : 0.0;
 			target.setDeltaMovement(target.getDeltaMovement().add(0.0, 0.5 * Math.max(0.0, 1.0 - resistance), 0.0));
 		}
-		this.playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.0F, 1.2F);
+		this.playSound(ModSounds.PURPUR_SENTINEL_ATTACK, 1.0F, 1.0F);
 		return hurt;
 	}
 
@@ -102,17 +102,17 @@ public class PurpurSentinel extends Monster {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.SHULKER_AMBIENT;
+		return ModSounds.PURPUR_SENTINEL_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return SoundEvents.IRON_GOLEM_HURT;
+		return ModSounds.PURPUR_SENTINEL_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.IRON_GOLEM_DEATH;
+		return ModSounds.PURPUR_SENTINEL_DEATH;
 	}
 
 	/** Atira um projetil de shulker quando o alvo esta visivel e a mais de 3 blocos. Roda junto com andar/atacar. */
@@ -144,7 +144,7 @@ public class PurpurSentinel extends Monster {
 			}
 			cooldown = 50 + sentinel.getRandom().nextInt(30);
 			sentinel.level().addFreshEntity(new ShulkerBullet(sentinel.level(), sentinel, target, Direction.Axis.Y));
-			sentinel.playSound(SoundEvents.SHULKER_SHOOT, 2.0F, (sentinel.getRandom().nextFloat() - sentinel.getRandom().nextFloat()) * 0.2F + 1.0F);
+			sentinel.playSound(ModSounds.PURPUR_SENTINEL_SHOOT, 2.0F, (sentinel.getRandom().nextFloat() - sentinel.getRandom().nextFloat()) * 0.2F + 1.0F);
 		}
 	}
 }

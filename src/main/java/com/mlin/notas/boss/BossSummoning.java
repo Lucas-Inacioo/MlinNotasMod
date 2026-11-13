@@ -1,5 +1,6 @@
 package com.mlin.notas.boss;
 
+import com.mlin.notas.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -56,6 +57,7 @@ public final class BossSummoning {
 		level.addFreshEntity(boss);
 		boss.prepareForFight(level);
 		level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, spot.x, spot.y + 1, spot.z, 1, 0, 0, 0, 0);
+		level.playSound(null, altar, ModSounds.BOSS_ALTAR_SUMMON, net.minecraft.sounds.SoundSource.HOSTILE, 3.0F, 1.0F);
 		for (ServerPlayer near : boss.playersAround(level, BossRules.PLAYER_SCAN_RADIUS)) {
 			BossMob.tell(near, Component.translatable("message.mlinnotas.boss.summoned", boss.getDisplayName()));
 		}
