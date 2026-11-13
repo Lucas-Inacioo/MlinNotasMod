@@ -6,6 +6,9 @@ import com.mlin.notas.backpack.OpenBackpackPayload;
 import com.mlin.notas.client.screen.BackpackScreen;
 import com.mlin.notas.client.screen.BigChestScreen;
 import com.mlin.notas.registry.ModMenus;
+import com.mlin.notas.registry.ModBlockEntities;
+import com.mlin.notas.client.render.BigChestRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import com.mlin.notas.tablet.OpenTabletPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -27,6 +30,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		MenuScreens.register(ModMenus.GOLD_CHEST, BigChestScreen::new);
 		MenuScreens.register(ModMenus.DIAMOND_CHEST, BigChestScreen::new);
 		MenuScreens.register(ModMenus.BACKPACK, BackpackScreen::new);
+		BlockEntityRenderers.register(ModBlockEntities.BIG_CHEST, BigChestRenderer::new);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) {

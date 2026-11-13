@@ -3,6 +3,9 @@ package com.mlin.notas.client.recipes;
 import com.mlin.notas.client.ModKeys;
 import com.mlin.notas.client.mixin.AbstractContainerScreenAccessor;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -21,6 +24,8 @@ public final class ItemListOverlay {
 	private static final int GAP_AFTER_GUI = 30;
 	private static final int MARGIN = 4;
 	private static final int SEARCH_HEIGHT = 14;
+	private static final int NAV_HEIGHT = 14;
+	private static final int NAV_BUTTON = 16;
 
 	/** Ultima busca digitada, mantida entre telas como no JEI. */
 	private static String lastSearch = "";
@@ -33,14 +38,15 @@ public final class ItemListOverlay {
 		int x0 = accessor.mlinnotas$leftPos() + accessor.mlinnotas$imageWidth() + GAP_AFTER_GUI;
 		int x1 = screen.width - MARGIN;
 		int columns = (x1 - x0) / ItemGridWidget.CELL;
-		int rows = (screen.height - MARGIN * 2 - SEARCH_HEIGHT - 4 - 12) / ItemGridWidget.CELL;
+		// busca, linha de navegacao (botoes de pagina), grade
+		int rows = (screen.height - MARGIN * 2 - SEARCH_HEIGHT - 4 - NAV_HEIGHT - 2) / ItemGridWidget.CELL;
 		if (columns < 2 || rows < 2) {
 			return; // tela estreita demais
 		}
 		int gridWidth = columns * ItemGridWidget.CELL;
 		int gridX = x1 - gridWidth;
 
-		ItemGridWidget grid = new ItemGridWidget(screen, gridX, MARGIN + SEARCH_HEIGHT + 4, columns, rows, RecipeViewerClient.allItems());
+		ItemGridWidget grid = new ItemGridWidget(screen, gridX, MARGIN + SEARCH_HEIGHT + 4 + NAV_HEIGHT + 2, columns, rows, RecipeViewerClient.allItems());
 		EditBox search = new EditBox(screen.getFont(), gridX, MARGIN, gridWidth, SEARCH_HEIGHT, Component.translatable("gui.mlinnotas.recipes.search"));
 		search.setMaxLength(64);
 		search.setHint(Component.translatable("gui.mlinnotas.recipes.search.hint"));
@@ -53,6 +59,18 @@ public final class ItemListOverlay {
 
 		Screens.getWidgets(screen).add(search);
 		Screens.getWidgets(screen).add(grid);
+
+		int navY = MARGIN + SEARCH_HEIGHT + 3;
+		Screens.getWidgets(screen).add(Button.builder(Component.literal("<"), b -> grid.previousPage())
+				.bounds(gridX, navY, NAV_BUTTON, NAV_HEIGHT)
+				.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.recipes.previous_page"))).build());
+		Screens.getWidgets(screen).add(Button.builder(Component.literal(">"), b -> grid.nextPage())
+				.bounds(gridX + gridWidth - NAV_BUTTON, navY, NAV_BUTTON, NAV_HEIGHT)
+				.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.recipes.next_page"))).build());
+
+		// AbstractContainerScreen nao repassa a roda do mouse para widgets: tratamos aqui.
+		ScreenMouseEvents.allowMouseScroll(screen).register((s, mouseX, mouseY, horizontal, vertical) ->
+				!grid.mouseScrolled(mouseX, mouseY, horizontal, vertical));
 
 		ScreenKeyboardEvents.allowKeyPress(screen).register((s, event) -> handleKey(screen, accessor, grid, search, event));
 	}

@@ -40,7 +40,8 @@ public final class TileRenderer {
 	}
 
 	private static int surfaceColumn(ClientLevel level, LevelChunk chunk, BlockPos.MutableBlockPos pos, int bx, int bz) {
-		int top = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, bx & 15, bz & 15) - 1;
+		// LevelChunk.getHeight ja devolve o Y do bloco do topo (Level.getHeight devolve o primeiro ar, +1)
+		int top = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, bx & 15, bz & 15);
 		int minY = level.getMinY();
 		if (top < minY) {
 			return EMPTY;
@@ -86,7 +87,7 @@ public final class TileRenderer {
 	private static int northHeight(ClientLevel level, LevelChunk chunk, int bx, int bz, int fallback) {
 		int nz = bz - 1;
 		if ((nz >> 4) == chunk.getPos().z()) {
-			return chunk.getHeight(Heightmap.Types.WORLD_SURFACE, bx & 15, nz & 15) - 1;
+			return chunk.getHeight(Heightmap.Types.WORLD_SURFACE, bx & 15, nz & 15);
 		}
 		if (level.hasChunk(bx >> 4, nz >> 4)) {
 			return level.getHeight(Heightmap.Types.WORLD_SURFACE, bx, nz) - 1;

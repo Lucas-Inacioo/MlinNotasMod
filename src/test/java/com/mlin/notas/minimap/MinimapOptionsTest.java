@@ -14,8 +14,23 @@ class MinimapOptionsTest {
 		assertEquals(options.toJson(), loaded.toJson());
 		assertTrue(loaded.enabled);
 		assertEquals(MinimapOptions.CaveMode.AUTO, loaded.caveMode);
-		assertEquals(128, loaded.size);
+		assertEquals(96, loaded.size);
 		assertEquals(1.0F, loaded.zoom);
+	}
+
+	@Test
+	void smallerAndLargerStopAtTheEnds() {
+		MinimapOptions options = new MinimapOptions();
+		options.smaller();
+		assertEquals(80, options.size);
+		for (int i = 0; i < 20; i++) {
+			options.smaller();
+		}
+		assertEquals(MinimapOptions.SIZES[0], options.size);
+		for (int i = 0; i < 20; i++) {
+			options.larger();
+		}
+		assertEquals(MinimapOptions.SIZES[MinimapOptions.SIZES.length - 1], options.size);
 	}
 
 	@Test
@@ -30,18 +45,18 @@ class MinimapOptionsTest {
 		assertFalse(loaded.enabled);
 		assertEquals(MinimapOptions.CaveMode.ON, loaded.caveMode);
 		assertTrue(loaded.showItems);
-		assertEquals(160, loaded.size);
+		assertEquals(112, loaded.size);
 		assertEquals(2.0F, loaded.zoom);
 	}
 
 	@Test
 	void invalidJsonKeepsDefaults() {
 		MinimapOptions loaded = MinimapOptions.fromJson("{\"size\": 7, \"zoom\": 3.3, \"caveMode\": \"BANANA\", \"enabled\": false}");
-		assertEquals(128, loaded.size);
+		assertEquals(96, loaded.size);
 		assertEquals(1.0F, loaded.zoom);
 		assertEquals(MinimapOptions.CaveMode.AUTO, loaded.caveMode);
 		assertFalse(loaded.enabled);
-		assertEquals(128, MinimapOptions.fromJson("nao e json").size);
+		assertEquals(96, MinimapOptions.fromJson("nao e json").size);
 	}
 
 	@Test
@@ -50,12 +65,12 @@ class MinimapOptionsTest {
 		options.zoomOut();
 		options.zoomOut();
 		assertEquals(0.5F, options.zoom);
-		assertEquals(256, options.visibleBlocks());
+		assertEquals(192, options.visibleBlocks()); // 96px / 0.5
 		for (int i = 0; i < 10; i++) {
 			options.zoomIn();
 		}
 		assertEquals(4.0F, options.zoom);
-		assertEquals(32, options.visibleBlocks());
+		assertEquals(24, options.visibleBlocks()); // 96px / 4
 	}
 
 	@Test

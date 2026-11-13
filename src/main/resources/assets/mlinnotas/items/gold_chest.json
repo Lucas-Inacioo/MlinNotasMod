@@ -1,6 +1,10 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "mlinnotas:block/gold_chest"
+    "type": "minecraft:special",
+    "base": "mlinnotas:item/gold_chest",
+    "model": {
+      "type": "minecraft:chest",
+      "texture": "mlinnotas:gold"
+    }
   }
 }

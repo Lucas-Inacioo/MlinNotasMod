@@ -25,6 +25,23 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			singleplayer.getConnection().waitForChunksRender();
 			context.takeScreenshot("mlinnotas-singleplayer");
 
+			// Baus grandes animados na frente do jogador (o console do servidor nao tem posicao: execute at @p)
+			singleplayer.getServer().runCommand("execute at @p run setblock ~2 ~ ~3 mlinnotas:iron_chest[facing=north]");
+			singleplayer.getServer().runCommand("execute at @p run setblock ~ ~ ~3 mlinnotas:gold_chest[facing=north]");
+			singleplayer.getServer().runCommand("execute at @p run setblock ~-2 ~ ~3 mlinnotas:diamond_chest[facing=north]");
+			context.getInput().lookAt(0, 30);
+			context.waitTicks(10);
+			context.takeScreenshot("mlinnotas-big-chests");
+
+			// Entidades para conferir os icones do minimapa (vaca, zumbi, aldeao, item no chao)
+			singleplayer.getServer().runCommand("execute at @p run summon minecraft:cow ~6 ~ ~-4 {NoAI:1b}");
+			singleplayer.getServer().runCommand("execute at @p run summon minecraft:zombie ~-6 ~ ~-6 {NoAI:1b,Fire:-1s,PersistenceRequired:1b}");
+			singleplayer.getServer().runCommand("execute at @p run summon minecraft:villager ~8 ~ ~6 {NoAI:1b}");
+			singleplayer.getServer().runCommand("execute at @p run summon minecraft:item ~-4 ~ ~8 {Item:{id:\"minecraft:diamond\",count:1},PickupDelay:32767s,Age:-32768s}");
+			singleplayer.getServer().runCommand("time set noon");
+			context.waitTicks(20);
+			context.takeScreenshot("mlinnotas-minimap-entities");
+
 			// Gammabright ligado
 			context.getInput().pressKey(ModKeys.GAMMABRIGHT);
 			context.waitTicks(5);

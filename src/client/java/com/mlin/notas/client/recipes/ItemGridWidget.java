@@ -113,7 +113,8 @@ public class ItemGridWidget extends AbstractWidget {
 			graphics.setTooltipForNextFrame(owner.getFont(), hovered, mouseX, mouseY);
 		}
 		String pageText = (page + 1) + "/" + pageCount();
-		graphics.centeredText(owner.getFont(), pageText, getX() + getWidth() / 2, getY() + getHeight() + 2, 0xFFFFFFFF);
+		// pagina atual na linha dos botoes de navegacao, logo acima da grade
+		graphics.centeredText(owner.getFont(), pageText, getX() + getWidth() / 2, getY() - 12, 0xFFFFFFFF);
 	}
 
 	@Override

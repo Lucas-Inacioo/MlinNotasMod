@@ -177,8 +177,12 @@ public class WorldMapScreen extends Screen {
 			graphics.blit(RenderPipelines.GUI_TEXTURED, tex.id(), 0, 0, u, v, mw, mh, Math.round(visibleW), Math.round(visibleH), tex.size(), tex.size());
 
 			drawWaypoints(graphics, effectiveZoom, mouseX, mouseY);
+			Entity hoveredEntity = drawEntities(graphics, effectiveZoom, mouseX, mouseY);
 			drawPlayers(graphics, effectiveZoom);
 			graphics.disableScissor();
+			if (hoveredEntity != null) {
+				graphics.setTooltipForNextFrame(font, hoveredEntity.getDisplayName(), mouseX, mouseY);
+			}
 
 			String coords = Component.translatable("gui.mlinnotas.map.cursor", blockX(mouseX), blockZ(mouseY)).getString();
 			graphics.text(font, coords, 4, 4, 0xFFFFFFFF);
@@ -212,6 +216,23 @@ public class WorldMapScreen extends Screen {
 		}
 	}
 
+	private @org.jspecify.annotations.Nullable Entity drawEntities(GuiGraphicsExtractor graphics, float effectiveZoom, int mouseX, int mouseY) {
+		if (minecraft.player == null) {
+			return null;
+		}
+		return EntityMarkers.draw(graphics, minecraft.level, minecraft.player, MinimapClient.options(), new EntityMarkers.Projection() {
+			@Override
+			public double screenX(double worldX) {
+				return mapWidth() / 2.0 + (worldX - centerX) * effectiveZoom;
+			}
+
+			@Override
+			public double screenY(double worldZ) {
+				return mapHeight() / 2.0 + (worldZ - centerZ) * effectiveZoom;
+			}
+		}, 0, 0, mapWidth(), mapHeight(), 10, mouseX, mouseY);
+	}
+
 	private void drawPlayers(GuiGraphicsExtractor graphics, float effectiveZoom) {
 		for (Entity entity : minecraft.level.players()) {
 			int sx = screenX(entity.getX(), effectiveZoom);
@@ -222,8 +243,7 @@ public class WorldMapScreen extends Screen {
 			if (entity == minecraft.player) {
 				MinimapHud.drawArrow(graphics, sx, sy, entity.getYRot());
 			} else {
-				graphics.fill(sx - 2, sy - 2, sx + 2, sy + 2, MinimapHud.COLOR_PLAYER);
-				graphics.centeredText(font, entity.getName(), sx, sy + 4, 0xFFFFFFFF);
+				graphics.centeredText(font, entity.getName(), sx, sy + 7, 0xFFFFFFFF);
 			}
 		}
 	}

@@ -1,6 +1,10 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "mlinnotas:block/diamond_chest"
+    "type": "minecraft:special",
+    "base": "mlinnotas:item/diamond_chest",
+    "model": {
+      "type": "minecraft:chest",
+      "texture": "mlinnotas:diamond"
+    }
   }
 }

@@ -131,4 +131,22 @@ public class ChestGameTest {
 		}
 		helper.succeed();
 	}
+
+	@SuppressWarnings("removal")
+	@GameTest
+	public void openingAndClosingTracksViewersForLidAnimation(GameTestHelper helper) {
+		helper.setBlock(1, 1, 1, ModBlocks.GOLD_CHEST);
+		BigChestBlockEntity chest = helper.getBlockEntity(new BlockPos(1, 1, 1), BigChestBlockEntity.class);
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		try {
+			helper.assertTrue(chest.openerCount() == 0, "ninguem com o bau aberto no inicio");
+			player.openMenu(chest);
+			helper.assertTrue(chest.openerCount() == 1, "abrir conta 1 espectador (tampa abre)");
+			player.closeContainer();
+			helper.assertTrue(chest.openerCount() == 0, "fechar zera os espectadores (tampa fecha)");
+		} finally {
+			helper.getLevel().getServer().getPlayerList().remove(player);
+		}
+		helper.succeed();
+	}
 }

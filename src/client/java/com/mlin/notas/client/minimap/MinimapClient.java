@@ -118,11 +118,37 @@ public final class MinimapClient {
 			player.sendOverlayMessage(Component.translatable("message.mlinnotas.minimap.cave_mode",
 					Component.translatable("option.mlinnotas.minimap.cave_mode." + options.caveMode.name().toLowerCase())));
 		}
+		while (ModKeys.MINIMAP_SMALLER.consumeClick()) {
+			options.smaller();
+			sizeChanged(player);
+		}
+		while (ModKeys.MINIMAP_LARGER.consumeClick()) {
+			options.larger();
+			sizeChanged(player);
+		}
+		while (ModKeys.MINIMAP_ZOOM_OUT.consumeClick()) {
+			options.zoomOut();
+			zoomChanged(player);
+		}
+		while (ModKeys.MINIMAP_ZOOM_IN.consumeClick()) {
+			options.zoomIn();
+			zoomChanged(player);
+		}
 		while (ModKeys.TOGGLE_MINIMAP.consumeClick()) {
 			options.enabled = !options.enabled;
 			saveOptions();
 			player.sendOverlayMessage(Component.translatable(options.enabled ? "message.mlinnotas.minimap.on" : "message.mlinnotas.minimap.off"));
 		}
+	}
+
+	private static void sizeChanged(LocalPlayer player) {
+		saveOptions();
+		player.sendOverlayMessage(Component.translatable("message.mlinnotas.minimap.size", options.size));
+	}
+
+	private static void zoomChanged(LocalPlayer player) {
+		saveOptions();
+		player.sendOverlayMessage(Component.translatable("message.mlinnotas.minimap.zoom", String.valueOf(options.zoom)));
 	}
 
 	public static void requestTeleport(double x, double y, double z) {

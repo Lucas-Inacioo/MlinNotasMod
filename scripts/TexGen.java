@@ -33,6 +33,13 @@ public class TexGen {
 		chest(blocks, "iron_chest", 0xFFD8D8D8, 0xFF9A9A9A, 0xFF6E6E6E);
 		chest(blocks, "gold_chest", 0xFFF6D23A, 0xFFC9A520, 0xFF8A6D0E);
 		chest(blocks, "diamond_chest", 0xFF8FF3EF, 0xFF4CC9C3, 0xFF2B8A86);
+		// Baus animados: textura 64x64 no layout do ChestModel vanilla (entity/chest/<nome>.png)
+		File chestEntities = new File(assets, "textures/entity/chest");
+		chestEntities.mkdirs();
+		chestEntity(chestEntities, "iron", 0xFFC8C8C8, 0xFF6E6E6E, 0xFF3A3A3A);
+		chestEntity(chestEntities, "gold", 0xFFF2CC3A, 0xFF9A7A12, 0xFF5A4508);
+		chestEntity(chestEntities, "diamond", 0xFF7FE9E6, 0xFF2B8A86, 0xFF14504E);
+
 		upgrade(items, "chest_upgrade_iron", 0xFFD8D8D8, 0xFF8B5A2B);
 		upgrade(items, "chest_upgrade_gold", 0xFFF6D23A, 0xFFD8D8D8);
 		upgrade(items, "chest_upgrade_diamond", 0xFF8FF3EF, 0xFFF6D23A);
@@ -176,6 +183,41 @@ public class TexGen {
 		frame(top, 0, 0, 16, 16, dark);
 		frame(top, 1, 1, 14, 14, light);
 		save(top, dir, name + "_top");
+	}
+
+	/**
+	 * Textura de bau no layout UV do ChestModel (64x64): tampa em texOffs(0,0) 14x5x14, base em (0,19) 14x10x14,
+	 * trava em (0,0) 2x4x1. Cada face e pintada com o material, ruido e borda escura; a trava fica escura.
+	 */
+	static void chestEntity(File dir, String name, int base, int trim, int lock) throws IOException {
+		BufferedImage im = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+		boxFaces(im, 0, 0, 14, 5, 14, base, trim);
+		boxFaces(im, 0, 19, 14, 10, 14, base, trim);
+		noise(im, name.hashCode(), 0.14);
+		// faixa de reforco no meio das laterais da base
+		for (int[] face : sideFaces(0, 19, 14, 10, 14)) {
+			rect(im, face[0], face[1] + face[3] / 2, face[2], 1, trim);
+		}
+		boxFaces(im, 0, 0, 2, 4, 1, lock, shade(lock, 0.6));
+		ImageIO.write(im, "png", new File(dir, name + ".png"));
+	}
+
+	/** Faces laterais (4) de uma caixa no layout de box UV: {x, y, largura, altura}. */
+	static int[][] sideFaces(int u, int v, int w, int h, int d) {
+		return new int[][] {
+				{u, v + d, d, h}, {u + d, v + d, w, h}, {u + d + w, v + d, d, h}, {u + 2 * d + w, v + d, w, h}
+		};
+	}
+
+	static void boxFaces(BufferedImage im, int u, int v, int w, int h, int d, int color, int border) {
+		int[][] faces = {
+				{u + d, v, w, d}, {u + d + w, v, w, d},
+				{u, v + d, d, h}, {u + d, v + d, w, h}, {u + d + w, v + d, d, h}, {u + 2 * d + w, v + d, w, h}
+		};
+		for (int[] f : faces) {
+			rect(im, f[0], f[1], f[2], f[3], color);
+			frame(im, f[0], f[1], f[2], f[3], border);
+		}
 	}
 
 	static void upgrade(File dir, String name, int from, int to) throws IOException {

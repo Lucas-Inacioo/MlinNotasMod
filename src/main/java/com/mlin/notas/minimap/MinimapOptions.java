@@ -11,7 +11,7 @@ import com.google.gson.JsonParser;
 public final class MinimapOptions {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-	public static final int[] SIZES = {96, 128, 160, 192};
+	public static final int[] SIZES = {48, 64, 80, 96, 112, 128, 160, 192};
 	public static final float[] ZOOMS = {0.5F, 1.0F, 2.0F, 4.0F};
 
 	public enum CaveMode {
@@ -32,7 +32,7 @@ public final class MinimapOptions {
 	public boolean showWaypoints = true;
 	public boolean showCoordinates = true;
 	/** Tamanho do quadrado na tela, em pixels de GUI. */
-	public int size = 128;
+	public int size = 96;
 	/** Pixels de tela por bloco. */
 	public float zoom = 1.0F;
 
@@ -47,6 +47,18 @@ public final class MinimapOptions {
 
 	public void nextSize() {
 		size = SIZES[(indexOf(SIZES, size) + 1) % SIZES.length];
+	}
+
+	/** Diminui o minimapa um passo (para no menor tamanho). */
+	public void smaller() {
+		int i = indexOf(SIZES, size);
+		size = SIZES[Math.max(0, i - 1)];
+	}
+
+	/** Aumenta o minimapa um passo (para no maior tamanho). */
+	public void larger() {
+		int i = indexOf(SIZES, size);
+		size = SIZES[Math.min(SIZES.length - 1, i + 1)];
 	}
 
 	public void nextZoom() {

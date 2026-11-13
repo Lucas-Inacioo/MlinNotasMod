@@ -31,7 +31,7 @@ public final class ModBlocks {
 
 	private static Block registerChest(ChestTier tier, MapColor color, float strength) {
 		Block block = Blocks.register(key(tier.blockName()), p -> new BigChestBlock(p, tier),
-				BlockBehaviour.Properties.of().mapColor(color).strength(strength, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops());
+				BlockBehaviour.Properties.of().mapColor(color).strength(strength, 6.0F).sound(SoundType.METAL).requiresCorrectToolForDrops().noOcclusion());
 		CHESTS.put(tier, block);
 		return block;
 	}

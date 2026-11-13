@@ -20,13 +20,24 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import com.mlin.notas.registry.ModBlockEntities;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Bau grande (ferro/ouro/diamante). Bloco cheio com face frontal; o conteudo fica na {@link BigChestBlockEntity}.
+ * Bau grande (ferro/ouro/diamante). Visualmente igual ao bau vanilla (modelo animado desenhado por
+ * BigChestRenderer no cliente; o modelo de bloco so tem particula); o conteudo fica na {@link BigChestBlockEntity}.
  */
 public class BigChestBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
+
+	/** Mesmo formato do bau vanilla (14x14x14 centrado). */
+	private static final VoxelShape SHAPE = Block.column(14.0, 0.0, 14.0);
 
 	private final ChestTier tier;
 
@@ -55,6 +66,23 @@ public class BigChestBlock extends BaseEntityBlock {
 	@Override
 	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
 		Containers.updateNeighboursAfterDestroy(state, level, pos);
+	}
+
+	@Override
+	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return SHAPE;
+	}
+
+	@Override
+	public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		return level.isClientSide() ? createTickerHelper(type, ModBlockEntities.BIG_CHEST, BigChestBlockEntity::lidAnimateTick) : null;
+	}
+
+	@Override
+	protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+		if (level.getBlockEntity(pos) instanceof BigChestBlockEntity chest) {
+			chest.recheckOpen();
+		}
 	}
 
 	@Override

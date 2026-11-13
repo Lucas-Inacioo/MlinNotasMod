@@ -48,6 +48,10 @@ public final class MinimapHud {
 		if (!options.enabled || level == null || player == null || minecraft.getDebugOverlay().showDebugScreen()) {
 			return;
 		}
+		// Com uma tela aberta (inventario, bau, NEI...) o minimapa sairia por cima dos widgets; o chat continua mostrando.
+		if (minecraft.gui.screen() != null && !(minecraft.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen)) {
+			return;
+		}
 		int size = options.size;
 		float zoom = options.zoom;
 		int screenWidth = minecraft.getWindow().getGuiScaledWidth();
@@ -92,25 +96,20 @@ public final class MinimapHud {
 		if (!options.showPlayers && !options.showHostiles && !options.showPassives && !options.showItems && !options.showVillagers) {
 			return;
 		}
-		double range = size / zoom / 2.0 + 2;
-		int dot = zoom >= 2 ? 4 : (zoom >= 1 ? 3 : 2);
-		for (Entity entity : level.entitiesForRendering()) {
-			if (entity == player || !entity.isAlive() || entity.isInvisible()) {
-				continue;
+		int icon = size >= 80 ? 8 : 6;
+		double cx = x + size / 2.0;
+		double cy = y + size / 2.0;
+		EntityMarkers.draw(graphics, level, player, options, new EntityMarkers.Projection() {
+			@Override
+			public double screenX(double worldX) {
+				return cx + (worldX - px) * zoom;
 			}
-			double dx = entity.getX() - px;
-			double dz = entity.getZ() - pz;
-			if (Math.abs(dx) > range || Math.abs(dz) > range) {
-				continue;
+
+			@Override
+			public double screenY(double worldZ) {
+				return cy + (worldZ - pz) * zoom;
 			}
-			int color = colorFor(entity, options);
-			if (color == 0) {
-				continue;
-			}
-			int sx = x + size / 2 + (int) Math.round(dx * zoom);
-			int sy = y + size / 2 + (int) Math.round(dz * zoom);
-			graphics.fill(sx - dot / 2, sy - dot / 2, sx - dot / 2 + dot, sy - dot / 2 + dot, color);
-		}
+		}, x, y, x + size, y + size, icon, -1, -1);
 	}
 
 	/** Cor do ponto para a entidade conforme as opcoes, ou 0 para nao desenhar. */

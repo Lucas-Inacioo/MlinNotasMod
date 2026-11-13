@@ -1,8 +1,5 @@
 {
-  "parent": "minecraft:block/orientable",
   "textures": {
-    "front": "mlinnotas:block/iron_chest_front",
-    "side": "mlinnotas:block/iron_chest_side",
-    "top": "mlinnotas:block/iron_chest_top"
+    "particle": "mlinnotas:block/iron_chest_side"
   }
 }
