@@ -27,6 +27,7 @@ public final class VariantRules {
 		String b = biomeId == null ? "" : biomeId;
 		return switch (kind) {
 			case DESERT_PYRAMID, MINESHAFT_MESA -> 0;
+			case NETHER_FORTRESS, BASTION_REMNANT -> 0; // bastiao: tipo sorteado na colocacao (NetherRemakePlacement)
 			case JUNGLE_TEMPLE -> b.contains("bamboo") ? JUNGLE_BAMBOO : JUNGLE_PLAIN;
 			case PILLAGER_OUTPOST -> {
 				if (b.contains("desert") || b.contains("badlands")) {

@@ -20,6 +20,7 @@ class VanillaRemakePlannerTest {
 			case PILLAGER_OUTPOST -> new int[] {0, 1, 2, 3, 4, 5};
 			case MINESHAFT -> new int[] {0, 1, 2, 3, 4, 5, 6};
 			case JUNGLE_TEMPLE -> new int[] {0, 1};
+			case BASTION_REMNANT -> new int[] {0, 1, 2, 3};
 			default -> new int[] {0};
 		};
 	}
