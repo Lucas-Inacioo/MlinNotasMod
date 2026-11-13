@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:add",
+  "left": {
+    "type": "minecraft:add",
+    "left": 46.0,
+    "right": {
+      "type": "minecraft:mul",
+      "left": 7.0,
+      "right": "mlinnotas:nether/hills"
+    }
+  },
+  "right": {
+    "type": "minecraft:mul",
+    "left": 1.0,
+    "right": {
+      "type": "minecraft:noise",
+      "noise": "mlinnotas:nether_detail",
+      "xz_scale": 1.0,
+      "y_scale": 0.0
+    }
+  }
+}

@@ -315,5 +315,16 @@
   "message.mlinnotas.waystone.traveled_free": "Traveled to %s",
   "message.mlinnotas.waystone.missing": "That waystone no longer exists",
   "message.mlinnotas.waystone.scroll_none": "Use a waystone before reading the scroll",
-  "message.mlinnotas.waystone.scroll_used": "The scroll took you back to %s"
+  "message.mlinnotas.waystone.scroll_used": "The scroll took you back to %s",
+  "biome.mlinnotas.ashen_plains": "Ashen Plains",
+  "biome.mlinnotas.infernite_peaks": "Infernite Peaks",
+  "biome.mlinnotas.burning_grove": "Burning Grove",
+  "block.mlinnotas.nether_ash": "Nether Ash",
+  "block.mlinnotas.burning_stem": "Burning Stem",
+  "block.mlinnotas.burning_cap": "Burning Cap",
+  "block.mlinnotas.burning_planks": "Burning Planks",
+  "block.mlinnotas.ember_nylium": "Ember Nylium",
+  "block.mlinnotas.ember_sprouts": "Ember Sprouts",
+  "item.mlinnotas.magma_slug_spawn_egg": "Magma Slug Spawn Egg",
+  "entity.mlinnotas.magma_slug": "Magma Slug"
 }

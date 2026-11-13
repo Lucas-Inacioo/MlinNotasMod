@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:match_tool",
+        "predicate": {
+          "items": "minecraft:shears"
+        }
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mlinnotas:ember_sprouts"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mlinnotas:blocks/ember_sprouts"
+}

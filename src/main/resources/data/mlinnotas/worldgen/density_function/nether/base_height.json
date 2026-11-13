@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:clamp",
+  "input": {
+    "type": "minecraft:lerp",
+    "alpha": "mlinnotas:nether/peaks_blend",
+    "first": {
+      "type": "minecraft:lerp",
+      "alpha": "mlinnotas:nether/plains_blend",
+      "first": "mlinnotas:nether/plains_height",
+      "second": "mlinnotas:nether/mid_height"
+    },
+    "second": "mlinnotas:nether/peaks_height"
+  },
+  "min": 30.0,
+  "max": 92.0
+}

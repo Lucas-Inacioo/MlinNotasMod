@@ -1,0 +1,61 @@
+/**
+ * Parte vanilla da regra de superficie do Nether (material_rule/nether.json do 26.3, do bioma basalt_deltas em diante),
+ * copiada do jar para o NetherContent colocar as regras dos biomas novos na frente. Ao atualizar o Minecraft, copie de
+ * novo (sem espacos) de data/minecraft/worldgen/material_rule/nether.json.
+ */
+class VanillaNetherRule {
+	static final String TAIL = """
+{"type":"minecraft:condition","if_true":{"type":"minecraft:biome","biome_is":"minecraft:basalt_deltas"},"then_run":{"type":"minecraft:sequen\
+ce","sequence":[{"type":"minecraft:condition","if_true":"minecraft:under_ceiling","then_run":{"type":"minecraft:block","result_state":"minec\
+raft:basalt"}},{"type":"minecraft:condition","if_true":"minecraft:under_floor","then_run":{"type":"minecraft:sequence","sequence":[{"type":"\
+minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshold":-0.012,"noise":"mi\
+necraft:patch"},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:y_above","add_stone_depth":true,"anchor":{"absolute":3\
+0},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:y_ab\
+ove","add_stone_depth":true,"anchor":{"absolute":35},"surface_depth_multiplier":0}},"then_run":{"type":"minecraft:block","result_state":"min\
+ecraft:gravel"}}}},{"type":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_t\
+hreshold":0.0,"noise":"minecraft:nether_state_selector"},"then_run":{"type":"minecraft:block","result_state":"minecraft:basalt"}},{"type":"m\
+inecraft:block","result_state":"minecraft:blackstone"}]}}]}},{"type":"minecraft:condition","if_true":{"type":"minecraft:biome","biome_is":"m\
+inecraft:soul_sand_valley"},"then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":"minecraft:under_cei\
+ling","then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_t\
+hreshold":1.7976931348623157E308,"min_threshold":0.0,"noise":"minecraft:nether_state_selector"},"then_run":{"type":"minecraft:block","result\
+_state":"minecraft:soul_sand"}},{"type":"minecraft:block","result_state":"minecraft:soul_soil"}]}},{"type":"minecraft:condition","if_true":"\
+minecraft:under_floor","then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":{"type":"minecraft:noise_\
+threshold","max_threshold":1.7976931348623157E308,"min_threshold":-0.012,"noise":"minecraft:patch"},"then_run":{"type":"minecraft:condition"\
+,"if_true":{"type":"minecraft:y_above","add_stone_depth":true,"anchor":{"absolute":30},"surface_depth_multiplier":0},"then_run":{"type":"min\
+ecraft:condition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:y_above","add_stone_depth":true,"anchor":{"absolute":35},"su\
+rface_depth_multiplier":0}},"then_run":{"type":"minecraft:block","result_state":"minecraft:gravel"}}}},{"type":"minecraft:condition","if_tru\
+e":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshold":0.0,"noise":"minecraft:nether_state_selector"}\
+,"then_run":{"type":"minecraft:block","result_state":"minecraft:soul_sand"}},{"type":"minecraft:block","result_state":"minecraft:soul_soil"}\
+]}}]}},{"type":"minecraft:condition","if_true":"minecraft:on_floor","then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:c\
+ondition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:y_above","add_stone_depth":false,"anchor":{"absolute":32},"surface_d\
+epth_multiplier":0}},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:hole"},"then_run":{"type":"minecraft:block","resu\
+lt_state":"minecraft:lava"}}},{"type":"minecraft:condition","if_true":{"type":"minecraft:biome","biome_is":"minecraft:warped_forest"},"then_\
+run":{"type":"minecraft:condition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:noise_threshold","max_threshold":1.79769313\
+48623157E308,"min_threshold":0.54,"noise":"minecraft:netherrack"}},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:y_a\
+bove","add_stone_depth":false,"anchor":{"absolute":31},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:sequence","sequence":[{"t\
+ype":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshold":1.17,"noise"\
+:"minecraft:nether_wart"},"then_run":{"type":"minecraft:block","result_state":"minecraft:warped_wart_block"}},{"type":"minecraft:block","res\
+ult_state":"minecraft:warped_nylium"}]}}}},{"type":"minecraft:condition","if_true":{"type":"minecraft:biome","biome_is":"minecraft:crimson_f\
+orest"},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:noise_threshold","max_thresho\
+ld":1.7976931348623157E308,"min_threshold":0.54,"noise":"minecraft:netherrack"}},"then_run":{"type":"minecraft:condition","if_true":{"type":\
+"minecraft:y_above","add_stone_depth":false,"anchor":{"absolute":31},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:sequence","\
+sequence":[{"type":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshold\
+":1.17,"noise":"minecraft:nether_wart"},"then_run":{"type":"minecraft:block","result_state":"minecraft:nether_wart_block"}},{"type":"minecra\
+ft:block","result_state":"minecraft:crimson_nylium"}]}}}}]}},{"type":"minecraft:condition","if_true":{"type":"minecraft:biome","biome_is":"m\
+inecraft:nether_wastes"},"then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":"minecraft:under_floor"\
+,"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshol\
+d":-0.012,"noise":"minecraft:soul_sand_layer"},"then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":{\
+"type":"minecraft:not","invert":{"type":"minecraft:hole"}},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:y_above","a\
+dd_stone_depth":true,"anchor":{"absolute":30},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:condition","if_true":{"type":"mine\
+craft:not","invert":{"type":"minecraft:y_above","add_stone_depth":true,"anchor":{"absolute":35},"surface_depth_multiplier":0}},"then_run":{"\
+type":"minecraft:block","result_state":"minecraft:soul_sand"}}}},{"type":"minecraft:block","result_state":"minecraft:netherrack"}]}}},{"type\
+":"minecraft:condition","if_true":"minecraft:on_floor","then_run":{"type":"minecraft:condition","if_true":{"type":"minecraft:y_above","add_s\
+tone_depth":false,"anchor":{"absolute":31},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:condition","if_true":{"type":"minecra\
+ft:not","invert":{"type":"minecraft:y_above","add_stone_depth":true,"anchor":{"absolute":35},"surface_depth_multiplier":0}},"then_run":{"typ\
+e":"minecraft:condition","if_true":{"type":"minecraft:noise_threshold","max_threshold":1.7976931348623157E308,"min_threshold":-0.012,"noise"\
+:"minecraft:gravel_layer"},"then_run":{"type":"minecraft:sequence","sequence":[{"type":"minecraft:condition","if_true":{"type":"minecraft:y_\
+above","add_stone_depth":false,"anchor":{"absolute":32},"surface_depth_multiplier":0},"then_run":{"type":"minecraft:block","result_state":"m\
+inecraft:gravel"}},{"type":"minecraft:condition","if_true":{"type":"minecraft:not","invert":{"type":"minecraft:hole"}},"then_run":{"type":"m\
+inecraft:block","result_state":"minecraft:gravel"}}]}}}}}]}},{"type":"minecraft:block","result_state":"minecraft:netherrack"}\
+""";
+}

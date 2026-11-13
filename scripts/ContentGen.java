@@ -225,6 +225,7 @@ public class ContentGen {
 		}
 		EndContent.generate(pickaxeMineable);
 		RuinsContent.generate(pickaxeMineable);
+		NetherContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
@@ -313,10 +314,15 @@ public class ContentGen {
 				+ "},\"pattern\":[" + rows + "],\"result\":{\"id\":\"mlinnotas:" + id + "\"}}");
 	}
 
+	static final Map<String, java.util.Set<String>> TAGS = new LinkedHashMap<>();
+
 	static void tag(String kind, String tag, List<String> values, boolean replace) throws IOException {
 		String[] parts = tag.split(":");
 		String path = "data/" + parts[0] + "/tags/" + kind + "/" + parts[1] + ".json";
-		write(path, "{" + (replace ? "\"replace\":true," : "") + "\"values\":[" + quoteAll(values) + "]}");
+		// a mesma tag pode vir de varias partes da geracao (End, Nether...): junta os valores em vez de sobrescrever
+		java.util.Set<String> merged = TAGS.computeIfAbsent(path, k -> new java.util.LinkedHashSet<>());
+		merged.addAll(values);
+		write(path, "{" + (replace ? "\"replace\":true," : "") + "\"values\":[" + quoteAll(List.copyOf(merged)) + "]}");
 	}
 
 	static String quoteAll(List<String> values) {

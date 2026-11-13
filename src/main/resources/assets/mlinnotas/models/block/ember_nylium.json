@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mlinnotas:block/ember_nylium",
+    "side": "mlinnotas:block/ember_nylium_side",
+    "bottom": "minecraft:block/netherrack"
+  }
+}

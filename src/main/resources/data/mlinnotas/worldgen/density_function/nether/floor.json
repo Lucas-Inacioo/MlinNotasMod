@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:add",
+  "left": "mlinnotas:nether/base_height",
+  "right": {
+    "type": "minecraft:mul",
+    "left": -1.0,
+    "right": "mlinnotas:nether/valley_carve"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "mlinnotas:block/burning_stem_top",
+    "side": "mlinnotas:block/burning_stem"
+  }
+}

@@ -315,5 +315,16 @@
   "message.mlinnotas.waystone.traveled_free": "Viajou para %s",
   "message.mlinnotas.waystone.missing": "Essa pedra de teleporte não existe mais",
   "message.mlinnotas.waystone.scroll_none": "Use uma pedra de teleporte antes de ler o pergaminho",
-  "message.mlinnotas.waystone.scroll_used": "O pergaminho levou você de volta a %s"
+  "message.mlinnotas.waystone.scroll_used": "O pergaminho levou você de volta a %s",
+  "biome.mlinnotas.ashen_plains": "Planícies de Cinza",
+  "biome.mlinnotas.infernite_peaks": "Picos de Infernita",
+  "biome.mlinnotas.burning_grove": "Bosque Ardente",
+  "block.mlinnotas.nether_ash": "Cinza do Nether",
+  "block.mlinnotas.burning_stem": "Caule Ardente",
+  "block.mlinnotas.burning_cap": "Chapéu Ardente",
+  "block.mlinnotas.burning_planks": "Tábuas Ardentes",
+  "block.mlinnotas.ember_nylium": "Nílio de Brasas",
+  "block.mlinnotas.ember_sprouts": "Brotos de Brasa",
+  "item.mlinnotas.magma_slug_spawn_egg": "Ovo Gerador de Lesma de Magma",
+  "entity.mlinnotas.magma_slug": "Lesma de Magma"
 }
