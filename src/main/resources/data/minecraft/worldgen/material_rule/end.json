@@ -1,0 +1,40 @@
+{
+  "type": "minecraft:sequence",
+  "sequence": [
+    {
+      "type": "minecraft:condition",
+      "if_true": "minecraft:on_floor",
+      "then_run": {
+        "type": "minecraft:sequence",
+        "sequence": [
+          {
+            "type": "minecraft:condition",
+            "if_true": {
+              "type": "minecraft:biome",
+              "biome_is": "mlinnotas:end_moss_fields"
+            },
+            "then_run": {
+              "type": "minecraft:block",
+              "result_state": "mlinnotas:end_moss"
+            }
+          },
+          {
+            "type": "minecraft:condition",
+            "if_true": {
+              "type": "minecraft:biome",
+              "biome_is": "mlinnotas:void_wastes"
+            },
+            "then_run": {
+              "type": "minecraft:block",
+              "result_state": "mlinnotas:void_ash"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "minecraft:block",
+      "result_state": "minecraft:end_stone"
+    }
+  ]
+}

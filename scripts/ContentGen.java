@@ -223,6 +223,7 @@ public class ContentGen {
 			name("item", upgrade, "Upgrade de Baú de " + t.pt, t.en + " Chest Upgrade");
 			shaped(upgrade, "MMM|MCM|MMM", Map.of("M", t.material, "C", "#minecraft:planks"), "misc");
 		}
+		EndContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
@@ -291,6 +292,14 @@ public class ContentGen {
 	static void cooking(String type, String input, String output, int time, double xp) throws IOException {
 		write("data/mlinnotas/recipe/" + output + "_from_" + type + "_" + input + ".json", "{\"type\":\"minecraft:" + type + "\",\"cookingtime\":" + time
 				+ ",\"experience\":" + xp + ",\"group\":\"" + output + "\",\"ingredient\":\"mlinnotas:" + input + "\",\"result\":{\"id\":\"mlinnotas:" + output + "\"}}");
+	}
+
+	static void shaped(String id, String pattern, Map<String, String> key, String category, int count) throws IOException {
+		shaped(id, pattern, key, category);
+		if (count > 1) {
+			Path path = root.resolve("data/mlinnotas/recipe/" + id + ".json");
+			Files.writeString(path, Files.readString(path).replace("\"id\": \"mlinnotas:" + id + "\"", "\"id\": \"mlinnotas:" + id + "\",\n    \"count\": " + count));
+		}
 	}
 
 	static void shaped(String id, String pattern, Map<String, String> key, String category) throws IOException {

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:simple_block",
+  "to_place": {
+    "id": "mlinnotas:ether_crystal_cluster",
+    "properties": {
+      "facing": "up"
+    }
+  }
+}

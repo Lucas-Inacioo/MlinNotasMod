@@ -18,8 +18,20 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
 
@@ -120,6 +132,35 @@ public final class ModItems {
 	public static final Item BACKPACK_UPGRADE_FURNACE = registerBackpackUpgrade(BackpackUpgradeKind.FURNACE);
 	public static final Item BACKPACK_UPGRADE_WATER = registerBackpackUpgrade(BackpackUpgradeKind.WATER);
 	public static final Item BACKPACK_UPGRADE_LAVA = registerBackpackUpgrade(BackpackUpgradeKind.LAVA);
+
+	// End: blocos dos biomas e da cidadela, drops das criaturas e ovos
+	static {
+		for (Block block : ModBlocks.endBlocks()) {
+			String name = BuiltInRegistries.BLOCK.getKey(block).getPath();
+			if (block == ModBlocks.PURPUR_ELEVATOR) {
+				register(name, p -> new BlockItem(block, p.useBlockDescriptionPrefix()) {
+					@Override
+					public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+						tooltip.accept(Component.translatable("block.mlinnotas.purpur_elevator.tooltip").withStyle(ChatFormatting.GRAY));
+					}
+				}, new Item.Properties());
+			} else {
+				registerBlock(block, name, new Item.Properties());
+			}
+		}
+	}
+
+	public static final Item ETHER_CRYSTAL_SHARD = register("ether_crystal_shard", Item::new, new Item.Properties());
+	public static final Item SENTINEL_CORE = register("sentinel_core", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
+	/** Geleia do Vazio: comida que da queda lenta (ajuda a atravessar as ilhas do End). */
+	public static final Item VOID_JELLY = register("void_jelly", Item::new, new Item.Properties().food(
+			new FoodProperties.Builder().nutrition(3).saturationModifier(0.4F).alwaysEdible().build(),
+			Consumables.defaultFood().onConsume(new ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 600))).build()));
+	public static final Item PURPUR_SENTINEL_SPAWN_EGG = register("purpur_sentinel_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(ModEntities.PURPUR_SENTINEL));
+	public static final Item VOID_JELLY_SPAWN_EGG = register("void_jelly_spawn_egg", SpawnEggItem::new, new Item.Properties().spawnEgg(ModEntities.VOID_JELLY));
+	public static final Item CRYSTAL_MITE_SPAWN_EGG = register("crystal_mite_spawn_egg", SpawnEggItem::new,
+			new Item.Properties().spawnEgg(ModEntities.CRYSTAL_MITE));
 
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));

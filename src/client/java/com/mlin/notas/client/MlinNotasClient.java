@@ -10,6 +10,7 @@ import com.mlin.notas.client.screen.SelectiveEnchantScreen;
 import com.mlin.notas.registry.ModMenus;
 import com.mlin.notas.registry.ModBlockEntities;
 import com.mlin.notas.client.render.BigChestRenderer;
+import com.mlin.notas.client.render.EndCreatureRenderers;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import com.mlin.notas.tablet.OpenTabletPayload;
 import net.fabricmc.api.ClientModInitializer;
@@ -34,6 +35,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		MenuScreens.register(ModMenus.BACKPACK, BackpackScreen::new);
 		MenuScreens.register(ModMenus.SELECTIVE_ENCHANT, SelectiveEnchantScreen::new);
 		BlockEntityRenderers.register(ModBlockEntities.BIG_CHEST, BigChestRenderer::new);
+		EndCreatureRenderers.init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) {
@@ -54,6 +56,7 @@ public class MlinNotasClient implements ClientModInitializer {
 				}
 			}
 			InventorySortClient.tick();
+			ElevatorClient.tick(client);
 		});
 	}
 }

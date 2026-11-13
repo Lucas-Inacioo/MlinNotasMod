@@ -7,6 +7,12 @@ import com.mlin.notas.chest.BigChestMenu;
 import com.mlin.notas.chest.ChestTier;
 import com.mlin.notas.registry.ModBlocks;
 import com.mlin.notas.registry.ModItems;
+import com.mlin.notas.end.CitadelPiece;
+import com.mlin.notas.registry.ModEntities;
+import com.mlin.notas.registry.ModStructures;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.level.ChunkPos;
 import com.mlin.notas.enchanting.SelectiveEnchantMenu;
 import com.mlin.notas.enchanting.SelectiveEnchanting;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -145,6 +151,35 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("mlinnotas-tier-armor");
 
+			// Cidadela do End inteira a 45 blocos ao norte (flutuando), criaturas do End na frente do jogador
+			singleplayer.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				ServerLevel level = player.level();
+				BlockPos origin = player.blockPosition().offset(0, 10, -45);
+				CitadelPiece piece = new CitadelPiece(20261113L, origin);
+				piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), RandomSource.create(1),
+						piece.getBoundingBox(), ChunkPos.containing(origin), origin);
+				BlockPos front = player.blockPosition().offset(0, 0, -5);
+				ModEntities.VOID_JELLY.spawn(level, front.offset(-3, 2, 0), EntitySpawnReason.COMMAND);
+				ModEntities.CRYSTAL_MITE.spawn(level, front.offset(0, 0, 0), EntitySpawnReason.COMMAND);
+				ModEntities.PURPUR_SENTINEL.spawn(level, front.offset(3, 0, -1), EntitySpawnReason.COMMAND);
+				for (var mob : level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, new net.minecraft.world.phys.AABB(front).inflate(6))) {
+					mob.setNoAi(true);
+				}
+			});
+			singleplayer.getServer().runCommand("time set noon");
+			context.getInput().lookAt(180, -5);
+			context.waitTicks(40);
+			singleplayer.getConnection().waitForChunksRender();
+			context.takeScreenshot("mlinnotas-end-citadel");
+			// dentro do cofre (ultimo andar da fortaleza): elitro na parede, cabeca de dragao, baus
+			singleplayer.getServer().runCommand("execute at @p run tp @p ~ ~31 ~-42 180 10");
+			context.waitTicks(20);
+			singleplayer.getConnection().waitForChunksRender();
+			context.takeScreenshot("mlinnotas-end-citadel-vault");
+			singleplayer.getServer().runCommand("execute at @p run tp @p ~ ~-31 ~42");
+			context.waitTicks(10);
+
 			// Bau de celestio (243 slots, 27 linhas): janela de 6 linhas com barra de rolagem
 			singleplayer.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
@@ -176,6 +211,39 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			});
 			context.getInput().pressKey(options -> options.keyInventory);
 			context.waitForScreen(null);
+		}
+
+		// Mundo normal (End de verdade): a cidadela tem que nascer no End externo e a End City vanilla nao
+		try (TestSingleplayerContext real = context.worldBuilder().setUseConsistentSettings(false).create()) {
+			real.getConnection().waitForChunksRender();
+			BlockPos citadel = real.getServer().computeOnServer(server -> {
+				ServerLevel end = server.getLevel(net.minecraft.world.level.Level.END);
+				var structures = end.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.STRUCTURE);
+				var generator = end.getChunkSource().getGenerator();
+				BlockPos from = new BlockPos(1500, 64, 0);
+				var vanilla = generator.findNearestMapStructure(end, net.minecraft.core.HolderSet.direct(structures.getOrThrow(
+						net.minecraft.world.level.levelgen.structure.BuiltinStructures.END_CITY)), from, 50, false);
+				if (vanilla != null) {
+					throw new IllegalStateException("End City vanilla ainda gera em " + vanilla.getFirst());
+				}
+				var found = generator.findNearestMapStructure(end, net.minecraft.core.HolderSet.direct(structures.getOrThrow(ModStructures.END_CITADEL)),
+						from, 100, false);
+				if (found == null) {
+					throw new IllegalStateException("nenhuma cidadela no End externo");
+				}
+				return found.getFirst();
+			});
+			real.getServer().runCommand("gamemode creative @p");
+			real.getServer().runCommand("execute in minecraft:the_end run tp @p " + citadel.getX() + " 105 " + (citadel.getZ() + 50) + " 180 25");
+			real.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				player.getAbilities().flying = true;
+				player.onUpdateAbilities();
+			});
+			context.waitTicks(100);
+			real.getConnection().waitForChunksRender();
+			context.waitTicks(40);
+			context.takeScreenshot("mlinnotas-end-citadel-generated");
 		}
 	}
 }

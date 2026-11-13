@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mlinnotas:block/ether_crystal_cluster"
+  }
+}

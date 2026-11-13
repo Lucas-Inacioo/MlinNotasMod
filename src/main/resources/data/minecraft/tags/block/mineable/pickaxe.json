@@ -15,6 +15,12 @@
     "mlinnotas:infernite_chest",
     "mlinnotas:endite_chest",
     "mlinnotas:astralite_chest",
-    "mlinnotas:celestium_chest"
+    "mlinnotas:celestium_chest",
+    "mlinnotas:end_moss",
+    "mlinnotas:ether_crystal_block",
+    "mlinnotas:ether_crystal_cluster",
+    "mlinnotas:void_bricks",
+    "mlinnotas:purpur_lamp",
+    "mlinnotas:purpur_elevator"
   ]
 }

@@ -1,0 +1,6 @@
+{
+  "type": "mlinnotas:end_citadel",
+  "biomes": "#minecraft:has_structure/end_city",
+  "spawn_overrides": {},
+  "step": "surface_structures"
+}

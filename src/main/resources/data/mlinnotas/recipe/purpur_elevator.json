@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "C": "mlinnotas:sentinel_core",
+    "P": "minecraft:purpur_block"
+  },
+  "pattern": [
+    "PPP",
+    "PCP",
+    "PPP"
+  ],
+  "result": {
+    "id": "mlinnotas:purpur_elevator",
+    "count": 4
+  }
+}

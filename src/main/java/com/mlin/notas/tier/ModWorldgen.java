@@ -1,6 +1,7 @@
 package com.mlin.notas.tier;
 
 import com.mlin.notas.MlinNotas;
+import com.mlin.notas.end.EndBiomes;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.minecraft.core.registries.Registries;
@@ -30,7 +31,7 @@ public final class ModWorldgen {
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_OVERWORLD), step, ORE_COBALT);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_NETHER), step, ORE_INFERNITE);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_END), step, ORE_ENDITE);
-		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS,
+		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.END_HIGHLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, EndBiomes.MOSS_FIELDS, EndBiomes.CRYSTAL_GROVE, EndBiomes.VOID_WASTES,
 				Biomes.SMALL_END_ISLANDS), step, ORE_ASTRALITE);
 	}
 

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "G": "minecraft:glowstone",
+    "P": "minecraft:purpur_block"
+  },
+  "pattern": [
+    " P ",
+    "PGP",
+    " P "
+  ],
+  "result": {
+    "id": "mlinnotas:purpur_lamp",
+    "count": 2
+  }
+}

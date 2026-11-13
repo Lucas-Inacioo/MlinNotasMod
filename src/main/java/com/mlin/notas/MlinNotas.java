@@ -16,6 +16,10 @@ import com.mlin.notas.registry.ModPayloads;
 import com.mlin.notas.sorting.InventorySortServer;
 import com.mlin.notas.tree.TreeCapitator;
 import com.mlin.notas.tier.ModWorldgen;
+import com.mlin.notas.end.Elevators;
+import com.mlin.notas.end.EndBiomes;
+import com.mlin.notas.registry.ModEntities;
+import com.mlin.notas.registry.ModStructures;
 import com.mlin.notas.tier.VanillaRebalance;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -38,9 +42,11 @@ public class MlinNotas implements ModInitializer {
 		VanillaRebalance.init();
 		ModDataComponents.init();
 		ModBlocks.init();
+		ModEntities.init();
 		ModItems.init();
 		ModBlockEntities.init();
 		ModMenus.init();
+		ModStructures.init();
 		ModCreativeTab.init();
 		ModPayloads.init();
 
@@ -51,6 +57,8 @@ public class MlinNotas implements ModInitializer {
 		SelectiveEnchanting.init();
 		ChestUpgrades.init();
 		ModWorldgen.init();
+		Elevators.init();
+		EndBiomes.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));
