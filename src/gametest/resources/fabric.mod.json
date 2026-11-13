@@ -14,10 +14,12 @@
 			"com.mlin.notas.gametest.BackpackGameTest",
 			"com.mlin.notas.gametest.EnchantingGameTest",
 			"com.mlin.notas.gametest.TierGameTest",
-			"com.mlin.notas.gametest.EndGameTest"
+			"com.mlin.notas.gametest.EndGameTest",
+			"com.mlin.notas.gametest.QolGameTest"
 		],
 		"fabric-client-gametest": [
-			"com.mlin.notas.gametest.MlinNotasClientGameTest"
+			"com.mlin.notas.gametest.MlinNotasClientGameTest",
+			"com.mlin.notas.gametest.WailaClientGameTest"
 		]
 	},
 	"depends": {

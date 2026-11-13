@@ -2,6 +2,7 @@ package com.mlin.notas.client;
 
 import com.mlin.notas.client.recipes.RecipeViewerClient;
 import com.mlin.notas.client.minimap.MinimapClient;
+import com.mlin.notas.client.waila.WailaClient;
 import com.mlin.notas.backpack.OpenBackpackPayload;
 import com.mlin.notas.client.screen.BackpackScreen;
 import com.mlin.notas.client.screen.BigChestScreen;
@@ -29,6 +30,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		InventorySortClient.init();
 		RecipeViewerClient.init();
 		MinimapClient.init();
+		WailaClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}

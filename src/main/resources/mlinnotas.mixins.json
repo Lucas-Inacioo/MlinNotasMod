@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"AbstractFurnaceBlockEntityMixin",
-		"AbstractVillagerMixin"
+		"AbstractVillagerMixin",
+		"ItemTooltipImageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

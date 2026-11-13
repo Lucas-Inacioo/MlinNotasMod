@@ -21,6 +21,9 @@ import com.mlin.notas.end.EndBiomes;
 import com.mlin.notas.registry.ModEntities;
 import com.mlin.notas.registry.ModStructures;
 import com.mlin.notas.tier.VanillaRebalance;
+import com.mlin.notas.harvest.CropHarvester;
+import com.mlin.notas.sleep.SleepServer;
+import com.mlin.notas.waila.WailaServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.resources.Identifier;
@@ -59,6 +62,9 @@ public class MlinNotas implements ModInitializer {
 		ModWorldgen.init();
 		Elevators.init();
 		EndBiomes.init();
+		CropHarvester.init();
+		SleepServer.init();
+		WailaServer.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

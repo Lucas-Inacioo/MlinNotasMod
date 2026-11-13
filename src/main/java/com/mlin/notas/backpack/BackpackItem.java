@@ -1,6 +1,7 @@
 package com.mlin.notas.backpack;
 
 import com.mlin.notas.registry.ModDataComponents;
+import com.mlin.notas.waila.ContainerTooltip;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -27,6 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -135,6 +138,12 @@ public class BackpackItem extends Item {
 	@Override
 	public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
 		BackpackSmelter.tick(itemStack, level);
+	}
+
+	/** Grade com o conteudo da mochila no tooltip (ver {@link ContainerTooltip}). */
+	@Override
+	public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
+		return ContainerTooltip.of(itemStack);
 	}
 
 	@Override

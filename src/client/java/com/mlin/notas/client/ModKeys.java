@@ -23,6 +23,7 @@ public final class ModKeys {
 	public static final KeyMapping MINIMAP_ZOOM_OUT = register("minimap_zoom_out", InputConstants.KEY_LBRACKET);
 	public static final KeyMapping MINIMAP_ZOOM_IN = register("minimap_zoom_in", InputConstants.KEY_RBRACKET);
 	public static final KeyMapping BACKPACK = register("backpack", InputConstants.KEY_V);
+	public static final KeyMapping WAILA = register("waila", InputConstants.KEY_N);
 
 	private ModKeys() {
 	}
