@@ -38,6 +38,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		MenuScreens.register(ModMenus.SELECTIVE_ENCHANT, SelectiveEnchantScreen::new);
 		BlockEntityRenderers.register(ModBlockEntities.BIG_CHEST, BigChestRenderer::new);
 		EndCreatureRenderers.init();
+		com.mlin.notas.client.render.NetherRenderers.init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (client.player == null) {

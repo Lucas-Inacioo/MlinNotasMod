@@ -292,5 +292,16 @@
   "block.mlinnotas.void_lily": "Lírio do Vazio",
   "block.mlinnotas.end_mushroom": "Cogumelo do End",
   "item.mlinnotas.chorus_hopper_spawn_egg": "Ovo Gerador de Saltador de Coro",
-  "entity.mlinnotas.chorus_hopper": "Saltador de Coro"
+  "entity.mlinnotas.chorus_hopper": "Saltador de Coro",
+  "biome.mlinnotas.ashen_plains": "Planícies de Cinza",
+  "biome.mlinnotas.infernite_peaks": "Picos de Infernita",
+  "biome.mlinnotas.burning_grove": "Bosque Ardente",
+  "block.mlinnotas.nether_ash": "Cinza do Nether",
+  "block.mlinnotas.burning_stem": "Caule Ardente",
+  "block.mlinnotas.burning_cap": "Chapéu Ardente",
+  "block.mlinnotas.burning_planks": "Tábuas Ardentes",
+  "block.mlinnotas.ember_nylium": "Nílio de Brasas",
+  "block.mlinnotas.ember_sprouts": "Brotos de Brasa",
+  "item.mlinnotas.magma_slug_spawn_egg": "Ovo Gerador de Lesma de Magma",
+  "entity.mlinnotas.magma_slug": "Lesma de Magma"
 }

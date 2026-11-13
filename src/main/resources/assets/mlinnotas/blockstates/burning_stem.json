@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "mlinnotas:block/burning_stem_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "mlinnotas:block/burning_stem"
+    },
+    "axis=z": {
+      "model": "mlinnotas:block/burning_stem_horizontal",
+      "x": 90
+    }
+  }
+}

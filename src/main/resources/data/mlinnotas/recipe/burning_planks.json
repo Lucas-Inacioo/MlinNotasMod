@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "S": "mlinnotas:burning_stem"
+  },
+  "pattern": [
+    "S"
+  ],
+  "result": {
+    "id": "mlinnotas:burning_planks",
+    "count": 4
+  }
+}

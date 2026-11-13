@@ -1,0 +1,110 @@
+{
+  "type": "minecraft:min",
+  "left": {
+    "type": "minecraft:max",
+    "left": {
+      "type": "minecraft:mul",
+      "left": 0.0625,
+      "right": {
+        "type": "minecraft:add",
+        "left": "mlinnotas:nether/floor",
+        "right": {
+          "type": "minecraft:mul",
+          "left": -1.0,
+          "right": {
+            "type": "minecraft:gradient",
+            "axis": "y",
+            "from_coordinate": 0,
+            "to_coordinate": 128,
+            "from_value": 0.0,
+            "to_value": 128.0
+          }
+        }
+      }
+    },
+    "right": {
+      "type": "minecraft:mul",
+      "left": 0.0625,
+      "right": {
+        "type": "minecraft:add",
+        "left": {
+          "type": "minecraft:gradient",
+          "axis": "y",
+          "from_coordinate": 0,
+          "to_coordinate": 128,
+          "from_value": 0.0,
+          "to_value": 128.0
+        },
+        "right": {
+          "type": "minecraft:mul",
+          "left": -1.0,
+          "right": "mlinnotas:nether/ceiling"
+        }
+      }
+    }
+  },
+  "right": {
+    "type": "minecraft:max",
+    "left": {
+      "type": "minecraft:max",
+      "left": {
+        "type": "minecraft:add",
+        "left": 0.55,
+        "right": {
+          "type": "minecraft:mul",
+          "left": -1.0,
+          "right": {
+            "type": "minecraft:noise",
+            "noise": "mlinnotas:nether_caves",
+            "xz_scale": 1.0,
+            "y_scale": 1.5
+          }
+        }
+      },
+      "right": {
+        "type": "minecraft:mul",
+        "left": 0.0625,
+        "right": {
+          "type": "minecraft:add",
+          "left": {
+            "type": "minecraft:gradient",
+            "axis": "y",
+            "from_coordinate": 0,
+            "to_coordinate": 128,
+            "from_value": 0.0,
+            "to_value": 128.0
+          },
+          "right": {
+            "type": "minecraft:add",
+            "left": 8.0,
+            "right": {
+              "type": "minecraft:mul",
+              "left": -1.0,
+              "right": "mlinnotas:nether/floor"
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "type": "minecraft:mul",
+      "left": 0.0625,
+      "right": {
+        "type": "minecraft:add",
+        "left": 36.0,
+        "right": {
+          "type": "minecraft:mul",
+          "left": -1.0,
+          "right": {
+            "type": "minecraft:gradient",
+            "axis": "y",
+            "from_coordinate": 0,
+            "to_coordinate": 128,
+            "from_value": 0.0,
+            "to_value": 128.0
+          }
+        }
+      }
+    }
+  }
+}

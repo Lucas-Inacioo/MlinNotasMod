@@ -292,5 +292,16 @@
   "block.mlinnotas.void_lily": "Void Lily",
   "block.mlinnotas.end_mushroom": "End Mushroom",
   "item.mlinnotas.chorus_hopper_spawn_egg": "Chorus Hopper Spawn Egg",
-  "entity.mlinnotas.chorus_hopper": "Chorus Hopper"
+  "entity.mlinnotas.chorus_hopper": "Chorus Hopper",
+  "biome.mlinnotas.ashen_plains": "Ashen Plains",
+  "biome.mlinnotas.infernite_peaks": "Infernite Peaks",
+  "biome.mlinnotas.burning_grove": "Burning Grove",
+  "block.mlinnotas.nether_ash": "Nether Ash",
+  "block.mlinnotas.burning_stem": "Burning Stem",
+  "block.mlinnotas.burning_cap": "Burning Cap",
+  "block.mlinnotas.burning_planks": "Burning Planks",
+  "block.mlinnotas.ember_nylium": "Ember Nylium",
+  "block.mlinnotas.ember_sprouts": "Ember Sprouts",
+  "item.mlinnotas.magma_slug_spawn_egg": "Magma Slug Spawn Egg",
+  "entity.mlinnotas.magma_slug": "Magma Slug"
 }

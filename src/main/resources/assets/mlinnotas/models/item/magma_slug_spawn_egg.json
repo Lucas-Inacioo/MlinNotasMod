@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mlinnotas:item/magma_slug_spawn_egg"
+  }
+}
