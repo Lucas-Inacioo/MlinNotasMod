@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "minecraft:leather",
+    "C": "minecraft:lava_bucket"
+  },
+  "pattern": [
+    "MMM",
+    "MCM",
+    "MMM"
+  ],
+  "result": {
+    "id": "mlinnotas:backpack_upgrade_lava"
+  }
+}

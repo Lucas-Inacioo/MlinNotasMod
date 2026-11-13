@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "minecraft:diamond",
+    "C": "mlinnotas:chest_upgrade_gold"
+  },
+  "pattern": [
+    "MMM",
+    "MCM",
+    "MMM"
+  ],
+  "result": {
+    "id": "mlinnotas:chest_upgrade_diamond"
+  }
+}

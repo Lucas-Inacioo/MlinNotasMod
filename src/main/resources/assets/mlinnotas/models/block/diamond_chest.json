@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "mlinnotas:block/diamond_chest_front",
+    "side": "mlinnotas:block/diamond_chest_side",
+    "top": "mlinnotas:block/diamond_chest_top"
+  }
+}
