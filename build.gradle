@@ -87,10 +87,10 @@ jar {
 tasks.register("installToMinecraft", Copy) {
 	group = "mlinnotas"
 	description = "Copia o jar do mod para a pasta mods do Minecraft local"
-	dependsOn tasks.named("remapJar")
+	dependsOn tasks.named("jar")
 	def appData = System.getenv("APPDATA")
 	def modsDir = appData != null ? "${appData}/.minecraft/mods" : "${System.getProperty('user.home')}/.minecraft/mods"
-	from(tasks.named("remapJar").map { it.archiveFile })
+	from(tasks.named("jar").map { it.archiveFile })
 	into(modsDir)
 	doLast { println "Instalado em ${modsDir}" }
 }
