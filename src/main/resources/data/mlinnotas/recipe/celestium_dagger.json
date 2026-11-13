@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "X": "mlinnotas:celestium_ingot"
+  },
+  "pattern": [
+    "X",
+    "#"
+  ],
+  "result": {
+    "id": "mlinnotas:celestium_dagger"
+  }
+}

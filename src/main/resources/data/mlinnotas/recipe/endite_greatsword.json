@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "X": "mlinnotas:endite_ingot"
+  },
+  "pattern": [
+    " X ",
+    " X ",
+    "X#X"
+  ],
+  "result": {
+    "id": "mlinnotas:endite_greatsword"
+  }
+}

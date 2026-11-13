@@ -1,0 +1,6 @@
+{
+  "parent": "mlinnotas:item/weapon_warhammer",
+  "textures": {
+    "layer0": "mlinnotas:item/diamond_warhammer"
+  }
+}

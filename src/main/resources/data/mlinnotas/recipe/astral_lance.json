@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "E": "mlinnotas:endite_ingot",
+    "F": "mlinnotas:astral_fragment"
+  },
+  "pattern": [
+    " EF",
+    " #E",
+    "#  "
+  ],
+  "result": {
+    "id": "mlinnotas:astral_lance"
+  }
+}

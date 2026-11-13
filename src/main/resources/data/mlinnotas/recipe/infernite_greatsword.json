@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "X": "mlinnotas:infernite_ingot"
+  },
+  "pattern": [
+    " X ",
+    " X ",
+    "X#X"
+  ],
+  "result": {
+    "id": "mlinnotas:infernite_greatsword"
+  }
+}

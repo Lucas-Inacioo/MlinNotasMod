@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "C": "mlinnotas:abyssal_core",
+    "D": "minecraft:diamond",
+    "E": "minecraft:echo_shard"
+  },
+  "pattern": [
+    " DE",
+    "DCD",
+    "#D "
+  ],
+  "result": {
+    "id": "mlinnotas:abyssal_blade"
+  }
+}
