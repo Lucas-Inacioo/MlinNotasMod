@@ -6,7 +6,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
-			"com.mlin.notas.gametest.MlinNotasGameTest"
+			"com.mlin.notas.gametest.MlinNotasGameTest",
+			"com.mlin.notas.gametest.FeaturesGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest"

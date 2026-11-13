@@ -1,7 +1,13 @@
 package com.mlin.notas;
 
 import com.mlin.notas.command.NotaCommand;
+import com.mlin.notas.furnace.FurnaceUpgrades;
 import com.mlin.notas.notes.NotebookManager;
+import com.mlin.notas.registry.ModCreativeTab;
+import com.mlin.notas.registry.ModItems;
+import com.mlin.notas.registry.ModPayloads;
+import com.mlin.notas.sorting.InventorySortServer;
+import com.mlin.notas.tree.TreeCapitator;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.resources.Identifier;
@@ -20,6 +26,14 @@ public class MlinNotas implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		ModItems.init();
+		ModCreativeTab.init();
+		ModPayloads.init();
+
+		TreeCapitator.init();
+		InventorySortServer.init();
+		FurnaceUpgrades.init();
+
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));
 		LOGGER.info("[{}] inicializado", MOD_ID);

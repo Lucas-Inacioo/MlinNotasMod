@@ -1,0 +1,29 @@
+{
+  "itemGroup.mlinnotas.main": "Mlin Notas",
+  "key.category.mlinnotas.main": "Mlin Notas",
+  "key.mlinnotas.gammabright": "Ligar/desligar Gammabright",
+  "key.mlinnotas.sort": "Ordenar inventário / baú",
+  "key.mlinnotas.crafting_tablet": "Abrir tablet de crafting",
+
+  "item.mlinnotas.wooden_wand": "Varinha de Construção de Madeira",
+  "item.mlinnotas.stone_wand": "Varinha de Construção de Pedra",
+  "item.mlinnotas.iron_wand": "Varinha de Construção de Ferro",
+  "item.mlinnotas.diamond_wand": "Varinha de Construção de Diamante",
+  "item.mlinnotas.wand.tooltip": "Estende a face clicada em até %s blocos",
+  "item.mlinnotas.crafting_tablet": "Tablet de Crafting",
+  "item.mlinnotas.furnace_upgrade_iron": "Upgrade de Fornalha de Ferro",
+  "item.mlinnotas.furnace_upgrade_gold": "Upgrade de Fornalha de Ouro",
+  "item.mlinnotas.furnace_upgrade_diamond": "Upgrade de Fornalha de Diamante",
+  "item.mlinnotas.furnace_upgrade.tooltip": "Use numa fornalha, alto-forno ou defumador: velocidade %sx",
+
+  "container.mlinnotas.crafting_tablet": "Tablet de Crafting",
+
+  "button.mlinnotas.sort": "Ord",
+  "button.mlinnotas.sort.player": "Ordenar seu inventário",
+  "button.mlinnotas.sort.container": "Ordenar este baú (Shift+tecla: seu inventário)",
+
+  "message.mlinnotas.gammabright.on": "Gammabright: LIGADO",
+  "message.mlinnotas.gammabright.off": "Gammabright: DESLIGADO",
+  "message.mlinnotas.furnace_upgrade.applied": "Fornalha melhorada: velocidade %sx",
+  "message.mlinnotas.furnace_upgrade.already": "Esta fornalha já tem um upgrade igual ou melhor"
+}

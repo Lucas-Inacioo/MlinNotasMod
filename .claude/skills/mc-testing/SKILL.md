@@ -38,9 +38,10 @@ static void bootstrap() {
 - **Registre a classe** em `src/gametest/resources/fabric.mod.json` -> `entrypoints."fabric-gametest"`. Esquecer isso = teste silenciosamente nao roda.
 - Cada teste recebe uma estrutura vazia (padrao). Coordenadas do helper sao relativas a ela: `helper.setBlock(0, 1, 0, Blocks.STONE)`.
 - Termine com `helper.succeed()`. Para falhar, lance excecao (`IllegalStateException`) ou use `helper.fail(...)`.
-- Assincrono: `helper.runAfterDelay(ticks, () -> ...)`, `helper.succeedWhen(() -> helper.assertBlockPresent(...))`, `helper.runAtTickTime(...)`. Timeout padrao ~100 ticks; ajuste com `@GameTest(timeoutTicks = 400)`.
+- Assincrono: `helper.runAfterDelay(ticks, () -> ...)`, `helper.succeedWhen(() -> helper.assertBlockPresent(...))`, `helper.runAtTickTime(...)`. Timeout padrao 20 ticks; ajuste com `@GameTest(maxTicks = 400)` (atributos: `maxTicks`, `setupTicks`, `structure`, `required`, `skyAccess`...).
 - Estrutura customizada: salve um `.nbt` em `src/gametest/resources/data/mlinnotas-gametest/structure/` e use `@GameTest(structure = "mlinnotas-gametest:nome")`.
-- Jogador fake: `helper.makeMockPlayer(GameType.SURVIVAL)` para testar comandos/interacoes com `ServerPlayer`.
+- Jogador fake: `(ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL)` para inventario/itens. Ele **nao tem conexao** (`connection == null`): qualquer coisa que mande pacote (`openMenu`, `sendOverlayMessage`, `displayClientMessage`) da NPE. Para isso use `helper.makeMockServerPlayerInLevel()` (deprecated, jogador CRIATIVO com conexao fake; `@SuppressWarnings("removal")`) e remova no fim com `helper.getLevel().getServer().getPlayerList().remove(player)`.
+- A estrutura padrao (`fabric-gametest-api-v1:empty`) tem 8x8x8 blocos; coordenadas relativas 0..7.
 - Acesso ao servidor: `helper.getLevel().getServer()`.
 - Exemplos em `src/gametest/java/com/mlin/notas/gametest/MlinNotasGameTest.java`.
 

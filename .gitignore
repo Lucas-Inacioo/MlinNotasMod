@@ -38,3 +38,6 @@ replay_*.log
 # logs do fabric-loader-junit
 logs/
 mods/
+
+# mods de referencia baixados por scripts/fetch-mod.ps1
+reference/

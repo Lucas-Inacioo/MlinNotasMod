@@ -1,0 +1,29 @@
+{
+  "itemGroup.mlinnotas.main": "Mlin Notas",
+  "key.category.mlinnotas.main": "Mlin Notas",
+  "key.mlinnotas.gammabright": "Toggle Gammabright",
+  "key.mlinnotas.sort": "Sort inventory / container",
+  "key.mlinnotas.crafting_tablet": "Open crafting tablet",
+
+  "item.mlinnotas.wooden_wand": "Wooden Building Wand",
+  "item.mlinnotas.stone_wand": "Stone Building Wand",
+  "item.mlinnotas.iron_wand": "Iron Building Wand",
+  "item.mlinnotas.diamond_wand": "Diamond Building Wand",
+  "item.mlinnotas.wand.tooltip": "Extends the clicked face by up to %s blocks",
+  "item.mlinnotas.crafting_tablet": "Crafting Tablet",
+  "item.mlinnotas.furnace_upgrade_iron": "Iron Furnace Upgrade",
+  "item.mlinnotas.furnace_upgrade_gold": "Gold Furnace Upgrade",
+  "item.mlinnotas.furnace_upgrade_diamond": "Diamond Furnace Upgrade",
+  "item.mlinnotas.furnace_upgrade.tooltip": "Use on a furnace, blast furnace or smoker: %sx speed",
+
+  "container.mlinnotas.crafting_tablet": "Crafting Tablet",
+
+  "button.mlinnotas.sort": "Sort",
+  "button.mlinnotas.sort.player": "Sort your inventory",
+  "button.mlinnotas.sort.container": "Sort this container (Shift+key: your inventory)",
+
+  "message.mlinnotas.gammabright.on": "Gammabright: ON",
+  "message.mlinnotas.gammabright.off": "Gammabright: OFF",
+  "message.mlinnotas.furnace_upgrade.applied": "Furnace upgraded: %sx speed",
+  "message.mlinnotas.furnace_upgrade.already": "This furnace already has an equal or better upgrade"
+}
