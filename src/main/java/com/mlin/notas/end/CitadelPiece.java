@@ -142,6 +142,7 @@ public class CitadelPiece extends StructurePiece {
 			case END_ROD -> Blocks.END_ROD.defaultBlockState();
 			case PLANT -> ModBlocks.VOID_GRASS.defaultBlockState();
 			case CHEST -> Blocks.CHEST.defaultBlockState();
+			case ASTRAL_ALTAR -> com.mlin.notas.boss.BossRegistry.ASTRAL_ALTAR.defaultBlockState();
 		};
 	}
 

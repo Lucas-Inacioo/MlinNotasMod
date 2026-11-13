@@ -296,6 +296,8 @@ public final class CitadelPlanner {
 		plan.set(keep.x() - 2, vault + 1, keep.z() - 3, CitadelPart.DRAGON_HEAD);
 		chest(plan, keep, 3, vault, -in);
 		chest(plan, keep, -3, vault, in);
+		// altar do Arauto Astral no meio do cofre, longe do elevador central
+		plan.set(keep.x() + 2, vault, keep.z() + 2, CitadelPart.ASTRAL_ALTAR);
 		spawn(plan, CitadelPlan.Kind.SHULKER, keep, in, vault, in);
 		spawn(plan, CitadelPlan.Kind.SHULKER, keep, -in, vault, -in);
 

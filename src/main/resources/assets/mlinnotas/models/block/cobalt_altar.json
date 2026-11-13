@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mlinnotas:block/cobalt_altar_top",
+    "side": "mlinnotas:block/cobalt_altar_side",
+    "bottom": "minecraft:block/polished_andesite"
+  }
+}

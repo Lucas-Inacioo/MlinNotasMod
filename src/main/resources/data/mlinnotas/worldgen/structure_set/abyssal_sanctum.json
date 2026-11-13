@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 583202,
+    "separation": 4,
+    "spacing": 12
+  },
+  "structures": [
+    {
+      "structure": "mlinnotas:abyssal_sanctum",
+      "weight": 1
+    }
+  ]
+}

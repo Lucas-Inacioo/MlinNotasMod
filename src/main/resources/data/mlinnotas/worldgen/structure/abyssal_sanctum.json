@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:lair",
+  "kind": "abyssal_sanctum",
+  "biomes": "#mlinnotas:has_structure/abyssal_sanctum",
+  "spawn_overrides": {},
+  "step": "underground_structures"
+}

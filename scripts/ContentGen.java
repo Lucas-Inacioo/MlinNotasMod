@@ -226,6 +226,7 @@ public class ContentGen {
 		EndContent.generate(pickaxeMineable);
 		RuinsContent.generate(pickaxeMineable);
 		NetherContent.generate(pickaxeMineable);
+		BossContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
