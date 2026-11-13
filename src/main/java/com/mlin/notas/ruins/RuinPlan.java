@@ -51,6 +51,8 @@ public final class RuinPlan {
 	private final Map<Long, RuinPart> blocks = new LinkedHashMap<>();
 	private final Map<Long, Dir> facing = new LinkedHashMap<>();
 	private final Map<String, Pos> markers = new LinkedHashMap<>();
+	/** Entulho solto (tem que estar apoiado em algo embaixo, nao so encostado). */
+	private final Set<Long> loose = new HashSet<>();
 	private boolean ironVein;
 
 	RuinPlan(RuinKind kind) {
@@ -91,6 +93,11 @@ public final class RuinPlan {
 	void remove(int x, int y, int z) {
 		blocks.remove(key(x, y, z));
 		facing.remove(key(x, y, z));
+		loose.remove(key(x, y, z));
+	}
+
+	void markLoose(int x, int y, int z) {
+		loose.add(key(x, y, z));
 	}
 
 	void mark(String name, int x, int y, int z) {
@@ -119,6 +126,33 @@ public final class RuinPlan {
 			Pos p = marker.getValue();
 			int[] r = rotate(p.x(), p.z(), t);
 			out.markers.put(marker.getKey(), new Pos(r[0], p.y(), r[1]));
+		}
+		for (long k : loose) {
+			int[] r = rotate(keyX(k), keyZ(k), t);
+			out.loose.add(key(r[0], keyY(k), r[1]));
+		}
+		return out;
+	}
+
+	/** Copia espelhada (x vira -x): leste e oeste trocam. */
+	RuinPlan mirrored() {
+		RuinPlan out = new RuinPlan(kind);
+		out.ironVein = ironVein;
+		for (Map.Entry<Long, RuinPart> entry : blocks.entrySet()) {
+			long k = entry.getKey();
+			long m = key(-keyX(k), keyY(k), keyZ(k));
+			out.blocks.put(m, entry.getValue());
+			Dir dir = facing.get(k);
+			if (dir != null) {
+				out.facing.put(m, dir == Dir.EAST ? Dir.WEST : dir == Dir.WEST ? Dir.EAST : dir);
+			}
+		}
+		for (Map.Entry<String, Pos> marker : markers.entrySet()) {
+			Pos p = marker.getValue();
+			out.markers.put(marker.getKey(), new Pos(-p.x(), p.y(), p.z()));
+		}
+		for (long k : loose) {
+			out.loose.add(key(-keyX(k), keyY(k), keyZ(k)));
 		}
 		return out;
 	}
@@ -158,6 +192,11 @@ public final class RuinPlan {
 
 	public Pos marker(String name) {
 		return markers.get(name);
+	}
+
+	/** Blocos de entulho solto (cada um precisa de apoio logo abaixo). */
+	public Set<Long> loose() {
+		return Collections.unmodifiableSet(loose);
 	}
 
 	/** O veio da mina e de ferro (senao, cobre). */
@@ -344,6 +383,7 @@ public final class RuinPlan {
 		for (long k : floating()) {
 			blocks.put(k, RuinPart.AIR);
 			facing.remove(k);
+			loose.remove(k);
 		}
 	}
 }

@@ -9,7 +9,16 @@ import com.mlin.notas.ruins.RuinStyle;
 import com.mlin.notas.util.Pos;
 import com.mlin.notas.waystone.WaystoneBlock;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import com.mlin.notas.ruins.RuinPart;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.vehicle.minecart.Minecart;
+import net.minecraft.world.level.block.CrossCollisionBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import java.util.List;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +50,11 @@ public class RuinsGameTest {
 	/** Monta so a parte da ruina que cai na area do teste, com {@code marker} do plano em (4, 3, 4). */
 	private static RuinPiece build(GameTestHelper helper, RuinKind kind, RuinStyle style, long seed, String marker) {
 		RuinPiece probe = new RuinPiece(kind, style, seed, BlockPos.ZERO);
-		Pos m = marker == null ? new Pos(0, 0, 0) : probe.plan().marker(marker);
+		return build(helper, kind, style, seed, marker == null ? new Pos(0, 0, 0) : probe.plan().marker(marker));
+	}
+
+	/** Monta a parte da ruina em volta do ponto {@code m} do plano, que fica em (4, 3, 4). */
+	private static RuinPiece build(GameTestHelper helper, RuinKind kind, RuinStyle style, long seed, Pos m) {
 		BlockPos target = helper.absolutePos(new BlockPos(4, 3, 4));
 		BlockPos origin = target.offset(-m.x(), -m.y(), -m.z());
 		RuinPiece piece = new RuinPiece(kind, style, seed, origin);
@@ -69,7 +82,7 @@ public class RuinsGameTest {
 	@GameTest
 	public void campSitsOnTheGroundWithUnlitCampfire(GameTestHelper helper) {
 		stoneFloor(helper);
-		RuinPiece piece = build(helper, RuinKind.CAMP, RuinStyle.SPRUCE, 77L, null);
+		RuinPiece piece = build(helper, RuinKind.CAMP, RuinStyle.SPRUCE, 77L, (String) null);
 		// fogueira no centro (4,3,4); a camada de baixo (y=2) e terra/alicerce e o alicerce desce ate a pedra (y=1)
 		helper.assertBlockPresent(Blocks.CAMPFIRE, 4, 3, 4);
 		helper.assertTrue(!helper.getBlockState(new BlockPos(4, 3, 4)).getValue(CampfireBlock.LIT), "fogueira apagada");
@@ -104,6 +117,61 @@ public class RuinsGameTest {
 		helper.assertTrue(helper.getLevel().getServer().reloadableRegistries().getLootTable(RuinPiece.MINE_LOOT) != net.minecraft.world.level.storage.loot.LootTable.EMPTY,
 				"loot table mlinnotas:chests/ruin_mine carregada");
 		helper.succeed();
+	}
+
+	private static Direction direction(RuinPlan.Dir dir) {
+		return switch (dir) {
+			case NORTH -> Direction.NORTH;
+			case SOUTH -> Direction.SOUTH;
+			case EAST -> Direction.EAST;
+			case WEST -> Direction.WEST;
+		};
+	}
+
+	@GameTest
+	public void mineHasAMinecartOnItsRails(GameTestHelper helper) {
+		stoneFloor(helper);
+		RuinPlan plan = new RuinPiece(RuinKind.MINE, RuinStyle.DEEPSLATE, 21L, BlockPos.ZERO).plan();
+		Pos cart = plan.positionsOf(RuinPart.MINECART).getFirst();
+		build(helper, RuinKind.MINE, RuinStyle.DEEPSLATE, 21L, cart);
+		helper.assertBlockPresent(Blocks.RAIL, 4, 3, 4);
+		List<Minecart> carts = helper.getLevel().getEntitiesOfClass(Minecart.class, new AABB(helper.absolutePos(new BlockPos(4, 3, 4))).inflate(1));
+		helper.assertTrue(carts.size() == 1, "um carrinho em cima do trilho, achou " + carts.size());
+		carts.forEach(Entity::discard);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void wellRoofStairsFaceLikeThePlan(GameTestHelper helper) {
+		stoneFloor(helper);
+		RuinPlan plan = new RuinPiece(RuinKind.WELL, RuinStyle.SANDSTONE, 8L, BlockPos.ZERO).plan();
+		Pos step = plan.positionsOf(RuinPart.WOOD_STAIRS).stream().filter(p -> p.y() >= 4).findFirst().orElseThrow();
+		build(helper, RuinKind.WELL, RuinStyle.SANDSTONE, 8L, step);
+		BlockState state = helper.getBlockState(new BlockPos(4, 3, 4));
+		helper.assertTrue(state.is(Blocks.OAK_STAIRS), "degrau de carvalho no telhado do poco do deserto, achou " + state);
+		Direction expected = direction(plan.facing(step.x(), step.y(), step.z()));
+		helper.assertTrue(state.getValue(StairBlock.FACING) == expected, "degrau virado para " + expected + ", ficou " + state);
+		helper.succeed();
+	}
+
+	@GameTest
+	public void campFencesConnectToEachOther(GameTestHelper helper) {
+		stoneFloor(helper);
+		RuinPlan plan = new RuinPiece(RuinKind.CAMP, RuinStyle.SPRUCE, 13L, BlockPos.ZERO).plan();
+		for (Pos fence : plan.positionsOf(RuinPart.FENCE)) {
+			for (RuinPlan.Dir d : RuinPlan.Dir.values()) {
+				if (fence.y() == 0 && plan.get(fence.x() + d.dx, 0, fence.z() + d.dz) == RuinPart.FENCE) {
+					build(helper, RuinKind.CAMP, RuinStyle.SPRUCE, 13L, fence);
+					BlockState state = helper.getBlockState(new BlockPos(4, 3, 4));
+					helper.assertTrue(state.is(Blocks.SPRUCE_FENCE), "cerca de abeto, achou " + state);
+					helper.assertTrue(state.getValue(CrossCollisionBlock.PROPERTY_BY_DIRECTION.get(direction(d))),
+							"cerca ligada a vizinha (" + d + "): " + state);
+					helper.succeed();
+					return;
+				}
+			}
+		}
+		helper.fail("nenhuma cerca com vizinha no acampamento");
 	}
 
 	@GameTest
