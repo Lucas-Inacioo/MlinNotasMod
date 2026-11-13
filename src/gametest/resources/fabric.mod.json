@@ -29,7 +29,8 @@
 			"com.mlin.notas.gametest.DungeonGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresGameTest",
 			"com.mlin.notas.gametest.VillageGameTest",
-			"com.mlin.notas.gametest.SNetherGameTest"
+			"com.mlin.notas.gametest.SNetherGameTest",
+			"com.mlin.notas.gametest.ExplorationQolGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -48,7 +49,8 @@
 			"com.mlin.notas.gametest.DungeonClientGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresClientGameTest",
 			"com.mlin.notas.gametest.VillageClientGameTest",
-			"com.mlin.notas.gametest.SNetherClientGameTest"
+			"com.mlin.notas.gametest.SNetherClientGameTest",
+			"com.mlin.notas.gametest.ExplorationQolClientGameTest"
 		]
 	},
 	"depends": {

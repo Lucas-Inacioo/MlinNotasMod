@@ -373,7 +373,15 @@ class QuestContent {
 				q("deep_dark", "minecraft:sculk_shrieker", 1, 5, "Escuro Profundo", "Deep Dark",
 						"Bem fundo, sob as montanhas. Ande agachado: o sculk chama o Warden. Cidades antigas guardam fragmentos de eco, e o Santuário Abissal também fica aqui.",
 						"Deep below the mountains. Sneak: sculk calls the Warden. Ancient cities hold echo shards, and the Abyssal Sanctum lies here too.")
-						.dep("biomes").biome("minecraft:deep_dark").xp(80));
+						.dep("biomes").biome("minecraft:deep_dark").xp(80),
+				q("biome_compass", "mlinnotas:biome_compass", 0, 0, "Bússola de Biomas", "Biome Compass",
+						"Receita: bússola no meio, mudas e troncos em volta. Botão direito abre a lista de biomas desta dimensão (busque pelo nome); a agulha aponta para o mais perto e o tooltip mostra a distância.",
+						"Recipe: a compass in the middle, saplings and logs around it. Right-click opens the list of biomes in this dimension (search by name); the needle points to the nearest one and the tooltip shows the distance.")
+						.dep("explore").have("mlinnotas:biome_compass", 1).item("minecraft:map", 2).xp(40),
+				q("structure_compass", "mlinnotas:structure_compass", 3, 2, "Bússola de Estruturas", "Structure Compass",
+						"Receita: bússola no meio, lingotes de cobalto e tijolos de pedra em volta. Aponta para ruínas, masmorras, templos e vilas. Os covis dos chefes só aparecem na lista quando o mundo chega no nível de Mineração anterior ao do chefe.",
+						"Recipe: a compass in the middle, cobalt ingots and stone bricks around it. Points to ruins, dungeons, temples and villages. Boss lairs only show up in the list once the world reaches the Mining level before that boss.")
+						.dep("biome_compass", "mining/cobalt").have("mlinnotas:structure_compass", 1).item("mlinnotas:return_scroll", 1).xp(80));
 
 		chapter("bosses", 3, "mlinnotas:cobalt_heart", "Chefes", "Bosses",
 				q("cobalt_shrine", "mlinnotas:cobalt_altar", 0, 0, "Santuário de Cobalto", "Cobalt Shrine",

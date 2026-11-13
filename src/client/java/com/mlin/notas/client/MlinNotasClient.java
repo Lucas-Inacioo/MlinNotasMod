@@ -39,6 +39,8 @@ public class MlinNotasClient implements ClientModInitializer {
 		com.mlin.notas.client.ambient.AmbientClient.init();
 		com.mlin.notas.client.season.SeasonClient.init();
 		com.mlin.notas.client.village.VillageClient.init();
+		com.mlin.notas.client.compass.CompassClient.init();
+		com.mlin.notas.client.dynlight.DynamicLightsClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}

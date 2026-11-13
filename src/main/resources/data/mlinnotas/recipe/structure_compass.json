@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#minecraft:stone_bricks",
+    "C": "minecraft:compass",
+    "I": "mlinnotas:cobalt_ingot"
+  },
+  "pattern": [
+    "BIB",
+    "ICI",
+    "BIB"
+  ],
+  "result": {
+    "id": "mlinnotas:structure_compass"
+  }
+}

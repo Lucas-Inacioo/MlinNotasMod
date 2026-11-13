@@ -12,6 +12,7 @@
 		"CreeperAccessor",
 		"EnderDragonFightAccessor",
 		"ItemTooltipImageMixin",
+		"LeavesBlockMixin",
 		"SeasonalGrowthMixin",
 		"ServerLevelPrecipitationMixin",
 		"TheEndBiomeSourceMixin",
