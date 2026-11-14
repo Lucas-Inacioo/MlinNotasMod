@@ -1,0 +1,16 @@
+{
+  "values": [
+    "minecraft:diamond_sword",
+    "minecraft:diamond_shovel",
+    "minecraft:diamond_pickaxe",
+    "minecraft:diamond_axe",
+    "minecraft:diamond_hoe",
+    "minecraft:diamond_spear",
+    "mlinnotas:diamond_greatsword",
+    "mlinnotas:diamond_dagger",
+    "mlinnotas:diamond_warhammer",
+    "mlinnotas:diamond_glaive",
+    "mlinnotas:diamond_rapier",
+    "mlinnotas:diamond_wand"
+  ]
+}

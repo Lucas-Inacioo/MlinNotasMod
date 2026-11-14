@@ -106,6 +106,9 @@ public class QolGameTest {
 			}
 		}
 		plantWheat(helper, 1, 1, 2);
+		// enxada de diamante so funciona com a Mineracao do mundo em Diamante (trava de ferramentas)
+		com.mlin.notas.skills.SkillServer.ensureLevel(helper.getLevel().getServer(), com.mlin.notas.skills.SkillBranch.MINING,
+				com.mlin.notas.tier.Tier.DIAMOND.level());
 		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
 		ItemStack hoe = new ItemStack(Items.DIAMOND_HOE);
 		player.setItemSlot(EquipmentSlot.MAINHAND, hoe);

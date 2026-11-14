@@ -1,0 +1,16 @@
+{
+  "values": [
+    "minecraft:iron_sword",
+    "minecraft:iron_shovel",
+    "minecraft:iron_pickaxe",
+    "minecraft:iron_axe",
+    "minecraft:iron_hoe",
+    "minecraft:iron_spear",
+    "mlinnotas:iron_greatsword",
+    "mlinnotas:iron_dagger",
+    "mlinnotas:iron_warhammer",
+    "mlinnotas:iron_glaive",
+    "mlinnotas:iron_rapier",
+    "mlinnotas:iron_wand"
+  ]
+}

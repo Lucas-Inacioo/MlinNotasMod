@@ -1,0 +1,16 @@
+{
+  "values": [
+    "minecraft:stone_sword",
+    "minecraft:stone_shovel",
+    "minecraft:stone_pickaxe",
+    "minecraft:stone_axe",
+    "minecraft:stone_hoe",
+    "minecraft:stone_spear",
+    "mlinnotas:stone_greatsword",
+    "mlinnotas:stone_dagger",
+    "mlinnotas:stone_warhammer",
+    "mlinnotas:stone_glaive",
+    "mlinnotas:stone_rapier",
+    "mlinnotas:stone_wand"
+  ]
+}

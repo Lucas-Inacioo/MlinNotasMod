@@ -58,12 +58,17 @@ public class TerminalMenu extends AbstractContainerMenu {
 	/** Mudancas por pacote (o resto vai em outro pacote no mesmo tick). */
 	private static final int CHANGES_PER_PACKET = 256;
 
-	/** Dados de abertura: posicao do terminal e se e o de crafting. */
-	public record Data(BlockPos pos, boolean crafting) {
+	/** Dados de abertura: posicao do terminal, se e o de crafting e se foi aberto de longe pelo Tablet de Rede. */
+	public record Data(BlockPos pos, boolean crafting, boolean remote) {
 		public static final StreamCodec<ByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
 				BlockPos.STREAM_CODEC, Data::pos,
 				ByteBufCodecs.BOOL, Data::crafting,
+				ByteBufCodecs.BOOL, Data::remote,
 				Data::new);
+
+		public Data(BlockPos pos, boolean crafting) {
+			this(pos, crafting, false);
+		}
 	}
 
 	private final Player player;
@@ -78,6 +83,8 @@ public class TerminalMenu extends AbstractContainerMenu {
 	private int syncTimer;
 	private boolean dirty = true;
 	private List<Integer> lastStats = List.of();
+	/** Chunks seguras por ticket enquanto o menu remoto esta aberto (soltas no {@link #removed}). */
+	private final java.util.Set<Long> ticketedChunks = new java.util.HashSet<>();
 
 	// cliente: numero -> item/quantidade; version muda a cada sincronizacao (a tela refaz a lista)
 	private final Map<Integer, ItemStack> clientItems = new HashMap<>();
@@ -132,8 +139,18 @@ public class TerminalMenu extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player player) {
+		if (data.remote()) {
+			// de longe: o tablet vinculado continua no inventario e o terminal existe (chunk segura por ticket)
+			return NetworkTablet.hasTabletFor(player, data.pos())
+					&& player.level().getBlockState(data.pos()).getBlock() instanceof StorageTerminalBlock;
+		}
 		return player.level().getBlockState(data.pos()).getBlock() instanceof StorageTerminalBlock
 				&& player.distanceToSqr(Vec3.atCenterOf(data.pos())) <= 64.0;
+	}
+
+	/** Aberto de longe pelo Tablet de Rede. */
+	public boolean remote() {
+		return data.remote();
 	}
 
 	private StorageNetwork network() {
@@ -164,6 +181,9 @@ public class TerminalMenu extends AbstractContainerMenu {
 
 	private void sync(ServerPlayer serverPlayer) {
 		StorageNetwork network = network();
+		if (data.remote() && serverPlayer.level() instanceof ServerLevel level) {
+			NetworkTablet.keepLoaded(level, data.pos(), network.graph(), ticketedChunks);
+		}
 		List<DeltaTracker.Change<ItemKey>> changes = tracker.update(network.totals());
 		int freeTypes = 0;
 		for (StorageUnitBlockEntity unit : network.units()) {
@@ -374,6 +394,9 @@ public class TerminalMenu extends AbstractContainerMenu {
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
+		if (data.remote() && player.level() instanceof ServerLevel level) {
+			NetworkTablet.release(level, ticketedChunks);
+		}
 		if (data.crafting() && player instanceof ServerPlayer) {
 			StorageNetwork network = network();
 			for (int i = 0; i < craftSlots.getContainerSize(); i++) {

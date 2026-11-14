@@ -63,6 +63,9 @@ public final class CropHarvester {
 	public static int harvest(ServerLevel level, Player player, BlockPos center) {
 		ItemStack tool = player.getMainHandItem();
 		Tier hoe = HarvestRules.hoeTier(BuiltInRegistries.ITEM.getKey(tool.getItem()).toString());
+		if (hoe != null && com.mlin.notas.gating.ToolLocks.refuse(player, tool)) {
+			hoe = null; // enxada travada pela Mineracao do mundo: colhe so a planta clicada, como a mao
+		}
 		int radius = HarvestRules.radius(hoe);
 		List<BlockPos> targets = new ArrayList<>();
 		targets.add(center);

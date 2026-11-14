@@ -85,6 +85,8 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.combat.CombatRegistry.init();
 		com.mlin.notas.accessories.AccessoryServer.init();
 		com.mlin.notas.smithing.SmithingTemplates.init();
+		com.mlin.notas.gating.ToolLocks.init();
+		com.mlin.notas.storage.NetworkTablet.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));
