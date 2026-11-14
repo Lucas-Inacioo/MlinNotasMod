@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class VillageBoardScreen extends Screen {
 	public enum Tab {
-		PROJECTS, BOUNTIES, SHOP, BUILDINGS
+		PROJECTS, BOUNTIES, SHOP, BUILDINGS, NEEDS
 	}
 
 	private static final int PANEL = 0xF0201A14;
@@ -73,6 +73,16 @@ public class VillageBoardScreen extends Screen {
 		return view.state();
 	}
 
+	public VillagePayloads.View view() {
+		return view;
+	}
+
+	/** A obra em andamento e a melhoria do lote. */
+	public boolean upgradeRunning(int lotId) {
+		VillageState s = state();
+		return !view.building().isEmpty() && s.buildingsState().nextQueued() == lotId && (s.queue().isEmpty() || view.waiting());
+	}
+
 	public void update(VillagePayloads.View view) {
 		this.view = view;
 		rebuildWidgets();
@@ -82,6 +92,12 @@ public class VillageBoardScreen extends Screen {
 	public void setTab(Tab tab) {
 		this.tab = tab;
 		this.page = 0;
+		rebuildWidgets();
+	}
+
+	/** Vai para a pagina da aba (testes de cliente; -1 = a ultima). */
+	public void setPage(int page) {
+		this.page = page < 0 ? pages() - 1 : Math.min(page, pages() - 1);
 		rebuildWidgets();
 	}
 
@@ -113,11 +129,20 @@ public class VillageBoardScreen extends Screen {
 
 	private int pages() {
 		return switch (tab) {
-			case PROJECTS -> (VillageProject.values().length + PROJECTS_PER_PAGE - 1) / PROJECTS_PER_PAGE;
+			case PROJECTS -> (projectRows().size() + PROJECTS_PER_PAGE - 1) / PROJECTS_PER_PAGE;
 			case SHOP -> (VillageShop.OFFERS.size() + SHOP_ROWS * 2 - 1) / (SHOP_ROWS * 2);
 			case BUILDINGS -> Math.max(1, (buildingRows().size() + buildingsPerPage() - 1) / buildingsPerPage());
-			case BOUNTIES -> 1;
+			case BOUNTIES, NEEDS -> 1;
 		};
+	}
+
+	/** Abas visiveis: Necessidades so com a Prefeitura I. */
+	private List<Tab> tabs() {
+		List<Tab> out = new ArrayList<>(List.of(Tab.PROJECTS, Tab.BOUNTIES, Tab.SHOP, Tab.BUILDINGS));
+		if (com.mlin.notas.village.VillageBuildings.needsActive(state())) {
+			out.add(Tab.NEEDS);
+		}
+		return out;
 	}
 
 	@Override
@@ -125,10 +150,13 @@ public class VillageBoardScreen extends Screen {
 		int l = left();
 		int t = top();
 		int w = panelW();
-		int tabW = (w - 28) / 4;
-		Tab[] tabs = Tab.values();
-		for (int i = 0; i < tabs.length; i++) {
-			Tab target = tabs[i];
+		List<Tab> tabs = tabs();
+		if (!tabs.contains(tab)) {
+			tab = Tab.PROJECTS;
+		}
+		int tabW = (w - 16 - 4 * (tabs.size() - 1)) / tabs.size();
+		for (int i = 0; i < tabs.size(); i++) {
+			Tab target = tabs.get(i);
 			Button button = Button.builder(Component.translatable("gui.mlinnotas.village.tab." + target.name().toLowerCase(java.util.Locale.ROOT)),
 					b -> setTab(target)).bounds(l + 8 + i * (tabW + 4), t + 34, tabW, 18).build();
 			button.active = target != tab;
@@ -140,6 +168,8 @@ public class VillageBoardScreen extends Screen {
 			case BOUNTIES -> initBounties();
 			case SHOP -> initShop();
 			case BUILDINGS -> initBuildings();
+			case NEEDS -> {
+			}
 		}
 		int bottom = t + panelH() - 22;
 		if (pages() > 1) {
@@ -233,7 +263,7 @@ public class VillageBoardScreen extends Screen {
 			int y = contentTop() + (slot / 2) * shopRow();
 			Button button = Button.builder(Component.translatable("gui.mlinnotas.village.buy"), b -> VillageClient.send(view.board(), "buy", offer.id()))
 					.bounds(x + colW - 50, y + 3, 46, 18).build();
-			button.active = state().level().ordinal() >= offer.level().ordinal();
+			button.active = VillageShop.available(offer, state());
 			addRenderableWidget(button);
 		}
 	}
@@ -294,10 +324,22 @@ public class VillageBoardScreen extends Screen {
 						.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.choose_tooltip"))).build();
 			} else {
 				VillageLayout.Lot lot = row.lot();
-				button = Button.builder(Component.translatable("gui.mlinnotas.village.demolish"), b -> confirmDemolish(lot)).bounds(right - 92, y + 1, 88,
-						18).tooltip(Tooltip.create(Component.translatable(lot.legacy() ? "gui.mlinnotas.village.demolish_legacy"
-						: "gui.mlinnotas.village.demolish_tooltip"))).build();
-				button.active = !lot.legacy();
+				com.mlin.notas.village.BuildingsState.Upgrade up = state().buildingsState().upgrade(lot.id());
+				if (up != null) {
+					button = Button.builder(Component.translatable("gui.mlinnotas.village.upgrade_cancel"), b -> VillageClient.send(view.board(),
+							"cancel_upgrade", String.valueOf(lot.id()))).bounds(right - 64, y + 1, 60, 18)
+							.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.upgrade_cancel_tooltip"))).build();
+					button.active = !upgradeRunning(lot.id());
+				} else {
+					button = Button.builder(Component.translatable("gui.mlinnotas.village.demolish"), b -> confirmDemolish(lot)).bounds(right - 64, y + 1, 60,
+							18).tooltip(Tooltip.create(Component.translatable(lot.legacy() ? "gui.mlinnotas.village.demolish_legacy"
+							: "gui.mlinnotas.village.demolish_tooltip"))).build();
+					button.active = !lot.legacy();
+				}
+				Button upgrade = BoardBuildingsRow.upgradeButton(this, lot, right - 150, y + 1);
+				if (upgrade != null) {
+					addRenderableWidget(upgrade);
+				}
 			}
 			addRenderableWidget(button);
 			y += BUILDING_ROW;
@@ -363,11 +405,12 @@ public class VillageBoardScreen extends Screen {
 						.withStyle(ChatFormatting.GRAY);
 			} else {
 				VillageLayout.Lot lot = row.lot();
-				title = Component.translatable("gui.mlinnotas.village.row.built", VillageOverlay.kindName(lot.kind()));
+				title = BoardBuildingsRow.title(s, lot);
 				int dx = lot.x() + lot.w() / 2;
 				int dz = lot.z() + lot.d() / 2;
-				sub = Component.translatable("gui.mlinnotas.village.row.where", Math.round(Math.sqrt(dx * dx + dz * dz)), direction(dx, dz))
-						.withStyle(ChatFormatting.GRAY);
+				sub = BoardBuildingsRow.status(this, s, lot, Component.translatable("gui.mlinnotas.village.row.where", Math.round(Math.sqrt(dx * dx + dz * dz)),
+						direction(dx, dz)));
+				BoardBuildingsRow.progress(graphics, s, lot, x + 22, y + BUILDING_ROW - 4, right - 154);
 			}
 			graphics.text(font, title, x + 22, y + 2, 0xFFFFFFFF);
 			graphics.text(font, sub, x + 22, y + 11, 0xFFFFFFFF);
@@ -409,6 +452,7 @@ public class VillageBoardScreen extends Screen {
 			case BOUNTIES -> bounties(graphics, mouseX, mouseY);
 			case SHOP -> shop(graphics, mouseX, mouseY);
 			case BUILDINGS -> buildings(graphics, mouseX, mouseY);
+			case NEEDS -> BoardNeedsTab.draw(this, graphics, font, left() + 8, contentTop(), left() + panelW() - 8, contentBottom(), mouseX, mouseY);
 		}
 		footer(graphics);
 	}
@@ -470,6 +514,12 @@ public class VillageBoardScreen extends Screen {
 					line = Component.translatable("gui.mlinnotas.village.need.projects", s.buildPoints(), next.projectsNeeded());
 				} else if (missing.startsWith("ring:")) {
 					line = Component.translatable("gui.mlinnotas.village.need.ring", missing.substring(5));
+				} else if (missing.startsWith("level:")) {
+					String[] p = missing.split(":");
+					line = Component.translatable("gui.mlinnotas.village.need.building_level", projectName(VillageProject.byId(p[1])),
+							Component.translatable("village.mlinnotas.building.level." + p[2]));
+				} else if (missing.equals("needs")) {
+					line = Component.translatable("gui.mlinnotas.village.need.needs", com.mlin.notas.village.VillageNeeds.LEVEL_UP);
 				} else {
 					line = Component.translatable("gui.mlinnotas.village.need.project", projectName(VillageProject.byId(missing.substring(8))));
 				}
@@ -721,6 +771,7 @@ public class VillageBoardScreen extends Screen {
 			case MAP -> new ItemStack(Items.FILLED_MAP);
 			case BOOK, RARE_BOOK -> new ItemStack(Items.ENCHANTED_BOOK);
 			case REPAIR -> new ItemStack(Items.ANVIL);
+			case LODGING -> new ItemStack(Items.BED.red());
 		};
 	}
 
@@ -734,7 +785,8 @@ public class VillageBoardScreen extends Screen {
 			int slot = i - page * SHOP_ROWS * 2;
 			int x = left() + 8 + (slot % 2) * (colW + 4);
 			int y = contentTop() + (slot / 2) * rowH;
-			boolean locked = s.level().ordinal() < offer.level().ordinal();
+			boolean villageLocked = s.level().ordinal() < offer.level().ordinal();
+			boolean locked = !VillageShop.available(offer, s);
 			graphics.fill(x, y, x + colW, y + rowH - 2, locked ? 0x30000000 : ROW);
 			ItemStack icon = offerIcon(offer);
 			graphics.item(icon, x + 3, y + 4);
@@ -742,8 +794,13 @@ public class VillageBoardScreen extends Screen {
 			MutableComponent name = offerName(offer).copy();
 			FormattedCharSequence line = font.split(name, colW - 80).getFirst();
 			graphics.text(font, line, x + 22, y + 3, locked ? 0xFF707070 : 0xFFFFFFFF);
-			Component sub = locked ? Component.translatable("gui.mlinnotas.village.requires", levelName(offer.level())).withStyle(ChatFormatting.DARK_GRAY)
-					: offer.kind() == VillageShop.Kind.REPAIR ? Component.translatable("gui.mlinnotas.village.repair_price").withStyle(ChatFormatting.GREEN)
+			String req = VillageShop.requirement(offer);
+			Component sub = villageLocked ? Component.translatable("gui.mlinnotas.village.requires", levelName(offer.level())).withStyle(ChatFormatting.DARK_GRAY)
+					: locked ? Component.translatable("gui.mlinnotas.village.requires", Component.translatable("gui.mlinnotas.village.building_short",
+					projectName(VillageProject.byId(req.substring(0, req.indexOf(':')))), Component.translatable("village.mlinnotas.building.level."
+					+ VillageLevel.requiredLevel(req)))).withStyle(ChatFormatting.DARK_GRAY)
+					: offer.kind() == VillageShop.Kind.REPAIR ? Component.translatable("gui.mlinnotas.village.forge_repair_price",
+					com.mlin.notas.village.VillageBuildings.level(s, "smithy")).withStyle(ChatFormatting.GREEN)
 					: Component.translatable("gui.mlinnotas.village.price", offer.price()).withStyle(ChatFormatting.GREEN);
 			graphics.text(font, sub, x + 22, y + 13, 0xFFFFFFFF);
 			if (hover(mouseX, mouseY, x, y, x + colW - 52, y + rowH - 2)) {

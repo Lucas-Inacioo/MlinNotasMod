@@ -210,10 +210,13 @@ public class VillageData extends SavedData {
 			PROGRESS_CODEC.fieldOf("progress").forGetter(VillageData::progress),
 			LAYOUT_CODEC.optionalFieldOf("layout").forGetter(v -> Optional.ofNullable(v.layout())),
 			TERRAIN_CODEC.optionalFieldOf("terrain").forGetter(v -> v.ringWorks().isEmpty() && v.stockpile() == 0 && v.playerHouses() == 0
-					? Optional.empty() : Optional.of(new TerrainPart(v.ringWorks(), v.stockpile(), v.playerHouses())))
-	).apply(i, (core, progress, layout, terrain) -> {
+					? Optional.empty() : Optional.of(new TerrainPart(v.ringWorks(), v.stockpile(), v.playerHouses()))),
+			BuildingsCodec.CODEC.optionalFieldOf("buildings").forGetter(v -> v.buildingsState().isEmpty() ? Optional.empty()
+					: Optional.of(v.buildingsState()))
+	).apply(i, (core, progress, layout, terrain, buildings) -> {
 		VillageState v = fromParts(core, progress, layout);
 		terrain.ifPresent(t -> v.restoreTerrain(t.rings(), t.stockpile(), t.playerHouses()));
+		buildings.ifPresent(b -> BuildingsCodec.copy(b, v.buildingsState()));
 		return v;
 	}));
 
@@ -273,6 +276,8 @@ public class VillageData extends SavedData {
 		private final List<String> recordPalette = new ArrayList<>();
 		/** Coluna (x, z empacotados) onde a obra parou porque o plato foi mexido; {@link Long#MIN_VALUE} = andando. */
 		public long pausedAt = Long.MIN_VALUE;
+		/** Melhoria no lugar: nivel que a obra do lote ganha no fim (0 = obra nova). */
+		public int upgradeTo;
 		/** Colunas do lote ja conferidas nesta execucao (nao salvo; as com bloco registrado contam como conferidas). */
 		private final java.util.Set<Long> verified = new java.util.HashSet<>();
 
@@ -386,11 +391,13 @@ public class VillageData extends SavedData {
 			longs("rec_positions").forGetter(j -> j.recordPositions.stream().mapToLong(Long::longValue)),
 			ints("rec_blocks").forGetter(j -> j.recordBlocks.stream().mapToInt(Integer::intValue)),
 			Codec.STRING.listOf().optionalFieldOf("rec_palette", List.of()).forGetter(j -> j.recordPalette),
-			Codec.LONG.optionalFieldOf("paused_at", Long.MIN_VALUE).forGetter(j -> j.pausedAt)
-	).apply(i, (village, project, positions, parts, spawns, golems, index, lot, ground, recPos, recBlocks, recPalette, paused) -> {
+			Codec.LONG.optionalFieldOf("paused_at", Long.MIN_VALUE).forGetter(j -> j.pausedAt),
+			Codec.INT.optionalFieldOf("upgrade_to", 0).forGetter(j -> j.upgradeTo)
+	).apply(i, (village, project, positions, parts, spawns, golems, index, lot, ground, recPos, recBlocks, recPalette, paused, upgradeTo) -> {
 		Job job = new Job(village, VillageProject.byId(project), positions.toArray(), parts.toArray(), spawns.toArray(), golems.toArray(), index, lot,
 				ground);
 		job.pausedAt = paused;
+		job.upgradeTo = upgradeTo;
 		long[] rp = recPos.toArray();
 		int[] rb = recBlocks.toArray();
 		job.recordPalette.addAll(recPalette);

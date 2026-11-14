@@ -88,6 +88,8 @@ public final class VillageState {
 	private int stockpile;
 	/** Lotes de jogador dentro da vila com cama e porta: contam como casas (moradia e pontos de obra). */
 	private int playerHouses;
+	/** Niveis das construcoes, melhorias, moradores contados (Vilas 2.0, fase 4). */
+	private final BuildingsState buildingsState = new BuildingsState();
 
 	public VillageState(String dimension, int x, int y, int z, long seed, VillageStyle style, String name) {
 		this.dimension = dimension;
@@ -443,13 +445,20 @@ public final class VillageState {
 		return recompute();
 	}
 
-	/** Pontos de obra: obras prontas + casas de jogador. */
+	/** Pontos de obra: obras prontas + casas de jogador + niveis de melhoria. */
 	public int buildPoints() {
-		return totalBuilt() + playerHouses;
+		return totalBuilt() + playerHouses + VillageBuildings.upgradePoints(this);
 	}
 
 	public VillageLevel.Context levelContext() {
-		return new VillageLevel.Context(prosperity, built, planned() ? ringsDone() : -1, playerHouses);
+		int minNeed = VillageBuildings.needsActive(this) ? VillageNeeds.min(VillageNeeds.values(this)) : -1;
+		return new VillageLevel.Context(prosperity, built, planned() ? ringsDone() : -1, playerHouses + VillageBuildings.upgradePoints(this),
+				VillageBuildings.bestLevels(this), minNeed);
+	}
+
+	/** Niveis das construcoes, melhorias e contagens para as necessidades. */
+	public BuildingsState buildingsState() {
+		return buildingsState;
 	}
 
 	/** Recalcula o nivel (nunca desce). Devolve o nivel novo se subiu (senao null). */

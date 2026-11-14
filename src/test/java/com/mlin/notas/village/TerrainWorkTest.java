@@ -114,7 +114,7 @@ class TerrainWorkTest {
 		assertEquals(76, VillageLevel.CROWN_CITY.radius());
 		assertNull(VillageLevel.CROWN_CITY.next());
 		// ids que ainda nao existem (prefeitura, celeiro...) ficam de fora ate a fase deles
-		assertEquals(List.of(VillageProject.FARM, VillageProject.SMITHY), VillageLevel.VILLAGE.required());
+		assertEquals(List.of(VillageProject.FARM, VillageProject.SMITHY, VillageProject.TOWN_HALL), VillageLevel.VILLAGE.required());
 		assertTrue(VillageLevel.VILLAGE.requiredIds().contains("town_hall:1"));
 		for (VillageLevel level : VillageLevel.values()) {
 			if (level.next() != null) {

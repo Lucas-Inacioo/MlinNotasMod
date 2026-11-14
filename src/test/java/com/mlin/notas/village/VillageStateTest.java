@@ -57,12 +57,14 @@ class VillageStateTest {
 		assertEquals(VillageLevel.HAMLET, v.finishBuild(VillageProject.PLAZA));
 		assertEquals(240, v.prosperity());
 		assertTrue(v.queue().isEmpty());
-		// Vila exige forja e plantacao + 8 obras + 250 (a prefeitura ainda nao existe e fica de fora)
+		// Vila exige forja, plantacao e Prefeitura I + 8 obras + 250
 		v.addBuilt(VillageProject.SMITHY);
 		v.addBuilt(VillageProject.LAMPS);
 		v.addBuilt(VillageProject.FARM);
 		v.addBuilt(VillageProject.HOUSE);
-		assertEquals(VillageLevel.VILLAGE, v.addProsperity(20));
+		assertNull(v.addProsperity(20), "sem a Prefeitura nao vira Vila");
+		v.addBuilt(VillageProject.TOWN_HALL);
+		assertEquals(VillageLevel.VILLAGE, v.recompute());
 		assertEquals(4, v.level().tradeCap());
 		assertEquals(1, v.level().discount());
 	}

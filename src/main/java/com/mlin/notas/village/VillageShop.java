@@ -17,7 +17,9 @@ public final class VillageShop {
 		/** Livro com um encantamento de tesouro (Remendo, Passos Gelados...). */
 		RARE_BOOK,
 		/** Conserta o item da mao principal; o preco cresce com o desgaste. */
-		REPAIR
+		REPAIR,
+		/** Quarto na estalagem: o ponto de renascer do jogador passa a ser a estalagem. */
+		LODGING
 	}
 
 	public record Offer(String id, Kind kind, String target, int count, int price, VillageLevel level) {
@@ -44,9 +46,60 @@ public final class VillageShop {
 			new Offer("abyss_map", Kind.MAP, "mlinnotas:on_village_maps/abyssal_sanctum", 1, 18, VillageLevel.TOWN),
 			new Offer("xp", Kind.ITEM, "minecraft:experience_bottle", 8, 6, VillageLevel.CAPITAL),
 			new Offer("netherite_scrap", Kind.ITEM, "minecraft:netherite_scrap", 1, 48, VillageLevel.CAPITAL),
-			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 48, VillageLevel.CAPITAL));
+			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 48, VillageLevel.CAPITAL),
+			// construcoes com nivel (Vilas 2.0, fase 4): exigencias em REQUIRES
+			new Offer("cobalt_pickaxe", Kind.ITEM, "mlinnotas:cobalt_pickaxe", 1, 24, VillageLevel.VILLAGE),
+			new Offer("cobalt_sword", Kind.ITEM, "mlinnotas:cobalt_sword", 1, 20, VillageLevel.VILLAGE),
+			new Offer("cobalt_ingot", Kind.ITEM, "mlinnotas:cobalt_ingot", 1, 10, VillageLevel.VILLAGE),
+			new Offer("lodging", Kind.LODGING, "", 1, 2, VillageLevel.HAMLET));
+
+	/**
+	 * Oferta que so aparece com uma construcao funcionando no nivel ({@code tipo:nivel}): forja I conserta, forja II
+	 * vende ferramentas de cobalto, mercado III livros raros, estalagem II hospeda (ponto de renascer).
+	 */
+	public static final java.util.Map<String, String> REQUIRES = java.util.Map.of(
+			"repair", "smithy:1",
+			"cobalt_pickaxe", "smithy:2",
+			"cobalt_sword", "smithy:2",
+			"cobalt_ingot", "smithy:2",
+			"rare_book", "market:3",
+			"lodging", "inn:2");
 
 	private VillageShop() {
+	}
+
+	/** Exigencia de construcao da oferta ({@code tipo:nivel}) ou null. */
+	public static String requirement(Offer offer) {
+		return REQUIRES.get(offer.id());
+	}
+
+	/** A vila tem o que a oferta exige (nivel da vila e construcao funcionando no nivel). */
+	public static boolean available(Offer offer, VillageState state) {
+		if (state.level().ordinal() < offer.level().ordinal()) {
+			return false;
+		}
+		String req = requirement(offer);
+		if (req == null) {
+			return true;
+		}
+		String kind = req.substring(0, req.indexOf(':'));
+		return VillageBuildings.level(state, kind) >= VillageLevel.requiredLevel(req);
+	}
+
+	/**
+	 * Conserto na forja, sem bigorna: {esmeraldas, material}. Esmeraldas como no reparo antigo (1 a cada 20% de
+	 * desgaste) menos 1 por nivel da forja acima do I (minimo 1); material (o de conserto do item) 1 a cada 25% de
+	 * desgaste, menos 1 a partir da forja III (minimo 1). {0, 0} = nada a consertar.
+	 */
+	public static int[] forgeRepair(int damage, int maxDamage, int smithyLevel) {
+		int base = repairPrice(damage, maxDamage);
+		if (base == 0) {
+			return new int[] {0, 0};
+		}
+		int level = Math.max(1, smithyLevel);
+		int emeralds = Math.max(1, base - (level - 1));
+		int material = Math.max(1, (int) Math.ceil(damage * 4.0 / maxDamage) - (level >= 3 ? 1 : 0));
+		return new int[] {emeralds, material};
 	}
 
 	public static Offer byId(String id) {

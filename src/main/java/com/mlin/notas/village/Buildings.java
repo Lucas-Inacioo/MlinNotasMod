@@ -34,6 +34,7 @@ public final class Buildings {
 			case INN -> inn(style, random);
 			case LIBRARY -> library(style, random);
 			case PLAZA -> well(style, random);
+			case TOWN_HALL -> BuildingPlans.townHall(style, random, 1);
 			default -> throw new IllegalArgumentException("projeto sem planta: " + project);
 		};
 	}

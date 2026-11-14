@@ -40,7 +40,7 @@ public final class VillageLayout {
 	public static final String CAMPFIRE = "campfire";
 	/** Projetos que ocupam lote, na ordem em que os lotes sao reservados (um de cada por vez). */
 	public static final List<VillageProject> LOT_PROJECTS = List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY,
-			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY);
+			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL);
 	/** Postes que a praca ja coloca (os da rua guardam distancia deles). */
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
 
@@ -61,9 +61,9 @@ public final class VillageLayout {
 		private int x;
 		private int z;
 		private int rot;
-		private final int cw;
-		private final int cd;
-		private final int door;
+		private int cw;
+		private int cd;
+		private int door;
 		private final long seed;
 		private boolean built;
 		private boolean legacy;
@@ -638,6 +638,32 @@ public final class VillageLayout {
 	}
 
 	/** Coloca a obra no lote do plano: canto, giro e o acesso da porta ate a rua. */
+	/**
+	 * Troca a planta de um lote pronto pela de outro nivel (melhoria no lugar): no lote do plano diretor a planta e
+	 * encaixada de novo com a porta para a rua; lote antigo so aceita planta que caiba no mesmo retangulo, no mesmo canto.
+	 * Devolve false se nao cabe (nada muda).
+	 */
+	public boolean resize(Lot lot, int cw, int cd, int door) {
+		MasterPlan.Parcel p = master == null ? null : master.parcel(lot.parcel);
+		if (p != null) {
+			if (fit(p, cw, cd) == null) {
+				return false;
+			}
+			lot.cw = cw;
+			lot.cd = cd;
+			lot.door = door;
+			placeIn(lot, p);
+			return true;
+		}
+		if (cw > lot.cw || cd > lot.cd) {
+			return false;
+		}
+		lot.cw = cw;
+		lot.cd = cd;
+		lot.door = door;
+		return true;
+	}
+
 	void placeIn(Lot lot, MasterPlan.Parcel p) {
 		int[] f = fit(p, lot.cw, lot.cd);
 		int[] front = Lot.front(f[0], f[1], f[2], lot.cw, lot.cd, lot.door);
