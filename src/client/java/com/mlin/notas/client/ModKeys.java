@@ -28,6 +28,7 @@ public final class ModKeys {
 	public static final KeyMapping VEIN_MINE = register("vein_mine", InputConstants.KEY_GRAVE);
 	public static final KeyMapping QUESTS = register("quests", InputConstants.KEY_Y);
 	public static final KeyMapping NETWORK_TABLET = register("network_tablet", InputConstants.KEY_I);
+	public static final KeyMapping QUICK_STACK = register("quick_stack", InputConstants.KEY_X);
 
 	private ModKeys() {
 	}

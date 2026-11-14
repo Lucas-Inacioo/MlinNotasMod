@@ -635,7 +635,7 @@
   "quest.mlinnotas.basics.stone_tools": "Stone Age",
   "quest.mlinnotas.basics.stone_tools.desc": "Craft a stone pickaxe. Note: it only works after Mining: Stone in the skill tree (K key; 32 cobblestone mined with the wooden one). Each Mining level unlocks its material's ores, tools and weapons. See the Mining chapter.",
   "quest.mlinnotas.basics.wand": "Building Wand",
-  "quest.mlinnotas.basics.wand.desc": "Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium).",
+  "quest.mlinnotas.basics.wand.desc": "Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium). Recipe: the material diagonal to a stick (2x2, fits the inventory grid).",
   "quest.mlinnotas.basics.harvest": "Easy Harvest",
   "quest.mlinnotas.basics.harvest.desc": "Right-click a ripe crop to harvest and replant it. With a hoe you harvest an area: copper/iron 3x3, gold to diamond 5x5, netherite and up 7x7.",
   "quest.mlinnotas.basics.crafting_tablet": "Pocket Workbench",
@@ -1570,5 +1570,8 @@
   "key.mlinnotas.network_tablet": "Network Tablet",
   "quest.mlinnotas.tech.network_tablet": "Network in Your Pocket",
   "quest.mlinnotas.tech.network_tablet.desc": "The Network Tablet opens a terminal from any distance in the same dimension. Shift+right-click the Terminal (or the Crafting Terminal, with its 3x3 grid) to link it; then right-click anywhere or press I with it in your inventory. Recipe: terminal + ender pearl + cobalt ingots.",
-  "container.mlinnotas.remote_crafting_terminal": "Remote Crafting"
+  "container.mlinnotas.remote_crafting_terminal": "Remote Crafting",
+  "key.mlinnotas.quick_stack": "Quick stack to chest",
+  "button.mlinnotas.quick_stack": "Put",
+  "button.mlinnotas.quick_stack.tooltip": "Quick stack: moves everything from your inventory (not the hotbar) that this chest already has (key %s)"
 }

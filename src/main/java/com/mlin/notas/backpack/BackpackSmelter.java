@@ -11,7 +11,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -51,14 +51,16 @@ public final class BackpackSmelter {
 		backpack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(items);
 
 		int inputSlot = -1;
-		RecipeHolder<SmeltingRecipe> recipe = null;
+		RecipeHolder<? extends AbstractCookingRecipe> recipe = null;
 		for (int i = 0; i < items.size() && inputSlot < 0; i++) {
 			ItemStack candidate = items.get(i);
 			if (candidate.isEmpty()) {
 				continue;
 			}
-			Optional<RecipeHolder<SmeltingRecipe>> found = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(candidate), level);
-			if (found.isPresent()) {
+			Optional<? extends RecipeHolder<? extends AbstractCookingRecipe>> found =
+					level.recipeAccess().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(candidate), level);
+			// a mochila nao recicla equipamento guardado nela (salvage/): so funde o resto
+			if (found.isPresent() && !(found.get().value() instanceof com.mlin.notas.salvage.SalvageRecipe)) {
 				inputSlot = i;
 				recipe = found.get();
 			}

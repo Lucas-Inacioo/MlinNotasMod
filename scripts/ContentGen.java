@@ -177,7 +177,8 @@ public class ContentGen {
 			String id = t.id.equals("wood") ? "wooden_wand" : t.id + "_wand";
 			simpleItem(id, "item/handheld");
 			name("item", id, "Varinha de Construção de " + t.pt, t.en + " Building Wand");
-			shaped(id, "  M| S |S  ", Map.of("M", t.material, "S", "minecraft:stick"), "equipment");
+			// 2x2 na diagonal: o padrao antigo ("  M| S |S  ") era o mesmo da lanca vanilla
+			shaped(id, " M|S ", Map.of("M", t.material, "S", "minecraft:stick"), "equipment");
 		}
 
 		// --- upgrades de fornalha (pedra em diante; cada um usa o anterior no centro) ---
@@ -249,6 +250,7 @@ public class ContentGen {
 		CombatContent.generate();
 		SmainContent.generate();
 		ProgressionContent.generate();
+		Qol2Content.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

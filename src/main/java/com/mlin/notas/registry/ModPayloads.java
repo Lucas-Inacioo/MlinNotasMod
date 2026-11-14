@@ -20,6 +20,7 @@ public final class ModPayloads {
 
 	public static void init() {
 		PayloadTypeRegistry.serverboundPlay().register(SortRequestPayload.TYPE, SortRequestPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(com.mlin.notas.sorting.QuickStackPayload.TYPE, com.mlin.notas.sorting.QuickStackPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(OpenTabletPayload.TYPE, OpenTabletPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TeleportRequestPayload.TYPE, TeleportRequestPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(OpenBackpackPayload.TYPE, OpenBackpackPayload.CODEC);

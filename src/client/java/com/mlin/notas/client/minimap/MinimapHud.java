@@ -175,19 +175,48 @@ public final class MinimapHud {
 
 	static void drawInfo(GuiGraphicsExtractor graphics, Minecraft minecraft, LocalPlayer player, int x, int y, int size) {
 		BlockPos pos = player.blockPosition();
-		String coords = pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
-		int centerX = x + size / 2;
-		graphics.centeredText(minecraft.font, coords, centerX, y, 0xFFFFFFFF);
+		Component coords = Component.literal(pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
+		double centerX = x + size / 2.0;
+		// largura da moldura do mapa (com a borda de 2): o texto diminui/quebra para caber nela e nunca sai da tela
+		int maxWidth = size + 4;
+		double lineY = drawFitted(graphics, minecraft, coords, centerX, y, maxWidth, 0xFFFFFFFF);
 		Component biome = minecraft.level.getBiome(pos).unwrapKey()
 				.map(key -> (Component) Component.translatable(key.identifier().toLanguageKey("biome")))
 				.orElse(Component.empty());
-		graphics.centeredText(minecraft.font, biome, centerX, y + minecraft.font.lineHeight + 1, 0xFFC0C0C0);
+		lineY = drawFitted(graphics, minecraft, biome, centerX, lineY, maxWidth, 0xFFC0C0C0);
 		com.mlin.notas.season.SeasonDate season = com.mlin.notas.client.season.SeasonClient.date();
 		if (season != null && com.mlin.notas.client.ambient.AmbientClient.options().seasonHud) {
 			Component line = Component.translatable("hud.mlinnotas.season", com.mlin.notas.season.SeasonCommand.name(season.season()),
 					com.mlin.notas.season.SeasonCommand.phaseName(season.phase()), season.displayDay(), season.lengthDays());
-			graphics.centeredText(minecraft.font, line, centerX, y + 2 * (minecraft.font.lineHeight + 1),
-					com.mlin.notas.client.season.SeasonClient.argb(season.season()));
+			drawFitted(graphics, minecraft, line, centerX, lineY, maxWidth, com.mlin.notas.client.season.SeasonClient.argb(season.season()));
 		}
+	}
+
+	/**
+	 * Desenha uma linha centrada que cabe em {@code maxWidth} ({@link com.mlin.notas.minimap.MinimapTextFit}: escala menor
+	 * em passos inteiros de pixel e, se preciso, quebra) e devolve o Y da proxima linha.
+	 */
+	static double drawFitted(GuiGraphicsExtractor graphics, Minecraft minecraft, Component text, double centerX, double y, int maxWidth, int color) {
+		net.minecraft.client.gui.Font font = minecraft.font;
+		int guiScale = minecraft.getWindow().getGuiScale();
+		int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+		double scale = com.mlin.notas.minimap.MinimapTextFit.scale(font.width(text), maxWidth, guiScale);
+		List<net.minecraft.util.FormattedCharSequence> lines = font.width(text) * scale <= maxWidth + 1e-6
+				? List.of(text.getVisualOrderText())
+				: font.split(text, com.mlin.notas.minimap.MinimapTextFit.wrapWidth(maxWidth, scale));
+		for (net.minecraft.util.FormattedCharSequence line : lines) {
+			double width = font.width(line) * scale;
+			double left = com.mlin.notas.minimap.MinimapTextFit.left(centerX, width, screenWidth, 2);
+			// alinhado aos pixels da tela (texto em escala fracionaria fica nitido)
+			left = Math.floor(left * guiScale) / guiScale;
+			double top = Math.round(y * guiScale) / (double) guiScale;
+			graphics.pose().pushMatrix();
+			graphics.pose().translate((float) left, (float) top);
+			graphics.pose().scale((float) scale, (float) scale);
+			graphics.text(font, line, 0, 0, color, true);
+			graphics.pose().popMatrix();
+			y += font.lineHeight * scale + 1;
+		}
+		return y;
 	}
 }

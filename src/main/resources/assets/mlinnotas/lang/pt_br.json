@@ -635,7 +635,7 @@
   "quest.mlinnotas.basics.stone_tools": "Idade da Pedra",
   "quest.mlinnotas.basics.stone_tools.desc": "Faça uma picareta de pedra. Atenção: ela só funciona depois de Mineração: Pedra na árvore de habilidades (tecla K; 32 pedregulhos minerados com a de madeira). Cada nível de Mineração libera os minérios e as ferramentas e armas do seu material. Veja o capítulo Mineração.",
   "quest.mlinnotas.basics.wand": "Varinha de Construção",
-  "quest.mlinnotas.basics.wand.desc": "Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio).",
+  "quest.mlinnotas.basics.wand.desc": "Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio). Receita: o material na diagonal de um graveto (2x2, cabe no inventário).",
   "quest.mlinnotas.basics.harvest": "Colheita Fácil",
   "quest.mlinnotas.basics.harvest.desc": "Botão direito numa planta madura colhe e replanta. Com enxada colhe uma área: cobre/ferro 3x3, ouro a diamante 5x5, netherite em diante 7x7.",
   "quest.mlinnotas.basics.crafting_tablet": "Bancada de Bolso",
@@ -1570,5 +1570,8 @@
   "key.mlinnotas.network_tablet": "Tablet de Rede",
   "quest.mlinnotas.tech.network_tablet": "Rede no Bolso",
   "quest.mlinnotas.tech.network_tablet.desc": "O Tablet de Rede abre um terminal de qualquer distância na mesma dimensão. Shift+botão direito no Terminal (ou no Terminal de Crafting, com a grade 3x3) para vincular; depois botão direito em qualquer lugar ou tecla I com ele no inventário. Receita: terminal + pérola do End + lingotes de cobalto.",
-  "container.mlinnotas.remote_crafting_terminal": "Crafting Remoto"
+  "container.mlinnotas.remote_crafting_terminal": "Crafting Remoto",
+  "key.mlinnotas.quick_stack": "Guardar rápido no baú",
+  "button.mlinnotas.quick_stack": "Pôr",
+  "button.mlinnotas.quick_stack.tooltip": "Guardar rápido: leva do seu inventário (sem a barra de atalhos) tudo o que já existe neste baú (tecla %s)"
 }

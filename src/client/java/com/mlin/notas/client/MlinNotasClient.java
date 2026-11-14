@@ -28,6 +28,7 @@ public class MlinNotasClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ModKeys.init();
 		InventorySortClient.init();
+		QuickStackClient.init();
 		RecipeViewerClient.init();
 		MinimapClient.init();
 		com.mlin.notas.client.waystone.WaystoneClient.init();

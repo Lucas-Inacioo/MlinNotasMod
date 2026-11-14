@@ -1,0 +1,26 @@
+{
+  "type": "mlinnotas:salvage_blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.5,
+  "ingredient": [
+    "mlinnotas:celestium_sword",
+    "mlinnotas:celestium_pickaxe",
+    "mlinnotas:celestium_axe",
+    "mlinnotas:celestium_shovel",
+    "mlinnotas:celestium_hoe",
+    "mlinnotas:celestium_spear",
+    "mlinnotas:celestium_helmet",
+    "mlinnotas:celestium_chestplate",
+    "mlinnotas:celestium_leggings",
+    "mlinnotas:celestium_boots",
+    "mlinnotas:celestium_greatsword",
+    "mlinnotas:celestium_dagger",
+    "mlinnotas:celestium_warhammer",
+    "mlinnotas:celestium_glaive",
+    "mlinnotas:celestium_rapier"
+  ],
+  "result": {
+    "id": "mlinnotas:celestium_ingot"
+  }
+}

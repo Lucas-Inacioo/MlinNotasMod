@@ -1,0 +1,26 @@
+{
+  "type": "mlinnotas:salvage_blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.5,
+  "ingredient": [
+    "mlinnotas:astralite_sword",
+    "mlinnotas:astralite_pickaxe",
+    "mlinnotas:astralite_axe",
+    "mlinnotas:astralite_shovel",
+    "mlinnotas:astralite_hoe",
+    "mlinnotas:astralite_spear",
+    "mlinnotas:astralite_helmet",
+    "mlinnotas:astralite_chestplate",
+    "mlinnotas:astralite_leggings",
+    "mlinnotas:astralite_boots",
+    "mlinnotas:astralite_greatsword",
+    "mlinnotas:astralite_dagger",
+    "mlinnotas:astralite_warhammer",
+    "mlinnotas:astralite_glaive",
+    "mlinnotas:astralite_rapier"
+  ],
+  "result": {
+    "id": "mlinnotas:astralite_ingot"
+  }
+}

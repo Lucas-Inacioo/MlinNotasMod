@@ -1,0 +1,26 @@
+{
+  "type": "mlinnotas:salvage_blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.5,
+  "ingredient": [
+    "mlinnotas:endite_sword",
+    "mlinnotas:endite_pickaxe",
+    "mlinnotas:endite_axe",
+    "mlinnotas:endite_shovel",
+    "mlinnotas:endite_hoe",
+    "mlinnotas:endite_spear",
+    "mlinnotas:endite_helmet",
+    "mlinnotas:endite_chestplate",
+    "mlinnotas:endite_leggings",
+    "mlinnotas:endite_boots",
+    "mlinnotas:endite_greatsword",
+    "mlinnotas:endite_dagger",
+    "mlinnotas:endite_warhammer",
+    "mlinnotas:endite_glaive",
+    "mlinnotas:endite_rapier"
+  ],
+  "result": {
+    "id": "mlinnotas:endite_ingot"
+  }
+}

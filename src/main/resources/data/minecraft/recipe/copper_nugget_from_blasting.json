@@ -1,0 +1,28 @@
+{
+  "type": "mlinnotas:salvage_blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.1,
+  "ingredient": [
+    "minecraft:copper_sword",
+    "minecraft:copper_pickaxe",
+    "minecraft:copper_axe",
+    "minecraft:copper_shovel",
+    "minecraft:copper_hoe",
+    "minecraft:copper_spear",
+    "minecraft:copper_helmet",
+    "minecraft:copper_chestplate",
+    "minecraft:copper_leggings",
+    "minecraft:copper_boots",
+    "minecraft:copper_horse_armor",
+    "minecraft:copper_nautilus_armor",
+    "mlinnotas:copper_greatsword",
+    "mlinnotas:copper_dagger",
+    "mlinnotas:copper_warhammer",
+    "mlinnotas:copper_glaive",
+    "mlinnotas:copper_rapier"
+  ],
+  "result": {
+    "id": "minecraft:copper_nugget"
+  }
+}
