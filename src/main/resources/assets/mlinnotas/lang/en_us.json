@@ -635,7 +635,7 @@
   "quest.mlinnotas.basics.stone_tools": "Stone Age",
   "quest.mlinnotas.basics.stone_tools.desc": "Craft a stone pickaxe. Note: ores only break with the right Mining level in the skill tree (K key). See the Mining chapter.",
   "quest.mlinnotas.basics.wand": "Building Wand",
-  "quest.mlinnotas.basics.wand.desc": "Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium).",
+  "quest.mlinnotas.basics.wand.desc": "Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium). Recipe: the material diagonal to a stick (2x2, fits the inventory grid).",
   "quest.mlinnotas.basics.harvest": "Easy Harvest",
   "quest.mlinnotas.basics.harvest.desc": "Right-click a ripe crop to harvest and replant it. With a hoe you harvest an area: copper/iron 3x3, gold to diamond 5x5, netherite and up 7x7.",
   "quest.mlinnotas.basics.crafting_tablet": "Pocket Workbench",
@@ -1553,5 +1553,8 @@
   "quest.mlinnotas.structure.minecraft.igloo": "Igloo",
   "quest.mlinnotas.structure.minecraft.swamp_hut": "Witch Hut",
   "quest.mlinnotas.structure.minecraft.trail_ruins": "Trail Ruins",
-  "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "A dungeon"
+  "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "A dungeon",
+  "key.mlinnotas.quick_stack": "Quick stack to chest",
+  "button.mlinnotas.quick_stack": "⇩",
+  "button.mlinnotas.quick_stack.tooltip": "Quick stack: moves everything from your inventory (not the hotbar) that this chest already has (key %s)"
 }

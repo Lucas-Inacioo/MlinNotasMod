@@ -37,7 +37,8 @@
 			"com.mlin.notas.gametest.CombatGameTest",
 			"com.mlin.notas.gametest.AccessoriesGameTest",
 			"com.mlin.notas.gametest.SmainGameTest",
-			"com.mlin.notas.gametest.CitadelGameTest"
+			"com.mlin.notas.gametest.CitadelGameTest",
+			"com.mlin.notas.gametest.Qol2GameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",

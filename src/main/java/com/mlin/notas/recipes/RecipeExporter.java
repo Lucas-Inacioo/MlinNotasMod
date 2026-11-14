@@ -92,7 +92,10 @@ public final class RecipeExporter {
 		}
 		if (recipe instanceof AbstractCookingRecipe cooking) {
 			RecipeKind kind;
-			if (cooking instanceof SmeltingRecipe) {
+			if (cooking instanceof com.mlin.notas.salvage.SalvageRecipe salvage) {
+				// reciclagem: o resultado depende da peca; o visualizador mostra o exemplo do JSON
+				kind = salvage.isBlasting() ? RecipeKind.BLASTING : RecipeKind.SMELTING;
+			} else if (cooking instanceof SmeltingRecipe) {
 				kind = RecipeKind.SMELTING;
 			} else if (cooking instanceof BlastingRecipe) {
 				kind = RecipeKind.BLASTING;

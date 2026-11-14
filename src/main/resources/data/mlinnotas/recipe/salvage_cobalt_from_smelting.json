@@ -1,0 +1,26 @@
+{
+  "type": "mlinnotas:salvage_smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 0.2,
+  "ingredient": [
+    "mlinnotas:cobalt_sword",
+    "mlinnotas:cobalt_pickaxe",
+    "mlinnotas:cobalt_axe",
+    "mlinnotas:cobalt_shovel",
+    "mlinnotas:cobalt_hoe",
+    "mlinnotas:cobalt_spear",
+    "mlinnotas:cobalt_helmet",
+    "mlinnotas:cobalt_chestplate",
+    "mlinnotas:cobalt_leggings",
+    "mlinnotas:cobalt_boots",
+    "mlinnotas:cobalt_greatsword",
+    "mlinnotas:cobalt_dagger",
+    "mlinnotas:cobalt_warhammer",
+    "mlinnotas:cobalt_glaive",
+    "mlinnotas:cobalt_rapier"
+  ],
+  "result": {
+    "id": "mlinnotas:cobalt_ingot"
+  }
+}

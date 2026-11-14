@@ -635,7 +635,7 @@
   "quest.mlinnotas.basics.stone_tools": "Idade da Pedra",
   "quest.mlinnotas.basics.stone_tools.desc": "Faça uma picareta de pedra. Atenção: minérios só quebram com o nível certo de Mineração na árvore de habilidades (tecla K). Veja o capítulo Mineração.",
   "quest.mlinnotas.basics.wand": "Varinha de Construção",
-  "quest.mlinnotas.basics.wand.desc": "Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio).",
+  "quest.mlinnotas.basics.wand.desc": "Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio). Receita: o material na diagonal de um graveto (2x2, cabe no inventário).",
   "quest.mlinnotas.basics.harvest": "Colheita Fácil",
   "quest.mlinnotas.basics.harvest.desc": "Botão direito numa planta madura colhe e replanta. Com enxada colhe uma área: cobre/ferro 3x3, ouro a diamante 5x5, netherite em diante 7x7.",
   "quest.mlinnotas.basics.crafting_tablet": "Bancada de Bolso",
@@ -1553,5 +1553,8 @@
   "quest.mlinnotas.structure.minecraft.igloo": "Iglu",
   "quest.mlinnotas.structure.minecraft.swamp_hut": "Cabana da Bruxa",
   "quest.mlinnotas.structure.minecraft.trail_ruins": "Ruínas de Trilha",
-  "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "Uma masmorra"
+  "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "Uma masmorra",
+  "key.mlinnotas.quick_stack": "Guardar rápido no baú",
+  "button.mlinnotas.quick_stack": "⇩",
+  "button.mlinnotas.quick_stack.tooltip": "Guardar rápido: leva do seu inventário (sem a barra de atalhos) tudo o que já existe neste baú (tecla %s)"
 }

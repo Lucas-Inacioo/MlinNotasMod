@@ -36,4 +36,16 @@ public abstract class AbstractFurnaceBlockEntityMixin {
 			@Local(argsOnly = true) AbstractFurnaceBlockEntity furnace) {
 		return FurnaceUpgrades.applyYield(furnace, input.item(), original.call(recipe, input));
 	}
+
+	/** Reciclagem de equipamento encantado ({@code salvage/}): XP extra sai da fornalha quando a peca termina. */
+	@WrapOperation(method = "serverTick", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;burn(Lnet/minecraft/core/NonNullList;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V"))
+	private static void mlinnotas$salvageXp(net.minecraft.core.NonNullList<ItemStack> items, ItemStack input, ItemStack result,
+			Operation<Void> original, @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) net.minecraft.core.BlockPos pos) {
+		int xp = com.mlin.notas.salvage.SalvageRecipe.enchantXp(input);
+		original.call(items, input, result);
+		if (xp > 0) {
+			net.minecraft.world.entity.ExperienceOrb.award(level, net.minecraft.world.phys.Vec3.atCenterOf(pos).add(0, 0.6, 0), xp);
+		}
+	}
 }

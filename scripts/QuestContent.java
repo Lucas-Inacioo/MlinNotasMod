@@ -245,8 +245,8 @@ class QuestContent {
 						"Craft a stone pickaxe. Note: ores only break with the right Mining level in the skill tree (K key). See the Mining chapter.")
 						.dep("wood").have("minecraft:stone_pickaxe", 1).item("minecraft:torch", 16).xp(20),
 				q("wand", "mlinnotas:wooden_wand", 3, 0, "Varinha de Construção", "Building Wand",
-						"Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio).",
-						"Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium).")
+						"Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio). Receita: o material na diagonal de um graveto (2x2, cabe no inventário).",
+						"Click a face with the wand to extend it using blocks from your inventory: wood places 9 at once, and each tier places more (up to 1024 with celestium). Recipe: the material diagonal to a stick (2x2, fits the inventory grid).")
 						.dep("stone_tools").have("mlinnotas:wooden_wand", 1).xp(30),
 				q("harvest", "minecraft:wheat", 2, 1, "Colheita Fácil", "Easy Harvest",
 						"Botão direito numa planta madura colhe e replanta. Com enxada colhe uma área: cobre/ferro 3x3, ouro a diamante 5x5, netherite em diante 7x7.",
