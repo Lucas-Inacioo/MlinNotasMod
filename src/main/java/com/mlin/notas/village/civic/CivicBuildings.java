@@ -50,7 +50,7 @@ public final class CivicBuildings {
 	public static void registerLots() {
 		LotRules.register(POST_OFFICE, SizeClass.M, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
 		LotRules.register(SCHOOL, SizeClass.M, false, Zone.DISTRICT, Zone.CENTER, Zone.OUTSKIRTS);
-		LotRules.register(WATCHTOWER, SizeClass.S, false, Zone.DISTRICT);
+		LotRules.register(WATCHTOWER, SizeClass.S, false, Zone.DISTRICT, Zone.OUTSKIRTS);
 		LotRules.preferOuter(WATCHTOWER);
 		LotRules.register(BARRACKS, SizeClass.M, false, Zone.OUTSKIRTS, Zone.DISTRICT);
 		LotRules.preferOuter(BARRACKS);

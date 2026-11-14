@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "mlinnotas:block/tanning_vat_side",
+    "top": "mlinnotas:block/tanning_vat_top",
+    "bottom": "mlinnotas:block/tanning_vat_bottom"
+  }
+}

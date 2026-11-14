@@ -33,13 +33,14 @@ public final class LotRules {
 		register(VillageLayout.CAMPFIRE, SizeClass.S, false, Zone.CENTER);
 		register("house", SizeClass.S, false, Zone.DISTRICT, Zone.CENTER, Zone.OUTSKIRTS);
 		register("farm", SizeClass.S, true, Zone.OUTSKIRTS, Zone.DISTRICT);
-		register("smithy", SizeClass.M, false, Zone.DISTRICT, Zone.CENTER);
-		register("market", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
-		register("inn", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
-		register("library", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
-		register(BuildingTypes.TOWN_HALL, SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
+		register("smithy", SizeClass.M, false, Zone.DISTRICT, Zone.CENTER, Zone.OUTSKIRTS);
+		register("market", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
+		register("inn", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
+		register("library", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
+		register(BuildingTypes.TOWN_HALL, SizeClass.M, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
 		FoodBuildings.registerLots();
 		com.mlin.notas.village.civic.CivicBuildings.registerLots();
+		CraftsBuildings.registerLots();
 	}
 
 

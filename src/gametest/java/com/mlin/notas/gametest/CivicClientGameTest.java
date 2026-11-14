@@ -117,8 +117,6 @@ public class CivicClientGameTest implements FabricClientGameTest {
 		VillageState v = VillageServer.create(level, board, false);
 		VillagePlanning.ensureLayout(level, v);
 		v.setLevel(VillageLevel.METROPOLIS);
-		VillagePlanning.grow(level, v);
-		VillageTerrain.prepareOpenRings(level, v, false);
 		v.enqueue(VillageProject.PLAZA);
 		v.enqueue(VillageProject.TOWN_HALL);
 		for (int i = 0; i < 6; i++) {
@@ -127,6 +125,9 @@ public class CivicClientGameTest implements FabricClientGameTest {
 		for (VillageProject p : CivicBuildings.PROJECTS) {
 			v.enqueue(p);
 		}
+		// fila antes do plano: as obras pagas reservam lote antes dos outros oficios (VillageLayout.first)
+		VillagePlanning.grow(level, v);
+		VillageTerrain.prepareOpenRings(level, v, false);
 		VillageServer.completeAll(server, v);
 		MlinNotas.LOGGER.info("[CivicClientGameTest] obras: {} lotes prontos, parados {}", v.layout().lots().stream().filter(VillageLayout.Lot::built).count(),
 				VillageBuildings.idle(v));

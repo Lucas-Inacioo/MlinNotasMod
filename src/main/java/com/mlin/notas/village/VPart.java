@@ -148,7 +148,23 @@ public enum VPart {
 	/** Grade de ferro (janelas do quartel, cela). */
 	IRON_BARS(Flag.SOLID),
 	/** Alvo de tiro (quartel, torre). */
-	TARGET(Flag.SOLID);
+	TARGET(Flag.SOLID),
+	// ---- Vilas 2.0 fase 6 (apendice) ----
+	/** Tina de curtir do curtume (bloco do mod: 8 espacos, cura carne podre em couro). */
+	TANNING_VAT(Flag.SOLID),
+	/** Mesa de encantamento vanilla do Encantador (a unica que abre). */
+	ENCHANTING_TABLE(Flag.SOLID),
+	/** Terceira cor de la e tapete (azul ou amarelo, pelo estilo). */
+	WOOL_ACCENT(Flag.SOLID),
+	CARPET_ACCENT(Flag.LATE),
+	/** Pedra bruta da pedreira (em pilhas e terracos). */
+	ROUGH_STONE(Flag.SOLID),
+	/** Lapide: laje em pe de pedra com musgo. */
+	TOMBSTONE(Flag.SOLID),
+	/** Estaca do lote vazio. */
+	STAKE(Flag.SOLID),
+	/** Sino em cima de um bloco (campanario da igreja); o BELL da fase 7 fica pendurado no teto. */
+	BELL_FLOOR(Flag.LATE);
 
 	private static final class Flag {
 		static final int NONE = 0;

@@ -91,6 +91,8 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.doors.DoubleDoors.init();
 		com.mlin.notas.sorting.QuickStackServer.init();
 		com.mlin.notas.grave.GraveRegistry.init();
+		com.mlin.notas.village.CraftsRegistry.init();
+		com.mlin.notas.village.CraftsServer.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));

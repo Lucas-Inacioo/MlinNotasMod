@@ -517,6 +517,20 @@ public final class VillageWorks {
 		works.changed();
 	}
 
+	/** Um lote livre do plano foi aposentado por um recorte sob demanda: tira o que as obras publicas puseram nele. */
+	public static void releaseArea(ServerLevel level, VillageState village, VillageState.Rect r) {
+		if (village.layout() == null || village.layout().master() == null) {
+			return;
+		}
+		VillageWorksData works = VillageWorksData.get(level.getServer());
+		VillageWorksData.State st = works.peek(village.key());
+		if (st == null) {
+			return;
+		}
+		clear(level, village, village.layout().master(), st, st.owned.inRect(r.x0() - 1, r.z0() - 1, r.x1() + 1, r.z1() + 1));
+		works.changed();
+	}
+
 	/** A muralha de pedra vai comecar: palicada e portoes de madeira saem (a obra de pedra faz as proprias passagens). */
 	public static void beforeWall(ServerLevel level, VillageState village) {
 		VillageWorksData works = VillageWorksData.get(level.getServer());

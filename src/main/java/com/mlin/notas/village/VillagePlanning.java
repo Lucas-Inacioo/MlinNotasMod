@@ -69,6 +69,7 @@ public final class VillagePlanning {
 		if (village.layout().master() != null && village.layout().master().version() < MasterPlan.VERSION) {
 			upgradePlan(level, village, village.layout());
 		}
+		clearRetired(level, village);
 		return village.layout();
 	}
 
@@ -100,10 +101,57 @@ public final class VillagePlanning {
 				village.name(), retired.size(), removed, plan.parcels().size());
 	}
 
+	/**
+	 * Lotes livres do plano aposentados por recortes sob demanda ({@link VillageLayout#drainRetired}): as estacas da
+	 * terraplenagem nos cantos e o que as obras publicas puseram neles saem do mundo (carregando o chunk se preciso, para
+	 * nao sobrar cerca solta que pareceria construcao de jogador).
+	 */
+	public static void clearRetired(ServerLevel level, VillageState village) {
+		VillageLayout layout = village.layout();
+		if (layout == null || layout.master() == null) {
+			return;
+		}
+		List<MasterPlan.Parcel> retired = layout.drainRetired();
+		if (retired.isEmpty()) {
+			return;
+		}
+		int removed = removeCornerStakes(level, village, layout.master(), retired);
+		for (MasterPlan.Parcel p : retired) {
+			com.mlin.notas.village.works.VillageWorks.releaseArea(level, village, p.rect());
+		}
+		VillageData.get(level.getServer()).changed();
+		MlinNotas.LOGGER.debug("[{}] vila {}: {} lotes livres recortados, {} estacas tiradas", MlinNotas.MOD_ID, village.name(), retired.size(), removed);
+	}
+
+	private static int removeCornerStakes(ServerLevel level, VillageState village, MasterPlan plan, List<MasterPlan.Parcel> parcels) {
+		int removed = 0;
+		for (MasterPlan.Parcel p : parcels) {
+			MasterPlan.Block block = plan.block(p.block());
+			if (block == null) {
+				continue;
+			}
+			for (int[] c : p.corners()) {
+				// a quina pode ter virado lote novo: so tira a estaca se ela nao for canto de um lote vivo
+				MasterPlan.Parcel now = plan.parcelAt(c[0], c[1]);
+				if (now != null && now.corners().stream().anyMatch(k -> k[0] == c[0] && k[1] == c[1])) {
+					continue;
+				}
+				BlockPos pos = VillageBuilder.world(village, c[0], block.target() + 1, c[1]);
+				level.getChunk(pos);
+				if (level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.FenceBlock) {
+					level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), net.minecraft.world.level.block.Block.UPDATE_ALL);
+					removed++;
+				}
+			}
+		}
+		return removed;
+	}
+
 	/** A vila subiu de nivel: o plano abre o proximo anel (lotes novos mais longe, os antigos ficam). */
 	public static void grow(ServerLevel level, VillageState village) {
 		VillageLayout layout = ensureLayout(level, village);
 		layout.extend(village, new WorldTerrain(level, VillageServer.center(village)), village.level());
+		clearRetired(level, village);
 		VillageTerrain.refresh(level, village);
 		VillageData.get(level.getServer()).changed();
 	}

@@ -11,6 +11,8 @@ import java.util.Random;
  */
 public final class BountyBoard {
 	public static final int PER_DAY = 3;
+	/** Mais que isso nunca ha no quadro (as 3 do dia mais as extras da taverna). */
+	public static final int MAX_PER_DAY = 5;
 
 	/** Lugares das missoes de exploracao (o servidor sabe testar cada um). */
 	public static final List<String> EXPLORE_KEYS = List.of("desert", "jungle", "snowy", "badlands", "mushroom", "cherry", "swamp",
@@ -100,10 +102,19 @@ public final class BountyBoard {
 
 	/** Missoes do dia {@code day} para a vila de semente {@code seed} no nivel {@code level}. */
 	public static List<Bounty> roll(long seed, long day, VillageLevel level) {
+		return roll(seed, day, level, 0);
+	}
+
+	/** Como {@link #roll(long, long, VillageLevel)} mais {@code extra} missoes da taverna (entrega e cacada alternadas). */
+	public static List<Bounty> roll(long seed, long day, VillageLevel level, int extra) {
 		Random random = new Random(seed * 0x9E3779B97F4A7C15L + day * 0xC2B2AE3D27D4EB4FL + level.ordinal());
 		List<Bounty> out = new ArrayList<>();
 		Bounty.Kind third = level.ordinal() >= 1 ? Bounty.Kind.EXPLORE : Bounty.Kind.DELIVER;
-		for (Bounty.Kind kind : new Bounty.Kind[] {Bounty.Kind.DELIVER, Bounty.Kind.HUNT, third}) {
+		List<Bounty.Kind> kinds = new ArrayList<>(List.of(Bounty.Kind.DELIVER, Bounty.Kind.HUNT, third));
+		for (int i = 0; i < Math.min(extra, MAX_PER_DAY - PER_DAY); i++) {
+			kinds.add(i % 2 == 0 ? Bounty.Kind.HUNT : Bounty.Kind.DELIVER);
+		}
+		for (Bounty.Kind kind : kinds) {
 			List<Entry> options = new ArrayList<>();
 			for (Entry entry : ENTRIES) {
 				if (entry.kind == kind && entry.minLevel <= level.ordinal() && out.stream().noneMatch(b -> b.target().equals(entry.target))) {

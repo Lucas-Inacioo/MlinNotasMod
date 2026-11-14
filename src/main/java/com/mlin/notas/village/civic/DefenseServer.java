@@ -91,8 +91,9 @@ public final class DefenseServer {
 		}
 	}
 
+	/** Caixa da area da vila: o plano diretor inteiro (as obras dos arredores ficam alem do raio de moradores do nivel). */
 	private static AABB villageBox(ServerLevel level, VillageState village, int margin) {
-		double r = village.level().radius() + margin;
+		double r = Math.max(village.level().radius(), VillageServer.planHalf(village)) + margin;
 		return new AABB(village.x() - r, level.getMinY(), village.z() - r, village.x() + r, level.getMaxY(), village.z() + r);
 	}
 
@@ -148,7 +149,7 @@ public final class DefenseServer {
 		if (night && t % 40 == 0) {
 			List<Integer> coords = new ArrayList<>();
 			for (LivingEntity e : hostiles) {
-				if (coords.size() < 400) {
+				if (coords.size() < 400 && village.distanceSq(e.getBlockX(), e.getBlockZ()) <= (long) village.level().radius() * village.level().radius()) {
 					coords.add(e.getBlockX());
 					coords.add(e.getBlockZ());
 				}
@@ -356,7 +357,7 @@ public final class DefenseServer {
 	/** Monstro de nascimento natural dentro de uma construcao da vila de muralha completa: nao nasce. */
 	public static boolean refugeBlocks(ServerLevel level, BlockPos pos) {
 		MinecraftServer server = level.getServer();
-		VillageState village = CivicSites.villageAt(server, level, pos, 0);
+		VillageState village = com.mlin.notas.village.VillageServer.planVillageAt(level, pos);
 		if (village == null || village.built(com.mlin.notas.village.VillageProject.WALL) < 1 || village.layout() == null) {
 			return false;
 		}

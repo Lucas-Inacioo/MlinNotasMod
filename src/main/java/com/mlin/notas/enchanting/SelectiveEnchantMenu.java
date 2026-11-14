@@ -86,7 +86,7 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 		this.addDataSlot(bookshelves);
 		this.bookshelves.set(access.evaluate(SelectiveEnchantMenu::countBookshelves, 0));
 		this.addDataSlot(miningLevel);
-		this.miningLevel.set(access.evaluate((level, pos) -> worldMiningLevel(level), 1));
+		this.miningLevel.set(access.evaluate(SelectiveEnchantMenu::effectiveMining, 1));
 	}
 
 	/** Estantes validas ao redor da mesa (mesma regra da vanilla, incluindo o espaco livre entre mesa e estante). */
@@ -107,6 +107,13 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 	/** Nivel de Mineracao do mundo (1 = Madeira .. 12 = Celestio), sincronizado com o cliente. */
 	public int miningLevel() {
 		return Math.max(1, miningLevel.get());
+	}
+
+	/** Nivel de Mineracao efetivo na mesa: o do mundo, limitado pelo nivel do Encantador da vila onde a mesa fica. */
+	static int effectiveMining(Level level, BlockPos pos) {
+		int mining = worldMiningLevel(level);
+		return level instanceof net.minecraft.server.level.ServerLevel serverLevel
+				? com.mlin.notas.village.CraftsRules.effectiveMining(mining, com.mlin.notas.village.CraftsServer.levelAt(serverLevel, pos, "enchanter")) : mining;
 	}
 
 	static int worldMiningLevel(Level level) {
@@ -137,7 +144,7 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 		super.slotsChanged(container);
 		access.execute((level, pos) -> {
 			bookshelves.set(countBookshelves(level, pos));
-			miningLevel.set(worldMiningLevel(level));
+			miningLevel.set(effectiveMining(level, pos));
 		});
 		broadcastChanges();
 	}
@@ -156,7 +163,7 @@ public class SelectiveEnchantMenu extends AbstractContainerMenu {
 				option.map(EnchantOptions.Option::maxLevel).orElse(0),
 				option.map(EnchantOptions.Option::anvilCost).orElse(1),
 				bookshelves(),
-				worldMiningLevel(player.level()),
+				access.evaluate(SelectiveEnchantMenu::effectiveMining, worldMiningLevel(player.level())),
 				player.experienceLevel,
 				lapis().getCount(),
 				option.map(o -> o.reagent().base()).orElse(1),

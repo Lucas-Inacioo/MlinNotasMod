@@ -12,11 +12,11 @@ public enum VillageProject {
 	PLAZA("plaza", "minecraft:cobblestone", 0, 40, new int[] {1, 1, 1, 1, 1, 1, 1}, 0, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:logs", 8), VillageCost.of("minecraft:water_bucket", 1))),
 	/** Casa nova com cama: chega um aldeao. */
-	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 4, 6, 8, 10, 12, 14}, 1, 0,
+	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 3, 4, 6, 6, 6, 6}, 1, 0,
 			List.of(VillageCost.of("#minecraft:planks", 64), VillageCost.of("#minecraft:logs", 12), VillageCost.of("#mlinnotas:village/glass", 6),
 					VillageCost.of("#minecraft:beds", 1))),
 	/** Plantacao irrigada com composteira: chega um fazendeiro. */
-	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 3, 4, 4, 5, 6}, 1, 0,
+	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 2, 2, 2, 2, 2}, 1, 0,
 			List.of(VillageCost.of("#mlinnotas:village/food", 32), VillageCost.of("#mlinnotas:village/seeds", 16))),
 	/** Postes com lanterna nos caminhos e na praca. */
 	LAMPS("lamps", "minecraft:lantern", 0, 20, new int[] {1, 1, 2, 2, 3, 3, 4}, 0, 0,
@@ -51,7 +51,7 @@ public enum VillageProject {
 			List.of(VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:logs", 16), VillageCost.of("minecraft:hay_block", 4),
 					VillageCost.of("#mlinnotas:village/food", 16))),
 	/** Moinho de vento: mo o trigo em farinha com rendimento melhor. */
-	MILL("mill", "minecraft:grindstone", 1, 45, new int[] {0, 1, 1, 1, 1, 1, 1}, 1, 0,
+	MILL("mill", "minecraft:grindstone", 3, 45, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 12),
 					VillageCost.of("#minecraft:wool", 8), VillageCost.of("minecraft:wheat", 16))),
 	/** Padaria: o forno assa farinha e ingredientes do bau sozinho; o padeiro vende pao. */
@@ -59,19 +59,19 @@ public enum VillageProject {
 			List.of(VillageCost.of("#mlinnotas:village/stone", 48), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 8),
 					VillageCost.of("minecraft:bricks", 16), VillageCost.of("minecraft:wheat", 16))),
 	/** Pomar: macieiras e frutas da estacao, colhidas com o botao direito. */
-	ORCHARD("orchard", "minecraft:apple", 1, 40, new int[] {0, 1, 1, 1, 1, 1, 2}, 1, 0,
+	ORCHARD("orchard", "minecraft:apple", 3, 40, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#minecraft:saplings", 6), VillageCost.of("#minecraft:wooden_fences", 16), VillageCost.of("#minecraft:logs", 8),
 					VillageCost.of("#minecraft:planks", 16), VillageCost.of("minecraft:apple", 6))),
 	/** Curral: vacas, ovelhas e porcos que se reproduzem ate o limite do nivel; leite e la no bau. */
-	PEN("pen", "minecraft:white_wool", 1, 40, new int[] {0, 1, 1, 1, 1, 1, 2}, 1, 0,
+	PEN("pen", "minecraft:white_wool", 3, 40, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#minecraft:wooden_fences", 32), VillageCost.of("#minecraft:planks", 16), VillageCost.of("#minecraft:logs", 8),
 					VillageCost.of("minecraft:hay_block", 6), VillageCost.of("minecraft:wheat", 16))),
 	/** Apiario: colmeias, flores e mel no bau. */
-	APIARY("apiary", "minecraft:honeycomb", 2, 50, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+	APIARY("apiary", "minecraft:honeycomb", 3, 50, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:logs", 8), VillageCost.of("minecraft:honeycomb", 8),
 					VillageCost.of("#minecraft:flowers", 16), VillageCost.of("minecraft:glass_bottle", 4))),
 	/** Acougue: acougueiro, cortes de carne e charque mais barato. */
-	BUTCHER("butcher", "minecraft:cooked_beef", 2, 50, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+	BUTCHER("butcher", "minecraft:cooked_beef", 3, 50, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 40), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 8),
 					VillageCost.of("minecraft:iron_ingot", 6), VillageCost.of("#minecraft:coals", 8))),
 	/** Vinicola: parreiral de uvas no caramanchao, cervejaria e adega. */
@@ -79,7 +79,7 @@ public enum VillageProject {
 			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#minecraft:planks", 32),
 					VillageCost.of("minecraft:barrel", 4), VillageCost.of("mlinnotas:grape_seeds", 8), VillageCost.of("minecraft:emerald", 6))),
 	/** Serraria: carpinteiro, tabuas mais baratas e uma bancada que faz 6 tabuas por tronco. */
-	SAWMILL("sawmill", "minecraft:stonecutter", 2, 55, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+	SAWMILL("sawmill", "minecraft:stonecutter", 3, 55, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#minecraft:logs", 32), VillageCost.of("#minecraft:planks", 16), VillageCost.of("#mlinnotas:village/stone", 24),
 					VillageCost.of("minecraft:iron_ingot", 8))),
 	/** Correio (Cidade, centro, I-II): caixa de correio que manda itens para outra vila ou outro jogador, entregues no dia seguinte. */
@@ -113,7 +113,43 @@ public enum VillageProject {
 	/** Guilda dos Exploradores (Cidade, bairros/arredores, I-V): manda aldeoes em expedicoes. */
 	EXPLORERS_GUILD("explorers_guild", "minecraft:compass", 3, 90, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("#minecraft:planks", 64), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#mlinnotas:village/stone", 64),
-					VillageCost.of("minecraft:iron_ingot", 16), VillageCost.of("minecraft:compass", 2), VillageCost.of("minecraft:emerald", 24)));
+					VillageCost.of("minecraft:iron_ingot", 16), VillageCost.of("minecraft:compass", 2), VillageCost.of("minecraft:emerald", 24))),
+	// ---- Vilas 2.0 fase 6: oficios e servicos (apendice no fim do enum: ids salvos por nome, nunca por ordem) ----
+	/** Pedreira (arredores, I-III): o pedreiro enche um bau de pedra aos poucos e a vila ganha desconto em material de rua. */
+	QUARRY("quarry", "minecraft:stonecutter", 3, 45, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:iron_ingot", 12), VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:logs", 12),
+					VillageCost.of("minecraft:stonecutter", 1))),
+	/** Alfaiataria (bairros, I-II): tecelao, la tingida, tapetes e mochila mais barata. */
+	TAILOR("tailor", "minecraft:loom", 3, 40, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:wool", 24), VillageCost.of("#minecraft:planks", 32), VillageCost.of("minecraft:string", 16),
+					VillageCost.of("minecraft:loom", 1))),
+	/** Curtume (arredores, I-II): unico lugar onde a carne podre vira couro (tina de curtir). */
+	TANNERY("tannery", "minecraft:leather", 3, 40, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:leather", 16), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 12),
+					VillageCost.of("minecraft:cauldron", 1))),
+	/** Flecharia (bairros, I-III): flecheiro, flechas com pocao mais baratas e um campo de tiro. */
+	FLETCHER("fletcher", "minecraft:fletching_table", 3, 40, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:arrow", 32), VillageCost.of("minecraft:feather", 16), VillageCost.of("#minecraft:planks", 24),
+					VillageCost.of("minecraft:flint", 16))),
+	/** Encantador (centro, Cidade, I-V): o unico lugar onde se encanta; o nivel da casa limita o nivel do encantamento. */
+	ENCHANTER("enchanter", "minecraft:enchanting_table", 3, 90, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:diamond", 4), VillageCost.of("minecraft:obsidian", 8), VillageCost.of("minecraft:book", 8),
+					VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("minecraft:lapis_lazuli", 16), VillageCost.of("minecraft:emerald", 16))),
+	/** Taverna (centro, I-III): vende boatos sobre estruturas ainda nao achadas e uma missao extra por dia. */
+	TAVERN("tavern", "minecraft:barrel", 2, 60, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:logs", 16), VillageCost.of("minecraft:barrel", 4),
+					VillageCost.of("minecraft:emerald", 12), VillageCost.of("minecraft:bread", 8))),
+	/** Jardim (qualquer zona, I-III): lago, ponte, flores da estacao e bancos. Lazer. */
+	GARDEN("garden", "minecraft:oxeye_daisy", 1, 25, new int[] {0, 1, 1, 2, 2, 3, 3}, 0, 0,
+			List.of(VillageCost.of("minecraft:water_bucket", 1), VillageCost.of("#minecraft:flowers", 8), VillageCost.of("#mlinnotas:village/stone", 16),
+					VillageCost.of("#minecraft:planks", 12))),
+	/** Igreja (centro, I-III): clerigo, sino ao anoitecer, bencao do altar e cemiterio no III. Lazer e fe. */
+	CHURCH("church", "minecraft:bell", 2, 70, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 128), VillageCost.of("#mlinnotas:village/glass", 16), VillageCost.of("#minecraft:logs", 16),
+					VillageCost.of("minecraft:bell", 1), VillageCost.of("minecraft:emerald", 12), VillageCost.of("#minecraft:wool", 8))),
+	/** Lote vazio (bairros): patamar preparado com estacas para o jogador construir a propria casa; a vila nunca mexe nele. */
+	EMPTY_LOT("empty_lot", "minecraft:oak_fence", 3, 5, new int[] {0, 0, 0, 1, 1, 1, 1}, 0, 0,
+			List.of(VillageCost.of("#minecraft:wooden_fences", 8), VillageCost.of("minecraft:emerald", 2)));
 
 	private final String id;
 	private final String icon;

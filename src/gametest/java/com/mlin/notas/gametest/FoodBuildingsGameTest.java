@@ -57,7 +57,7 @@ import java.util.Map;
  */
 public class FoodBuildingsGameTest {
 	private static final int RUN = (int) (System.currentTimeMillis() / 1000 % 4000) * 400 + 4_800_000;
-	private static final int R = 70;
+	private static final int R = 80;
 
 	private static final List<VillageProject> ALL = List.of(VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.HOUSE,
 			VillageProject.HOUSE, VillageProject.FARM, VillageProject.TOWN_HALL, VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY,
@@ -91,11 +91,12 @@ public class FoodBuildingsGameTest {
 		VillageState village = VillageServer.create(level, board, false);
 		VillagePlanning.ensureLayout(level, village);
 		village.setLevel(VillageLevel.TOWN);
-		VillagePlanning.grow(level, village);
-		VillageTerrain.prepareOpenRings(level, village, false);
 		for (VillageProject p : projects) {
 			village.enqueue(p);
 		}
+		// fila antes do plano: as obras pagas reservam lote antes dos outros oficios (VillageLayout.first)
+		VillagePlanning.grow(level, village);
+		VillageTerrain.prepareOpenRings(level, village, false);
 		VillageServer.completeAll(level.getServer(), village);
 		for (VillageProject p : projects) {
 			int want = (int) projects.stream().filter(q -> q == p).count();
@@ -191,56 +192,60 @@ public class FoodBuildingsGameTest {
 	public void workshopsDoTheirJobOnTheChestEveryCycle(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		VillageState v = village(helper, 101_000 + RUN, ALL);
-		// moinho: 16 trigos viram 20 farinhas (5 por 4)
-		Container mill = chest(helper, v, "mill");
-		put(mill, "minecraft:wheat", 16);
-		// padaria: 6 farinhas viram 8 paes (2 vao para o celeiro)
-		Container bakery = chest(helper, v, "bakery");
-		put(bakery, "mlinnotas:flour", 6);
-		// vinicola: 8 uvas viram 6 vinhos
-		Container winery = chest(helper, v, "winery");
-		put(winery, "mlinnotas:grapes", 8);
-		put(winery, "minecraft:wheat", 8);
-		// acougue I nao faz charque
-		Container butcher = chest(helper, v, "butcher");
-		put(butcher, "minecraft:cooked_beef", 4);
-		FoodBuildingsServer.cycle(level.getServer(), v);
-		expect(count(mill, "mlinnotas:flour") == 20 && count(mill, "minecraft:wheat") == 0, "moinho I: 20 farinhas, achou " + count(mill, "mlinnotas:flour"));
-		expect(count(bakery, "minecraft:bread") + count(chest(helper, v, "granary"), "minecraft:bread") == 8, "padaria I: 6 farinhas = 8 paes");
-		expect(count(bakery, "mlinnotas:flour") == 0, "farinha gasta");
-		expect(count(chest(helper, v, "granary"), "minecraft:bread") == 2, "a padaria I leva 2 paes ao celeiro por ciclo");
-		expect(count(winery, "mlinnotas:wine") == 6, "vinicola I: vinho, achou " + count(winery, "mlinnotas:wine"));
-		expect(count(winery, "mlinnotas:beer") == 0, "cerveja so no II");
-		expect(count(butcher, "mlinnotas:charque") == 0 && count(butcher, "minecraft:cooked_beef") == 4, "o acougue I nao seca carne");
-		// plantacao, pomar e curral abastecem o celeiro
-		Container granary = chest(helper, v, "granary");
-		expect(count(granary, "minecraft:apple") >= 2, "pomar abastece o celeiro com macas");
-		int crops = count(granary, "minecraft:wheat") + count(granary, "minecraft:carrot") + count(granary, "minecraft:potato")
-				+ count(granary, "minecraft:beetroot");
-		expect(crops >= 3, "plantacao abastece o celeiro: " + crops);
-		int meat = count(granary, "minecraft:beef") + count(granary, "minecraft:porkchop") + count(granary, "minecraft:mutton");
-		expect(meat >= 1, "curral abastece o celeiro com carne");
-		// apiario: favos e mel no bau, abelhas em volta
-		Container apiary = chest(helper, v, "apiary");
-		expect(count(apiary, "minecraft:honeycomb") >= 2 && count(apiary, "minecraft:honey_bottle") >= 2, "apiario I poe favos e mel (verao/sem estacao)");
-		// curral: no primeiro ciclo chegam 2 de cada; no segundo nasce um filhote de cada ate o limite
-		AABB all = new AABB(VillageServer.center(v)).inflate(R, 30, R);
-		int cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
-		int sheep = level.getEntitiesOfClass(net.minecraft.world.entity.animal.sheep.Sheep.class, all).size();
-		expect(cows == 2 && sheep == 2, "curral I recebe 2 vacas e 2 ovelhas: " + cows + "/" + sheep);
-		FoodBuildingsServer.cycle(level.getServer(), v);
-		cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
-		expect(cows == 3, "as vacas se criam sozinhas: " + cows);
-		Container pen = chest(helper, v, "pen");
-		expect(count(pen, "minecraft:white_wool") >= 2 && count(pen, "minecraft:milk_bucket") >= 1, "curral poe la e leite no bau");
-		for (int i = 0; i < 6; i++) {
+		// os animais e as abelhas nascem nas chunks recem-forcadas: espera elas ficarem com entidades ativas (senao a busca por
+		// area nao enxerga quem acabou de nascer e o curral/apiario poem mais a cada ciclo)
+		helper.runAfterDelay(20, () -> {
+			// moinho: 16 trigos viram 20 farinhas (5 por 4)
+			Container mill = chest(helper, v, "mill");
+			put(mill, "minecraft:wheat", 16);
+			// padaria: 6 farinhas viram 8 paes (2 vao para o celeiro)
+			Container bakery = chest(helper, v, "bakery");
+			put(bakery, "mlinnotas:flour", 6);
+			// vinicola: 8 uvas viram 6 vinhos
+			Container winery = chest(helper, v, "winery");
+			put(winery, "mlinnotas:grapes", 8);
+			put(winery, "minecraft:wheat", 8);
+			// acougue I nao faz charque
+			Container butcher = chest(helper, v, "butcher");
+			put(butcher, "minecraft:cooked_beef", 4);
 			FoodBuildingsServer.cycle(level.getServer(), v);
-		}
-		cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
-		expect(cows <= 4, "o curral I segura no maximo 4 vacas: " + cows);
-		expect(level.getEntitiesOfClass(Bee.class, all).size() >= 2, "abelhas no apiario");
-		release(helper, v);
-		helper.succeed();
+			expect(count(mill, "mlinnotas:flour") == 20 && count(mill, "minecraft:wheat") == 0, "moinho I: 20 farinhas, achou " + count(mill, "mlinnotas:flour"));
+			expect(count(bakery, "minecraft:bread") + count(chest(helper, v, "granary"), "minecraft:bread") == 8, "padaria I: 6 farinhas = 8 paes");
+			expect(count(bakery, "mlinnotas:flour") == 0, "farinha gasta");
+			expect(count(chest(helper, v, "granary"), "minecraft:bread") == 2, "a padaria I leva 2 paes ao celeiro por ciclo");
+			expect(count(winery, "mlinnotas:wine") == 6, "vinicola I: vinho, achou " + count(winery, "mlinnotas:wine"));
+			expect(count(winery, "mlinnotas:beer") == 0, "cerveja so no II");
+			expect(count(butcher, "mlinnotas:charque") == 0 && count(butcher, "minecraft:cooked_beef") == 4, "o acougue I nao seca carne");
+			// plantacao, pomar e curral abastecem o celeiro
+			Container granary = chest(helper, v, "granary");
+			expect(count(granary, "minecraft:apple") >= 2, "pomar abastece o celeiro com macas");
+			int crops = count(granary, "minecraft:wheat") + count(granary, "minecraft:carrot") + count(granary, "minecraft:potato")
+					+ count(granary, "minecraft:beetroot");
+			expect(crops >= 3, "plantacao abastece o celeiro: " + crops);
+			int meat = count(granary, "minecraft:beef") + count(granary, "minecraft:porkchop") + count(granary, "minecraft:mutton");
+			expect(meat >= 1, "curral abastece o celeiro com carne");
+			// apiario: favos e mel no bau, abelhas em volta
+			Container apiary = chest(helper, v, "apiary");
+			expect(count(apiary, "minecraft:honeycomb") >= 2 && count(apiary, "minecraft:honey_bottle") >= 2, "apiario I poe favos e mel (verao/sem estacao)");
+			// curral: no primeiro ciclo chegam 2 de cada; no segundo nasce um filhote de cada ate o limite
+			AABB all = new AABB(VillageServer.center(v)).inflate(R, 30, R);
+			int cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
+			int sheep = level.getEntitiesOfClass(net.minecraft.world.entity.animal.sheep.Sheep.class, all).size();
+			expect(cows == 2 && sheep == 2, "curral I recebe 2 vacas e 2 ovelhas: " + cows + "/" + sheep);
+			FoodBuildingsServer.cycle(level.getServer(), v);
+			cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
+			expect(cows == 3, "as vacas se criam sozinhas: " + cows);
+			Container pen = chest(helper, v, "pen");
+			expect(count(pen, "minecraft:white_wool") >= 2 && count(pen, "minecraft:milk_bucket") >= 1, "curral poe la e leite no bau");
+			for (int i = 0; i < 6; i++) {
+				FoodBuildingsServer.cycle(level.getServer(), v);
+			}
+			cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
+			expect(cows <= 4, "o curral I segura no maximo 4 vacas: " + cows);
+			expect(level.getEntitiesOfClass(Bee.class, all).size() >= 2, "abelhas no apiario");
+			release(helper, v);
+			helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 400, environment = "mlinnotas-gametest:food_buildings")
@@ -292,45 +297,51 @@ public class FoodBuildingsGameTest {
 	public void orchardLeavesSawBenchGranaryBonusAndBees(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		VillageState v = village(helper, 103_000 + RUN, ALL);
-		VillageData data = VillageData.get(level.getServer());
-		ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
-		// pomar: botao direito nas folhas da macieira dao fruta uma vez por dia
-		VillageLayout.Lot orchard = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("orchard")).findFirst().orElseThrow();
-		BlockPos leaf = find(data, v, orchard, "_leaves");
-		player.setPos(leaf.getX() + 0.5, leaf.getY() - 1, leaf.getZ() + 0.5);
-		AABB items = new AABB(leaf).inflate(3);
-		expect(use(player, level, leaf) == InteractionResult.SUCCESS, "colher no pomar");
-		int apples = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items, e -> e.getItem().is(Items.APPLE)).stream()
-				.mapToInt(e -> e.getItem().getCount()).sum();
-		expect(apples >= 2, "o pomar I da pelo menos 2 macas: " + apples);
-		int before = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items).size();
-		expect(use(player, level, leaf) == InteractionResult.SUCCESS, "segunda colheita na mesma folha");
-		expect(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items).size() == before, "a arvore ainda esta verde: nada cai");
-		// serraria: troncos no cortador de pedras = 6 tabuas cada
-		VillageLayout.Lot sawmill = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("sawmill")).findFirst().orElseThrow();
-		BlockPos bench = find(data, v, sawmill, "minecraft:stonecutter");
-		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.OAK_LOG, 4));
-		expect(use(player, level, bench) == InteractionResult.SUCCESS, "usar a bancada");
-		int planks = 0;
-		for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-			if (player.getInventory().getItem(i).is(Items.OAK_PLANKS)) {
-				planks += player.getInventory().getItem(i).getCount();
+		// frutas, abelhas e aldeoes nascem nas chunks recem-forcadas: espera elas ficarem com entidades ativas
+		helper.runAfterDelay(20, () -> {
+			VillageData data = VillageData.get(level.getServer());
+			ServerPlayer player = (ServerPlayer) helper.makeMockServerPlayer(GameType.SURVIVAL);
+			// pomar: botao direito nas folhas da macieira dao fruta uma vez por dia
+			VillageLayout.Lot orchard = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("orchard")).findFirst().orElseThrow();
+			BlockPos leaf = find(data, v, orchard, "_leaves");
+			player.setPos(leaf.getX() + 0.5, leaf.getY() - 1, leaf.getZ() + 0.5);
+			AABB items = new AABB(leaf).inflate(3);
+			expect(use(player, level, leaf) == InteractionResult.SUCCESS, "colher no pomar");
+			int apples = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items, e -> e.getItem().is(Items.APPLE)).stream()
+					.mapToInt(e -> e.getItem().getCount()).sum();
+			expect(apples >= 2, "o pomar I da pelo menos 2 macas: " + apples);
+			int before = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items).size();
+			expect(use(player, level, leaf) == InteractionResult.SUCCESS, "segunda colheita na mesma folha");
+			expect(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, items).size() == before, "a arvore ainda esta verde: nada cai");
+			// serraria: troncos no cortador de pedras = 6 tabuas cada
+			VillageLayout.Lot sawmill = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("sawmill")).findFirst().orElseThrow();
+			BlockPos bench = find(data, v, sawmill, "minecraft:stonecutter");
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.OAK_LOG, 4));
+			expect(use(player, level, bench) == InteractionResult.SUCCESS, "usar a bancada");
+			int planks = 0;
+			for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+				if (player.getInventory().getItem(i).is(Items.OAK_PLANKS)) {
+					planks += player.getInventory().getItem(i).getCount();
+				}
 			}
-		}
-		expect(planks == 24, "4 troncos = 24 tabuas (6 por tronco): " + planks);
-		// celeiro I: +10% na colheita das plantacoes perto
-		List<ItemStack> drops = new java.util.ArrayList<>(List.of(new ItemStack(Items.WHEAT, 100), new ItemStack(Items.WHEAT_SEEDS, 1)));
-		FoodBuildingsServer.harvestBonus(level, VillageServer.center(v).offset(6, 0, 6), drops, 1);
-		expect(drops.get(0).getCount() == 110, "celeiro I: 100 trigos viram 110: " + drops.get(0).getCount());
-		expect(drops.get(1).getCount() == 1, "a semente que replanta nao ganha bonus");
-		// abelhas nao machucam aldeoes
-		Bee bee = EntityTypes.BEE.spawn(level, VillageServer.center(v).offset(2, 1, 2), EntitySpawnReason.MOB_SUMMONED);
-		Villager villager = EntityTypes.VILLAGER.spawn(level, VillageServer.center(v).offset(3, 1, 2), EntitySpawnReason.MOB_SUMMONED);
-		float hp = villager.getHealth();
-		boolean hurt = villager.hurtServer(level, level.damageSources().mobAttack(bee), 4.0F);
-		expect(!hurt && villager.getHealth() == hp, "a abelha nao fere o aldeao");
-		release(helper, v);
-		helper.succeed();
+			expect(planks == 24, "4 troncos = 24 tabuas (6 por tronco): " + planks);
+			// celeiro I: +10% na colheita das plantacoes perto
+			// (a plantacao a 6 blocos do celeiro: o plano diretor pode por o celeiro no bairro ou nos arredores)
+			VillageLayout.Lot granary = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("granary")).findFirst().orElseThrow();
+			List<ItemStack> drops = new java.util.ArrayList<>(List.of(new ItemStack(Items.WHEAT, 100), new ItemStack(Items.WHEAT_SEEDS, 1)));
+			FoodBuildingsServer.harvestBonus(level, VillageServer.center(v).offset((granary.rect().x0() + granary.rect().x1()) / 2 + 6, 0,
+					(granary.rect().z0() + granary.rect().z1()) / 2 + 6), drops, 1);
+			expect(drops.get(0).getCount() == 110, "celeiro I: 100 trigos viram 110: " + drops.get(0).getCount());
+			expect(drops.get(1).getCount() == 1, "a semente que replanta nao ganha bonus");
+			// abelhas nao machucam aldeoes
+			Bee bee = EntityTypes.BEE.spawn(level, VillageServer.center(v).offset(2, 1, 2), EntitySpawnReason.MOB_SUMMONED);
+			Villager villager = EntityTypes.VILLAGER.spawn(level, VillageServer.center(v).offset(3, 1, 2), EntitySpawnReason.MOB_SUMMONED);
+			float hp = villager.getHealth();
+			boolean hurt = villager.hurtServer(level, level.damageSources().mobAttack(bee), 4.0F);
+			expect(!hurt && villager.getHealth() == hp, "a abelha nao fere o aldeao");
+			release(helper, v);
+			helper.succeed();
+		});
 	}
 
 	private static InteractionResult use(ServerPlayer player, ServerLevel level, BlockPos pos) {

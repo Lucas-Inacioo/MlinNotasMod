@@ -101,11 +101,12 @@ public class CivicGameTest {
 		VillageState village = VillageServer.create(level, board, false);
 		VillagePlanning.ensureLayout(level, village);
 		village.setLevel(lvl);
-		VillagePlanning.grow(level, village);
-		VillageTerrain.prepareOpenRings(level, village, false);
 		for (VillageProject p : projects) {
 			village.enqueue(p);
 		}
+		// fila antes do plano: as obras pagas reservam lote antes dos outros oficios (VillageLayout.first)
+		VillagePlanning.grow(level, village);
+		VillageTerrain.prepareOpenRings(level, village, false);
 		VillageServer.completeAll(level.getServer(), village);
 		for (VillageProject p : projects) {
 			int want = (int) java.util.Arrays.stream(projects).filter(q -> q == p).count();
@@ -346,8 +347,22 @@ public class CivicGameTest {
 			fail("a torre III precisa de 4 postos de arqueiro");
 		}
 		BlockPos post = tower.marks("archer").get(0);
-		// zumbi parado a 8 blocos do posto, no chao, com ceu aberto
-		BlockPos zombiePos = ground(level, post.getX() + 8, post.getZ());
+		// zumbi parado a 8 blocos do posto, no chao, com ceu aberto e a vista do posto (a torre fica na beira do plano: o
+		// lado de fora pode ser a muralha externa ou outra obra)
+		BlockPos zombiePos = null;
+		net.minecraft.world.phys.Vec3 eye = net.minecraft.world.phys.Vec3.atCenterOf(post).add(0, 0.6, 0);
+		for (int[] d : new int[][] {{8, 0}, {-8, 0}, {0, 8}, {0, -8}, {6, 6}, {-6, 6}, {6, -6}, {-6, -6}}) {
+			BlockPos g = ground(level, post.getX() + d[0], post.getZ() + d[1]);
+			net.minecraft.world.phys.Vec3 head = net.minecraft.world.phys.Vec3.atBottomCenterOf(g).add(0, 1.7, 0);
+			if (zombiePos == null && level.clip(new net.minecraft.world.level.ClipContext(eye, head, net.minecraft.world.level.ClipContext.Block.COLLIDER,
+					net.minecraft.world.level.ClipContext.Fluid.NONE, net.minecraft.world.phys.shapes.CollisionContext.empty())).getType()
+					== net.minecraft.world.phys.HitResult.Type.MISS) {
+				zombiePos = g;
+			}
+		}
+		if (zombiePos == null) {
+			fail("nenhum chao a vista do posto de arqueiro a 8 blocos");
+		}
 		Zombie zombie = EntityTypes.ZOMBIE.spawn(level, zombiePos, EntitySpawnReason.MOB_SUMMONED);
 		zombie.setNoAi(true);
 		zombie.setHealth(zombie.getMaxHealth());

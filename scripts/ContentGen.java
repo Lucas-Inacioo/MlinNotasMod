@@ -246,6 +246,7 @@ public class ContentGen {
 		Village2Content.generate();
 		Village3Content.generate();
 		Village4Content.generate();
+		CraftsContent.generate();
 		WorksContent.generate();
 		SNetherContent.generate();
 		CompassContent.generate();
@@ -258,6 +259,7 @@ public class ContentGen {
 		Qol2Content.generate();
 		FoodBuildingsContent.generate();
 		CivicContent.generate(pickaxeMineable);
+		VillageCapacityContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

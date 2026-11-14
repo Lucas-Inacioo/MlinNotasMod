@@ -43,7 +43,9 @@ public final class VillageLayout {
 			List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY, VillageProject.MARKET, VillageProject.INN,
 					VillageProject.LIBRARY, VillageProject.TOWN_HALL, VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY,
 					VillageProject.ORCHARD, VillageProject.PEN, VillageProject.APIARY, VillageProject.BUTCHER, VillageProject.WINERY,
-					VillageProject.SAWMILL).stream(),
+					VillageProject.SAWMILL, VillageProject.ENCHANTER, VillageProject.CHURCH, VillageProject.TAVERN,
+					VillageProject.TAILOR, VillageProject.FLETCHER, VillageProject.QUARRY, VillageProject.TANNERY, VillageProject.GARDEN,
+					VillageProject.EMPTY_LOT).stream(),
 			com.mlin.notas.village.civic.CivicBuildings.PROJECTS.stream()).toList();
 	/** Postes que a praca ja coloca (os da rua guardam distancia deles). */
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
@@ -517,35 +519,115 @@ public final class VillageLayout {
 		return out;
 	}
 
-	/** Reserva os lotes que faltam no nivel nos lotes do plano diretor (os de antes ficam) e os postes novos. */
+	/**
+	 * Tipos com lote agrupados pela classe, maiores primeiro (L, M, S, T...; dentro do grupo na ordem de
+	 * {@link #LOT_PROJECTS}). Os lotes grandes precisam de frente comprida e contigua; reservados depois das casas, so
+	 * sobrariam pedacos.
+	 */
+	static List<List<VillageProject>> reserveGroups(java.util.function.Predicate<VillageProject> filter) {
+		Map<Integer, List<VillageProject>> byArea = new java.util.TreeMap<>(Comparator.reverseOrder());
+		for (VillageProject p : LOT_PROJECTS) {
+			if (!filter.test(p)) {
+				continue;
+			}
+			SizeClass s = LotRules.of(p.id()).size();
+			byArea.computeIfAbsent(s.width() * s.depth(), k -> new ArrayList<>()).add(p);
+		}
+		return new ArrayList<>(byArea.values());
+	}
+
+	/**
+	 * Tipos essenciais: casa, plantacao e toda obra que algum nivel da vila exige ({@link VillageLevel#required}). Eles
+	 * reservam primeiro (e guardam o espaco dos proximos niveis); os outros oficios ficam com o que sobra do plano e,
+	 * sem lugar, o projeto aparece como "sem lugar no plano" ({@link VillageState.Status#NO_ROOM}).
+	 */
+	public static boolean essential(VillageProject project) {
+		if (project == VillageProject.HOUSE || project == VillageProject.FARM) {
+			return true;
+		}
+		for (VillageLevel level : VillageLevel.values()) {
+			if (level.required().contains(project)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Reserva antes dos outros: essencial ou ja paga e esperando na fila (a fila nunca fica sem lote por causa de um oficio novo). */
+	static boolean first(VillageState state, VillageProject project) {
+		return essential(project) || state.queued(project) > 0;
+	}
+
+	/** Lotes do plano guardados (so durante {@link #extendMaster}) para obras dos proximos niveis. */
+	private final java.util.Set<Integer> held = new java.util.HashSet<>();
+
+	/**
+	 * Reserva os lotes que faltam no nivel nos lotes do plano diretor (os de antes ficam) e os postes novos. Com todos
+	 * os aneis de lotes comuns abertos (da Cidade em diante), o espaco das obras dos niveis seguintes e guardado na mesma
+	 * passada (classe por classe, maiores primeiro): assim o museu e o quartel da Capital ainda acham frente comprida
+	 * depois das obras da Cidade. O que foi guardado nao vira lote (nada aparece para o jogador); so impede que uma obra
+	 * menor parta aquele espaco agora. Os essenciais ({@link #essential}) e os ja pagos reservam todos antes dos outros
+	 * oficios: num terreno dificil (lagos, encostas) o plano tem bem menos lotes e quem fica sem lugar e um oficio.
+	 */
 	List<Lot> extendMaster(VillageState state, VillageLevel level) {
 		radius = Math.max(radius, level.radius());
 		int open = openRings();
-		Map<VillageProject, Integer> need = new LinkedHashMap<>();
+		VillageLevel top = VillageLevel.values()[VillageLevel.values().length - 1];
+		Map<VillageProject, Integer> now = new LinkedHashMap<>();
+		Map<VillageProject, Integer> later = new LinkedHashMap<>();
 		for (VillageProject project : LOT_PROJECTS) {
-			need.put(project, missing(state, project, level));
+			int n = missing(state, project, level);
+			now.put(project, n);
+			later.put(project, open >= 5 && first(state, project) ? Math.max(0, missing(state, project, top) - n) : 0);
 		}
 		List<Lot> added = new ArrayList<>();
+		held.clear();
+		try {
+			for (boolean essentials : new boolean[] {true, false}) {
+				for (List<VillageProject> group : reserveGroups(p -> first(state, p) == essentials)) {
+					roundRobin(group, now, project -> {
+						Lot lot = reserve(project.id(), state.style(), state.seed(), open);
+						if (lot != null) {
+							added.add(lot);
+						}
+						return lot != null;
+					});
+					roundRobin(group, later, project -> {
+						SizeClass cls = LotRules.of(project.id()).size();
+						MasterPlan.Parcel p = pickParcel(project.id(), cls.width(), cls.depth(), open, -1, false);
+						if (p != null) {
+							held.add(p.id());
+						}
+						return p != null;
+					});
+				}
+			}
+		} finally {
+			held.clear();
+		}
+		addMasterLamps(open);
+		return added;
+	}
+
+	/** Uma unidade de cada tipo do grupo por volta, ate acabar a conta ou o lugar ({@code take} devolve false). */
+	private static void roundRobin(List<VillageProject> group, Map<VillageProject, Integer> need,
+			java.util.function.Predicate<VillageProject> take) {
 		boolean progress = true;
 		while (progress) {
 			progress = false;
-			for (VillageProject project : LOT_PROJECTS) {
+			for (VillageProject project : group) {
 				int n = need.get(project);
 				if (n <= 0) {
 					continue;
 				}
-				Lot lot = reserve(project.id(), state.style(), state.seed(), open);
-				if (lot == null) {
+				if (!take.test(project)) {
 					need.put(project, 0);
 					continue;
 				}
-				added.add(lot);
 				need.put(project, n - 1);
 				progress = true;
 			}
 		}
-		addMasterLamps(open);
-		return added;
 	}
 
 	/**
@@ -594,7 +676,9 @@ public final class VillageLayout {
 
 	/**
 	 * Melhor lote do plano para o tipo: zona preferida primeiro, depois o tamanho que menos sobra e o mais perto do
-	 * centro. {@code prepared}: so quarteiroes ja aplainados.
+	 * centro. {@code prepared}: so quarteiroes ja aplainados. Quando nenhum lote do plano serve bem (zona de reserva,
+	 * sobra grande ou nenhum), o espaco livre dos quarteiroes e recortado sob demanda ({@link #carveParcel}): dois lotes
+	 * pequenos vizinhos viram um medio, um grande se parte. Lotes reservados, prontos e de jogador nunca mudam.
 	 */
 	public MasterPlan.Parcel pickParcel(String kind, int cw, int cd, int open, int exclude, boolean prepared) {
 		LotRules.Rule rule = LotRules.of(kind);
@@ -608,19 +692,123 @@ public final class VillageLayout {
 			if (prepared && !block.prepared()) {
 				continue;
 			}
-			VillageState.Rect r = p.rect();
-			double dist = Math.hypot((r.x0() + r.x1()) / 2.0, (r.z0() + r.z1()) / 2.0);
-			if (LotRules.prefersOuter(kind)) {
-				dist = -dist;
-			}
-			double waste = p.size().width() * p.size().depth() - rule.size().width() * rule.size().depth();
-			double score = rule.preference(p.zone()) * 1000 + waste * 0.5 + dist + (block.prepared() ? 0 : 500);
+			double score = parcelScore(kind, rule, p.zone(), p.rect(), p.along() * p.deep(), block.prepared());
 			if (score < bestScore) {
 				bestScore = score;
 				best = p;
 			}
 		}
+		boolean perfect = best != null && rule.preference(best.zone()) == 0
+				&& best.along() * best.deep() - rule.size().width() * rule.size().depth() <= CARVE_WASTE;
+		if (!perfect) {
+			MasterPlan.Parcel carved = carveParcel(kind, cw, cd, open, prepared, bestScore);
+			if (carved != null) {
+				return carved;
+			}
+		}
 		return best;
+	}
+
+	/** Sobra (em celulas) que um lote do plano pode ter sem o recorte sob demanda tentar algo mais justo (0 = sempre tenta: empacota melhor). */
+	static final int CARVE_WASTE = 0;
+	/** O recorte so ganha de um lote existente com nota pelo menos esta melhor (0 = qualquer melhora; medido no VillageCapacityTest). */
+	static final double CARVE_MARGIN = 0;
+
+	private double parcelScore(String kind, LotRules.Rule rule, Zone zone, VillageState.Rect r, int area, boolean prepared) {
+		double dist = Math.hypot((r.x0() + r.x1()) / 2.0, (r.z0() + r.z1()) / 2.0);
+		if (LotRules.prefersOuter(kind)) {
+			dist = -dist;
+		}
+		double waste = area - rule.size().width() * rule.size().depth();
+		return rule.preference(zone) * 1000 + waste * 0.5 + dist + (prepared ? 0 : 500);
+	}
+
+	/** Lotes do plano aposentados por recortes sob demanda, esperando o servidor tirar as estacas deles do mundo. */
+	private final List<MasterPlan.Parcel> retiredPending = new ArrayList<>();
+
+	/** Lotes aposentados desde a ultima chamada (o servidor tira as estacas e o que as obras publicas puseram neles). */
+	public List<MasterPlan.Parcel> drainRetired() {
+		List<MasterPlan.Parcel> out = List.copyOf(retiredPending);
+		retiredPending.clear();
+		return out;
+	}
+
+	/**
+	 * Recorta um lote novo da classe do tipo no espaco livre de um quarteirao (sobre lotes do plano ainda livres) se a
+	 * nota dele for melhor que {@code beatScore - CARVE_MARGIN}. null = nenhum lugar (o plano nao muda).
+	 */
+	MasterPlan.Parcel carveParcel(String kind, int cw, int cd, int open, boolean prepared, double beatScore) {
+		LotRules.Rule rule = LotRules.of(kind);
+		SizeClass cls = rule.size();
+		if (master == null || cls == SizeClass.W || cls == SizeClass.WL || !cls.fits(cw, cd)) {
+			return null;
+		}
+		java.util.Set<Integer> fixed = new java.util.HashSet<>();
+		fixed.addAll(held);
+		boolean[] keep = BlockSubdivider.emptyTaken(master);
+		for (Lot lot : lots) {
+			if (lot.parcel >= 0) {
+				fixed.add(lot.parcel);
+			}
+			BlockSubdivider.occupy(master, keep, lot.rect());
+			for (int[] c : lot.access) {
+				BlockSubdivider.occupy(master, keep, new VillageState.Rect(c[0], c[1], c[0], c[1]));
+			}
+		}
+		for (MasterPlan.Parcel p : master.parcels()) {
+			if (!p.retired() && (fixed.contains(p.id()) || p.player())) {
+				BlockSubdivider.occupy(master, keep, p.rect());
+			}
+		}
+		for (Lamp lamp : lamps) {
+			if (lamp.built) {
+				BlockSubdivider.occupy(master, keep, new VillageState.Rect(lamp.x, lamp.z, lamp.x, lamp.z));
+			}
+		}
+		int[][] bounds = BlockSubdivider.blockBounds(master);
+		BlockSubdivider.Carving best = null;
+		double bestScore = beatScore - CARVE_MARGIN;
+		for (MasterPlan.Block block : master.blocks()) {
+			if (block.ring() > open || block.zone() == null || (prepared && !block.prepared())
+					|| !LotRules.accepts(rule, block.zone(), open >= 3, open >= 5)) {
+				continue;
+			}
+			double floor = rule.preference(block.zone()) * 1000 + (block.prepared() ? 0 : 500) - StreetPlanner.OUTER * 1.5;
+			if (floor >= bestScore) {
+				continue;
+			}
+			BlockSubdivider.Carving c = BlockSubdivider.carve(master, block, bounds[block.id()], cls, keep);
+			if (c == null) {
+				continue;
+			}
+			MasterPlan.Parcel probe = new MasterPlan.Parcel(-2, block.id(), c.rect(), c.front(), cls, block.zone(), false);
+			if (parcelProblem(kind, probe, cw, cd, open, -1) != null) {
+				continue;
+			}
+			double score = parcelScore(kind, rule, block.zone(), c.rect(), probe.along() * probe.deep(), block.prepared());
+			if (score < bestScore) {
+				bestScore = score;
+				best = c;
+			}
+		}
+		if (best == null) {
+			return null;
+		}
+		List<MasterPlan.Parcel> retired = new ArrayList<>();
+		MasterPlan.Parcel made = BlockSubdivider.applyCarving(master, best, keep, fixed, retired);
+		retiredPending.addAll(retired);
+		lamps.removeIf(lamp -> !lamp.built && master.parcelAt(lamp.x, lamp.z) != null);
+		return made;
+	}
+
+	/** O lote do plano comporta uma construcao da classe {@code need}: pela classe ou pelo retangulo real (lotes crescidos). */
+	static boolean holds(MasterPlan.Parcel p, SizeClass need) {
+		if (p.size().holds(need)) {
+			return true;
+		}
+		boolean wall = p.size() == SizeClass.W || p.size() == SizeClass.WL;
+		boolean needWall = need == SizeClass.W || need == SizeClass.WL;
+		return !wall && !needWall && p.along() >= need.width() && p.deep() >= need.depth();
 	}
 
 	/** O lote {@code p} serve para o tipo agora? null = serve. {@code exclude}: lote da propria obra (ao mudar). */
@@ -630,6 +818,9 @@ public final class VillageLayout {
 		}
 		if (p.player()) {
 			return Problem.PLAYER;
+		}
+		if (held.contains(p.id())) {
+			return Problem.OVERLAP;
 		}
 		for (Lot lot : lots) {
 			if (lot.parcel == p.id() && lot.id != exclude) {
@@ -650,7 +841,7 @@ public final class VillageLayout {
 		if (!LotRules.accepts(rule, p.zone(), open >= 3, open >= 5)) {
 			return Problem.ZONE;
 		}
-		if (!p.size().holds(rule.size()) || fit(p, cw, cd) == null) {
+		if (!holds(p, rule.size()) || fit(p, cw, cd) == null) {
 			return Problem.OUTSIDE;
 		}
 		return null;

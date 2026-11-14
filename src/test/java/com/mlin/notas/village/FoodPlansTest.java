@@ -55,17 +55,18 @@ class FoodPlansTest {
 	@Test
 	void unlockLevelsAndZonesFollowTheCatalog() {
 		assertEquals(VillageLevel.HAMLET, VillageProject.GRANARY.minLevel());
-		assertEquals(VillageLevel.HAMLET, VillageProject.MILL.minLevel());
-		assertEquals(VillageLevel.HAMLET, VillageProject.ORCHARD.minLevel());
-		assertEquals(VillageLevel.HAMLET, VillageProject.PEN.minLevel());
+		// os rurais e as oficinas abrem com os arredores (Cidade): o centro e os bairros nao comportam tudo (VillageCapacityTest)
+		assertEquals(VillageLevel.TOWN, VillageProject.MILL.minLevel());
+		assertEquals(VillageLevel.TOWN, VillageProject.ORCHARD.minLevel());
+		assertEquals(VillageLevel.TOWN, VillageProject.PEN.minLevel());
 		assertEquals(VillageLevel.VILLAGE, VillageProject.BAKERY.minLevel());
-		assertEquals(VillageLevel.VILLAGE, VillageProject.APIARY.minLevel());
-		assertEquals(VillageLevel.VILLAGE, VillageProject.BUTCHER.minLevel());
-		assertEquals(VillageLevel.VILLAGE, VillageProject.SAWMILL.minLevel());
+		assertEquals(VillageLevel.TOWN, VillageProject.APIARY.minLevel());
+		assertEquals(VillageLevel.TOWN, VillageProject.BUTCHER.minLevel());
+		assertEquals(VillageLevel.TOWN, VillageProject.SAWMILL.minLevel());
 		assertEquals(VillageLevel.TOWN, VillageProject.WINERY.minLevel());
 		assertTrue(LotRules.of("bakery").allows(Zone.CENTER) && LotRules.of("bakery").allows(Zone.DISTRICT));
 		assertTrue(LotRules.of("mill").allows(Zone.OUTSKIRTS) && !LotRules.of("mill").allows(Zone.CENTER));
-		assertTrue(LotRules.of("butcher").allows(Zone.DISTRICT) && !LotRules.of("butcher").allows(Zone.OUTSKIRTS));
+		assertTrue(LotRules.of("butcher").allows(Zone.DISTRICT) && LotRules.of("butcher").zones().get(0) == Zone.DISTRICT);
 		assertTrue(LotRules.of("winery").allows(Zone.OUTSKIRTS));
 		assertTrue(LotRules.of("sawmill").allows(Zone.DISTRICT));
 		for (VillageProject project : FOOD) {
@@ -159,8 +160,7 @@ class FoodPlansTest {
 			layout.extend(v, terrain, level);
 			for (VillageProject project : FOOD) {
 				int got = layout.lotsOf(project.id()).size();
-				// no Vila so ha bairros e centro (os arredores abrem na Cidade): apiario e serraria esperam o proximo anel
-				if (got < project.maxBuilds(level) && level.ordinal() >= VillageLevel.TOWN.ordinal()) {
+				if (got != project.maxBuilds(level)) {
 					short_.add(level + ":" + project.id() + " " + got + "/" + project.maxBuilds(level));
 				}
 			}

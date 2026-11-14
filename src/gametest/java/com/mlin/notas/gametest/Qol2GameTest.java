@@ -218,20 +218,15 @@ public class Qol2GameTest {
 
 	// ------------------------------------------------------------------ carne podre
 
-	@GameTest(environment = ENV, maxTicks = 300)
-	public void rottenFleshSmeltsIntoLeather(GameTestHelper helper) {
+	/** Carne podre -> couro so na tina do curtume: fornalha e defumador nao tem mais a receita. */
+	@GameTest(environment = ENV)
+	public void rottenFleshNoLongerSmeltsIntoLeather(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		SingleRecipeInput input = new SingleRecipeInput(new ItemStack(Items.ROTTEN_FLESH));
-		for (RecipeType<? extends AbstractCookingRecipe> type : List.of(RecipeType.SMELTING, RecipeType.SMOKING)) {
-			var recipe = level.recipeAccess().getRecipeFor(type, input, level).orElseThrow(() -> new IllegalStateException("sem receita " + type));
-			helper.assertTrue(recipe.value().assemble(input).is(Items.LEATHER), "couro em " + type);
-			helper.assertTrue(recipe.value().cookingTime() >= 200, "devagar como fundicao normal em " + type);
+		for (RecipeType<? extends AbstractCookingRecipe> type : List.of(RecipeType.SMELTING, RecipeType.SMOKING, RecipeType.BLASTING, RecipeType.CAMPFIRE_COOKING)) {
+			helper.assertTrue(level.recipeAccess().getRecipeFor(type, input, level).isEmpty(), "carne podre nao vira nada em " + type);
 		}
-		helper.setBlock(1, 1, 1, Blocks.FURNACE);
-		AbstractFurnaceBlockEntity furnace = helper.getBlockEntity(new BlockPos(1, 1, 1), AbstractFurnaceBlockEntity.class);
-		furnace.setItem(0, new ItemStack(Items.ROTTEN_FLESH, 2));
-		furnace.setItem(1, new ItemStack(Items.COAL));
-		helper.succeedWhen(() -> helper.assertTrue(furnace.getItem(2).is(Items.LEATHER), "couro na saida"));
+		helper.succeed();
 	}
 
 	// ------------------------------------------------------------------ guardar rapido

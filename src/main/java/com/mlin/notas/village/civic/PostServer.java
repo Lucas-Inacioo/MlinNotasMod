@@ -82,7 +82,7 @@ public final class PostServer {
 	/** Botao direito na caixa de correio. */
 	public static void use(ServerPlayer player, ServerLevel level, BlockPos pos) {
 		MinecraftServer server = level.getServer();
-		VillageState village = CivicSites.villageAt(server, level, pos, 8);
+		VillageState village = com.mlin.notas.village.VillageServer.planVillageAt(level, pos);
 		CivicSites.Site site = village == null ? null : workingAt(server, village, pos);
 		if (site == null) {
 			player.sendOverlayMessage(Component.translatable("message.mlinnotas.civic.post.inactive").withStyle(ChatFormatting.RED));

@@ -628,7 +628,7 @@ public class VillageData extends SavedData {
 		}
 		List<Integer> progress = new ArrayList<>();
 		List<Boolean> done = new ArrayList<>();
-		for (int i = 0; i < BountyBoard.PER_DAY; i++) {
+		for (int i = 0; i < BountyBoard.MAX_PER_DAY; i++) {
 			progress.add(v.bountyProgress(i));
 			done.add(v.bountyDone(i));
 		}

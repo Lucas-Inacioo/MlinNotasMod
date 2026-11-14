@@ -104,8 +104,13 @@ final class BlockSubdivider {
 		return new Densified(retired, added);
 	}
 
-	/** Preenche o quarteirao com lotes novos (ids a partir de {@code firstId + out.size()}); {@code taken} ja marca o que existe. */
 	private static void fillBlock(MasterPlan plan, MasterPlan.Block block, long seed, boolean[] taken, List<MasterPlan.Parcel> out, int firstId) {
+		fillBlock(plan, block, seed, taken, out, firstId, true);
+	}
+
+	/** Preenche o quarteirao com lotes novos (ids a partir de {@code firstId + out.size()}); {@code taken} ja marca o que existe. */
+	private static void fillBlock(MasterPlan plan, MasterPlan.Block block, long seed, boolean[] taken, List<MasterPlan.Parcel> out, int firstId,
+			boolean cornerLots) {
 		Zone zone = block.zone();
 		if (zone == null || block.cells() < 30) {
 			return;
@@ -127,7 +132,7 @@ final class BlockSubdivider {
 			}
 		}
 		Sat sat = new Sat(plan, block.id(), taken, bx0, bz0, bx1, bz1);
-		for (SizeClass cls : corners(block.ring())) {
+		for (SizeClass cls : cornerLots ? corners(block.ring()) : new SizeClass[0]) {
 			for (int n = 0; n < 2; n++) {
 				Candidate c = best(plan, sat, cls, true);
 				if (c == null) {
@@ -168,6 +173,97 @@ final class BlockSubdivider {
 				out.add(take(plan, c, SizeClass.T, zone, block, firstId + out.size(), taken, sat));
 			}
 		}
+	}
+
+	// ---------------------------------------------------------------- lote sob demanda
+
+	/** Lugar achado para um lote novo dentro de um quarteirao (ainda nao aplicado ao plano). */
+	record Carving(MasterPlan.Block block, SizeClass size, VillageState.Rect rect, Facing front, double score) {
+	}
+
+	/** Retangulo que envolve cada quarteirao ({x0, z0, x1, z1} por id), numa passada so pela grade. */
+	static int[][] blockBounds(MasterPlan plan) {
+		int[][] out = new int[plan.blocks().size()][];
+		int extent = plan.extent();
+		for (int x = -extent; x <= extent; x++) {
+			for (int z = -extent; z <= extent; z++) {
+				int id = plan.code(x, z) - MasterPlan.BLOCK;
+				if (id < 0 || id >= out.length) {
+					continue;
+				}
+				int[] b = out[id];
+				if (b == null) {
+					out[id] = new int[] {x, z, x, z};
+				} else {
+					b[0] = Math.min(b[0], x);
+					b[1] = Math.min(b[1], z);
+					b[2] = Math.max(b[2], x);
+					b[3] = Math.max(b[3], z);
+				}
+			}
+		}
+		return out;
+	}
+
+	/** Grade de ocupacao vazia do tamanho do plano, para {@link #occupy}. */
+	static boolean[] emptyTaken(MasterPlan plan) {
+		int size = 2 * plan.extent() + 1;
+		return new boolean[size * size];
+	}
+
+	/** Marca o retangulo (com 1 de folga em volta) como ocupado. */
+	static void occupy(MasterPlan plan, boolean[] taken, VillageState.Rect r) {
+		mark(plan, taken, r.x0(), r.z0(), r.x1() - r.x0() + 1, r.z1() - r.z0() + 1);
+	}
+
+	/**
+	 * Melhor lugar para um lote da classe {@code cls} no espaco livre do quarteirao ({@code taken} marca o que nao pode
+	 * mudar: lotes reservados/prontos/de jogador, caminhos de porta e postes feitos). Lotes do plano ainda livres NAO
+	 * entram em {@code taken}: o lugar pode juntar dois lotes pequenos vizinhos ou partir um grande. null = nao cabe.
+	 */
+	static Carving carve(MasterPlan plan, MasterPlan.Block block, int[] bounds, SizeClass cls, boolean[] taken) {
+		if (bounds == null || block.zone() == null) {
+			return null;
+		}
+		Sat sat = new Sat(plan, block.id(), taken, bounds[0], bounds[1], bounds[2], bounds[3]);
+		Candidate c = best(plan, sat, cls, false, true);
+		if (c == null) {
+			return null;
+		}
+		c = grow(sat, c);
+		return new Carving(block, cls, new VillageState.Rect(c.x0, c.z0, c.x0 + c.w - 1, c.z0 + c.d - 1), c.front, c.score);
+	}
+
+	/**
+	 * Aplica o recorte: os lotes livres do quarteirao que o lote novo cobre (com a folga de 1) sao aposentados, o lote
+	 * novo entra no plano e a sobra do quarteirao e subdividida de novo (sem lotes de esquina; quem ja existe fica).
+	 * {@code keep} marca o que nao pode mudar (o mesmo {@code taken} do {@link #carve}). Devolve o lote novo; os
+	 * aposentados vao para {@code retired}.
+	 */
+	static MasterPlan.Parcel applyCarving(MasterPlan plan, Carving carving, boolean[] keep, java.util.Set<Integer> fixedParcels,
+			List<MasterPlan.Parcel> retired) {
+		MasterPlan.Block block = carving.block();
+		for (MasterPlan.Parcel p : new ArrayList<>(plan.parcels())) {
+			if (p.block() == block.id() && !p.retired() && !fixedParcels.contains(p.id()) && !p.player() && p.rect().overlaps(carving.rect(), 1)) {
+				retired.add(p);
+				plan.retireParcel(p.id());
+			}
+		}
+		MasterPlan.Parcel made = new MasterPlan.Parcel(plan.parcels().size(), block.id(), carving.rect(), carving.front(), carving.size(), block.zone(),
+				false);
+		plan.addParcel(made);
+		boolean[] taken = keep.clone();
+		for (MasterPlan.Parcel p : plan.parcels()) {
+			if (!p.retired()) {
+				occupy(plan, taken, p.rect());
+			}
+		}
+		List<MasterPlan.Parcel> out = new ArrayList<>();
+		fillBlock(plan, block, plan.seed() ^ ((long) plan.parcels().size() * 0x2545F4914F6CDD1DL), taken, out, plan.parcels().size(), false);
+		for (MasterPlan.Parcel p : out) {
+			plan.addParcel(p);
+		}
+		return made;
 	}
 
 	private static void mark(MasterPlan plan, boolean[] taken, int x0, int z0, int w, int d) {
@@ -241,6 +337,14 @@ final class BlockSubdivider {
 
 	/** Melhor lugar para um lote da classe (null = nao cabe). {@code corner}: so encostado em duas ruas. */
 	private static Candidate best(MasterPlan plan, Sat sat, SizeClass cls, boolean corner) {
+		return best(plan, sat, cls, corner, false);
+	}
+
+	/**
+	 * {@code packing}: recorte sob demanda; penaliza deixar do lado do lote uma sobra de frente que nao cabe nem um lote
+	 * pequeno (de 1 a {@link SizeClass#S} de largura): essas sobras viram retalhos que nenhuma obra usa.
+	 */
+	private static Candidate best(MasterPlan plan, Sat sat, SizeClass cls, boolean corner, boolean packing) {
 		Candidate best = null;
 		for (Facing front : Facing.values()) {
 			int w = front.alongX() ? cls.depth() : cls.width();
@@ -259,6 +363,9 @@ final class BlockSubdivider {
 						continue;
 					}
 					double score = front_ + snug(plan, sat, x0, z0, w, d) * 0.8 + (isCorner ? 2 : 0);
+					if (packing) {
+						score -= sliver(sat, x0, z0, w, d, front.rotate(1)) + sliver(sat, x0, z0, w, d, front.rotate(3));
+					}
 					// desempate estavel: mais perto do centro
 					score -= Math.hypot(x0 + w / 2.0, z0 + d / 2.0) * 0.01;
 					if (best == null || score > best.score) {
@@ -268,6 +375,32 @@ final class BlockSubdivider {
 			}
 		}
 		return best;
+	}
+
+	/**
+	 * Sobra livre ao lado do lote, na direcao {@code side} (medida na fileira do meio do fundo): 0 se o lote encosta;
+	 * a largura da sobra se ela nao comporta um lote pequeno (retalho perdido); 0 se ainda cabe um.
+	 */
+	private static double sliver(Sat sat, int x0, int z0, int w, int d, Facing side) {
+		int cx = x0 + w / 2;
+		int cz = z0 + d / 2;
+		int x = switch (side) {
+			case EAST -> x0 + w;
+			case WEST -> x0 - 1;
+			default -> cx;
+		};
+		int z = switch (side) {
+			case SOUTH -> z0 + d;
+			case NORTH -> z0 - 1;
+			default -> cz;
+		};
+		int run = 0;
+		while (run <= SizeClass.S.width() && sat.free(x, z)) {
+			run++;
+			x += side.dx;
+			z += side.dz;
+		}
+		return run > 0 && run <= SizeClass.S.width() ? run : 0;
 	}
 
 	/** Celulas da borda do lote no lado {@code f}, de ponta a ponta. */

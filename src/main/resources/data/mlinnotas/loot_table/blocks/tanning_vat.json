@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mlinnotas:tanning_vat"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "mlinnotas:blocks/tanning_vat"
+}

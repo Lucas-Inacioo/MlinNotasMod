@@ -343,7 +343,8 @@ public final class FoodBuildingsServer {
 	 * {@link FoodRules#GRANARY_RADIUS} de um celeiro funcionando ganha itens a mais (a semente que replanta nao conta).
 	 */
 	public static void harvestBonus(ServerLevel level, BlockPos pos, List<ItemStack> drops, int seedIndex) {
-		VillageState village = VillageServer.villageAt(level, pos);
+		// o celeiro pode estar nos arredores (alem do raio de moradores) e a plantacao ate GRANARY_RADIUS dele
+		VillageState village = VillageServer.nearest(level, pos, StreetPlanner.OUTER + 2 + FoodRules.GRANARY_RADIUS);
 		if (village == null || village.layout() == null) {
 			return;
 		}
@@ -438,7 +439,7 @@ public final class FoodBuildingsServer {
 
 	/** Obra funcionando do tipo no lugar {@code pos}, ou null. */
 	static Site siteAt(ServerLevel level, BlockPos pos, String kind) {
-		VillageState village = VillageServer.villageAt(level, pos);
+		VillageState village = VillageServer.planVillageAt(level, pos);
 		if (village == null || village.layout() == null) {
 			return null;
 		}

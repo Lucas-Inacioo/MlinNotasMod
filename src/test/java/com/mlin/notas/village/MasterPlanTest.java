@@ -394,6 +394,8 @@ class MasterPlanTest {
 		assertFalse(SizeClass.S.holds(SizeClass.M));
 		assertTrue(LotRules.accepts(LotRules.of("farm"), Zone.CENTER, false, false), "plantacao no centro enquanto nao ha bairro");
 		assertFalse(LotRules.accepts(LotRules.of("farm"), Zone.CENTER, true, true));
-		assertFalse(LotRules.accepts(LotRules.of("market"), Zone.OUTSKIRTS, true, true));
+		// o mercado prefere o centro; os arredores sao so a reserva (terreno dificil sem lote M no centro)
+		assertTrue(LotRules.of("market").preference(Zone.CENTER) < LotRules.of("market").preference(Zone.OUTSKIRTS));
+		assertFalse(LotRules.accepts(LotRules.of("bakery"), Zone.WALL, true, true));
 	}
 }

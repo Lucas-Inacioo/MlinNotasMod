@@ -147,6 +147,40 @@ public final class VillageServer {
 		return best;
 	}
 
+	/** Meia-largura da area da vila: o quadrado do plano diretor, ou o raio do nivel + margem sem plano diretor. */
+	public static int planHalf(VillageState village) {
+		VillageLayout layout = village.layout();
+		return layout != null && layout.master() != null ? layout.master().extent() : village.level().radius() + RESIDENT_MARGIN;
+	}
+
+	/**
+	 * Vila cujo plano cobre {@code pos}: o quadrado do plano diretor (meia-largura {@link MasterPlan#extent}, a mesma em
+	 * todos os niveis), ou o raio do nivel + margem numa vila sem plano diretor; a ate 64 blocos de altura do quadro. Se
+	 * mais de uma cobre, a de centro mais perto. As obras dos arredores ficam alem do raio de moradores do nivel (os
+	 * arredores abrem na Cidade, raio 46, e vao ate 67): toda busca de "obra neste lugar" usa esta, nao {@link #villageAt}.
+	 */
+	public static VillageState planVillageAt(ServerLevel level, BlockPos pos) {
+		String dim = dimension(level);
+		VillageState best = null;
+		long bestD = Long.MAX_VALUE;
+		for (VillageState village : VillageData.get(level.getServer()).villages()) {
+			if (!village.dimension().equals(dim) || Math.abs(pos.getY() - village.y()) >= 64) {
+				continue;
+			}
+			int dx = Math.abs(pos.getX() - village.x());
+			int dz = Math.abs(pos.getZ() - village.z());
+			int half = planHalf(village);
+			boolean inside = village.layout() != null && village.layout().master() != null ? dx <= half && dz <= half
+					: (long) dx * dx + (long) dz * dz <= (long) half * half;
+			long d = village.distanceSq(pos.getX(), pos.getZ());
+			if (inside && d < bestD) {
+				best = village;
+				bestD = d;
+			}
+		}
+		return best;
+	}
+
 	/** Vila onde {@code pos} mora (dentro do raio do nivel + margem). */
 	public static VillageState villageAt(ServerLevel level, BlockPos pos) {
 		String dim = dimension(level);
@@ -352,6 +386,7 @@ public final class VillageServer {
 			case NOTHING -> notify(player, Component.translatable("message.mlinnotas.village.nothing", name));
 			case LOCKED -> notify(player, Component.translatable("message.mlinnotas.village.locked", name, levelName(project.minLevel())));
 			case MAXED -> notify(player, Component.translatable("message.mlinnotas.village.maxed", name));
+			case NO_ROOM -> notify(player, Component.translatable("message.mlinnotas.village.no_room", name));
 		}
 		sync(server, village);
 		return result.outcome();
@@ -428,8 +463,12 @@ public final class VillageServer {
 			// conserto na forja: esmeraldas + material, desconto pelo nivel da forja
 			return BuildingServer.forgeRepair(player, village);
 		}
+		if (offer.kind() == VillageShop.Kind.RUMOR) {
+			// boato da taverna: preco, limite diario e busca ficam no CraftsServer
+			return CraftsServer.buyRumor(player, village, offer);
+		}
 		ServerLevel level = player.level();
-		int price = offer.price();
+		int price = VillageShop.price(offer, village);
 		ItemStack hand = player.getMainHandItem();
 		if (offer.kind() == VillageShop.Kind.LODGING && BuildingServer.innRoom(level.getServer(), village) == null) {
 			BuildingServer.lodge(player, village);
@@ -451,7 +490,10 @@ public final class VillageServer {
 					return false;
 				}
 			}
-			case BOOK, RARE_BOOK -> result = book(level, random, offer.kind() == VillageShop.Kind.RARE_BOOK);
+			case BOOK, RARE_BOOK -> result = book(level, random, offer.kind() == VillageShop.Kind.RARE_BOOK, VillageBuildings.level(village, "enchanter"));
+			case TIPPED -> result = CraftsServer.tippedArrows(offer.target(), offer.count());
+			case RUMOR -> {
+			}
 			case REPAIR -> hand.setDamageValue(0);
 			case LODGING -> BuildingServer.lodge(player, village);
 		}
@@ -481,7 +523,7 @@ public final class VillageServer {
 		return map;
 	}
 
-	private static ItemStack book(ServerLevel level, Random random, boolean rare) {
+	private static ItemStack book(ServerLevel level, Random random, boolean rare, int enchanterLevel) {
 		Registry<Enchantment> registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 		List<Holder<Enchantment>> options = new ArrayList<>();
 		registry.get(rare ? EnchantmentTags.TREASURE : EnchantmentTags.IN_ENCHANTING_TABLE)
@@ -495,6 +537,10 @@ public final class VillageServer {
 		// teto de encantamento do mundo (Mineracao da arvore de habilidades), como na mesa e na bigorna
 		lvl = Math.max(1, Math.min(lvl, com.mlin.notas.enchanting.EnchantRules.cappedLevel(max,
 				com.mlin.notas.skills.SkillServer.progress(level.getServer()).level(com.mlin.notas.skills.SkillBranch.MINING))));
+		if (!rare) {
+			// o Encantador e o unico lugar de encantar: sem ele o mercado vende livros de nivel I; com ele, ate o nivel da casa
+			lvl = Math.min(lvl, Math.max(1, enchanterLevel));
+		}
 		return EnchantmentHelper.createBook(new EnchantmentInstance(pick, lvl));
 	}
 
@@ -563,6 +609,7 @@ public final class VillageServer {
 		}
 		VillageTerrain.tick(server, data, now);
 		BuildingServer.tick(server, data, now);
+		CraftsServer.tick(server, data, now);
 		if (now % 20 == 0) {
 			for (VillageState village : List.copyOf(data.villages())) {
 				if (!village.queue().isEmpty() && data.job(village.key()) == null && now >= RETRY_AT.getOrDefault(village.key(), 0L)) {
@@ -616,6 +663,7 @@ public final class VillageServer {
 		VillageProject project = village.queue().getFirst();
 		long seed = village.seed() ^ (project.ordinal() * 7919L) ^ ((village.built(project) + village.lots().size() + 1) * 104729L);
 		VillagePlanner.Planned planned = VillagePlanner.plan(project, village, new WorldTerrain(level, center), seed);
+		VillagePlanning.clearRetired(level, village);
 		VillageData data = VillageData.get(server);
 		if (planned == null || planned.placements().isEmpty()) {
 			if (WAITING.add(village.key())) {

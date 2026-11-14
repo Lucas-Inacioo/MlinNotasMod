@@ -36,9 +36,7 @@ class Qol2Content {
 				"Guardar rápido: leva do seu inventário (sem a barra de atalhos) tudo o que já existe neste baú (tecla %s)",
 				"Quick stack: moves everything from your inventory (not the hotbar) that this chest already has (key %s)");
 
-		// carne podre -> couro: devagar como qualquer fundicao (o defumador nao acelera)
-		cooking("leather_from_smelting_rotten_flesh", "minecraft:smelting", "minecraft:rotten_flesh", "minecraft:leather", 200, 0.1, "misc");
-		cooking("leather_from_smoking_rotten_flesh", "minecraft:smoking", "minecraft:rotten_flesh", "minecraft:leather", 200, 0.1, "food");
+		// carne podre -> couro: so na tina do curtume (scripts/CraftsContent.java + TanningVatBlockEntity); as receitas de fornalha e defumador foram removidas
 
 		for (Object[] m : MATERIALS) {
 			String prefix = (String) m[0];

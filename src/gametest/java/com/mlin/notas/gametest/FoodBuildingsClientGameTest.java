@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @SuppressWarnings("UnstableApiUsage")
 public class FoodBuildingsClientGameTest implements FabricClientGameTest {
-	private static final int R = 70;
+	private static final int R = 80;
 	private static final String P = "mlinnotas-food-";
 	private static final List<String> KINDS = List.of("granary", "mill", "bakery", "orchard", "pen", "apiary", "butcher", "winery", "sawmill");
 	/** Camera por dentro (coordenadas da planta): {camX, camY, camZ, olharX, olharY, olharZ}. */
@@ -135,8 +135,7 @@ public class FoodBuildingsClientGameTest implements FabricClientGameTest {
 		VillageState v = VillageServer.create(world, board, false);
 		VillagePlanning.ensureLayout(world, v);
 		v.setLevel(level);
-		VillagePlanning.grow(world, v);
-		VillageTerrain.prepareOpenRings(world, v, false);
+		// fila antes do plano: as obras pagas reservam lote antes dos outros oficios (VillageLayout.first)
 		if (withBuildings) {
 			for (VillageProject p : List.of(VillageProject.PLAZA, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.HOUSE,
 					VillageProject.HOUSE, VillageProject.FARM, VillageProject.TOWN_HALL, VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY,
@@ -144,6 +143,10 @@ public class FoodBuildingsClientGameTest implements FabricClientGameTest {
 					VillageProject.SAWMILL, VillageProject.LAMPS)) {
 				v.enqueue(p);
 			}
+		}
+		VillagePlanning.grow(world, v);
+		VillageTerrain.prepareOpenRings(world, v, false);
+		if (withBuildings) {
 			VillageServer.completeAll(server, v);
 			VillageBuildings.townHallLevel(v);
 			VillageLayout.Lot hall = v.layout().lots().stream().filter(l -> l.built() && l.kind().equals("town_hall")).findFirst().orElseThrow();

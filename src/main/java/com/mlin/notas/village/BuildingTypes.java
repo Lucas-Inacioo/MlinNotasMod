@@ -92,11 +92,12 @@ public final class BuildingTypes {
 		register(type("smithy").maxLevel(5).workers(1).need(VillageNeeds.Need.SAFETY, 10, 15, 20, 25, 30)
 				.need(VillageNeeds.Need.COMMERCE, 5, 8, 10, 12, 15));
 		register(type("market").maxLevel(3).workers(1).need(VillageNeeds.Need.COMMERCE, 35, 60, 90));
-		register(type("inn").maxLevel(3).workers(1).need(VillageNeeds.Need.HOUSING, 2, 3, 4).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
+		register(type("inn").maxLevel(3).workers(1).residents(2, 3, 4).need(VillageNeeds.Need.HOUSING, 2, 3, 4).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
 		register(type("library").maxLevel(3).workers(1).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
 		register(type(TOWN_HALL).maxLevel(5).need(VillageNeeds.Need.SAFETY, 10, 12, 15, 18, 20).need(VillageNeeds.Need.LEISURE, 5, 8, 10, 12, 15));
 		FoodBuildings.registerTypes();
 		com.mlin.notas.village.civic.CivicBuildings.registerTypes();
+		CraftsBuildings.registerTypes();
 	}
 
 	private BuildingTypes() {

@@ -65,9 +65,25 @@ public final class VillageBuildings {
 		return total;
 	}
 
+	/** Ordem em que as obras ocupam moradores: essenciais primeiro, depois a ordem dos tipos e, por fim, a do lote. */
+	static List<Building> byPriority(List<Building> buildings) {
+		List<Building> out = new ArrayList<>(buildings);
+		out.sort(Comparator.comparingInt((Building b) -> {
+			VillageProject p = VillageProject.byId(b.kind());
+			return p != null && VillageLayout.essential(p) ? 0 : 1;
+		}).thenComparingInt(b -> {
+			VillageProject p = VillageProject.byId(b.kind());
+			int i = p == null ? -1 : VillageLayout.LOT_PROJECTS.indexOf(p);
+			return i < 0 ? Integer.MAX_VALUE : i;
+		}).thenComparingInt(b -> b.lot() < 0 ? Integer.MIN_VALUE - b.lot() : b.lot()));
+		return out;
+	}
+
 	/**
-	 * Lotes parados: cada construcao de oficio ocupa moradores livres na ordem em que foi feita; as que sobram sem
-	 * morador ficam paradas (nao funcionam nem contam nas necessidades).
+	 * Lotes parados: cada construcao de oficio ocupa moradores livres primeiro as essenciais (plantacao, forja, mercado,
+	 * obras que os niveis exigem: {@link VillageLayout#essential}), depois na ordem dos tipos e dos lotes; as que sobram
+	 * sem morador ficam paradas (nao funcionam nem contam nas necessidades). A ordem nao depende de quando o lote foi
+	 * reservado (o plano reserva os lotes grandes antes).
 	 */
 	public static Set<Integer> idle(VillageState state) {
 		return idle(all(state), residents(state));
@@ -76,7 +92,7 @@ public final class VillageBuildings {
 	public static Set<Integer> idle(List<Building> buildings, int residents) {
 		Set<Integer> out = new HashSet<>();
 		int free = residents;
-		for (Building b : buildings) {
+		for (Building b : byPriority(buildings)) {
 			int need = BuildingTypes.workers(b.kind());
 			if (need == 0) {
 				continue;

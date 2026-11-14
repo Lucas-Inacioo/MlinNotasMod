@@ -42,7 +42,7 @@ public final class MuseumServer {
 
 	public static void use(ServerPlayer player, ServerLevel level, BlockPos pos) {
 		MinecraftServer server = level.getServer();
-		VillageState village = CivicSites.villageAt(server, level, pos, 8);
+		VillageState village = com.mlin.notas.village.VillageServer.planVillageAt(level, pos);
 		CivicSites.Site site = null;
 		if (village != null) {
 			for (CivicSites.Site s : CivicSites.working(server, village, CivicBuildings.MUSEUM)) {

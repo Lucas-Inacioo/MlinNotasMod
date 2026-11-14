@@ -54,6 +54,10 @@ class TerrainWorkTest {
 		List<Placement> water = TerrainWork.column(0, 0, 64, 2, 63, false, (x, z) -> 63, false);
 		assertEquals(VPart.DRAIN, at(water, 64));
 		assertEquals(VPart.TURF, at(water, 63));
+		// rua na altura da agua (o caminho nao substitui agua): a agua sai antes e o caminho fica
+		List<Placement> wet = TerrainWork.column(0, 0, 64, 1, 64, true, (x, z) -> 64, false);
+		List<VPart> top = wet.stream().filter(p -> p.y() == 64).map(Placement::part).toList();
+		assertEquals(List.of(VPart.DRAIN, VPart.PATH), top, "agua tirada antes do caminho");
 		// rua: caminho no topo mesmo ja na altura; coluna pronta de quarteirao nao muda nada
 		assertEquals(VPart.PATH, at(TerrainWork.column(0, 0, 64, 0, 64, true, (x, z) -> 64, false), 64));
 		assertTrue(TerrainWork.column(0, 0, 64, 0, 64, false, (x, z) -> 64, false).stream().allMatch(p -> p.part() == VPart.AIR));

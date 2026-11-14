@@ -24,6 +24,9 @@ public final class BuildingPlans {
 		if (FoodPlans.handles(project)) {
 			return FoodPlans.plan(project, style, seed, Math.max(1, level));
 		}
+		if (CraftsPlans.handles(project)) {
+			return CraftsPlans.plan(project, style, seed, Math.max(1, level));
+		}
 		if (project == VillageProject.TOWN_HALL) {
 			return townHall(style, new Random(seed), Math.max(1, level));
 		}

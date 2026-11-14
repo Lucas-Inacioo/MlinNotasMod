@@ -42,6 +42,9 @@ public final class Buildings {
 				if (CivicPlans.handles(project)) {
 					yield CivicPlans.plan(project, style, seed, 1);
 				}
+				if (CraftsPlans.handles(project)) {
+					yield CraftsPlans.plan(project, style, seed, 1);
+				}
 				yield fail(project);
 			}
 		};

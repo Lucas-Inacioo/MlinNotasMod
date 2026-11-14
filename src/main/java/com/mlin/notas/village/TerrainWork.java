@@ -45,6 +45,10 @@ public final class TerrainWork {
 			out.add(new Placement(x, y, z, VPart.RETAIN, null, false));
 		}
 		if (bed != target || water > 0 || street) {
+			if (street && target > bed && target <= ground) {
+				// rua bem na altura da agua: o caminho nao substitui agua, entao a agua sai antes
+				out.add(new Placement(x, target, z, VPart.DRAIN, null, false));
+			}
 			out.add(new Placement(x, target, z, top, null, false));
 		}
 		if (sapling && !street) {

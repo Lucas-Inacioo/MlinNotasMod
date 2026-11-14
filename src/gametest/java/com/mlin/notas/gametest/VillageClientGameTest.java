@@ -73,6 +73,30 @@ public class VillageClientGameTest implements FabricClientGameTest {
 				for (VillageProject p : VillageProject.values()) {
 					sb.append(p.id()).append('=').append(village.built(p)).append(' ');
 				}
+				for (VillageProject p : List.of(VillageProject.INN, VillageProject.LIBRARY)) {
+					sb.append("| ").append(p.id()).append(": status ").append(village.status(p)).append(" lotes ");
+					for (var lot : village.layout().lotsOf(p.id())) {
+						var parcel = village.layout().master().parcel(lot.parcel());
+						sb.append(lot.rect()).append(parcel == null ? " sem-lote-do-plano" : " anel " + village.layout().master().block(parcel.block()).ring()
+								+ " pronto " + village.layout().master().block(parcel.block()).prepared() + " jogador " + parcel.player()).append("; ");
+					}
+				}
+				sb.append("| fila ").append(village.queue());
+				sb.append(" | lotes:");
+				for (var lot : village.layout().lots()) {
+					var parcel = village.layout().master().parcel(lot.parcel());
+					sb.append(" ").append(lot.kind()).append(parcel == null ? "@?" : "@" + parcel.zone() + "/" + parcel.size() + (lot.built() ? "*" : ""));
+				}
+				sb.append(" | livres:");
+				java.util.Set<Integer> used = new java.util.HashSet<>();
+				village.layout().lots().forEach(l -> used.add(l.parcel()));
+				for (var p : village.layout().master().parcels()) {
+					if (!p.retired() && !used.contains(p.id())) {
+						sb.append(" ").append(p.zone()).append("/").append(p.size()).append(":").append(p.along()).append("x").append(p.deep()).append(p.player() ? "J" : "")
+								.append(village.layout().master().block(p.block()).prepared() ? "" : "~");
+					}
+				}
+				sb.append(" | aneis ").append(village.layout().openRings()).append(" raio ").append(village.layout().radius());
 				return sb.toString();
 			});
 			MlinNotas.LOGGER.info("[VillageClientGameTest] vila crescida: {}", grown);

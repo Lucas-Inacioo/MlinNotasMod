@@ -65,7 +65,7 @@ public final class GuildServer {
 
 	public static void use(ServerPlayer player, ServerLevel level, BlockPos pos) {
 		MinecraftServer server = level.getServer();
-		VillageState village = CivicSites.villageAt(server, level, pos, 8);
+		VillageState village = com.mlin.notas.village.VillageServer.planVillageAt(level, pos);
 		CivicSites.Site site = null;
 		if (village != null) {
 			for (CivicSites.Site s : CivicSites.working(server, village, CivicBuildings.GUILD)) {
@@ -273,10 +273,11 @@ public final class GuildServer {
 		return true;
 	}
 
-	/** Aldeao adulto e livre mais perto do quadro (dentro do raio da vila). */
+	/** Aldeao adulto e livre mais perto do quadro (dentro da area do plano da vila). */
 	static Villager pickVillager(ServerLevel level, VillageState village, CivicSites.Site site) {
 		BlockPos center = site.world(new int[] {site.canvas().w() / 2, 1, site.canvas().d() / 2, -1});
-		double radius = village.level().radius() + VillageServer.RESIDENT_MARGIN;
+		// a guilda pode estar nos arredores, alem do raio de moradores: procura na area toda do plano
+		double radius = VillageServer.planHalf(village);
 		AABB box = new AABB(village.x() - radius, level.getMinY(), village.z() - radius, village.x() + radius, level.getMaxY(), village.z() + radius);
 		Villager best = null;
 		double bestD = Double.MAX_VALUE;

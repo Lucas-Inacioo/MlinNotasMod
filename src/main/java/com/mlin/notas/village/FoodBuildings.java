@@ -45,11 +45,11 @@ public final class FoodBuildings {
 	static void registerLots() {
 		LotRules.register("granary", SizeClass.M, true, Zone.DISTRICT, Zone.OUTSKIRTS);
 		LotRules.register("mill", SizeClass.M, true, Zone.OUTSKIRTS, Zone.DISTRICT);
-		LotRules.register("bakery", SizeClass.S, false, Zone.CENTER, Zone.DISTRICT);
+		LotRules.register("bakery", SizeClass.S, false, Zone.CENTER, Zone.DISTRICT, Zone.OUTSKIRTS);
 		LotRules.register("orchard", SizeClass.M, true, Zone.OUTSKIRTS, Zone.DISTRICT);
 		LotRules.register("pen", SizeClass.M, true, Zone.OUTSKIRTS, Zone.DISTRICT);
 		LotRules.register("apiary", SizeClass.S, true, Zone.OUTSKIRTS, Zone.DISTRICT);
-		LotRules.register("butcher", SizeClass.S, false, Zone.DISTRICT, Zone.CENTER);
+		LotRules.register("butcher", SizeClass.S, false, Zone.DISTRICT, Zone.CENTER, Zone.OUTSKIRTS);
 		LotRules.register("winery", SizeClass.L, true, Zone.OUTSKIRTS, Zone.DISTRICT);
 		LotRules.register("sawmill", SizeClass.M, false, Zone.DISTRICT, Zone.OUTSKIRTS);
 	}

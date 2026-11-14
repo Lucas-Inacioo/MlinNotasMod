@@ -19,11 +19,13 @@ public final class VillageState {
 		/** A vila ainda nao tem o nivel do projeto. */
 		LOCKED,
 		/** Ja feito o maximo de vezes para o nivel atual (contando a fila). */
-		MAXED
+		MAXED,
+		/** O nivel deixa, mas o plano diretor nao tem mais lote para o tipo (os essenciais reservam antes). */
+		NO_ROOM
 	}
 
 	public enum Outcome {
-		LOCKED, MAXED, NOTHING, PARTIAL, COMPLETE
+		LOCKED, MAXED, NOTHING, PARTIAL, COMPLETE, NO_ROOM
 	}
 
 	/** Resultado de uma entrega: o que tirar do jogador. */
@@ -74,8 +76,8 @@ public final class VillageState {
 	private final List<Rect> lots = new ArrayList<>();
 	private long bountyDay = Long.MIN_VALUE;
 	private final List<Bounty> bounties = new ArrayList<>();
-	private final int[] bountyProgress = new int[BountyBoard.PER_DAY];
-	private final boolean[] bountyDone = new boolean[BountyBoard.PER_DAY];
+	private final int[] bountyProgress = new int[BountyBoard.MAX_PER_DAY];
+	private final boolean[] bountyDone = new boolean[BountyBoard.MAX_PER_DAY];
 	/** Plano do espaco (null = vila de antes do plano; o servidor calcula ao carregar). */
 	private VillageLayout layout;
 	/** Itens de verdade entregues em cada projeto ainda aberto (devolucao). */
@@ -202,7 +204,23 @@ public final class VillageState {
 		if (built(project) + queued(project) >= project.maxBuilds(level)) {
 			return Status.MAXED;
 		}
+		if (built(project) + queued(project) >= room(project)) {
+			return Status.NO_ROOM;
+		}
 		return Status.AVAILABLE;
+	}
+
+	/**
+	 * Lugares do plano diretor para o tipo: lotes reservados (prontos ou livres) + obras antigas fora de lote. Sem plano
+	 * diretor ou tipo sem lote: sem limite.
+	 */
+	public int room(VillageProject project) {
+		if (layout == null || layout.master() == null || !VillageLayout.LOT_PROJECTS.contains(project)) {
+			return Integer.MAX_VALUE;
+		}
+		List<VillageLayout.Lot> mine = layout.lotsOf(project.id());
+		int builtInLots = (int) mine.stream().filter(VillageLayout.Lot::built).count();
+		return mine.size() + Math.max(0, built(project) - builtInLots);
 	}
 
 	public int deposited(VillageProject project, String costId) {
@@ -246,6 +264,9 @@ public final class VillageState {
 		}
 		if (status == Status.MAXED) {
 			return new Deposit(Outcome.MAXED, Map.of());
+		}
+		if (status == Status.NO_ROOM) {
+			return new Deposit(Outcome.NO_ROOM, Map.of());
 		}
 		Map<String, Integer> taken = new LinkedHashMap<>();
 		for (VillageCost cost : project.costs()) {
@@ -480,12 +501,13 @@ public final class VillageState {
 
 	/** Troca as missoes se mudou o dia. Devolve true se trocou. */
 	public boolean refreshBounties(long day) {
-		if (day == bountyDay && bounties.size() == BountyBoard.PER_DAY) {
+		if (day == bountyDay && bounties.size() >= BountyBoard.PER_DAY) {
 			return false;
 		}
 		bountyDay = day;
 		bounties.clear();
-		bounties.addAll(BountyBoard.roll(seed, day, level));
+		// a taverna acrescenta missoes extras a partir do dia seguinte a obra
+		bounties.addAll(BountyBoard.roll(seed, day, level, CraftsRules.extraBounties(VillageBuildings.level(this, CraftsBuildings.TAVERN))));
 		java.util.Arrays.fill(bountyProgress, 0);
 		java.util.Arrays.fill(bountyDone, false);
 		return true;
@@ -584,7 +606,7 @@ public final class VillageState {
 		this.bountyDay = bountyDay;
 		this.bounties.clear();
 		this.bounties.addAll(bounties);
-		for (int i = 0; i < BountyBoard.PER_DAY; i++) {
+		for (int i = 0; i < BountyBoard.MAX_PER_DAY; i++) {
 			bountyProgress[i] = i < progress.length ? progress[i] : 0;
 			bountyDone[i] = i < done.length && done[i];
 		}

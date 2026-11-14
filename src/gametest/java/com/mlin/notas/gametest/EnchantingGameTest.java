@@ -74,14 +74,15 @@ public class EnchantingGameTest {
 
 	@SuppressWarnings("removal")
 	@GameTest
-	public void enchantingTableOpensSelectiveMenu(GameTestHelper helper) {
+	public void looseEnchantingTableOpensNothing(GameTestHelper helper) {
 		buildTable(helper, false);
 		ServerPlayer player = helper.makeMockServerPlayerInLevel();
 		try {
 			BlockPos abs = helper.absolutePos(TABLE);
 			player.gameMode.useItemOn(player, helper.getLevel(), ItemStack.EMPTY, InteractionHand.MAIN_HAND,
 					new BlockHitResult(Vec3.atCenterOf(abs), Direction.UP, abs, false));
-			helper.assertTrue(player.containerMenu instanceof SelectiveEnchantMenu, "a mesa deveria abrir o menu de encantamento escolhido");
+			// fase 6: so o Encantador da vila abre a mesa; uma mesa solta no mundo nao abre nada (o menu em si segue em SelectiveEnchanting.open)
+			helper.assertFalse(player.containerMenu instanceof SelectiveEnchantMenu, "mesa fora do Encantador nao deveria abrir o menu");
 			player.closeContainer();
 		} finally {
 			helper.getLevel().getServer().getPlayerList().remove(player);

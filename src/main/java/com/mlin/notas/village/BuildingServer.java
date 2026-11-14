@@ -386,6 +386,15 @@ public final class BuildingServer {
 	 */
 	public static int professionCap(ServerLevel level, Villager villager) {
 		VillageState village = VillageServer.villageAt(level, villager.blockPosition());
+		GlobalPos job = villager.getBrain().getMemory(MemoryModuleType.JOB_SITE).orElse(null);
+		if (village == null && job != null && job.dimension() == level.dimension()) {
+			// posto numa obra dos arredores (alem do raio de moradores): vale a vila dona do plano
+			VillageState owner = VillageServer.planVillageAt(level, job.pos());
+			if (owner != null && owner.layout() != null) {
+				VillageLayout.Lot lot = owner.layout().lotAt(job.pos().getX() - owner.x(), job.pos().getZ() - owner.z());
+				village = lot != null && lot.built() ? owner : null;
+			}
+		}
 		if (village == null) {
 			return VillageLevel.WILD_TRADE_CAP;
 		}
