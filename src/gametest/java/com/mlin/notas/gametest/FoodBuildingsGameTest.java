@@ -208,6 +208,8 @@ public class FoodBuildingsGameTest {
 			// acougue I nao faz charque
 			Container butcher = chest(helper, v, "butcher");
 			put(butcher, "minecraft:cooked_beef", 4);
+			// os numeros assumem estacao neutra: o calendario estatico pode estar no inverno (fator 0,5) por causa de outros lotes
+			com.mlin.notas.season.SeasonState.clear();
 			FoodBuildingsServer.cycle(level.getServer(), v);
 			expect(count(mill, "mlinnotas:flour") == 20 && count(mill, "minecraft:wheat") == 0, "moinho I: 20 farinhas, achou " + count(mill, "mlinnotas:flour"));
 			expect(count(bakery, "minecraft:bread") + count(chest(helper, v, "granary"), "minecraft:bread") == 8, "padaria I: 6 farinhas = 8 paes");
