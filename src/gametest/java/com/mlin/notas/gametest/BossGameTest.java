@@ -10,8 +10,8 @@ import com.mlin.notas.boss.IgneousColossus;
 import com.mlin.notas.boss.LairKind;
 import com.mlin.notas.boss.LairPiece;
 import com.mlin.notas.boss.LairPlan;
-import com.mlin.notas.end.CitadelPart;
-import com.mlin.notas.end.CitadelPiece;
+import com.mlin.notas.end.CitadelPlanner;
+import com.mlin.notas.vstructures.VanillaRemakePiece;
 import com.mlin.notas.util.Pos;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
@@ -74,7 +74,7 @@ public class BossGameTest {
 			helper.assertTrue(BuiltInRegistries.ITEM.getKey(item).toString().equals(kind.offering()), kind + " oferenda " + item);
 			helper.assertTrue(BossRegistry.dropItem(kind) != null, "drop de " + kind);
 		}
-		helper.assertTrue(CitadelPiece.state(CitadelPart.ASTRAL_ALTAR).is(BossRegistry.ASTRAL_ALTAR), "cofre da cidadela usa o altar astral");
+		helper.assertTrue(VanillaRemakePiece.parse(CitadelPlanner.ALTAR).is(BossRegistry.ASTRAL_ALTAR), "cofre da cidadela usa o altar astral");
 		helper.succeed();
 	}
 

@@ -542,16 +542,16 @@ class QuestContent {
 						"Passive creatures that drop chorus fruit.")
 						.dep("chorus_forest").kill("mlinnotas:chorus_hopper", 2).xp(40),
 				q("citadel", "minecraft:purpur_block", 4, 4, "Cidadela do End", "End Citadel",
-						"Substitui a End City: ilha própria, fortaleza central de 5 andares e torres ligadas por pontes. Shulkers vigiam os telhados e as Sentinelas de Púrpura patrulham.",
-						"Replaces the End City: its own island, a 5-floor central keep and towers joined by bridges. Shulkers guard the roofs and Purpur Sentinels patrol.")
+						"Substitui a End City: ilha própria com muralha e jardins, fortaleza de 7 níveis com cúpula, três torres ligadas por pontes e a Nave do End atracada no cais. Shulkers vigiam os telhados e as Sentinelas de Púrpura patrulham.",
+						"Replaces the End City: its own walled island with gardens, a 7-level domed keep, three towers joined by bridges and the End Ship moored at the dock. Shulkers guard the roofs and Purpur Sentinels patrol.")
 						.dep("outer_islands").structure("mlinnotas:end_citadel").xp(150),
 				q("elevator", "mlinnotas:purpur_elevator", 5, 4, "Elevador de Púrpura", "Purpur Elevator",
 						"Pule em cima para subir e agache para descer até o próximo elevador da coluna (até 32 blocos). Faça os seus com núcleos de sentinela.",
 						"Jump on it to go up and sneak to go down to the next elevator in the column (up to 32 blocks). Craft your own with sentinel cores.")
 						.dep("citadel").have("mlinnotas:purpur_elevator", 1).xp(60),
 				q("elytra", "minecraft:elytra", 5, 5, "Asas", "Wings",
-						"O cofre no topo da fortaleza guarda o élitro, a cabeça de dragão e o altar astral.",
-						"The vault atop the keep holds the elytra, a dragon head and the astral altar.")
+						"O élitro fica na cabine do tesouro, na popa da Nave do End atracada no cais da cidadela (suba pelo mastro de elevadores). Um por cidadela.",
+						"The elytra hangs in the treasure cabin at the stern of the End Ship moored at the citadel's dock (ride the elevator mast up). One per citadel.")
 						.dep("citadel").have("minecraft:elytra", 1).item("minecraft:firework_rocket", 32).xp(200));
 
 		chapter("tech", 6, "mlinnotas:furnace_upgrade_iron", "Tecnologia", "Technology",

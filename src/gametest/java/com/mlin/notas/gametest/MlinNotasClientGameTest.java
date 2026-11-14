@@ -7,7 +7,6 @@ import com.mlin.notas.chest.BigChestMenu;
 import com.mlin.notas.chest.ChestTier;
 import com.mlin.notas.registry.ModBlocks;
 import com.mlin.notas.registry.ModItems;
-import com.mlin.notas.end.CitadelPiece;
 import com.mlin.notas.registry.ModEntities;
 import com.mlin.notas.registry.ModStructures;
 import net.minecraft.util.RandomSource;
@@ -154,14 +153,10 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("mlinnotas-tier-armor");
 
-			// Cidadela do End inteira a 45 blocos ao norte (flutuando), criaturas do End na frente do jogador
+			// Criaturas do End na frente do jogador (a cidadela tem o proprio teste: CitadelClientGameTest)
 			singleplayer.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 				ServerLevel level = player.level();
-				BlockPos origin = player.blockPosition().offset(0, 10, -45);
-				CitadelPiece piece = new CitadelPiece(20261113L, origin);
-				piece.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(), RandomSource.create(1),
-						piece.getBoundingBox(), ChunkPos.containing(origin), origin);
 				BlockPos front = player.blockPosition().offset(0, 0, -5);
 				ModEntities.VOID_JELLY.spawn(level, front.offset(-3, 2, 0), EntitySpawnReason.COMMAND);
 				ModEntities.CRYSTAL_MITE.spawn(level, front.offset(0, 0, 0), EntitySpawnReason.COMMAND);
@@ -174,14 +169,7 @@ public class MlinNotasClientGameTest implements FabricClientGameTest {
 			context.getInput().lookAt(180, -5);
 			context.waitTicks(40);
 			singleplayer.getConnection().waitForChunksRender();
-			context.takeScreenshot("mlinnotas-end-citadel");
-			// dentro do cofre (ultimo andar da fortaleza): elitro na parede, cabeca de dragao, baus
-			singleplayer.getServer().runCommand("execute at @p run tp @p ~ ~31 ~-42 180 10");
-			context.waitTicks(20);
-			singleplayer.getConnection().waitForChunksRender();
-			context.takeScreenshot("mlinnotas-end-citadel-vault");
-			singleplayer.getServer().runCommand("execute at @p run tp @p ~ ~-31 ~42");
-			context.waitTicks(10);
+			context.takeScreenshot("mlinnotas-end-creatures");
 
 			// Bau de celestio (243 slots, 27 linhas): janela de 6 linhas com barra de rolagem
 			singleplayer.getServer().runOnServer(server -> {
