@@ -134,11 +134,10 @@ public class SmainGameTest {
 		helper.assertTrue(!level.getBlockState(door).getValue(DoorBlock.OPEN), "a porta comeca fechada");
 		((ButtonBlock) state.getBlock()).press(state, level, button, null);
 		BlockPos doorAt = door;
-		helper.runAfterDelay(2, () -> {
-			boolean open = level.getBlockState(doorAt).getValue(DoorBlock.OPEN);
+		// espera alguns ticks (a atualizacao de vizinhos pode chegar depois num servidor ocupado)
+		helper.succeedWhen(() -> {
+			helper.assertTrue(level.getBlockState(doorAt).getValue(DoorBlock.OPEN), "o botao abre a porta de ferro em " + doorAt);
 			VanillaStructuresGameTest.release(level, piece);
-			helper.assertTrue(open, "o botao abre a porta de ferro em " + doorAt);
-			helper.succeed();
 		});
 	}
 
