@@ -45,7 +45,13 @@ public final class VillageLayout {
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
 
 	public enum Problem {
-		OUTSIDE, PLAZA, OVERLAP, TERRAIN, STEEP, NO_ACCESS
+		OUTSIDE, PLAZA, OVERLAP, TERRAIN, STEEP, NO_ACCESS,
+		/** Lote do plano diretor de outra zona (ex.: mercado fora do centro). */
+		ZONE,
+		/** Anel ainda fechado no nivel da vila. */
+		CLOSED,
+		/** Lote de jogador. */
+		PLAYER
 	}
 
 	/** Um lote reservado. {@code cw}/{@code cd}: tamanho da planta sem girar; {@code door}: coluna da porta na planta. */
@@ -64,6 +70,17 @@ public final class VillageLayout {
 		private boolean preferred;
 		private final List<int[]> access = new ArrayList<>();
 		private final Map<String, Integer> paid = new LinkedHashMap<>();
+		/** Lote do plano diretor onde a obra fica (-1 = lote de antes do plano). */
+		private int parcel = -1;
+
+		/** Lote do plano diretor ({@link MasterPlan.Parcel#id()}) ou -1. */
+		public int parcel() {
+			return parcel;
+		}
+
+		void setParcel(int parcel) {
+			this.parcel = parcel;
+		}
 
 		public Lot(int id, String kind, int x, int z, int rot, int cw, int cd, int door, long seed) {
 			this.id = id;
@@ -235,11 +252,21 @@ public final class VillageLayout {
 	private final LinkedHashSet<Long> roads = new LinkedHashSet<>();
 	private final List<Lamp> lamps = new ArrayList<>();
 	private final List<VillageState.Rect> protect = new ArrayList<>();
+	/** Plano diretor (ruas, quarteiroes, lotes, alturas); null = plano antigo (so lotes e ruas nos eixos). */
+	private MasterPlan master;
 
 	public VillageLayout() {
 	}
 
 	// ---------------------------------------------------------------- acesso
+
+	public MasterPlan master() {
+		return master;
+	}
+
+	public void setMaster(MasterPlan master) {
+		this.master = master;
+	}
 
 	public int radius() {
 		return radius;
@@ -267,7 +294,7 @@ public final class VillageLayout {
 	}
 
 	public boolean isRoad(int x, int z) {
-		return roads.contains(col(x, z));
+		return roads.contains(col(x, z)) || (master != null && master.ground(x, z));
 	}
 
 	public List<Lamp> lamps() {
@@ -337,12 +364,18 @@ public final class VillageLayout {
 	/** Restaura um lote salvo (codec). */
 	public static Lot restoreLot(int id, String kind, int x, int z, int rot, int cw, int cd, int door, long seed, boolean built, boolean legacy,
 			boolean preferred, List<int[]> access, Map<String, Integer> paid) {
+		return restoreLot(id, kind, x, z, rot, cw, cd, door, seed, built, legacy, preferred, access, paid, -1);
+	}
+
+	public static Lot restoreLot(int id, String kind, int x, int z, int rot, int cw, int cd, int door, long seed, boolean built, boolean legacy,
+			boolean preferred, List<int[]> access, Map<String, Integer> paid, int parcel) {
 		Lot lot = new Lot(id, kind, x, z, rot, cw, cd, door, seed);
 		lot.built = built;
 		lot.legacy = legacy;
 		lot.preferred = preferred;
 		lot.access.addAll(access);
 		lot.paid.putAll(paid);
+		lot.parcel = parcel;
 		return lot;
 	}
 
@@ -369,8 +402,48 @@ public final class VillageLayout {
 			legacy.legacy = true;
 			layout.lots.add(legacy);
 		}
+		layout.planMaster(state, terrain);
 		layout.extend(state, terrain, state.level());
 		return layout;
+	}
+
+	/**
+	 * Plano antigo (sem plano diretor) passa para o plano diretor: as obras prontas ficam onde estao e viram recortes
+	 * fixos (as ruas passam em volta), as ruas e postes antigos contam como da vila, as avenidas seguem retas nos eixos
+	 * ate depois do ultimo lote existente e os lotes reservados ainda vazios sao refeitos nos lotes do plano.
+	 */
+	public void migrate(VillageState state, Terrain terrain) {
+		lots.removeIf(lot -> !lot.built);
+		for (Lot lot : lots) {
+			lot.preferred = false;
+		}
+		planMaster(state, terrain);
+		extend(state, terrain, state.level());
+	}
+
+	/** Calcula o plano diretor em volta do que ja existe (lotes prontos, areas protegidas, ruas e postes antigos). */
+	void planMaster(VillageState state, Terrain terrain) {
+		List<VillageState.Rect> fixed = new ArrayList<>();
+		int reach = 0;
+		for (Lot lot : lots) {
+			if (lot.built) {
+				VillageState.Rect r = lot.rect();
+				fixed.add(r);
+				for (int[] c : new int[][] {{r.x0(), r.z0()}, {r.x1(), r.z0()}, {r.x0(), r.z1()}, {r.x1(), r.z1()}}) {
+					reach = Math.max(reach, (int) Math.ceil(Math.hypot(c[0], c[1])));
+				}
+			}
+		}
+		Set<Long> villageCells = new java.util.HashSet<>(roads);
+		for (Lamp lamp : lamps) {
+			villageCells.add(col(lamp.x, lamp.z));
+		}
+		for (Lot lot : lots) {
+			lot.access.forEach(c -> villageCells.add(col(c[0], c[1])));
+		}
+		master = MasterPlan.create(state.seed(), terrain, state.y() - 1, fixed, List.copyOf(protect), villageCells, fixed.isEmpty() ? 0 : reach + 4);
+		// postes antigos que ainda nao foram feitos saem (o plano novo poe os seus)
+		lamps.removeIf(lamp -> !lamp.built);
 	}
 
 	/** Lotes que faltam reservar para o tipo no nivel (conta obras antigas sem lote). */
@@ -386,6 +459,9 @@ public final class VillageLayout {
 	 * onde estao) e postes novos. Devolve os lotes acrescentados.
 	 */
 	public List<Lot> extend(VillageState state, Terrain terrain, VillageLevel level) {
+		if (master != null) {
+			return extendMaster(state, level);
+		}
 		radius = Math.max(radius, level.radius());
 		addAvenues();
 		Random random = new Random(state.seed() ^ 0x5EED_1A70L ^ ((long) level.ordinal() * 7919L));
@@ -419,7 +495,215 @@ public final class VillageLayout {
 	/** Abre o plano ate o raio sem reservar lotes (vila inicial: a fogueira vem antes das casas). */
 	public void ensureRadius(int r) {
 		radius = Math.max(radius, r);
-		addAvenues();
+		if (master == null) {
+			addAvenues();
+		}
+	}
+
+	// ---------------------------------------------------------------- plano diretor
+
+	/** Aneis do plano diretor abertos com o alcance atual (o do maior nivel ja alcancado). */
+	public int openRings() {
+		int out = 1;
+		for (VillageLevel level : VillageLevel.values()) {
+			if (level.radius() <= radius) {
+				out = Math.max(out, level.rings());
+			}
+		}
+		return out;
+	}
+
+	/** Reserva os lotes que faltam no nivel nos lotes do plano diretor (os de antes ficam) e os postes novos. */
+	List<Lot> extendMaster(VillageState state, VillageLevel level) {
+		radius = Math.max(radius, level.radius());
+		int open = openRings();
+		Map<VillageProject, Integer> need = new LinkedHashMap<>();
+		for (VillageProject project : LOT_PROJECTS) {
+			need.put(project, missing(state, project, level));
+		}
+		List<Lot> added = new ArrayList<>();
+		boolean progress = true;
+		while (progress) {
+			progress = false;
+			for (VillageProject project : LOT_PROJECTS) {
+				int n = need.get(project);
+				if (n <= 0) {
+					continue;
+				}
+				Lot lot = reserve(project.id(), state.style(), state.seed(), open);
+				if (lot == null) {
+					need.put(project, 0);
+					continue;
+				}
+				added.add(lot);
+				need.put(project, n - 1);
+				progress = true;
+			}
+		}
+		addMasterLamps(open);
+		return added;
+	}
+
+	/** Reserva um lote do plano diretor para o tipo (null = nenhum serve). */
+	public Lot reserve(String kind, VillageStyle style, long villageSeed, int open) {
+		int id = nextId;
+		long seed = lotSeed(villageSeed, id);
+		Canvas canvas = canvas(kind, style, seed);
+		MasterPlan.Parcel parcel = pickParcel(kind, canvas.w(), canvas.d(), open, -1, false);
+		if (parcel == null) {
+			return null;
+		}
+		nextId++;
+		Lot lot = new Lot(id, kind, 0, 0, 0, canvas.w(), canvas.d(), canvas.doorX(), seed);
+		placeIn(lot, parcel);
+		lots.add(lot);
+		return lot;
+	}
+
+	/**
+	 * Melhor lote do plano para o tipo: zona preferida primeiro, depois o tamanho que menos sobra e o mais perto do
+	 * centro. {@code prepared}: so quarteiroes ja aplainados.
+	 */
+	public MasterPlan.Parcel pickParcel(String kind, int cw, int cd, int open, int exclude, boolean prepared) {
+		LotRules.Rule rule = LotRules.of(kind);
+		MasterPlan.Parcel best = null;
+		double bestScore = Double.MAX_VALUE;
+		for (MasterPlan.Parcel p : master.parcels()) {
+			if (parcelProblem(kind, p, cw, cd, open, exclude) != null) {
+				continue;
+			}
+			MasterPlan.Block block = master.block(p.block());
+			if (prepared && !block.prepared()) {
+				continue;
+			}
+			VillageState.Rect r = p.rect();
+			double dist = Math.hypot((r.x0() + r.x1()) / 2.0, (r.z0() + r.z1()) / 2.0);
+			double waste = p.size().width() * p.size().depth() - rule.size().width() * rule.size().depth();
+			double score = rule.preference(p.zone()) * 1000 + waste * 0.5 + dist + (block.prepared() ? 0 : 500);
+			if (score < bestScore) {
+				bestScore = score;
+				best = p;
+			}
+		}
+		return best;
+	}
+
+	/** O lote {@code p} serve para o tipo agora? null = serve. {@code exclude}: lote da propria obra (ao mudar). */
+	public Problem parcelProblem(String kind, MasterPlan.Parcel p, int cw, int cd, int open, int exclude) {
+		if (master == null || p == null) {
+			return Problem.OUTSIDE;
+		}
+		if (p.player()) {
+			return Problem.PLAYER;
+		}
+		for (Lot lot : lots) {
+			if (lot.parcel == p.id() && lot.id != exclude) {
+				return Problem.OVERLAP;
+			}
+		}
+		MasterPlan.Block block = master.block(p.block());
+		if (block == null || block.ring() > open) {
+			return Problem.CLOSED;
+		}
+		LotRules.Rule rule = LotRules.of(kind);
+		if (!LotRules.accepts(rule, p.zone(), open >= 3, open >= 5)) {
+			return Problem.ZONE;
+		}
+		if (!p.size().holds(rule.size()) || fit(p, cw, cd) == null) {
+			return Problem.OUTSIDE;
+		}
+		return null;
+	}
+
+	/**
+	 * Canto e giro de uma planta {@code cw} x {@code cd} dentro do lote, com a porta virada para a rua: centrada ao longo
+	 * da frente e com 1 de recuo quando cabe. {x, z, giro}; null = nao cabe.
+	 */
+	public static int[] fit(MasterPlan.Parcel p, int cw, int cd) {
+		int along = p.along();
+		int deep = p.deep();
+		if (cw > along || cd > deep) {
+			return null;
+		}
+		int back = Math.min(1, deep - cd);
+		int side = (along - cw) / 2;
+		VillageState.Rect r = p.rect();
+		int rot = VillagePlanner.rotationFor(p.front());
+		return switch (p.front()) {
+			case SOUTH -> new int[] {r.x0() + side, r.z1() - back - cd + 1, rot};
+			case NORTH -> new int[] {r.x0() + side, r.z0() + back, rot};
+			case EAST -> new int[] {r.x1() - back - cd + 1, r.z0() + side, rot};
+			case WEST -> new int[] {r.x0() + back, r.z0() + side, rot};
+		};
+	}
+
+	/** Coloca a obra no lote do plano: canto, giro e o acesso da porta ate a rua. */
+	void placeIn(Lot lot, MasterPlan.Parcel p) {
+		int[] f = fit(p, lot.cw, lot.cd);
+		int[] front = Lot.front(f[0], f[1], f[2], lot.cw, lot.cd, lot.door);
+		lot.move(f[0], f[1], f[2], accessTo(front, p.front()));
+		lot.parcel = p.id();
+	}
+
+	/** Celulas da frente da porta ate a rua, andando para {@code dir} (a primeira e a da frente da porta). */
+	List<int[]> accessTo(int[] front, Facing dir) {
+		List<int[]> out = new ArrayList<>();
+		int x = front[0];
+		int z = front[1];
+		out.add(new int[] {x, z});
+		for (int k = 0; k < 4 && !master.ground(x, z) && !master.plaza(x, z); k++) {
+			x += dir.dx;
+			z += dir.dz;
+			if (master.ground(x, z) || master.plaza(x, z)) {
+				break;
+			}
+			out.add(new int[] {x, z});
+		}
+		return out;
+	}
+
+	/** Postes na beira das ruas dos aneis abertos, fora dos lotes, a {@link #LAMP_SPACING}+ uns dos outros. */
+	void addMasterLamps(int open) {
+		List<int[]> placed = new ArrayList<>();
+		for (Lamp lamp : lamps) {
+			placed.add(new int[] {lamp.x, lamp.z});
+		}
+		for (int[] p : PLAZA_LAMPS) {
+			placed.add(p);
+		}
+		List<int[]> candidates = new ArrayList<>();
+		int e = master.extent();
+		for (int x = -e; x <= e; x++) {
+			for (int z = -e; z <= e; z++) {
+				MasterPlan.Block block = master.blockAt(x, z);
+				if (block == null || block.ring() > open || master.parcelAt(x, z) != null || lotAt(x, z) != null) {
+					continue;
+				}
+				boolean byStreet = false;
+				for (Facing f : Facing.values()) {
+					byStreet |= master.ground(x + f.dx, z + f.dz);
+				}
+				if (byStreet) {
+					candidates.add(new int[] {x, z});
+				}
+			}
+		}
+		candidates.sort(Comparator.<int[]>comparingInt(c -> c[0] * c[0] + c[1] * c[1]).thenComparingInt(c -> c[0]).thenComparingInt(c -> c[1]));
+		for (int[] c : candidates) {
+			boolean far = true;
+			for (int[] p : placed) {
+				int dx = p[0] - c[0];
+				int dz = p[1] - c[1];
+				if (dx * dx + dz * dz < LAMP_SPACING * LAMP_SPACING * 2) {
+					far = false;
+					break;
+				}
+			}
+			if (far) {
+				placed.add(c);
+				lamps.add(new Lamp(c[0], c[1], false));
+			}
+		}
 	}
 
 	private void addAvenues() {
@@ -796,6 +1080,17 @@ public final class VillageLayout {
 			return Problem.OVERLAP;
 		}
 		Lot lot = free.getFirst();
+		if (master != null) {
+			// plano diretor: so lotes do plano; a obra vai no lote com a porta para a rua
+			MasterPlan.Parcel parcel = master.parcelAt(x, z);
+			Problem problem = parcelProblem(kind, parcel, lot.cw, lot.cd, openRings(), lot.id);
+			if (problem != null) {
+				return problem;
+			}
+			placeIn(lot, parcel);
+			prefer(lot.id);
+			return null;
+		}
 		Problem geo = geometry(x, z, rot, lot.cw, lot.cd, lot.id);
 		if (geo != null) {
 			return geo;
@@ -842,6 +1137,25 @@ public final class VillageLayout {
 
 	/** Lote vazio do tipo onde da para construir agora (o preferido primeiro); null = nenhum. */
 	public Lot buildable(String kind, Terrain terrain) {
+		if (master != null) {
+			// so em quarteirao ja aplainado (nada e construido em terreno cru); se o lote reservado ainda nao esta,
+			// a obra muda para um lote pronto do mesmo tipo
+			List<Lot> free = freeLots(kind);
+			for (Lot lot : free) {
+				MasterPlan.Parcel p = master.parcel(lot.parcel);
+				if (p != null && !p.player() && master.block(p.block()).prepared()) {
+					return lot;
+				}
+			}
+			for (Lot lot : free) {
+				MasterPlan.Parcel alt = pickParcel(kind, lot.cw, lot.cd, openRings(), lot.id, true);
+				if (alt != null) {
+					placeIn(lot, alt);
+					return lot;
+				}
+			}
+			return null;
+		}
 		for (Lot lot : freeLots(kind)) {
 			if (terrain(terrain, lot.x, lot.z, lot.w(), lot.d()) == null) {
 				int[] f = lot.front();
@@ -926,6 +1240,9 @@ public final class VillageLayout {
 
 	/** Reserva sob medida (vila inicial: fogueira perto do quadro). */
 	public Lot addNear(String kind, VillageStyle style, long villageSeed, Terrain terrain, Random random, int minR) {
+		if (master != null) {
+			return reserve(kind, style, villageSeed, openRings());
+		}
 		int id = nextId;
 		long seed = lotSeed(villageSeed, id);
 		Canvas canvas = canvas(kind, style, seed);

@@ -57,9 +57,10 @@ class VillageStateTest {
 		assertEquals(VillageLevel.HAMLET, v.finishBuild(VillageProject.PLAZA));
 		assertEquals(240, v.prosperity());
 		assertTrue(v.queue().isEmpty());
-		// Vila exige forja e plantacao + 7 obras + 250
+		// Vila exige forja e plantacao + 8 obras + 250 (a prefeitura ainda nao existe e fica de fora)
 		v.addBuilt(VillageProject.SMITHY);
 		v.addBuilt(VillageProject.LAMPS);
+		v.addBuilt(VillageProject.FARM);
 		v.addBuilt(VillageProject.HOUSE);
 		assertEquals(VillageLevel.VILLAGE, v.addProsperity(20));
 		assertEquals(4, v.level().tradeCap());

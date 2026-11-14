@@ -82,6 +82,12 @@ public final class VillageState {
 	private final EnumMap<VillageProject, Map<String, Integer>> paid = new EnumMap<>(VillageProject.class);
 	/** Itens pagos de cada obra da fila (mesma ordem de {@link #queue}). */
 	private final List<Map<String, Integer>> queuePaid = new ArrayList<>();
+	/** Terraplenagem de cada anel do plano diretor (indice = anel - 1). */
+	private final RingWork[] rings = new RingWork[MasterPlan.RINGS];
+	/** Terra cortada sobrando (blocos), que paga aterro de outros aneis. */
+	private int stockpile;
+	/** Lotes de jogador dentro da vila com cama e porta: contam como casas (moradia e pontos de obra). */
+	private int playerHouses;
 
 	public VillageState(String dimension, int x, int y, int z, long seed, VillageStyle style, String name) {
 		this.dimension = dimension;
@@ -385,9 +391,70 @@ public final class VillageState {
 		return recompute();
 	}
 
+	// ---- plano diretor: terraplenagem e casas de jogador ----
+
+	/** Terraplenagem do anel (1..6). */
+	public RingWork ring(int ring) {
+		int i = Math.max(0, Math.min(MasterPlan.RINGS - 1, ring - 1));
+		if (rings[i] == null) {
+			rings[i] = new RingWork(i + 1);
+		}
+		return rings[i];
+	}
+
+	/** Aneis com terraplenagem pronta (bit {@code 1 << (anel - 1)}). */
+	public int ringsDone() {
+		int mask = 0;
+		for (int i = 0; i < rings.length; i++) {
+			if (rings[i] != null && rings[i].done()) {
+				mask |= 1 << i;
+			}
+		}
+		return mask;
+	}
+
+	/** Vila com plano diretor (os aneis contam para o nivel). */
+	public boolean planned() {
+		return layout != null && layout.master() != null;
+	}
+
+	public int stockpile() {
+		return stockpile;
+	}
+
+	public void setStockpile(int stockpile) {
+		this.stockpile = Math.max(0, stockpile);
+	}
+
+	public int playerHouses() {
+		return playerHouses;
+	}
+
+	/**
+	 * Casas de jogador achadas na vila agora. Cada casa nova soma a prosperidade de uma casa (uma vez); devolve o nivel
+	 * novo se subiu.
+	 */
+	public VillageLevel setPlayerHouses(int count) {
+		int before = playerHouses;
+		playerHouses = Math.max(0, count);
+		if (playerHouses > before) {
+			return addProsperity((playerHouses - before) * VillageProject.HOUSE.prosperity());
+		}
+		return recompute();
+	}
+
+	/** Pontos de obra: obras prontas + casas de jogador. */
+	public int buildPoints() {
+		return totalBuilt() + playerHouses;
+	}
+
+	public VillageLevel.Context levelContext() {
+		return new VillageLevel.Context(prosperity, built, planned() ? ringsDone() : -1, playerHouses);
+	}
+
 	/** Recalcula o nivel (nunca desce). Devolve o nivel novo se subiu (senao null). */
 	public VillageLevel recompute() {
-		VillageLevel reached = VillageLevel.reached(level, prosperity, built);
+		VillageLevel reached = VillageLevel.reached(level, levelContext());
 		if (reached != level) {
 			level = reached;
 			return reached;
@@ -526,5 +593,28 @@ public final class VillageState {
 		for (int i = 0; i < queue.size(); i++) {
 			this.queuePaid.add(i < queuePaid.size() ? new LinkedHashMap<>(queuePaid.get(i)) : new LinkedHashMap<>());
 		}
+	}
+
+	/** Restaura a terraplenagem (formato novo; o antigo nao tem e comeca vazio). */
+	public void restoreTerrain(List<RingWork> works, int stockpile, int playerHouses) {
+		java.util.Arrays.fill(rings, null);
+		for (RingWork w : works) {
+			if (w.ring() >= 1 && w.ring() <= MasterPlan.RINGS) {
+				rings[w.ring() - 1] = w;
+			}
+		}
+		this.stockpile = Math.max(0, stockpile);
+		this.playerHouses = Math.max(0, playerHouses);
+	}
+
+	/** Aneis ja criados (para salvar). */
+	public List<RingWork> ringWorks() {
+		List<RingWork> out = new ArrayList<>();
+		for (RingWork w : rings) {
+			if (w != null) {
+				out.add(w);
+			}
+		}
+		return out;
 	}
 }

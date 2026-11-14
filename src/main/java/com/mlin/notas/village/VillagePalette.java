@@ -315,10 +315,22 @@ public final class VillagePalette {
 			case CROP_CARROT -> ((CropBlock) Blocks.CARROTS).getStateForAge(3 + pick % 5);
 			case CROP_POTATO -> ((CropBlock) Blocks.POTATOES).getStateForAge(3 + pick % 5);
 			case CROP_BEET -> Blocks.BEETROOTS.defaultBlockState().setValue(BeetrootBlock.AGE, 1 + pick % 3);
-			case TURF -> soil.defaultBlockState();
+			case TURF -> (soil == Blocks.SAND || soil == Blocks.RED_SAND || soil == Blocks.SNOW_BLOCK ? soil : Blocks.GRASS_BLOCK).defaultBlockState();
 			case EARTH -> subsoil.defaultBlockState();
 			case ROCK -> (subsoil == Blocks.SANDSTONE ? Blocks.SANDSTONE : Blocks.STONE).defaultBlockState();
 			case RETAIN -> (pick % 5 == 0 ? foundation : brick).defaultBlockState();
+			case SAPLING -> sapling();
+			case DRAIN -> Blocks.AIR.defaultBlockState();
 		};
+	}
+
+	/** Muda da madeira do estilo (areia: nenhuma). */
+	private BlockState sapling() {
+		if (soil == Blocks.SAND || soil == Blocks.RED_SAND) {
+			return Blocks.AIR.defaultBlockState();
+		}
+		Block sapling = log == Blocks.SPRUCE_LOG ? Blocks.SPRUCE_SAPLING : log == Blocks.ACACIA_LOG ? Blocks.ACACIA_SAPLING
+				: log == Blocks.DARK_OAK_LOG ? Blocks.BIRCH_SAPLING : Blocks.OAK_SAPLING;
+		return sapling.defaultBlockState();
 	}
 }

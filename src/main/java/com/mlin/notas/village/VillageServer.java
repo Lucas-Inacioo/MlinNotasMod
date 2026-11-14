@@ -101,6 +101,7 @@ public final class VillageServer {
 		ServerLivingEntityEvents.AFTER_DEATH.register(VillageServer::onDeath);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			RETRY_AT.clear();
+			VillageTerrain.clearCache();
 			WAITING.clear();
 			VIEWING.clear();
 		});
@@ -206,6 +207,10 @@ public final class VillageServer {
 			VillageData.get(level.getServer()).changed();
 		}
 		VillagePlanning.ensureLayout(level, village);
+		VillageLevel up = VillageTerrain.refresh(level, village);
+		if (up != null) {
+			levelUp(level.getServer(), village, up);
+		}
 		VIEWING.put(player.getUUID(), board);
 		send(player, village, board, true);
 	}
@@ -260,6 +265,13 @@ public final class VillageServer {
 				}
 			}
 			case "buy" -> buy(player, village, payload.arg());
+			case "terrain" -> {
+				try {
+					VillageTerrain.deposit(player, village, Integer.parseInt(payload.arg()));
+				} catch (NumberFormatException ignored) {
+					// pedido invalido
+				}
+			}
 			case "overlay" -> VillagePlanning.show(player, village, "off".equals(payload.arg()) ? 0 : VillagePlanning.TOGGLE_SECONDS);
 			case "pick" -> VillagePlanning.pick(player, village, payload.arg());
 			case "place" -> VillagePlanning.place(player, village, payload.arg());
@@ -496,14 +508,35 @@ public final class VillageServer {
 				data.endJob(job.village);
 				continue;
 			}
+			if (job.paused()) {
+				// obra parada (plato mexido): confere de novo de tempos em tempos e continua quando o chao voltar
+				if (now % VillageTerrain.PAUSE_RECHECK == 0 && VillageTerrain.plateauOk(level, village, VillageLayout.colX(job.pausedAt),
+						VillageLayout.colZ(job.pausedAt), job.ground)) {
+					job.markVerified(job.pausedAt);
+					job.pausedAt = Long.MIN_VALUE;
+					data.changed();
+					server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.resumed", village.name(),
+							projectName(job.project)).withStyle(ChatFormatting.GREEN), false);
+				}
+				continue;
+			}
 			boolean finished = VillageBuilder.step(level, village, job, VillagePalette.of(village.style(), job.variant()));
 			data.changed();
+			if (job.paused()) {
+				int px = VillageLayout.colX(job.pausedAt);
+				int pz = VillageLayout.colZ(job.pausedAt);
+				server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.paused", village.name(),
+						projectName(job.project), village.x() + px, job.ground, village.z() + pz).withStyle(ChatFormatting.RED), false);
+				sync(server, village);
+				continue;
+			}
 			if (finished) {
 				finish(server, level, village, job);
 			} else if (now % 20 == 0) {
 				sync(server, village);
 			}
 		}
+		VillageTerrain.tick(server, data, now);
 		if (now % 20 == 0) {
 			for (VillageState village : List.copyOf(data.villages())) {
 				if (!village.queue().isEmpty() && data.job(village.key()) == null && now >= RETRY_AT.getOrDefault(village.key(), 0L)) {
@@ -514,7 +547,7 @@ public final class VillageServer {
 		if (now % 100 == 0) {
 			long day = day(server);
 			for (VillageState village : data.villages()) {
-				if (village.layout() == null) {
+				if (village.layout() == null || village.layout().master() == null) {
 					ServerLevel world = levelOf(server, village);
 					if (world != null && world.isLoaded(center(village))) {
 						VillagePlanning.ensureLayout(world, village);
@@ -530,6 +563,18 @@ public final class VillageServer {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				exploreCheck(player, data);
 			}
+		}
+	}
+
+	/** Tira as estacas da terraplenagem dos cantos do lote do plano diretor onde a obra vai. */
+	static void removeStakes(ServerLevel level, VillageState village, int lotId) {
+		VillageLayout layout = village.layout();
+		if (layout == null || layout.master() == null || lotId < 0 || layout.lot(lotId) == null) {
+			return;
+		}
+		MasterPlan.Parcel parcel = layout.master().parcel(layout.lot(lotId).parcel());
+		if (parcel != null) {
+			VillageTerrain.removeStakes(level, village, layout.master(), parcel);
 		}
 	}
 
@@ -557,6 +602,7 @@ public final class VillageServer {
 			village.addLot(planned.lot().rect());
 		}
 		VillageBuilder.clearSite(level, village, planned, false);
+		removeStakes(level, village, planned.lotId());
 		VillageData.Job job = VillageData.Job.create(village.key(), planned);
 		data.startJob(job);
 		server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.building", village.name(),

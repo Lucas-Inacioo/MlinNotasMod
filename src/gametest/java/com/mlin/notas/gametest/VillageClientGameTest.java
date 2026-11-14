@@ -53,6 +53,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 			shots(context, real, c, "camp", 26, 18);
 
 			Village2Shots.overlayAndGhost(context, real, c);
+			Village2Shots.masterPlanShots(context, real, c);
 			boardScreens(context, real, c, "camp");
 
 			// a vila cresce: varios projetos construidos de uma vez
@@ -60,6 +61,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 				VillageState village = starter(server);
 				village.setLevel(VillageLevel.CAPITAL);
 				village.addProsperity(1200);
+				com.mlin.notas.village.VillageTerrain.prepareOpenRings(server.overworld(), village, false);
 				for (VillageProject p : List.of(VillageProject.PLAZA, VillageProject.LAMPS, VillageProject.HOUSE, VillageProject.HOUSE,
 						VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY, VillageProject.MARKET, VillageProject.HOUSE,
 						VillageProject.INN, VillageProject.LIBRARY, VillageProject.HOUSE, VillageProject.FARM, VillageProject.LAMPS,

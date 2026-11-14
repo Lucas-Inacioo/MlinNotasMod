@@ -45,6 +45,13 @@ public final class VillageBuilder {
 	 */
 	public static boolean step(ServerLevel level, VillageState village, VillageData.Job job, VillagePalette palette) {
 		VillageState.Rect rect = lotRect(village, job);
+		if (job.paused()) {
+			return false;
+		}
+		// obra num lote do plano diretor: antes do primeiro bloco de cada coluna, confere se o plato continua na altura
+		boolean check = rect != null && village.layout() != null && village.layout().master() != null && village.layout().lot(job.lot) != null
+				&& village.layout().lot(job.lot).parcel() >= 0;
+		java.util.Set<Long> started = null;
 		int budget = BLOCKS_PER_TICK;
 		int airBudget = 64;
 		while (!job.done() && budget > 0 && airBudget > 0) {
@@ -52,6 +59,22 @@ public final class VillageBuilder {
 			BlockPos pos = world(village, p.x(), p.y(), p.z());
 			if (!level.isLoaded(pos)) {
 				return false;
+			}
+			if (check && rect.contains(p.x(), p.z())) {
+				long col = VillageLayout.col(p.x(), p.z());
+				if (!job.isVerified(col)) {
+					if (started == null) {
+						started = new java.util.HashSet<>();
+						for (long c : job.recordedColumns()) {
+							started.add(VillageLayout.col(VillageLayout.colX(c) - village.x(), VillageLayout.colZ(c) - village.z()));
+						}
+					}
+					if (!started.contains(col) && !VillageTerrain.plateauOk(level, village, p.x(), p.z(), job.ground)) {
+						job.pausedAt = col;
+						return false;
+					}
+					job.markVerified(col);
+				}
 			}
 			boolean placed = place(level, palette, pos, p, job.index);
 			if (placed) {
@@ -151,7 +174,7 @@ public final class VillageBuilder {
 		return (Long.hashCode(firstKey * 0x9E3779B97F4A7C15L) >>> 3) % 1000;
 	}
 
-	private static void effects(ServerLevel level, BlockPos pos, int index) {
+	static void effects(ServerLevel level, BlockPos pos, int index) {
 		BlockState state = level.getBlockState(pos);
 		if (state.isAir()) {
 			return;
@@ -272,9 +295,19 @@ public final class VillageBuilder {
 		return place(level, palette, pos, p, salt, false);
 	}
 
+	/** Agua (fonte ou correndo) ou planta de agua: a terraplenagem pode aterrar. */
+	static boolean shallowWater(BlockState state) {
+		if (!state.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+			return false;
+		}
+		return state.is(net.minecraft.world.level.block.Blocks.WATER) || state.canBeReplaced() || state.is(net.minecraft.world.level.block.Blocks.KELP)
+				|| state.is(net.minecraft.world.level.block.Blocks.KELP_PLANT) || state.is(net.minecraft.world.level.block.Blocks.SEAGRASS)
+				|| state.is(net.minecraft.world.level.block.Blocks.TALL_SEAGRASS);
+	}
+
 	public static boolean place(ServerLevel level, VillagePalette palette, BlockPos pos, Placement p, int salt, boolean trees) {
 		BlockState current = level.getBlockState(pos);
-		boolean treeLog = current.is(BlockTags.LOGS) && (trees || WorldTerrain.naturalTree(level, pos));
+		boolean treeLog = current.is(BlockTags.LOGS) && (trees || WorldTerrain.naturalTree(level, pos) || WorldTerrain.fallenLog(level, pos));
 		if (treeLog) {
 			fellTree(level, pos);
 			current = level.getBlockState(pos);
@@ -287,7 +320,15 @@ public final class VillageBuilder {
 			}
 			return false;
 		}
-		if (p.part().skip() || !WorldTerrain.replaceable(current, treeLog)) {
+		boolean water = shallowWater(current);
+		if (p.part() == VPart.DRAIN) {
+			// terraplenagem: agua rasa e o que for natural somem
+			if (!current.isAir() && (water || WorldTerrain.replaceable(current, treeLog))) {
+				level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+			}
+			return false;
+		}
+		if (p.part().skip() || !(WorldTerrain.replaceable(current, treeLog) || (water && p.part().earthwork()))) {
 			return false;
 		}
 		BlockState state = palette.state(p.part(), p.dir(), salt * 31 + pos.getX() * 7 + pos.getZ());

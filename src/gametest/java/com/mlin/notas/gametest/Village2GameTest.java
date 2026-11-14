@@ -69,7 +69,10 @@ public class Village2GameTest {
 		}
 		BlockPos board = ground(level, x, 0);
 		VillageBoardBlock.placeAt(level, ModBlocks.VILLAGE_BOARD.defaultBlockState(), board, 3);
-		return VillageServer.create(level, board, false);
+		VillageState created = VillageServer.create(level, board, false);
+		// plano diretor: nada e construido em terreno cru; os aneis abertos ja ficam aplainados
+		com.mlin.notas.village.VillageTerrain.prepareOpenRings(level, created, false);
+		return created;
 	}
 
 	private static void release(GameTestHelper helper, VillageState village) {

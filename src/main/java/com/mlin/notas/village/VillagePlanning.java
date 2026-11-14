@@ -50,20 +50,30 @@ public final class VillagePlanning {
 
 	/** Plano da vila (calcula se ainda nao existe: vila nova ou de antes do plano). */
 	public static VillageLayout ensureLayout(ServerLevel level, VillageState village) {
-		if (village.layout() == null) {
-			VillageLayout layout = VillageLayout.create(village, new WorldTerrain(level, VillageServer.center(village)));
-			village.setLayout(layout);
+		if (village.layout() == null || village.layout().master() == null) {
+			WorldTerrain terrain = new WorldTerrain(level, VillageServer.center(village));
+			boolean migrate = village.layout() != null;
+			if (migrate) {
+				// vila de antes do plano diretor: as obras prontas ficam, o resto passa para o plano novo
+				village.layout().migrate(village, terrain);
+			} else {
+				village.setLayout(VillageLayout.create(village, terrain));
+			}
+			VillageLayout layout = village.layout();
 			VillageData.get(level.getServer()).changed();
-			MlinNotas.LOGGER.info("[{}] plano da vila {}: {} lotes, {} postes", MlinNotas.MOD_ID, village.name(), layout.lots().size(),
-					layout.lamps().size());
+			MlinNotas.LOGGER.info("[{}] plano diretor da vila {}{}: {} quarteiroes, {} lotes do plano, {} reservados, {} postes", MlinNotas.MOD_ID,
+					village.name(), migrate ? " (plano antigo convertido)" : "", layout.master().blocks().size(), layout.master().parcels().size(),
+					layout.lots().size(), layout.lamps().size());
+			VillageTerrain.refresh(level, village);
 		}
 		return village.layout();
 	}
 
-	/** A vila subiu de nivel: o plano cresce (lotes novos mais longe, os antigos ficam). */
+	/** A vila subiu de nivel: o plano abre o proximo anel (lotes novos mais longe, os antigos ficam). */
 	public static void grow(ServerLevel level, VillageState village) {
 		VillageLayout layout = ensureLayout(level, village);
 		layout.extend(village, new WorldTerrain(level, VillageServer.center(village)), village.level());
+		VillageTerrain.refresh(level, village);
 		VillageData.get(level.getServer()).changed();
 	}
 
@@ -105,25 +115,42 @@ public final class VillagePlanning {
 		List<VillagePayloads.LotInfo> infos = new ArrayList<>();
 		List<Long> obstacles = new ArrayList<>();
 		List<Integer> kinds = new ArrayList<>();
+		MasterPlan master = layout.master();
 		for (VillageLayout.Lot lot : layout.lots()) {
 			VillageState.Rect r = lot.rect();
-			int ground = TerrainPrep.target(terrain, r);
+			MasterPlan.Parcel parcel = master == null ? null : master.parcel(lot.parcel());
+			MasterPlan.Block block = parcel == null ? null : master.block(parcel.block());
+			int ground = block != null ? block.target() : TerrainPrep.target(terrain, r);
 			VillagePayloads.LotStatus status;
 			if (job != null && job.lot == lot.id()) {
-				status = VillagePayloads.LotStatus.BUILDING;
+				status = job.paused() ? VillagePayloads.LotStatus.PAUSED : VillagePayloads.LotStatus.BUILDING;
 				ground = job.ground;
+				if (job.paused() && obstacles.size() < MAX_OBSTACLES) {
+					int px = VillageLayout.colX(job.pausedAt);
+					int pz = VillageLayout.colZ(job.pausedAt);
+					obstacles.add(VillageBuilder.world(village, px, terrain.ground(px, pz), pz).asLong());
+					kinds.add(WorldTerrain.Obstacle.PLAYER.ordinal());
+				}
 			} else if (lot.built()) {
 				status = VillagePayloads.LotStatus.BUILT;
+			} else if (parcel != null && parcel.player()) {
+				status = VillagePayloads.LotStatus.PLAYER;
+			} else if (block != null && !block.prepared()) {
+				status = VillagePayloads.LotStatus.UNPREPARED;
 			} else {
-				status = inspectLot(terrain, lot, obstacles, kinds);
+				status = inspectLot(terrain, lot, obstacles, kinds, master);
+				if (block != null && status == VillagePayloads.LotStatus.STEEP) {
+					status = VillagePayloads.LotStatus.FREE;
+				}
 			}
 			infos.add(new VillagePayloads.LotInfo(lot.id(), status.ordinal(), ground));
 		}
-		return new VillagePayloads.Overlay(village.key(), VillageServer.center(village), layout, infos, obstacles, kinds, seconds);
+		int rings = village.level().rings() | (village.ringsDone() << 4);
+		return new VillagePayloads.Overlay(village.key(), VillageServer.center(village), layout, infos, obstacles, kinds, seconds, rings);
 	}
 
 	/** Pior obstaculo do lote; anota os blocos a destacar. */
-	static VillagePayloads.LotStatus inspectLot(WorldTerrain terrain, VillageLayout.Lot lot, List<Long> obstacles, List<Integer> kinds) {
+	static VillagePayloads.LotStatus inspectLot(WorldTerrain terrain, VillageLayout.Lot lot, List<Long> obstacles, List<Integer> kinds, MasterPlan master) {
 		VillageState.Rect r = lot.rect();
 		boolean tree = false;
 		boolean player = false;
@@ -131,6 +158,10 @@ public final class VillagePlanning {
 		for (int x = r.x0() - 1; x <= r.x1() + 1; x++) {
 			for (int z = r.z0() - 1; z <= r.z1() + 1; z++) {
 				boolean inside = r.contains(x, z);
+				if (master != null && (master.street(x, z) || master.parcelAt(x, z) != null && master.known(x, z))) {
+					// rua do plano e estacas da terraplenagem sao da vila
+					continue;
+				}
 				WorldTerrain.Inspection in = terrain.inspect(x, z);
 				if (in.obstacle() == WorldTerrain.Obstacle.NONE || (!inside && in.obstacle() != WorldTerrain.Obstacle.TREE)) {
 					continue;

@@ -164,11 +164,35 @@ public class VillageBoardScreen extends Screen {
 		}).bounds(l + 8, bottom, AREA_BUTTON, 18).tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.area_tooltip"))).build());
 	}
 
+	/**
+	 * Linhas da aba de projetos: primeiro a terraplenagem dos aneis que a vila ja pode pagar (Integer = anel), depois
+	 * os projetos.
+	 */
+	private List<Object> projectRows() {
+		List<Object> rows = new ArrayList<>();
+		VillageState s = state();
+		if (s.planned()) {
+			for (int ring = 1; ring <= Math.min(com.mlin.notas.village.MasterPlan.RINGS, s.level().rings() + 1); ring++) {
+				rows.add(ring);
+			}
+		}
+		rows.addAll(List.of(VillageProject.values()));
+		return rows;
+	}
+
 	private void initProjects() {
-		VillageProject[] projects = VillageProject.values();
+		List<Object> rows = projectRows();
 		int y = contentTop();
-		for (int i = page * PROJECTS_PER_PAGE; i < Math.min(projects.length, (page + 1) * PROJECTS_PER_PAGE); i++) {
-			VillageProject project = projects[i];
+		for (int i = page * PROJECTS_PER_PAGE; i < Math.min(rows.size(), (page + 1) * PROJECTS_PER_PAGE); i++) {
+			if (rows.get(i) instanceof Integer ring) {
+				Button button = Button.builder(Component.translatable("gui.mlinnotas.village.deposit"),
+						b -> VillageClient.send(view.board(), "terrain", String.valueOf(ring))).bounds(left() + panelW() - 62, y + 3, 54, 18).build();
+				button.active = state().ring(ring).state() == com.mlin.notas.village.RingWork.State.OPEN;
+				addRenderableWidget(button);
+				y += PROJECT_ROW;
+				continue;
+			}
+			VillageProject project = (VillageProject) rows.get(i);
 			Button button = Button.builder(Component.translatable("gui.mlinnotas.village.deposit"),
 					b -> VillageClient.send(view.board(), "deposit", project.id())).bounds(left() + panelW() - 62, y + 3, 54, 18).build();
 			button.active = state().status(project) == VillageState.Status.AVAILABLE;
@@ -438,12 +462,14 @@ public class VillageBoardScreen extends Screen {
 		VillageLevel next = level.next();
 		if (next != null) {
 			lines.add(Component.translatable("gui.mlinnotas.village.next_level", levelName(next)).withStyle(ChatFormatting.YELLOW));
-			for (String missing : next.missing(s.prosperity(), s.builtMap())) {
+			for (String missing : next.missing(s.levelContext())) {
 				Component line;
 				if (missing.equals("prosperity")) {
 					line = Component.translatable("gui.mlinnotas.village.need.prosperity", s.prosperity(), next.prosperity());
 				} else if (missing.equals("projects")) {
-					line = Component.translatable("gui.mlinnotas.village.need.projects", s.totalBuilt(), next.projects());
+					line = Component.translatable("gui.mlinnotas.village.need.projects", s.buildPoints(), next.projectsNeeded());
+				} else if (missing.startsWith("ring:")) {
+					line = Component.translatable("gui.mlinnotas.village.need.ring", missing.substring(5));
 				} else {
 					line = Component.translatable("gui.mlinnotas.village.need.project", projectName(VillageProject.byId(missing.substring(8))));
 				}
@@ -490,14 +516,66 @@ public class VillageBoardScreen extends Screen {
 		return mouseX >= x0 && mouseX < x1 && mouseY >= y0 && mouseY < y1;
 	}
 
+	/** Linha da terraplenagem de um anel: situacao, esmeraldas e terra entregues, andamento da obra. */
+	private void ringRow(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int ring, int x, int y, int r) {
+		VillageState s = state();
+		com.mlin.notas.village.RingWork work = s.ring(ring);
+		boolean rowHover = hover(mouseX, mouseY, x, y, r, y + PROJECT_ROW - 1);
+		graphics.fill(x, y, left() + panelW() - 8, y + PROJECT_ROW - 1, rowHover ? ROW_HOVER : ROW);
+		graphics.item(new ItemStack(work.done() ? Items.GRASS_BLOCK : Items.DIRT), x + 3, y + 3);
+		graphics.text(font, Component.translatable("gui.mlinnotas.village.terrain.name", ring), x + 23, y + 3, 0xFFFFFFFF);
+		Component sub;
+		switch (work.state()) {
+			case DONE -> sub = Component.translatable("gui.mlinnotas.village.terrain.done").withStyle(ChatFormatting.GREEN);
+			case QUEUED -> sub = work.columns() > 0 && work.ready() > 0
+					? Component.translatable("gui.mlinnotas.village.terrain.working", work.ready() * 100 / work.columns()).withStyle(ChatFormatting.YELLOW)
+					: Component.translatable("gui.mlinnotas.village.queued").withStyle(ChatFormatting.YELLOW);
+			default -> sub = ring > s.level().rings()
+					? Component.translatable("gui.mlinnotas.village.terrain.next_level").withStyle(ChatFormatting.GOLD)
+					: Component.translatable("gui.mlinnotas.village.terrain.ready_count", work.ready(), work.columns()).withStyle(ChatFormatting.GRAY);
+		}
+		graphics.text(font, sub, x + 23, y + 13, 0xFFFFFFFF);
+		int cx = x + 150;
+		if (work.state() == com.mlin.notas.village.RingWork.State.OPEN) {
+			for (VillageCost cost : work.costs()) {
+				int have = work.deposited(cost.id());
+				graphics.item(costStack(cost.id()), cx, y + 3);
+				String count = have + "/" + cost.count();
+				graphics.text(font, count, cx + 17, y + 8, have >= cost.count() ? 0xFF80FF80 : 0xFFE0E0E0);
+				if (hover(mouseX, mouseY, cx, y + 2, cx + 16, y + 20)) {
+					graphics.setTooltipForNextFrame(font, Component.translatable("gui.mlinnotas.village.cost_tooltip", costName(cost.id()), have,
+							cost.count()), mouseX, mouseY);
+				}
+				cx += 18 + font.width(count) + 4;
+			}
+			double fraction = work.fraction();
+			if (fraction > 0) {
+				graphics.fill(x + 23, y + PROJECT_ROW - 3, x + 145, y + PROJECT_ROW - 2, 0xFF303030);
+				graphics.fill(x + 23, y + PROJECT_ROW - 3, x + 23 + (int) (122 * fraction), y + PROJECT_ROW - 2, 0xFF60C0FF);
+			}
+		}
+		if (rowHover && !hover(mouseX, mouseY, x + 150, y, r, y + PROJECT_ROW)) {
+			List<FormattedCharSequence> tip = new ArrayList<>(font.split(Component.translatable("gui.mlinnotas.village.terrain.desc", ring)
+					.withStyle(ChatFormatting.GRAY), 240));
+			tip.add(Component.translatable("gui.mlinnotas.village.terrain.earthwork", work.cut(), work.filled(), s.stockpile())
+					.withStyle(ChatFormatting.DARK_AQUA).getVisualOrderText());
+			graphics.setTooltipForNextFrame(font, tip, mouseX, mouseY);
+		}
+	}
+
 	private void projects(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		VillageState s = state();
-		VillageProject[] projects = VillageProject.values();
+		List<Object> rows = projectRows();
 		int x = left() + 8;
 		int r = left() + panelW() - 66;
 		int y = contentTop();
-		for (int i = page * PROJECTS_PER_PAGE; i < Math.min(projects.length, (page + 1) * PROJECTS_PER_PAGE); i++) {
-			VillageProject project = projects[i];
+		for (int i = page * PROJECTS_PER_PAGE; i < Math.min(rows.size(), (page + 1) * PROJECTS_PER_PAGE); i++) {
+			if (rows.get(i) instanceof Integer ring) {
+				ringRow(graphics, mouseX, mouseY, ring, x, y, r);
+				y += PROJECT_ROW;
+				continue;
+			}
+			VillageProject project = (VillageProject) rows.get(i);
 			VillageState.Status status = s.status(project);
 			boolean rowHover = hover(mouseX, mouseY, x, y, r, y + PROJECT_ROW - 1);
 			graphics.fill(x, y, left() + panelW() - 8, y + PROJECT_ROW - 1, rowHover ? ROW_HOVER : ROW);

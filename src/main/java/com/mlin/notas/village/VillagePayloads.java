@@ -20,7 +20,7 @@ public final class VillagePayloads {
 	public record View(VillageState state, BlockPos board, String building, int done, int total, boolean waiting, long day, boolean open)
 			implements CustomPacketPayload {
 		public static final Type<View> TYPE = new Type<>(MlinNotas.id("village_view"));
-		private static final StreamCodec<ByteBuf, VillageState> STATE = ByteBufCodecs.fromCodec(VillageData.VILLAGE_CODEC);
+		private static final StreamCodec<ByteBuf, VillageState> STATE = ByteBufCodecs.fromCodecTrusted(VillageData.VILLAGE_CODEC);
 		public static final StreamCodec<ByteBuf, View> CODEC = StreamCodec.composite(
 				STATE, View::state,
 				BlockPos.STREAM_CODEC, View::board,
@@ -80,7 +80,13 @@ public final class VillagePayloads {
 		/** Ja tem a obra. */
 		BUILT,
 		/** Obra em andamento. */
-		BUILDING;
+		BUILDING,
+		/** Obra parada: o plato do lote foi mexido. */
+		PAUSED,
+		/** Quarteirao ainda sem terraplenagem. */
+		UNPREPARED,
+		/** Lote de jogador (a vila nao mexe). */
+		PLAYER;
 
 		public static LotStatus byOrdinal(int i) {
 			return values()[Math.max(0, Math.min(values().length - 1, i))];
@@ -93,9 +99,19 @@ public final class VillagePayloads {
 	 * = ordinal de {@link WorldTerrain.Obstacle}). {@code y} de cada coluna vem do proprio mundo do cliente.
 	 */
 	public record Overlay(String village, BlockPos center, VillageLayout layout, java.util.List<LotInfo> lots, java.util.List<Long> obstacles,
-			java.util.List<Integer> kinds, int seconds) implements CustomPacketPayload {
+			java.util.List<Integer> kinds, int seconds, int rings) implements CustomPacketPayload {
+		/** Aneis abertos no nivel da vila (1..6). */
+		public int openRings() {
+			return rings & 15;
+		}
+
+		/** Anel com terraplenagem pronta. */
+		public boolean ringDone(int ring) {
+			return (rings & (1 << (ring + 3))) != 0;
+		}
+
 		public static final Type<Overlay> TYPE = new Type<>(MlinNotas.id("village_overlay"));
-		private static final StreamCodec<ByteBuf, VillageLayout> LAYOUT = ByteBufCodecs.fromCodec(VillageData.LAYOUT_CODEC);
+		private static final StreamCodec<ByteBuf, VillageLayout> LAYOUT = ByteBufCodecs.fromCodecTrusted(VillageData.LAYOUT_CODEC);
 		public static final StreamCodec<ByteBuf, Overlay> CODEC = StreamCodec.composite(
 				ByteBufCodecs.STRING_UTF8, Overlay::village,
 				BlockPos.STREAM_CODEC, Overlay::center,
@@ -104,6 +120,7 @@ public final class VillagePayloads {
 				ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.list()), Overlay::obstacles,
 				ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()), Overlay::kinds,
 				ByteBufCodecs.VAR_INT, Overlay::seconds,
+				ByteBufCodecs.VAR_INT, Overlay::rings,
 				Overlay::new);
 
 		@Override

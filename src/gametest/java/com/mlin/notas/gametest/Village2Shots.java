@@ -43,6 +43,28 @@ final class Village2Shots {
 		context.waitFor(mc -> VillageOverlay.active(), 100);
 	}
 
+	/**
+	 * Plano diretor da vila inicial (Aldeia): contorno inteiro de cima (ruas curvas, quarteiroes por zona, aneis
+	 * fechados em cinza) e de lado; depois o anel 3 aplainado na hora, com e sem contorno.
+	 */
+	static void masterPlanShots(ClientGameTestContext context, TestSingleplayerContext real, BlockPos c) {
+		showOverlay(real, context, c);
+		VillageClientGameTest.shot(context, real, c, new double[] {0.5, 62, 3}, new double[] {0.5, 0, 0}, "mlinnotas-village-plan-top");
+		VillageClientGameTest.shot(context, real, c, new double[] {-50, 36, 50}, new double[] {0, 0, 0}, "mlinnotas-village-plan-angle");
+		VillageClientGameTest.shot(context, real, c, new double[] {12, 9, 30}, new double[] {-6, 0, 10}, "mlinnotas-village-plan-street");
+		real.getServer().runOnServer(server -> {
+			VillageState village = VillageClientGameTest.starter(server);
+			com.mlin.notas.village.VillageTerrain.prepareNow(server.overworld(), village, 3, false);
+			MlinNotas.LOGGER.info("[VillageClientGameTest] anel 3 aplainado: {} colunas, corte {}, aterro {}", village.ring(3).columns(),
+					village.ring(3).cut(), village.ring(3).filled());
+		});
+		showOverlay(real, context, c);
+		VillageClientGameTest.shot(context, real, c, new double[] {-50, 36, 50}, new double[] {0, 0, 0}, "mlinnotas-village-ring3-overlay");
+		context.runOnClient(mc -> VillageOverlay.clear());
+		VillageClientGameTest.shot(context, real, c, new double[] {-46, 26, 46}, new double[] {0, 0, 0}, "mlinnotas-village-ring3-prepared");
+		VillageClientGameTest.shot(context, real, c, new double[] {0.5, 70, 34}, new double[] {0.5, 0, 0}, "mlinnotas-village-ring3-top");
+	}
+
 	/** Contorno do acampamento visto de cima e de lado; depois a escolha de lugar com o fantasma. */
 	static void overlayAndGhost(ClientGameTestContext context, TestSingleplayerContext real, BlockPos c) {
 		// a Aldeia ja planeja lotes livres (o acampamento so tem os que ja estao construidos)
@@ -111,10 +133,10 @@ final class Village2Shots {
 					}
 				}
 				int spread = max - min;
-				if (!dry || spread < 7 || spread > 16) {
+				if (!dry || spread < 12 || spread > 28) {
 					continue;
 				}
-				double score = Math.abs(spread - 11) + Math.hypot(dx, dz) / 200.0;
+				double score = Math.abs(spread - 18) + Math.hypot(dx, dz) / 200.0;
 				if (score < bestScore) {
 					bestScore = score;
 					best = new BlockPos(x, 0, z);
@@ -156,6 +178,7 @@ final class Village2Shots {
 			VillageState village = VillageServer.create(level, board, false);
 			village.setLevel(VillageLevel.TOWN);
 			village.addProsperity(600);
+			com.mlin.notas.village.VillageTerrain.prepareOpenRings(level, village, false);
 			VillagePlanning.grow(level, village);
 			for (VillageProject p : List.of(VillageProject.PLAZA, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.FARM, VillageProject.HOUSE,
 					VillageProject.SMITHY, VillageProject.MARKET, VillageProject.HOUSE, VillageProject.FARM, VillageProject.HOUSE, VillageProject.LAMPS)) {
@@ -176,6 +199,40 @@ final class Village2Shots {
 		VillageClientGameTest.shot(context, real, center, new double[] {8, 3, 10}, new double[] {-6, 2, -10}, "mlinnotas-village-slope-low");
 		showOverlay(real, context, center);
 		VillageClientGameTest.shot(context, real, center, new double[] {-34, 26, 34}, new double[] {0, 0, 0}, "mlinnotas-village-slope-overlay");
+		VillageClientGameTest.shot(context, real, center, new double[] {0.5, 62, 3}, new double[] {0.5, 0, 0}, "mlinnotas-village-slope-plan");
 		context.runOnClient(mc -> VillageOverlay.clear());
+		// muro de arrimo entre dois platos, visto do lado baixo
+		int[] wall = real.getServer().computeOnServer(server -> {
+			VillageState village = VillageServer.nearest(server.overworld(), center, 4);
+			com.mlin.notas.village.MasterPlan plan = village.layout().master();
+			com.mlin.notas.village.VillagePalette palette = com.mlin.notas.village.VillagePalette.of(village.style());
+			int[] best = null;
+			int bestDrop = -100;
+			for (int ring = 1; ring <= 5; ring++) {
+				for (long col : plan.columns(ring)) {
+					int x = VillageLayout.colX(col);
+					int z = VillageLayout.colZ(col);
+					int h = plan.plannedHeight(x, z);
+					var below = server.overworld().getBlockState(new BlockPos(village.x() + x, h - 1, village.z() + z));
+					if (!below.is(palette.brick) && !below.is(palette.foundation)) {
+						continue;
+					}
+					for (com.mlin.notas.village.Facing f : com.mlin.notas.village.Facing.values()) {
+						int nh = server.overworld().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, village.x() + x + f.dx, village.z() + z + f.dz) - 1;
+						int drop = nh == Integer.MIN_VALUE ? 0 : h - nh;
+						if (drop > bestDrop && Math.hypot(x, z) < 70) {
+							bestDrop = drop;
+							best = new int[] {x, h - village.y(), z, f.dx, f.dz, drop};
+						}
+					}
+				}
+			}
+			return best;
+		});
+		if (wall != null) {
+			MlinNotas.LOGGER.info("[VillageClientGameTest] muro de arrimo em {},{} com {} de queda", wall[0], wall[2], wall[5]);
+			VillageClientGameTest.shot(context, real, center, new double[] {wall[0] + wall[3] * 8 + 0.5, wall[1] + 2, wall[2] + wall[4] * 8 + 0.5},
+					new double[] {wall[0] + 0.5, wall[1] - 1, wall[2] + 0.5}, "mlinnotas-village-slope-wall");
+		}
 	}
 }

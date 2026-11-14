@@ -92,6 +92,9 @@ public final class VillageOverlay {
 			case STEEP -> STEEP;
 			case BUILT -> BUILT;
 			case BUILDING -> BUILDING;
+			case PAUSED -> BLOCKED;
+			case UNPREPARED -> STEEP;
+			case PLAYER -> 0xFFB070FF;
 		};
 	}
 
@@ -120,21 +123,26 @@ public final class VillageOverlay {
 		}
 		Level level = mc.level;
 		VillageLayout layout = o.layout();
-		// raio da vila
-		int r = layout.radius();
-		int segments = Math.max(48, r * 4);
-		Vec3 prev = null;
-		for (int i = 0; i <= segments; i++) {
-			double a = 2 * Math.PI * i / segments;
-			double x = c.getX() + 0.5 + r * Math.cos(a);
-			double z = c.getZ() + 0.5 + r * Math.sin(a);
-			Vec3 p = new Vec3(x, surface(level, (int) Math.floor(x), (int) Math.floor(z)) + 0.2, z);
-			if (prev != null) {
-				Gizmos.line(prev, p, RING, 4.0F);
+		if (layout.master() != null) {
+			// plano diretor: ruas, quarteiroes com o plato, zonas e lotes livres
+			MasterPlanOverlay.render(mc, o, layout.master());
+		} else {
+			// raio da vila
+			int r = layout.radius();
+			int segments = Math.max(48, r * 4);
+			Vec3 prev = null;
+			for (int i = 0; i <= segments; i++) {
+				double a = 2 * Math.PI * i / segments;
+				double x = c.getX() + 0.5 + r * Math.cos(a);
+				double z = c.getZ() + 0.5 + r * Math.sin(a);
+				Vec3 p = new Vec3(x, surface(level, (int) Math.floor(x), (int) Math.floor(z)) + 0.2, z);
+				if (prev != null) {
+					Gizmos.line(prev, p, RING, 4.0F);
+				}
+				prev = p;
 			}
-			prev = p;
 		}
-		// ruas planejadas
+		// ruas planejadas (as antigas, fora do plano diretor)
 		for (long k : layout.roads()) {
 			int x = c.getX() + VillageLayout.colX(k);
 			int z = c.getZ() + VillageLayout.colZ(k);

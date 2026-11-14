@@ -42,7 +42,35 @@ public final class WorldTerrain implements Terrain {
 	public static boolean naturalGround(BlockState state) {
 		return state.is(BlockTags.SUBSTRATE_OVERWORLD) || state.is(BlockTags.SAND) || state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(Blocks.GRAVEL)
 				|| state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.CLAY) || state.is(Blocks.SANDSTONE) || state.is(Blocks.RED_SANDSTONE)
-				|| state.is(Blocks.TERRACOTTA) || state.is(Blocks.CALCITE);
+				|| state.is(Blocks.TERRACOTTA) || state.is(Blocks.CALCITE) || state.is(ORES) || state.is(Blocks.DRIPSTONE_BLOCK) || state.is(Blocks.SMOOTH_BASALT);
+	}
+
+	/** Minerios (os da superficie aparecem no corte da terraplenagem e sao chao natural). */
+	private static final net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> ORES = net.minecraft.tags.TagKey.create(
+			net.minecraft.core.registries.Registries.BLOCK, net.minecraft.resources.Identifier.fromNamespaceAndPath("c", "ores"));
+
+	/**
+	 * Tronco caido nascido no mundo (deitado, sem folhas): deitado em cima de chao natural e so com coisas naturais em
+	 * volta (outros troncos, plantas, cogumelos, musgo). Cabana de troncos tem tabua, vidro ou porta encostada.
+	 */
+	public static boolean fallenLog(LevelReader level, BlockPos pos) {
+		BlockState state = level.getBlockState(pos);
+		if (!state.is(BlockTags.LOGS) || !state.hasProperty(net.minecraft.world.level.block.RotatedPillarBlock.AXIS)
+				|| state.getValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS) == net.minecraft.core.Direction.Axis.Y) {
+			return false;
+		}
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				for (int dz = -1; dz <= 1; dz++) {
+					BlockState s = level.getBlockState(p.set(pos.getX() + dx, pos.getY() + dy, pos.getZ() + dz));
+					if (!(s.is(BlockTags.LOGS) || clearable(s) || naturalGround(s))) {
+						return false;
+					}
+				}
+			}
+		}
+		return naturalGround(level.getBlockState(pos.below())) || level.getBlockState(pos.below()).is(BlockTags.LOGS);
 	}
 
 	/** Pode sumir para a obra passar: ar, plantas, neve fina, folhas que nasceram sozinhas. */
@@ -105,6 +133,14 @@ public final class WorldTerrain implements Terrain {
 	}
 
 	private int[] scan(int wx, int wz) {
+		return scan(level, wx, wz, trees);
+	}
+
+	/**
+	 * Le a coluna do mundo agora: {topo, livre (1/0), blocos de agua em cima do fundo}. {@code trees}: troncos de
+	 * qualquer arvore contam como removiveis.
+	 */
+	public static int[] scan(ServerLevel level, int wx, int wz, boolean trees) {
 		// carrega (ou gera) o chunk: o mapa de alturas de chunk ausente devolve o fundo do mundo
 		level.getChunk(wx >> 4, wz >> 4);
 		int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, wx, wz) - 1;
@@ -113,7 +149,7 @@ public final class WorldTerrain implements Terrain {
 		boolean treeColumn = trees;
 		while (pos.getY() > level.getMinY()) {
 			BlockState here = level.getBlockState(pos);
-			if (!treeColumn && here.is(BlockTags.LOGS) && naturalTree(level, pos)) {
+			if (!treeColumn && here.is(BlockTags.LOGS) && (naturalTree(level, pos) || fallenLog(level, pos))) {
 				treeColumn = true;
 			}
 			if (!clearable(here, treeColumn)) {
@@ -123,18 +159,36 @@ public final class WorldTerrain implements Terrain {
 		}
 		int ground = pos.getY();
 		BlockState groundState = level.getBlockState(pos);
+		int water = 0;
+		if (groundState.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+			BlockPos.MutableBlockPos down = pos.mutable();
+			while (down.getY() > level.getMinY() && level.getBlockState(down).getFluidState().is(net.minecraft.tags.FluidTags.WATER) && water < 32) {
+				water++;
+				down.move(0, -1, 0);
+			}
+		}
 		boolean free = naturalGround(groundState) && groundState.getFluidState().isEmpty();
 		if (free) {
 			for (int dy = 1; dy <= CLEARANCE; dy++) {
 				pos.setY(ground + dy);
 				BlockState above = level.getBlockState(pos);
-				if (!clearable(above, treeColumn) && !(above.is(BlockTags.LOGS) && naturalTree(level, pos))) {
+				if (!clearable(above, treeColumn) && !(above.is(BlockTags.LOGS) && (naturalTree(level, pos) || fallenLog(level, pos)))) {
 					free = false;
 					break;
 				}
 			}
 		}
-		return new int[] {ground, free ? 1 : 0};
+		return new int[] {ground, free ? 1 : 0, water};
+	}
+
+	@Override
+	public int water(int x, int z) {
+		return column(x, z)[2];
+	}
+
+	/** Esquece as colunas lidas (o mundo mudou). */
+	public void forget() {
+		cache.clear();
 	}
 
 	@Override
@@ -175,7 +229,7 @@ public final class WorldTerrain implements Terrain {
 			pos.setY(ground + dy);
 			BlockState above = level.getBlockState(pos);
 			if (above.is(BlockTags.LOGS)) {
-				if (trees || naturalTree(level, pos)) {
+				if (trees || naturalTree(level, pos) || fallenLog(level, pos)) {
 					if (tree == null) {
 						tree = pos.immutable();
 					}

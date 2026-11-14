@@ -162,12 +162,31 @@ public final class VillagePlacement {
 		VillageLayout current = VillageOverlay.current() != null && VillageOverlay.current().center().equals(center) ? VillageOverlay.current().layout()
 				: layout;
 		VillageLayout.Lot there = current.lotAt(hx, hz);
+		com.mlin.notas.village.MasterPlan master = current.master();
 		if (there != null && there.kind().equals(kind) && !there.built()) {
 			snapped = there.id();
 			ghostX = there.x();
 			ghostZ = there.z();
 			rot = there.rot();
 			problem = null;
+		} else if (master != null) {
+			// plano diretor: so lotes do plano; a planta encaixa no lote com a porta para a rua
+			snapped = -1;
+			com.mlin.notas.village.MasterPlan.Parcel parcel = master.parcelAt(hx, hz);
+			int[] fit = parcel == null ? null : VillageLayout.fit(parcel, cw, cd);
+			problem = current.parcelProblem(kind, parcel, cw, cd, current.openRings(), exclude);
+			if (fit != null) {
+				ghostX = fit[0];
+				ghostZ = fit[1];
+				rot = fit[2];
+				ghostGround = master.block(parcel.block()).target();
+				hasGhost = true;
+				return;
+			}
+			int w = rot % 2 == 0 ? cw : cd;
+			int d = rot % 2 == 0 ? cd : cw;
+			ghostX = hx - w / 2;
+			ghostZ = hz - d / 2;
 		} else {
 			snapped = -1;
 			int w = rot % 2 == 0 ? cw : cd;
