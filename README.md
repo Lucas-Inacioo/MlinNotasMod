@@ -39,7 +39,7 @@ Faca uma vez, no PowerShell do outro computador (Windows):
    winget install Git.Git
    ```
    Feche e abra o PowerShell de novo para o `java` e o `git` aparecerem.
-3. Baixe o projeto numa pasta local (nao use OneDrive/Google Drive). O repositorio e privado: entre no GitHub com uma conta que tenha acesso, ou baixe o ZIP pelo botao **Code > Download ZIP** e extraia em `Documentos\MlinNotasMod`.
+3. Baixe o projeto numa pasta local (nao use OneDrive/Google Drive). Sem Git, tambem da para baixar o ZIP em https://github.com/Lucas-Inacioo/MlinNotasMod (botao **Code > Download ZIP**) e extrair em `Documentos\MlinNotasMod`.
    ```powershell
    cd $HOME\Documents
    git clone https://github.com/Lucas-Inacioo/MlinNotasMod.git
