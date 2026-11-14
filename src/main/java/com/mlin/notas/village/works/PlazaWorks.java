@@ -13,7 +13,7 @@ import java.util.List;
  * atrapalha, em (+-3, +-3); os eixos (as entradas das avenidas) ficam livres.
  *
  * <p>Referencias de forma: chafarizes de praca de vila e coretos vitorianos (Planet Minecraft "village fountain",
- * "bandstand"), torre do relogio de praca de cidade pequena; escrito do zero.
+ * "bandstand"), torre do relogio de praca de cidade pequena; as pecas ficam em {@link PlazaSculpture}.
  */
 public final class PlazaWorks {
 	private PlazaWorks() {
@@ -34,16 +34,16 @@ public final class PlazaWorks {
 		paving(ctx, bp, base, stage);
 		List<int[]> used = new ArrayList<>();
 		if (stage >= 2) {
-			place(ctx, bp, used, QUADRANTS[0], 1, (c, sx, sz) -> fountain(ctx, bp, c[0], c[1], base));
+			place(ctx, bp, used, QUADRANTS[0], 1, (c, sx, sz) -> PlazaSculpture.fountain(ctx.mats(), bp, c[0], c[1], base));
 		}
 		if (stage >= 3) {
-			place(ctx, bp, used, QUADRANTS[1], 1, (c, sx, sz) -> bandstand(ctx, bp, c[0], c[1], base));
+			place(ctx, bp, used, QUADRANTS[1], 1, (c, sx, sz) -> PlazaSculpture.bandstand(ctx.mats(), bp, c[0], c[1], base, -sz));
 		}
 		if (stage >= 4) {
-			place(ctx, bp, used, QUADRANTS[2], 1, (c, sx, sz) -> statue(ctx, bp, c[0], c[1], base, ctx.lastBoss()));
+			place(ctx, bp, used, QUADRANTS[2], 1, (c, sx, sz) -> PlazaSculpture.statue(ctx.mats(), bp, c[0], c[1], base, ctx.lastBoss(), -sz));
 		}
 		if (stage >= 5) {
-			place(ctx, bp, used, QUADRANTS[3], 1, (c, sx, sz) -> monument(ctx, bp, c[0], c[1], base, sx, sz));
+			place(ctx, bp, used, QUADRANTS[3], 1, (c, sx, sz) -> PlazaSculpture.clockTower(ctx.mats(), bp, c[0], c[1], base));
 		}
 		benchesAndBeds(ctx, bp, base, used);
 		return bp;
@@ -55,9 +55,10 @@ public final class PlazaWorks {
 
 	/** Acha o centro do quadrante (4,4) ou (3,3) onde a peca de raio {@code r} cabe e a constroi. */
 	static void place(WorkContext ctx, Blueprint bp, List<int[]> used, int[] q, int r, Feature feature) {
-		for (int d : new int[] {4, 3}) {
-			int cx = q[0] * d;
-			int cz = q[1] * d;
+		// o canto (4,4), o (3,3) e vizinhos: poste de lampiao ou banco no caminho nao pode deixar a praca sem a peca
+		for (int[] d : new int[][] {{4, 4}, {3, 3}, {4, 3}, {3, 4}, {5, 4}, {4, 5}, {5, 3}, {3, 5}, {5, 5}}) {
+			int cx = q[0] * d[0];
+			int cz = q[1] * d[1];
 			boolean ok = true;
 			for (int x = cx - r; x <= cx + r && ok; x++) {
 				for (int z = cz - r; z <= cz + r && ok; z++) {
@@ -129,152 +130,4 @@ public final class PlazaWorks {
 		return false;
 	}
 
-	/** Chafariz: bacia 3x3 de tijolo com agua e coluna central com lanterna. */
-	static void fountain(WorkContext ctx, Blueprint bp, int cx, int cz, int base) {
-		Mats m = ctx.mats();
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				int x = cx + dx;
-				int z = cz + dz;
-				if (dx == 0 && dz == 0) {
-					bp.surface(x, base, z, "minecraft:water");
-					bp.above(x, base + 1, z, m.wall());
-					bp.above(x, base + 2, z, m.wall());
-					bp.above(x, base + 3, z, Mats.lantern(false));
-				} else {
-					bp.surface(x, base, z, m.bricks());
-					bp.above(x, base + 1, z, m.brickSlab());
-				}
-			}
-		}
-	}
-
-	/** Coreto: piso de tabuas 3x3, quatro colunas de tronco, telhado de lajes 5x5 e lanterna pendurada. */
-	static void bandstand(WorkContext ctx, Blueprint bp, int cx, int cz, int base) {
-		Mats m = ctx.mats();
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				bp.surface(cx + dx, base, cz + dz, m.planks());
-			}
-		}
-		for (int sx : new int[] {-1, 1}) {
-			for (int sz : new int[] {-1, 1}) {
-				for (int y = 1; y <= 3; y++) {
-					bp.above(cx + sx, base + y, cz + sz, m.log());
-				}
-			}
-		}
-		for (int dx = -2; dx <= 2; dx++) {
-			for (int dz = -2; dz <= 2; dz++) {
-				boolean edge = Math.abs(dx) == 2 || Math.abs(dz) == 2;
-				bp.above(cx + dx, base + 4, cz + dz, edge ? m.slabBottom() : m.planks());
-			}
-		}
-		bp.above(cx, base + 5, cz, m.slabBottom());
-		bp.above(cx, base + 3, cz, Mats.lantern(true));
-	}
-
-	/** Estatua sobre pedestal: corpo, bracos e cabeca na paleta do chefe (ou de pedra). */
-	static void statue(WorkContext ctx, Blueprint bp, int cx, int cz, int base, String boss) {
-		Mats m = ctx.mats();
-		String[] pal = statuePalette(boss);
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				bp.surface(cx + dx, base, cz + dz, m.bricks());
-			}
-		}
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				if (Math.abs(dx) + Math.abs(dz) <= 1) {
-					bp.above(cx + dx, base + 1, cz + dz, m.bricks());
-				}
-			}
-		}
-		bp.above(cx, base + 1, cz, m.accent());
-		bp.above(cx, base + 2, cz, pal[0]);
-		bp.above(cx, base + 3, cz, pal[0]);
-		bp.above(cx, base + 4, cz, pal[0]);
-		bp.above(cx - 1, base + 4, cz, pal[1]);
-		bp.above(cx + 1, base + 4, cz, pal[1]);
-		bp.above(cx - 1, base + 5, cz, pal[2]);
-		bp.above(cx, base + 5, cz, pal[3]);
-		bp.above(cx, base + 6, cz, pal[3]);
-		bp.above(cx, base + 7, cz, pal[4]);
-	}
-
-	/** Corpo, bracos, ombros/arma, cabeca e topo da estatua por chefe. */
-	static String[] statuePalette(String boss) {
-		return switch (boss == null ? "" : boss) {
-			case "cobalt_golem" -> new String[] {"mlinnotas:cobalt_block", "mlinnotas:cobalt_block", "minecraft:iron_bars", "mlinnotas:cobalt_block",
-					"minecraft:lightning_rod"};
-			case "abyssal_guardian" -> new String[] {"minecraft:prismarine_bricks", "minecraft:dark_prismarine", "minecraft:prismarine_wall",
-					"minecraft:sea_lantern", "minecraft:lightning_rod"};
-			case "igneous_colossus" -> new String[] {"minecraft:blackstone", "minecraft:gilded_blackstone", "minecraft:blackstone_wall", "minecraft:magma_block",
-					"minecraft:lightning_rod"};
-			case "astral_herald" -> new String[] {"minecraft:purpur_block", "minecraft:purpur_pillar", "minecraft:end_rod", "minecraft:amethyst_block",
-					"minecraft:end_rod"};
-			case "ender_dragon" -> new String[] {"minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:purpur_pillar", "minecraft:obsidian",
-					"minecraft:end_rod"};
-			case "wither" -> new String[] {"minecraft:soul_sand", "minecraft:soul_soil", "minecraft:blackstone_wall", "minecraft:coal_block",
-					"minecraft:lightning_rod"};
-			default -> new String[] {"minecraft:stone_bricks", "minecraft:stone_bricks", "minecraft:iron_bars", "minecraft:chiseled_stone_bricks",
-					"minecraft:lightning_rod"};
-		};
-	}
-
-	/** Monumento: base escalonada e torre de 3x3 com relogio nos quatro lados e telhado em piramide. */
-	static void monument(WorkContext ctx, Blueprint bp, int cx, int cz, int base, int sx, int sz) {
-		Mats m = ctx.mats();
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				bp.surface(cx + dx, base, cz + dz, m.bricks());
-			}
-		}
-		// fuste: tijolo com colunas de tronco nos cantos; no 6o ao 8o andar o anel de fora vira o mostrador claro do relogio
-		for (int y = 1; y <= 9; y++) {
-			for (int dx = -1; dx <= 1; dx++) {
-				for (int dz = -1; dz <= 1; dz++) {
-					boolean ring = dx != 0 || dz != 0;
-					boolean corner = Math.abs(dx) == 1 && Math.abs(dz) == 1;
-					boolean face = ring && y >= 6 && y <= 8;
-					String block;
-					if (face) {
-						// ponteiros: o meio do mostrador e o ponto de cima (12h) em escuro
-						boolean middle = !corner && y != 7;
-						block = !corner && y == 7 ? "minecraft:gold_block" : middle ? "minecraft:black_concrete" : "minecraft:smooth_quartz";
-					} else {
-						block = corner ? m.log() : y >= 9 ? m.smooth() : m.bricks();
-					}
-					bp.above(cx + dx, base + y, cz + dz, block);
-				}
-			}
-		}
-		// telhado: duas camadas de degraus e agulha
-		for (int dx = -2; dx <= 2; dx++) {
-			for (int dz = -2; dz <= 2; dz++) {
-				if (Math.abs(dx) == 2 || Math.abs(dz) == 2) {
-					String face = Math.abs(dx) == 2 ? (dx > 0 ? "west" : "east") : (dz > 0 ? "north" : "south");
-					if (Math.abs(dx) == 2 && Math.abs(dz) == 2) {
-						bp.above(cx + dx, base + 10, cz + dz, m.brickSlab());
-					} else {
-						bp.above(cx + dx, base + 10, cz + dz, m.stoneStairs(face, false));
-					}
-				} else {
-					bp.above(cx + dx, base + 10, cz + dz, m.bricks());
-				}
-			}
-		}
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				if (Math.abs(dx) == 1 || Math.abs(dz) == 1) {
-					String face = Math.abs(dx) == 1 ? (dx > 0 ? "west" : "east") : (dz > 0 ? "north" : "south");
-					bp.above(cx + dx, base + 11, cz + dz, m.stoneStairs(face, false));
-				} else {
-					bp.above(cx + dx, base + 11, cz + dz, m.bricks());
-				}
-			}
-		}
-		bp.above(cx, base + 12, cz, m.bricks());
-		bp.above(cx, base + 13, cz, "minecraft:lightning_rod");
-	}
 }

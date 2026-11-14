@@ -164,7 +164,10 @@ public enum VPart {
 	/** Estaca do lote vazio. */
 	STAKE(Flag.SOLID),
 	/** Sino em cima de um bloco (campanario da igreja); o BELL da fase 7 fica pendurado no teto. */
-	BELL_FLOOR(Flag.LATE);
+	BELL_FLOOR(Flag.LATE),
+	// ---- Vilas 2.0 rodada 3 (apendice) ----
+	/** Fruta madura na copa da macieira do pomar (bloco de verruga do Nether: vermelho e salpicado, parece maca). */
+	FRUIT(Flag.SOLID);
 
 	private static final class Flag {
 		static final int NONE = 0;

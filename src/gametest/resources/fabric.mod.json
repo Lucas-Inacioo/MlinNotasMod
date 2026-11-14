@@ -48,7 +48,8 @@
 			"com.mlin.notas.gametest.GravesGameTest",
 			"com.mlin.notas.gametest.VillageWorksGameTest",
 			"com.mlin.notas.gametest.FoodBuildingsGameTest",
-			"com.mlin.notas.gametest.CivicGameTest"
+			"com.mlin.notas.gametest.CivicGameTest",
+			"com.mlin.notas.gametest.PolishGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -83,7 +84,8 @@
 			"com.mlin.notas.gametest.VillageWorksClientGameTest",
 			"com.mlin.notas.gametest.FoodBuildingsClientGameTest",
 			"com.mlin.notas.gametest.CivicClientGameTest",
-			"com.mlin.notas.gametest.CraftsClientGameTest"
+			"com.mlin.notas.gametest.CraftsClientGameTest",
+			"com.mlin.notas.gametest.PolishClientGameTest"
 		]
 	},
 	"depends": {

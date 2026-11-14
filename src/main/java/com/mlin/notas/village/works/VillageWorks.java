@@ -205,6 +205,9 @@ public final class VillageWorks {
 			case "bridges" -> BridgeWorks.plan(ctx, spec.argInt());
 			case "rural" -> ParcelWorks.rural(ctx);
 			case "roads" -> RoadWorks.plan(ctx);
+			case "facades" -> FacadeWorks.facades(ctx, facadeSites(village));
+			case "townhouses" -> FacadeWorks.townhouses(ctx);
+			case "arcades" -> FacadeWorks.arcades(ctx, facadeSites(village));
 			case "wall" -> switch (spec.arg()) {
 				case "palisade" -> WallWorks.palisade(ctx);
 				case "gates" -> WallWorks.woodenGates(ctx);
@@ -212,6 +215,22 @@ public final class VillageWorks {
 			};
 			default -> new Blueprint();
 		};
+	}
+
+	/** Obras prontas nos lotes do plano (as fachadas do centro se apoiam nelas). */
+	static List<FacadeWorks.Site> facadeSites(VillageState village) {
+		List<FacadeWorks.Site> out = new ArrayList<>();
+		VillageLayout layout = village.layout();
+		if (layout == null) {
+			return out;
+		}
+		for (com.mlin.notas.village.VillageBuildings.Building b : com.mlin.notas.village.VillageBuildings.all(village)) {
+			VillageLayout.Lot lot = b.lot() < 0 ? null : layout.lot(b.lot());
+			if (lot != null && lot.parcel() >= 0 && lot.built() && !lot.legacy()) {
+				out.add(new FacadeWorks.Site(lot.kind(), Math.max(1, b.level()), lot.seed(), lot.x(), lot.z(), lot.rot(), lot.parcel()));
+			}
+		}
+		return out;
 	}
 
 	/** A muralha de pedra (paga) esta feita, na fila ou sendo feita: a palicada e os portoes de madeira saem de cena. */

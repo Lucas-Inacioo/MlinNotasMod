@@ -103,7 +103,10 @@ public final class BuildingPlans {
 			for (int x = x0 + 1; x < x1; x++) {
 				if ((x - x0) % 3 == 2) {
 					if (!(k == 0 && Math.abs(x - mid) <= 1)) {
-						Buildings.window(c, x, wy, z1, Facing.SOUTH, k > 0);
+						Buildings.window(c, x, wy, z1, Facing.SOUTH, k > 0 || BodyDressing.on());
+						if (BodyDressing.on()) {
+							BodyDressing.flowerBox(c, x, wy, z1, Facing.SOUTH, x);
+						}
 					}
 					Buildings.window(c, x, wy, z0, Facing.NORTH, false);
 				}
@@ -129,6 +132,12 @@ public final class BuildingPlans {
 		}
 		int top = 4 * floors;
 		Buildings.roof(c, style, x0, z0, x1, z1, top, alongX);
+		if (BodyDressing.on()) {
+			BodyDressing.apron(c, x0, z0, x1, z1);
+			if (alongX) {
+				BodyDressing.dormer(c, style, x0, x1, z1, top);
+			}
+		}
 		return top;
 	}
 

@@ -2100,5 +2100,18 @@
   "container.mlinnotas.tanning_vat": "Tina de Curtir",
   "block.mlinnotas.tanning_vat.tooltip": "Curte carne podre em couro dentro de um curtume (8 espaços, meio dia)",
   "gui.mlinnotas.village.no_room": "Sem lugar no plano %s/%s",
-  "message.mlinnotas.village.no_room": "%s: o plano da vila não tem mais lote livre para esta obra"
+  "message.mlinnotas.village.no_room": "%s: o plano da vila não tem mais lote livre para esta obra",
+  "village.mlinnotas.work.facades.1": "Fachadas: pilastras e pórticos de pedra nas casas do centro",
+  "village.mlinnotas.work.townhouses.1": "Sobrados de pedra nos lotes vagos do centro",
+  "village.mlinnotas.work.arcades.1": "Arcadas de pedra no comércio do centro",
+  "gui.mlinnotas.village.works.cat.facades": "Fachadas",
+  "gui.mlinnotas.village.works.cat.facades.tooltip": "Pilastras, sobrados e arcadas de pedra nas ruas do centro (só em blocos da vila).",
+  "sign.mlinnotas.statue.header": "Em memória de",
+  "sign.mlinnotas.statue.cobalt_golem": "Golem de Cobalto",
+  "sign.mlinnotas.statue.abyssal_guardian": "Guardião Abissal",
+  "sign.mlinnotas.statue.igneous_colossus": "Colosso Ígneo",
+  "sign.mlinnotas.statue.astral_herald": "Arauto Astral",
+  "sign.mlinnotas.statue.ender_dragon": "Dragão do Ender",
+  "sign.mlinnotas.statue.wither": "Wither",
+  "sign.mlinnotas.statue.hero": "Os heróis da vila"
 }
