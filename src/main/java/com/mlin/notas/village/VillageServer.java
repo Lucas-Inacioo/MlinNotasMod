@@ -211,6 +211,7 @@ public final class VillageServer {
 		if (up != null) {
 			levelUp(level.getServer(), village, up);
 		}
+		BuildingServer.count(level, village);
 		VIEWING.put(player.getUUID(), board);
 		send(player, village, board, true);
 	}
@@ -285,6 +286,18 @@ public final class VillageServer {
 			case "demolish" -> {
 				try {
 					VillagePlanning.demolish(player, village, board, Integer.parseInt(payload.arg()));
+				} catch (NumberFormatException ignored) {
+					// pedido invalido
+				}
+			}
+			case "upgrade", "cancel_upgrade" -> {
+				try {
+					int lot = Integer.parseInt(payload.arg());
+					if (payload.action().equals("upgrade")) {
+						BuildingServer.deposit(player, village, lot);
+					} else {
+						BuildingServer.cancel(player, village, board, lot);
+					}
 				} catch (NumberFormatException ignored) {
 					// pedido invalido
 				}
@@ -401,15 +414,22 @@ public final class VillageServer {
 		if (offer == null || village.level().ordinal() < offer.level().ordinal()) {
 			return false;
 		}
+		if (!VillageShop.available(offer, village)) {
+			String req = VillageShop.requirement(offer);
+			notify(player, Component.translatable("message.mlinnotas.village.needs_building", BuildingServer.kindName(req.substring(0, req.indexOf(':'))),
+					BuildingServer.levelNumeral(VillageLevel.requiredLevel(req))));
+			return false;
+		}
+		if (offer.kind() == VillageShop.Kind.REPAIR) {
+			// conserto na forja: esmeraldas + material, desconto pelo nivel da forja
+			return BuildingServer.forgeRepair(player, village);
+		}
 		ServerLevel level = player.level();
 		int price = offer.price();
 		ItemStack hand = player.getMainHandItem();
-		if (offer.kind() == VillageShop.Kind.REPAIR) {
-			price = VillageShop.repairPrice(hand.getDamageValue(), hand.getMaxDamage());
-			if (price == 0 || !hand.isDamageableItem()) {
-				notify(player, Component.translatable("message.mlinnotas.village.nothing_to_repair"));
-				return false;
-			}
+		if (offer.kind() == VillageShop.Kind.LODGING && BuildingServer.innRoom(level.getServer(), village) == null) {
+			BuildingServer.lodge(player, village);
+			return false;
 		}
 		int emeralds = ContainerHelper.clearOrCountMatchingItems(player.getInventory(), s -> s.is(Items.EMERALD), Integer.MAX_VALUE, true);
 		if (emeralds < price) {
@@ -429,6 +449,7 @@ public final class VillageServer {
 			}
 			case BOOK, RARE_BOOK -> result = book(level, random, offer.kind() == VillageShop.Kind.RARE_BOOK);
 			case REPAIR -> hand.setDamageValue(0);
+			case LODGING -> BuildingServer.lodge(player, village);
 		}
 		ContainerHelper.clearOrCountMatchingItems(player.getInventory(), s -> s.is(Items.EMERALD), price, false);
 		player.getInventory().setChanged();
@@ -537,6 +558,7 @@ public final class VillageServer {
 			}
 		}
 		VillageTerrain.tick(server, data, now);
+		BuildingServer.tick(server, data, now);
 		if (now % 20 == 0) {
 			for (VillageState village : List.copyOf(data.villages())) {
 				if (!village.queue().isEmpty() && data.job(village.key()) == null && now >= RETRY_AT.getOrDefault(village.key(), 0L)) {
@@ -612,6 +634,10 @@ public final class VillageServer {
 	}
 
 	private static void finish(MinecraftServer server, ServerLevel level, VillageState village, VillageData.Job job) {
+		if (job.upgradeTo > 0) {
+			BuildingServer.finishUpgrade(server, level, village, job);
+			return;
+		}
 		VillageData data = VillageData.get(server);
 		data.endJob(village.key());
 		VillageBuilder.spawnResidents(level, village, job);

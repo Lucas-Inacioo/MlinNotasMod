@@ -357,6 +357,12 @@ public final class VillagePlanning {
 		}
 		int removed = VillageBuilder.demolish(level, village, record);
 		data.removeRecord(village.key(), lotId);
+		// nivel e melhoria aberta do lote somem (o que foi pago na melhoria volta inteiro)
+		Map<String, Integer> upgradePaid = village.buildingsState().cancel(lotId);
+		if (upgradePaid != null) {
+			give(player, board, upgradePaid);
+		}
+		village.buildingsState().forget(lotId);
 		lot.setBuilt(false);
 		lot.setPreferred(false);
 		VillageProject project = lot.project();

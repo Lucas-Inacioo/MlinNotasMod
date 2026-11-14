@@ -88,8 +88,12 @@ public final class VillagePlanner {
 	 * rua do lote ate a praca.
 	 */
 	public static Planned onLot(VillageProject project, VillageLayout.Lot lot, VillageState state, Terrain terrain) {
+		return onLot(project, lot, state, terrain, VillageLayout.canvas(lot.kind(), state.style(), lot.seed()));
+	}
+
+	/** Como {@link #onLot(VillageProject, VillageLayout.Lot, VillageState, Terrain)} com outra planta (melhoria no lugar). */
+	public static Planned onLot(VillageProject project, VillageLayout.Lot lot, VillageState state, Terrain terrain, Canvas canvas) {
 		VillageLayout layout = state.layout();
-		Canvas canvas = VillageLayout.canvas(lot.kind(), state.style(), lot.seed());
 		VillageState.Rect rect = lot.rect();
 		List<VillageState.Rect> others = new ArrayList<>();
 		for (VillageLayout.Lot other : layout.lots()) {

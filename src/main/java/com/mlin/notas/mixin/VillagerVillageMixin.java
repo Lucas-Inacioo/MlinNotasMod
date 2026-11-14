@@ -22,7 +22,8 @@ public abstract class VillagerVillageMixin {
 	private void mlinnotas$capLevel(CallbackInfoReturnable<Boolean> cir) {
 		Villager self = (Villager) (Object) this;
 		if (self.level() instanceof ServerLevel level) {
-			int cap = VillageServer.tradeCap(level, self.blockPosition());
+			// teto da vila, e acima de jornaleiro so com o posto numa construcao da vila no nivel (Vilas 2.0, fase 4)
+			int cap = com.mlin.notas.village.BuildingServer.professionCap(level, self);
 			if (cap > 0 && self.getVillagerData().level() >= cap) {
 				cir.setReturnValue(false);
 			}

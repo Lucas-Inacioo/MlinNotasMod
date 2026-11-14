@@ -37,7 +37,14 @@ public enum VillageProject {
 	/** Biblioteca com estantes e atris: chega um bibliotecario. */
 	LIBRARY("library", "minecraft:bookshelf", 2, 70, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("minecraft:book", 24), VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:logs", 8),
-					VillageCost.of("#mlinnotas:village/glass", 6)));
+					VillageCost.of("#mlinnotas:village/glass", 6))),
+	/**
+	 * Prefeitura (centro, niveis I-V): limita o nivel das outras construcoes e abre o painel de necessidades. O nivel
+	 * dela vai ate o teto do nivel da vila ({@link BuildingTypes#townHallCap}).
+	 */
+	TOWN_HALL("town_hall", "minecraft:bell", 1, 60, new int[] {0, 1, 1, 1, 1, 1, 1}, 0, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 96), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#mlinnotas:village/glass", 12),
+					VillageCost.of("minecraft:emerald", 8), VillageCost.of("minecraft:lectern", 1)));
 
 	private final String id;
 	private final String icon;

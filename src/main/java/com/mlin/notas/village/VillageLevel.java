@@ -71,8 +71,10 @@ public enum VillageLevel {
 	public int projectsNeeded() {
 		VillageLevel before = ordinal() == 0 ? this : values()[ordinal() - 1];
 		int possible = 0;
+		int hall = BuildingTypes.townHallCap(before);
 		for (VillageProject p : VillageProject.values()) {
-			possible += p.maxBuilds(before);
+			// cada obra pronta vale 1 ponto e cada nivel de melhoria mais 1
+			possible += p.maxBuilds(before) * Math.max(1, BuildingTypes.of(p.id()) == null ? 1 : BuildingTypes.cap(p.id(), before, hall));
 		}
 		return Math.min(projects, possible);
 	}
@@ -131,9 +133,37 @@ public enum VillageLevel {
 	 * Situacao da vila para conferir o nivel: prosperidade, obras prontas, aneis com terraplenagem pronta (bit
 	 * {@code 1 << (anel - 1)}; {@code -1} = nao confere aneis, vila sem plano) e pontos extras (casas de jogador).
 	 */
-	public record Context(int prosperity, Map<VillageProject, Integer> built, int ringsDone, int extraPoints) {
+	public record Context(int prosperity, Map<VillageProject, Integer> built, int ringsDone, int extraPoints, Map<String, Integer> levels,
+			int minNeed) {
+		/**
+		 * Sem niveis de construcao (toda obra pronta conta como nivel I) nem necessidades. {@code levels}: melhor nivel de
+		 * cada tipo ({@link VillageBuildings#bestLevels}); {@code minNeed}: menor necessidade (0..100, -1 = nao confere).
+		 */
+		public Context(int prosperity, Map<VillageProject, Integer> built, int ringsDone, int extraPoints) {
+			this(prosperity, built, ringsDone, extraPoints, Map.of(), -1);
+		}
+
 		public static Context legacy(int prosperity, Map<VillageProject, Integer> built) {
 			return new Context(prosperity, built, -1, 0);
+		}
+
+		/** Nivel do tipo para as exigencias: o registrado, ou I se ha obra pronta, ou 0. */
+		public int level(VillageProject project) {
+			int n = built.getOrDefault(project, 0);
+			return n < 1 ? 0 : Math.max(1, levels.getOrDefault(project.id(), 1));
+		}
+	}
+
+	/** Nivel exigido de uma exigencia ({@code town_hall:2} = 2; sem sufixo = 1). */
+	public static int requiredLevel(String requirement) {
+		int i = requirement.indexOf(':');
+		if (i < 0) {
+			return 1;
+		}
+		try {
+			return Math.max(1, Integer.parseInt(requirement.substring(i + 1)));
+		} catch (NumberFormatException e) {
+			return 1;
 		}
 	}
 
@@ -150,10 +180,22 @@ public enum VillageLevel {
 		if (total < projectsNeeded()) {
 			out.add("projects");
 		}
-		for (VillageProject project : required()) {
-			if (ctx.built().getOrDefault(project, 0) < 1) {
-				out.add("project:" + project.id());
+		for (String id : required) {
+			VillageProject project = VillageProject.byId(id.contains(":") ? id.substring(0, id.indexOf(':')) : id);
+			if (project == null) {
+				continue;
 			}
+			int need = requiredLevel(id);
+			if (ctx.built().getOrDefault(project, 0) < 1) {
+				if (!out.contains("project:" + project.id())) {
+					out.add("project:" + project.id());
+				}
+			} else if (ctx.level(project) < need) {
+				out.add("level:" + project.id() + ":" + need);
+			}
+		}
+		if (ordinal() >= TOWN.ordinal() && ctx.minNeed() >= 0 && ctx.minNeed() <= VillageNeeds.LEVEL_UP) {
+			out.add("needs");
 		}
 		if (ctx.ringsDone() >= 0) {
 			for (int ring = 1; ring <= rings; ring++) {
