@@ -18,6 +18,7 @@
 		"ItemTooltipImageMixin",
 		"LeavesBlockMixin",
 		"LivingEntityAccessoryMixin",
+		"PlayerGraveMixin",
 		"PlayerToolGateMixin",
 		"RangedAttributeAccessor",
 		"SeasonalGrowthMixin",

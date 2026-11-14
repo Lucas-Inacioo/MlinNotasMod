@@ -1644,5 +1644,22 @@
   "commands.mlinnotas.village.unknown": "Nenhuma vila chamada %s",
   "commands.mlinnotas.village.removed": "Registro da vila %s apagado (%s)",
   "commands.mlinnotas.village.restart_failed": "Não deu para criar a vila inicial",
-  "commands.mlinnotas.village.restarted": "Vila inicial %s criada em %s, %s, %s"
+  "commands.mlinnotas.village.restarted": "Vila inicial %s criada em %s, %s, %s",
+  "block.mlinnotas.gravestone": "Lápide",
+  "block.mlinnotas.gravestone.of": "Lápide de %s",
+  "block.mlinnotas.gravestone.day": "Dia %s",
+  "container.mlinnotas.gravestone": "Lápide de %s",
+  "message.mlinnotas.grave.placed": "☠ Seus itens estão numa lápide em %s (%s): %s pilhas e %s de XP. O minimapa marca o lugar.",
+  "message.mlinnotas.grave.placed_other": "☠ A lápide de %s está em %s (%s)",
+  "message.mlinnotas.grave.restored": "Você recuperou suas coisas",
+  "message.mlinnotas.grave.dim.overworld": "Superfície",
+  "message.mlinnotas.grave.dim.nether": "Nether",
+  "message.mlinnotas.grave.dim.end": "End",
+  "hud.mlinnotas.waila.grave.summary": "%s pilhas · %s de XP",
+  "hud.mlinnotas.waila.grave.owner_hint": "Agache + botão direito: tudo de volta no lugar",
+  "gui.mlinnotas.grave.map_tooltip": "Lápide de %s (%s, %s, %s) · %s pilhas, %s XP",
+  "block.mlinnotas.gravestone.tooltip": "Decoração. Lápides de verdade aparecem quando alguém morre.",
+  "quest.mlinnotas.task.recover_grave": "Recupere uma lápide sua",
+  "quest.mlinnotas.basics.rest_in_peace": "Descanse em Paz",
+  "quest.mlinnotas.basics.rest_in_peace.desc": "Ao morrer, tudo o que você levava (inventário, armadura, acessórios e metade do XP) fica numa lápide no lugar seguro mais perto. O chat diz onde e o minimapa marca. Qualquer um pode abrir; o dono, agachado e com botão direito, recebe tudo de volta nos mesmos lugares."
 }

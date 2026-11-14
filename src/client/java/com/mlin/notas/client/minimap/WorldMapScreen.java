@@ -180,11 +180,16 @@ public class WorldMapScreen extends Screen {
 			Component hoveredWaystone = com.mlin.notas.client.waystone.WaystoneMapIcons.drawOnWorldMap(graphics, font,
 					MinimapClient.currentDimension(minecraft), wx -> screenX(wx, effectiveZoom), wz -> screenZ(wz, effectiveZoom),
 					mapWidth(), mapHeight(), mouseX, mouseY);
+			Component hoveredGrave = com.mlin.notas.client.grave.GraveMapIcons.drawOnWorldMap(graphics, font,
+					MinimapClient.currentDimension(minecraft), wx -> screenX(wx, effectiveZoom), wz -> screenZ(wz, effectiveZoom),
+					mapWidth(), mapHeight(), mouseX, mouseY);
 			Entity hoveredEntity = drawEntities(graphics, effectiveZoom, mouseX, mouseY);
 			drawPlayers(graphics, effectiveZoom);
 			graphics.disableScissor();
 			if (hoveredEntity != null) {
 				graphics.setTooltipForNextFrame(font, hoveredEntity.getDisplayName(), mouseX, mouseY);
+			} else if (hoveredGrave != null) {
+				graphics.setTooltipForNextFrame(font, hoveredGrave, mouseX, mouseY);
 			} else if (hoveredWaystone != null) {
 				graphics.setTooltipForNextFrame(font, hoveredWaystone, mouseX, mouseY);
 			}

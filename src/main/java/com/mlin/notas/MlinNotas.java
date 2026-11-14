@@ -90,6 +90,7 @@ public class MlinNotas implements ModInitializer {
 		com.mlin.notas.salvage.SalvageRecipe.register();
 		com.mlin.notas.doors.DoubleDoors.init();
 		com.mlin.notas.sorting.QuickStackServer.init();
+		com.mlin.notas.grave.GraveRegistry.init();
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
 				NotaCommand.register(dispatcher));
