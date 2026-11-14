@@ -20,6 +20,7 @@ public final class Canvas {
 	private final Map<Long, Cell> cells = new LinkedHashMap<>();
 	private final List<int[]> spawns = new ArrayList<>();
 	private final List<int[]> golems = new ArrayList<>();
+	private final Map<String, List<int[]>> marks = new LinkedHashMap<>();
 	private int doorX;
 
 	public Canvas(int w, int d) {
@@ -107,6 +108,15 @@ public final class Canvas {
 
 	public void golem(int x, int y, int z) {
 		golems.add(new int[] {x, y, z});
+	}
+
+	/** Ponto marcado da planta ({x, y, z, direcao ou -1}); a funcao da obra o procura no mundo pelo nome. */
+	public void mark(String name, int x, int y, int z, Facing dir) {
+		marks.computeIfAbsent(name, k -> new ArrayList<>()).add(new int[] {x, y, z, dir == null ? -1 : dir.ordinal()});
+	}
+
+	public List<int[]> marks(String name) {
+		return marks.getOrDefault(name, List.of());
 	}
 
 	public List<int[]> spawns() {

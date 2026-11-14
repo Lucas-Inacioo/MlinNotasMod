@@ -44,7 +44,39 @@ public enum VillageProject {
 	 */
 	TOWN_HALL("town_hall", "minecraft:bell", 1, 60, new int[] {0, 1, 1, 1, 1, 1, 1}, 0, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 96), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#mlinnotas:village/glass", 12),
-					VillageCost.of("minecraft:emerald", 8), VillageCost.of("minecraft:lectern", 1)));
+					VillageCost.of("minecraft:emerald", 8), VillageCost.of("minecraft:lectern", 1))),
+	/** Correio (Cidade, centro, I-II): caixa de correio que manda itens para outra vila ou outro jogador, entregues no dia seguinte. */
+	POST_OFFICE("post_office", "minecraft:paper", 3, 60, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:paper", 32), VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:logs", 12),
+					VillageCost.of("#mlinnotas:village/stone", 48), VillageCost.of("#mlinnotas:village/glass", 6), VillageCost.of("minecraft:emerald", 12))),
+	/** Escola (Cidade, bairros, I-II): filhotes crescem mais rapido e novatos sobem de nivel antes. */
+	SCHOOL("school", "minecraft:book", 3, 70, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:book", 12), VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:logs", 12),
+					VillageCost.of("#mlinnotas:village/stone", 48), VillageCost.of("#mlinnotas:village/glass", 12), VillageCost.of("minecraft:emerald", 12))),
+	/** Torre de vigia (Cidade, junto da muralha, I-III): sino avisa de saqueadores, monstros no minimapa a noite, arqueiros no III. */
+	WATCHTOWER("watchtower", "minecraft:spyglass", 3, 80, new int[] {0, 0, 0, 1, 1, 1, 1}, 0, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 160), VillageCost.of("#minecraft:logs", 24), VillageCost.of("minecraft:bell", 1),
+					VillageCost.of("minecraft:iron_ingot", 12), VillageCost.of("minecraft:arrow", 16))),
+	/** Quartel (Capital, arredores, I-III): guardas de armadura patrulham as ruas a noite (2/4/6). */
+	BARRACKS("barracks", "minecraft:iron_sword", 4, 120, new int[] {0, 0, 0, 0, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 192), VillageCost.of("#minecraft:logs", 32), VillageCost.of("minecraft:iron_ingot", 48),
+					VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:wool", 12), VillageCost.of("minecraft:emerald", 24))),
+	/** Pedra de teleporte da vila (Vila, centro): ja ativa; viajar entre pedras das suas vilas custa metade. */
+	VILLAGE_WAYSTONE("village_waystone", "mlinnotas:waystone", 2, 40, new int[] {0, 0, 1, 1, 1, 1, 1}, 0, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 32), VillageCost.of("minecraft:ender_pearl", 2), VillageCost.of("mlinnotas:cobalt_ingot", 4),
+					VillageCost.of("minecraft:emerald", 16))),
+	/** Farol comunitario (Capital, centro, I-V): piramide de metal; o efeito vale para todos dentro da muralha. */
+	BEACON("beacon", "minecraft:beacon", 4, 100, new int[] {0, 0, 0, 0, 1, 1, 1}, 0, 0,
+			List.of(VillageCost.of("#mlinnotas:village/glass", 12), VillageCost.of("minecraft:obsidian", 8), VillageCost.of("minecraft:iron_ingot", 36),
+					VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("minecraft:emerald", 32))),
+	/** Museu (Capital, centro, I-III): colecoes estilo Stardew com recompensa e prosperidade; doacoes em molduras. */
+	MUSEUM("museum", "minecraft:item_frame", 4, 150, new int[] {0, 0, 0, 0, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("minecraft:item_frame", 24), VillageCost.of("#mlinnotas:village/stone", 128), VillageCost.of("#minecraft:planks", 64),
+					VillageCost.of("#mlinnotas:village/glass", 24), VillageCost.of("minecraft:emerald", 48), VillageCost.of("minecraft:book", 8))),
+	/** Guilda dos Exploradores (Cidade, bairros/arredores, I-V): manda aldeoes em expedicoes. */
+	EXPLORERS_GUILD("explorers_guild", "minecraft:compass", 3, 90, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:planks", 64), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#mlinnotas:village/stone", 64),
+					VillageCost.of("minecraft:iron_ingot", 16), VillageCost.of("minecraft:compass", 2), VillageCost.of("minecraft:emerald", 24)));
 
 	private final String id;
 	private final String icon;

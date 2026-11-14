@@ -112,6 +112,9 @@ public final class MinimapHud {
 				return cy + (worldZ - pz) * zoom;
 			}
 		}, x, y, x + size, y + size, icon, -1, -1);
+		if (options.showHostiles) {
+			com.mlin.notas.client.civic.CivicClient.drawHostiles(graphics, cx, cy, px, pz, zoom, x, y, x + size, y + size);
+		}
 	}
 
 	/** Cor do ponto para a entidade conforme as opcoes, ou 0 para nao desenhar. */

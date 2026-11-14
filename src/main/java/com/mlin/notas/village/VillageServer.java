@@ -109,6 +109,7 @@ public final class VillageServer {
 		VillageBoardFeature.init();
 		com.mlin.notas.village.works.VillageWorks.init();
 		StartingVillage.init();
+		com.mlin.notas.village.civic.CivicServer.init();
 		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> VillageCommand.register(dispatcher));
 	}
 

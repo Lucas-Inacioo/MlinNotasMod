@@ -27,6 +27,7 @@ public final class LotRules {
 
 	public static final Rule DEFAULT = new Rule("", SizeClass.S, false, List.of(Zone.DISTRICT, Zone.CENTER));
 	private static final Map<String, Rule> RULES = new LinkedHashMap<>();
+	private static final java.util.Set<String> OUTER = new java.util.HashSet<>();
 
 	static {
 		register(VillageLayout.CAMPFIRE, SizeClass.S, false, Zone.CENTER);
@@ -37,6 +38,17 @@ public final class LotRules {
 		register("inn", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
 		register("library", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
 		register(BuildingTypes.TOWN_HALL, SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
+		com.mlin.notas.village.civic.CivicBuildings.registerLots();
+	}
+
+
+	/** O tipo prefere o lote mais longe do centro dentro da zona (torres, quartel). */
+	public static synchronized void preferOuter(String kind) {
+		OUTER.add(kind);
+	}
+
+	public static boolean prefersOuter(String kind) {
+		return OUTER.contains(kind);
 	}
 
 	private LotRules() {

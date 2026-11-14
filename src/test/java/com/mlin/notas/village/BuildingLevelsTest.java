@@ -124,12 +124,12 @@ class BuildingLevelsTest {
 		assertEquals(2, VillageLevel.requiredLevel("town_hall:2"));
 		assertEquals(1, VillageLevel.requiredLevel("farm"));
 		Map<VillageProject, Integer> built = Map.of(VillageProject.INN, 1, VillageProject.LIBRARY, 1, VillageProject.TOWN_HALL, 1,
-				VillageProject.WALL, 1, VillageProject.MARKET, 1);
+				VillageProject.WALL, 1, VillageProject.MARKET, 1, VillageProject.WATCHTOWER, 1);
 		VillageLevel.Context low = new VillageLevel.Context(5000, built, -1, 100, Map.of("town_hall", 1), -1);
 		assertTrue(VillageLevel.CAPITAL.missing(low).contains("level:town_hall:2"), VillageLevel.CAPITAL.missing(low).toString());
 		VillageLevel.Context high = new VillageLevel.Context(5000, built, -1, 100, Map.of("town_hall", 2), -1);
 		assertFalse(VillageLevel.CAPITAL.missing(high).contains("level:town_hall:2"));
-		assertTrue(VillageLevel.CAPITAL.missing(high).isEmpty(), "torre de vigia ainda nao existe e fica de fora: " + VillageLevel.CAPITAL.missing(high));
+		assertTrue(VillageLevel.CAPITAL.missing(high).isEmpty(), "com a torre de vigia pronta nada falta: " + VillageLevel.CAPITAL.missing(high));
 		// sem a obra pronta continua pedindo a obra (nao o nivel)
 		VillageLevel.Context none = new VillageLevel.Context(5000, Map.of(), -1, 100, Map.of(), -1);
 		assertTrue(VillageLevel.VILLAGE.missing(none).contains("project:town_hall"));
@@ -137,7 +137,7 @@ class BuildingLevelsTest {
 
 	@Test
 	void fromTownEveryNeedMustPassHalf() {
-		Map<VillageProject, Integer> built = Map.of(VillageProject.WALL, 1, VillageProject.MARKET, 1);
+		Map<VillageProject, Integer> built = Map.of(VillageProject.WALL, 1, VillageProject.MARKET, 1, VillageProject.WATCHTOWER, 1);
 		VillageLevel.Context weak = new VillageLevel.Context(5000, built, -1, 100, Map.of(), 50);
 		assertTrue(VillageLevel.TOWN.missing(weak).contains("needs"), "50% nao basta");
 		assertTrue(VillageLevel.TOWN.missing(new VillageLevel.Context(5000, built, -1, 100, Map.of(), 51)).isEmpty());

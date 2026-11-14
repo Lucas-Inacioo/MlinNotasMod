@@ -321,6 +321,21 @@ public final class VillagePalette {
 			case RETAIN -> (pick % 5 == 0 ? foundation : brick).defaultBlockState();
 			case SAPLING -> sapling();
 			case DRAIN -> Blocks.AIR.defaultBlockState();
+			case BELL -> Blocks.BELL.defaultBlockState().setValue(net.minecraft.world.level.block.BellBlock.ATTACHMENT,
+					net.minecraft.world.level.block.state.properties.BellAttachType.CEILING).setValue(net.minecraft.world.level.block.BellBlock.FACING, facing);
+			case MAILBOX -> com.mlin.notas.registry.ModBlocks.MAILBOX.defaultBlockState().setValue(com.mlin.notas.village.civic.CivicBlock.FACING, facing);
+			case PEDESTAL -> com.mlin.notas.registry.ModBlocks.MUSEUM_PEDESTAL.defaultBlockState().setValue(com.mlin.notas.village.civic.CivicBlock.FACING, facing);
+			case GUILD_BOARD -> com.mlin.notas.registry.ModBlocks.GUILD_BOARD.defaultBlockState().setValue(com.mlin.notas.village.civic.CivicBlock.FACING, facing);
+			case WAYSTONE -> com.mlin.notas.registry.ModBlocks.WAYSTONE.defaultBlockState();
+			case WAYSTONE_TOP -> Blocks.AIR.defaultBlockState();
+			case BEACON -> Blocks.BEACON.defaultBlockState();
+			case METAL_1 -> Blocks.IRON_BLOCK.defaultBlockState();
+			case METAL_2 -> Blocks.GOLD_BLOCK.defaultBlockState();
+			case METAL_3 -> Blocks.DIAMOND_BLOCK.defaultBlockState();
+			case METAL_4 -> Blocks.NETHERITE_BLOCK.defaultBlockState();
+			case METAL_5 -> com.mlin.notas.registry.ModBlocks.storage(com.mlin.notas.tier.Tier.CELESTIUM).defaultBlockState();
+			case IRON_BARS -> pane(Blocks.IRON_BARS, dir);
+			case TARGET -> Blocks.TARGET.defaultBlockState();
 		};
 	}
 

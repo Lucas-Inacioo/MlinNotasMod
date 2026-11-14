@@ -112,6 +112,17 @@ public final class ModBlocks {
 			BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.5F)
 					.sound(SoundType.WOOD).noOcclusion().ignitedByLava());
 
+	/** Blocos de balcao das construcoes civicas (Correio, Museu, Guilda dos Exploradores); ver village/civic/. */
+	public static final Block MAILBOX = Blocks.register(key("mailbox"), p -> new com.mlin.notas.village.civic.CivicBlock(
+			com.mlin.notas.village.civic.CivicBlock.Kind.MAILBOX, p), BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED)
+			.instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block MUSEUM_PEDESTAL = Blocks.register(key("museum_pedestal"), p -> new com.mlin.notas.village.civic.CivicBlock(
+			com.mlin.notas.village.civic.CivicBlock.Kind.PEDESTAL, p), BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ)
+			.instrument(NoteBlockInstrument.BASEDRUM).strength(2.0F, 6.0F).sound(SoundType.STONE).requiresCorrectToolForDrops());
+	public static final Block GUILD_BOARD = Blocks.register(key("guild_board"), p -> new com.mlin.notas.village.civic.CivicBlock(
+			com.mlin.notas.village.civic.CivicBlock.Kind.GUILD_BOARD, p), BlockBehaviour.Properties.of().mapColor(MapColor.WOOD)
+			.instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
+
 	public static final Block IRON_CHEST = chest(ChestTier.IRON);
 	public static final Block GOLD_CHEST = chest(ChestTier.GOLD);
 	public static final Block DIAMOND_CHEST = chest(ChestTier.DIAMOND);

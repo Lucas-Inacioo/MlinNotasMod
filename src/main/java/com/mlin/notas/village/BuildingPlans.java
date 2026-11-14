@@ -24,6 +24,9 @@ public final class BuildingPlans {
 		if (project == VillageProject.TOWN_HALL) {
 			return townHall(style, new Random(seed), Math.max(1, level));
 		}
+		if (CivicPlans.handles(project)) {
+			return CivicPlans.plan(project, style, seed, Math.max(1, level));
+		}
 		if (level <= 1) {
 			return Buildings.plan(project, style, seed);
 		}
@@ -734,7 +737,7 @@ public final class BuildingPlans {
 		c.set(mid + 1, clock, tz1, VPart.BRICK);
 		c.set(mid, clock + 1, tz1, VPart.BRICK);
 		c.set(mid, clock - 1, tz1, VPart.BRICK);
-		c.set(mid, height - 1, zc, VPart.LANTERN_HANGING);
+		c.set(mid, height - 1, zc, VPart.BELL);
 		// telhado de quatro aguas e pinaculo
 		for (int x = mid - 2; x <= mid + 2; x++) {
 			for (int z = tz0; z <= tz1; z++) {
@@ -776,7 +779,7 @@ public final class BuildingPlans {
 				c.set(x, base + 3, z, VPart.ROOF_SLAB);
 			}
 		}
-		c.set(mid, base + 2, zc, VPart.LANTERN_HANGING);
+		c.set(mid, base + 2, zc, VPart.BELL);
 		c.set(mid, base + 4, zc, VPart.FENCE);
 	}
 }

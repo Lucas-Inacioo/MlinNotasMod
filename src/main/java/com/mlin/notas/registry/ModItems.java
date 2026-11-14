@@ -193,6 +193,11 @@ public final class ModItems {
 		}
 	}, new Item.Properties());
 
+	// blocos de balcao civicos (village/civic/)
+	public static final Item MAILBOX = registerBlock(ModBlocks.MAILBOX, "mailbox", new Item.Properties());
+	public static final Item MUSEUM_PEDESTAL = registerBlock(ModBlocks.MUSEUM_PEDESTAL, "museum_pedestal", new Item.Properties());
+	public static final Item GUILD_BOARD = registerBlock(ModBlocks.GUILD_BOARD, "guild_board", new Item.Properties());
+
 	public static ResourceKey<Item> key(String name) {
 		return ResourceKey.create(Registries.ITEM, MlinNotas.id(name));
 	}

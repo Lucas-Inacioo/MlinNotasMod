@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/mailbox"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/mailbox",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/mailbox",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/mailbox",
+      "y": 270
+    }
+  }
+}

@@ -28,6 +28,9 @@ public final class ModEntities {
 	public static final EntityType<com.mlin.notas.end.ChorusHopper> CHORUS_HOPPER = register("chorus_hopper",
 			EntityType.Builder.of(com.mlin.notas.end.ChorusHopper::new, MobCategory.CREATURE).sized(0.6F, 0.7F).eyeHeight(0.45F).clientTrackingRange(8));
 
+	public static final EntityType<com.mlin.notas.village.civic.VillageGuard> VILLAGE_GUARD = register("village_guard",
+			EntityType.Builder.of(com.mlin.notas.village.civic.VillageGuard::new, MobCategory.MISC).sized(0.6F, 1.95F).clientTrackingRange(10));
+
 	private ModEntities() {
 	}
 
@@ -41,6 +44,7 @@ public final class ModEntities {
 		FabricDefaultAttributeRegistry.register(VOID_JELLY, VoidJelly.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_MITE, CrystalMite.createAttributes());
 		FabricDefaultAttributeRegistry.register(CHORUS_HOPPER, com.mlin.notas.end.ChorusHopper.createAttributes());
+		FabricDefaultAttributeRegistry.register(VILLAGE_GUARD, com.mlin.notas.village.civic.VillageGuard.createAttributes());
 		SpawnPlacements.register(CHORUS_HOPPER, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
 				com.mlin.notas.end.ChorusHopper::checkSpawnRules);
 		SpawnPlacements.register(VOID_JELLY, SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, VoidJelly::checkSpawnRules);

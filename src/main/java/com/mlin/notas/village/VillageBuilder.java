@@ -335,6 +335,15 @@ public final class VillageBuilder {
 		if (state.isAir()) {
 			return false;
 		}
+		if (p.part() == VPart.WAYSTONE) {
+			// pedra de teleporte da vila: duas metades e ja ativada para o mundo todo
+			if (!WorldTerrain.replaceable(level.getBlockState(pos.above()))) {
+				return false;
+			}
+			com.mlin.notas.waystone.WaystoneBlock.placeAt(level, state, pos, Block.UPDATE_ALL);
+			com.mlin.notas.waystone.WaystoneServer.activate(level, pos, null);
+			return true;
+		}
 		if (p.part() == VPart.DOOR) {
 			BlockPos up = pos.above();
 			if (!WorldTerrain.replaceable(level.getBlockState(up))) {
