@@ -55,4 +55,60 @@ public final class VillagePayloads {
 			return TYPE;
 		}
 	}
+
+	/** Situacao de um lote no contorno: {@code status} = ordinal de {@link LotStatus}, {@code ground} = altura alvo. */
+	public record LotInfo(int id, int status, int ground) {
+		public static final StreamCodec<ByteBuf, LotInfo> CODEC = StreamCodec.composite(
+				ByteBufCodecs.VAR_INT, LotInfo::id,
+				ByteBufCodecs.VAR_INT, LotInfo::status,
+				ByteBufCodecs.VAR_INT, LotInfo::ground,
+				LotInfo::new);
+	}
+
+	/** Situacao de cada lote vista pelo servidor. */
+	public enum LotStatus {
+		/** Pronto para construir. */
+		FREE,
+		/** Tem arvores (o construtor derruba sozinho). */
+		CLEAR,
+		/** Tem bloco de jogador: e preciso tirar. */
+		BLOCKED,
+		/** Agua no lote. */
+		WATER,
+		/** Desnivel maior do que o construtor aplaina. */
+		STEEP,
+		/** Ja tem a obra. */
+		BUILT,
+		/** Obra em andamento. */
+		BUILDING;
+
+		public static LotStatus byOrdinal(int i) {
+			return values()[Math.max(0, Math.min(values().length - 1, i))];
+		}
+	}
+
+	/**
+	 * Servidor -> cliente: contorno da vila para desenhar no mundo por {@code seconds} segundos (0 = esconder): plano
+	 * (lotes, ruas, postes), situacao de cada lote e blocos que atrapalham ({@code obstacles} = posicoes, {@code kinds}
+	 * = ordinal de {@link WorldTerrain.Obstacle}). {@code y} de cada coluna vem do proprio mundo do cliente.
+	 */
+	public record Overlay(String village, BlockPos center, VillageLayout layout, java.util.List<LotInfo> lots, java.util.List<Long> obstacles,
+			java.util.List<Integer> kinds, int seconds) implements CustomPacketPayload {
+		public static final Type<Overlay> TYPE = new Type<>(MlinNotas.id("village_overlay"));
+		private static final StreamCodec<ByteBuf, VillageLayout> LAYOUT = ByteBufCodecs.fromCodec(VillageData.LAYOUT_CODEC);
+		public static final StreamCodec<ByteBuf, Overlay> CODEC = StreamCodec.composite(
+				ByteBufCodecs.STRING_UTF8, Overlay::village,
+				BlockPos.STREAM_CODEC, Overlay::center,
+				LAYOUT, Overlay::layout,
+				LotInfo.CODEC.apply(ByteBufCodecs.list()), Overlay::lots,
+				ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.list()), Overlay::obstacles,
+				ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()), Overlay::kinds,
+				ByteBufCodecs.VAR_INT, Overlay::seconds,
+				Overlay::new);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
 }

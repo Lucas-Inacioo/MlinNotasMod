@@ -57,7 +57,8 @@ public record VillageBoardFeature() implements Feature {
 				break;
 			}
 		}
-		if (!village) {
+		if (!village || StartingVillage.nearSite(origin)) {
+			// sem vila, ou perto da vila inicial (a vila vanilla dali foi suprimida; nada de segundo quadro)
 			return false;
 		}
 		ChunkPos chunkPos = chunk.getPos();

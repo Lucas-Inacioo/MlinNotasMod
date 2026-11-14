@@ -253,6 +253,9 @@ class VillagePlannerTest {
 			if (planned.lot() != null) {
 				v.addLot(planned.lot().rect());
 			}
+			if (planned.lotId() >= 0) {
+				v.layout().lot(planned.lotId()).setBuilt(true);
+			}
 			terrain.apply(planned.placements());
 			voxels.addWithFacing(planned.placements());
 			v.addBuilt(project);
@@ -304,7 +307,7 @@ class VillagePlannerTest {
 			List<VillageProject> order = List.of(VillageProject.PLAZA, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.FARM,
 					VillageProject.HOUSE, VillageProject.SMITHY, VillageProject.MARKET, VillageProject.HOUSE, VillageProject.INN,
 					VillageProject.LIBRARY, VillageProject.FARM, VillageProject.HOUSE, VillageProject.HOUSE, VillageProject.LAMPS,
-					VillageProject.LAMPS, VillageProject.WALL);
+					VillageProject.WALL);
 			long seed = 7;
 			for (VillageProject project : order) {
 				VillagePlanner.Planned planned = build(project, v, terrain, voxels, seed++);
@@ -403,7 +406,7 @@ class VillagePlannerTest {
 					max = Math.max(max, terrain.ground(x, z));
 				}
 			}
-			assertTrue(max - min <= VillagePlanner.MAX_SPREAD, "desnivel " + (max - min));
+			assertTrue(max - min <= VillageLayout.MAX_SPREAD, "desnivel " + (max - min));
 		}
 		assertEquals(List.of(), voxels.floating());
 	}

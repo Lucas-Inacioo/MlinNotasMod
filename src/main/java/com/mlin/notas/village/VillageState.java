@@ -76,6 +76,12 @@ public final class VillageState {
 	private final List<Bounty> bounties = new ArrayList<>();
 	private final int[] bountyProgress = new int[BountyBoard.PER_DAY];
 	private final boolean[] bountyDone = new boolean[BountyBoard.PER_DAY];
+	/** Plano do espaco (null = vila de antes do plano; o servidor calcula ao carregar). */
+	private VillageLayout layout;
+	/** Itens de verdade entregues em cada projeto ainda aberto (devolucao). */
+	private final EnumMap<VillageProject, Map<String, Integer>> paid = new EnumMap<>(VillageProject.class);
+	/** Itens pagos de cada obra da fila (mesma ordem de {@link #queue}). */
+	private final List<Map<String, Integer>> queuePaid = new ArrayList<>();
 
 	public VillageState(String dimension, int x, int y, int z, long seed, VillageStyle style, String name) {
 		this.dimension = dimension;
@@ -252,24 +258,120 @@ public final class VillageState {
 		}
 		deposits.remove(project);
 		queue.add(project);
+		Map<String, Integer> items = paid.remove(project);
+		queuePaid.add(items == null ? new LinkedHashMap<>() : items);
 		return new Deposit(Outcome.COMPLETE, taken);
 	}
 
 	/** Coloca na fila sem custo (testes, comandos, vila inicial). */
 	public void enqueue(VillageProject project) {
 		queue.add(project);
+		queuePaid.add(new LinkedHashMap<>());
 	}
 
 	/** A obra da frente da fila ficou pronta: conta, soma prosperidade. Devolve o nivel novo se subiu (senao null). */
 	public VillageLevel finishBuild(VillageProject project) {
-		queue.remove(project);
+		removeQueued(queue.indexOf(project));
 		built.merge(project, 1, Integer::sum);
 		return addProsperity(project.prosperity());
 	}
 
 	/** Tira da fila sem construir (sem lugar). */
 	public void dropQueued(VillageProject project) {
-		queue.remove(project);
+		removeQueued(queue.indexOf(project));
+	}
+
+	private void removeQueued(int index) {
+		if (index < 0 || index >= queue.size()) {
+			return;
+		}
+		queue.remove(index);
+		if (index < queuePaid.size()) {
+			queuePaid.remove(index);
+		}
+	}
+
+	/** Itens pagos pela primeira obra do projeto na fila (vazio = desconhecido, obra antiga). */
+	public Map<String, Integer> queuedPaid(VillageProject project) {
+		int index = queue.indexOf(project);
+		return index >= 0 && index < queuePaid.size() ? Map.copyOf(queuePaid.get(index)) : Map.of();
+	}
+
+	/** Itens pagos por cada obra da fila (mesma ordem de {@link #queue()}). */
+	public List<Map<String, Integer>> queuePaid() {
+		List<Map<String, Integer>> out = new ArrayList<>();
+		for (int i = 0; i < queue.size(); i++) {
+			out.add(i < queuePaid.size() ? Map.copyOf(queuePaid.get(i)) : Map.of());
+		}
+		return out;
+	}
+
+	/** Itens entregues ate agora num projeto aberto. */
+	public Map<String, Integer> paid(VillageProject project) {
+		Map<String, Integer> map = paid.get(project);
+		return map == null ? Map.of() : Map.copyOf(map);
+	}
+
+	public Map<VillageProject, Map<String, Integer>> paidMap() {
+		Map<VillageProject, Map<String, Integer>> out = new EnumMap<>(VillageProject.class);
+		paid.forEach((p, m) -> {
+			if (!m.isEmpty()) {
+				out.put(p, Map.copyOf(m));
+			}
+		});
+		return out;
+	}
+
+	/**
+	 * Registra os itens de verdade tirados do jogador numa entrega ({@code complete}: a entrega fechou o projeto e os
+	 * itens vao para a obra que acabou de entrar na fila).
+	 */
+	public void recordPaid(VillageProject project, Map<String, Integer> items, boolean complete) {
+		Map<String, Integer> target;
+		if (complete && !queuePaid.isEmpty() && queue.getLast() == project) {
+			target = queuePaid.getLast();
+		} else {
+			target = paid.computeIfAbsent(project, p -> new LinkedHashMap<>());
+		}
+		items.forEach((id, n) -> target.merge(id, n, Integer::sum));
+	}
+
+	/**
+	 * Cancela a obra {@code index} da fila (ainda nao comecada). Devolve o projeto e os itens pagos (vazio = obra
+	 * antiga sem registro: a devolucao usa o custo), ou null se o indice nao existe.
+	 */
+	public Map.Entry<VillageProject, Map<String, Integer>> cancelQueued(int index) {
+		if (index < 0 || index >= queue.size()) {
+			return null;
+		}
+		VillageProject project = queue.get(index);
+		Map<String, Integer> items = index < queuePaid.size() ? Map.copyOf(queuePaid.get(index)) : Map.of();
+		removeQueued(index);
+		return Map.entry(project, items);
+	}
+
+	/** A obra do projeto foi demolida: conta uma a menos e tira a prosperidade que ela deu (o nivel nao desce). */
+	public void unbuild(VillageProject project) {
+		int n = built(project);
+		if (n <= 1) {
+			built.remove(project);
+		} else {
+			built.put(project, n - 1);
+		}
+		prosperity = Math.max(0, prosperity - project.prosperity());
+	}
+
+	/** Tira um lote antigo (obra demolida) da lista de ocupados. */
+	public void removeLot(Rect rect) {
+		lots.remove(rect);
+	}
+
+	public VillageLayout layout() {
+		return layout;
+	}
+
+	public void setLayout(VillageLayout layout) {
+		this.layout = layout;
 	}
 
 	/** Conta uma obra pronta sem prosperidade (construcoes da vila inicial). */
@@ -409,6 +511,20 @@ public final class VillageState {
 		for (int i = 0; i < BountyBoard.PER_DAY; i++) {
 			bountyProgress[i] = i < progress.length ? progress[i] : 0;
 			bountyDone[i] = i < done.length && done[i];
+		}
+		this.queuePaid.clear();
+		for (int i = 0; i < this.queue.size(); i++) {
+			this.queuePaid.add(new LinkedHashMap<>());
+		}
+	}
+
+	/** Restaura os itens pagos (formato novo; o antigo nao tem e fica vazio). */
+	public void restorePaid(Map<VillageProject, Map<String, Integer>> paid, List<Map<String, Integer>> queuePaid) {
+		this.paid.clear();
+		paid.forEach((p, m) -> this.paid.put(p, new LinkedHashMap<>(m)));
+		this.queuePaid.clear();
+		for (int i = 0; i < queue.size(); i++) {
+			this.queuePaid.add(i < queuePaid.size() ? new LinkedHashMap<>(queuePaid.get(i)) : new LinkedHashMap<>());
 		}
 	}
 }

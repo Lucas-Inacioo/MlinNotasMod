@@ -29,6 +29,7 @@ public final class ModKeys {
 	public static final KeyMapping QUESTS = register("quests", InputConstants.KEY_Y);
 	public static final KeyMapping NETWORK_TABLET = register("network_tablet", InputConstants.KEY_I);
 	public static final KeyMapping QUICK_STACK = register("quick_stack", InputConstants.KEY_X);
+	public static final KeyMapping VILLAGE_ROTATE = register("village_rotate", InputConstants.KEY_R);
 
 	private ModKeys() {
 	}

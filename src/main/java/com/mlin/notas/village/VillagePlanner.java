@@ -34,8 +34,11 @@ public final class VillagePlanner {
 		}
 	}
 
-	/** Uma obra planejada: blocos em ordem de construcao, onde aparecem aldeoes e golens. */
-	public record Planned(VillageProject project, Lot lot, List<Placement> placements, List<int[]> spawns, List<int[]> golems) {
+	/** Uma obra planejada: blocos em ordem de construcao, onde aparecem aldeoes e golens; {@code lotId} = lote do plano (-1 = nenhum). */
+	public record Planned(VillageProject project, Lot lot, List<Placement> placements, List<int[]> spawns, List<int[]> golems, int lotId) {
+		public Planned(VillageProject project, Lot lot, List<Placement> placements, List<int[]> spawns, List<int[]> golems) {
+			this(project, lot, placements, spawns, golems, -1);
+		}
 	}
 
 	private VillagePlanner() {
@@ -51,11 +54,69 @@ public final class VillagePlanner {
 		Random random = new Random(seed);
 		return switch (project) {
 			case PLAZA -> plaza(state, terrain, random);
-			case LAMPS -> lamps(state, terrain, random, state.built(VillageProject.LAMPS));
+			case LAMPS -> lamps(state, terrain);
 			case WALL -> wall(state, terrain);
-			default -> building(project, Buildings.plan(project, state.style(), random.nextLong()), state.lots(), maxR, terrain, random,
-					PLAZA_RADIUS + 2, PLAZA_RADIUS + 1);
+			default -> {
+				VillageLayout layout = layout(state, terrain);
+				VillageLayout.Lot lot = layout.buildable(project.id(), terrain);
+				if (lot == null) {
+					// nenhum lote reservado serve agora (jogador construiu em cima, etc.): reserva outro
+					VillageLayout.Lot extra = layout.addLot(project.id(), state.style(), state.seed(), terrain, random);
+					lot = extra == null ? null : layout.buildable(project.id(), terrain);
+				}
+				yield lot == null ? null : onLot(project, lot, state, terrain);
+			}
 		};
+	}
+
+	/** Plano da vila (calcula na primeira vez, vila de antes do plano inclusive). */
+	public static VillageLayout layout(VillageState state, Terrain terrain) {
+		if (state.layout() == null) {
+			state.setLayout(VillageLayout.create(state, terrain));
+		} else if (state.layout().radius() < state.level().radius()) {
+			// nivel mudou sem passar pelo crescimento (comando, teste): o plano acompanha
+			state.layout().extend(state, terrain, state.level());
+		}
+		return state.layout();
+	}
+
+	/**
+	 * Obra no lote {@code lot} do plano: terreno preparado (corte, aterro, rampa e acesso), a planta na altura alvo e a
+	 * rua do lote ate a praca.
+	 */
+	public static Planned onLot(VillageProject project, VillageLayout.Lot lot, VillageState state, Terrain terrain) {
+		VillageLayout layout = state.layout();
+		Canvas canvas = VillageLayout.canvas(lot.kind(), state.style(), lot.seed());
+		VillageState.Rect rect = lot.rect();
+		List<VillageState.Rect> others = new ArrayList<>();
+		for (VillageLayout.Lot other : layout.lots()) {
+			if (other != lot) {
+				others.add(other.rect());
+			}
+		}
+		others.addAll(layout.protectedAreas());
+		java.util.function.LongPredicate locked = key -> {
+			int x = VillageLayout.colX(key);
+			int z = VillageLayout.colZ(key);
+			return insideAny(others, x, z) || x * x + z * z <= PLAZA_RADIUS * PLAZA_RADIUS;
+		};
+		TerrainPrep.Result prep = TerrainPrep.prepare(rect, lot.access(), terrain, locked);
+		Lot placed = new Lot(lot.x(), lot.z(), lot.w(), lot.d(), lot.rot(), prep.target());
+		List<Placement> out = new ArrayList<>(prep.placements());
+		out.addAll(place(canvas, placed));
+		for (int[] c : layout.routeToPlaza(lot)) {
+			int x = c[0];
+			int z = c[1];
+			if (insideAny(others, x, z) || rect.contains(x, z) || x * x + z * z <= PLAZA_RADIUS * PLAZA_RADIUS || !terrain.free(x, z)) {
+				continue;
+			}
+			int g = prep.ground(terrain, x, z);
+			out.add(new Placement(x, g, z, VPart.PATH, null, false));
+			out.add(new Placement(x, g + 1, z, VPart.AIR, null, false));
+			out.add(new Placement(x, g + 2, z, VPart.AIR, null, false));
+		}
+		return new Planned(project, placed, sort(dedupe(out)), worldPoints(placed, canvas, canvas.spawns()), worldPoints(placed, canvas,
+				canvas.golems()), lot.id());
 	}
 
 	/** Planeja uma planta pronta (fogueira do acampamento, testes). */
@@ -279,7 +340,7 @@ public final class VillagePlanner {
 	/** Praca: poco perto do quadro, calcamento em volta, bancos virados para o centro, postes e canteiros. */
 	static Planned plaza(VillageState state, Terrain terrain, Random random) {
 		Canvas well = Buildings.plan(VillageProject.PLAZA, state.style(), random.nextLong());
-		Lot lot = findLot(well, state.lots(), PLAZA_RADIUS + 6, terrain, random, 1, 1);
+		Lot lot = findLot(well, state.lots(), PLAZA_RADIUS + 1, terrain, random, 1, 1);
 		List<Placement> out = new ArrayList<>();
 		List<VillageState.Rect> rects = new ArrayList<>(state.lots());
 		if (lot != null) {
@@ -340,26 +401,20 @@ public final class VillagePlanner {
 		return true;
 	}
 
-	/** Postes num anel ({@code ring} = quantos ja existem): 7, 15, 23 blocos do quadro. */
-	static Planned lamps(VillageState state, Terrain terrain, Random random, int ring) {
-		int radius = Math.min(state.level().radius() - 2, 7 + 8 * ring);
-		int n = 8 + 2 * ring;
+	/**
+	 * Postes nos lugares do plano que ainda nao tem poste (o nivel novo acrescenta lugares; os de antes ficam): base de
+	 * muro, duas cercas e lanterna, so em coluna livre. Marca os lugares usados como construidos.
+	 */
+	static Planned lamps(VillageState state, Terrain terrain) {
+		VillageLayout layout = layout(state, terrain);
 		List<Placement> out = new ArrayList<>();
-		double offset = random.nextDouble() * 0.5;
-		for (int k = 0; k < n; k++) {
-			double angle = 2 * Math.PI * (k + offset) / n;
-			int bx = (int) Math.round(radius * Math.cos(angle));
-			int bz = (int) Math.round(radius * Math.sin(angle));
-			// procura uma coluna livre perto (fora dos lotes e dos caminhos)
-			search:
-			for (int dr = 0; dr <= 2; dr++) {
-				for (int dx = -dr; dx <= dr; dx++) {
-					for (int dz = -dr; dz <= dr; dz++) {
-						if ((Math.abs(dx) == dr || Math.abs(dz) == dr) && lampPost(out, terrain, state.lots(), bx + dx, bz + dz)) {
-							break search;
-						}
-					}
-				}
+		List<VillageState.Rect> rects = new ArrayList<>(state.lots());
+		for (VillageLayout.Lot lot : layout.lots()) {
+			rects.add(lot.rect());
+		}
+		for (VillageLayout.Lamp lamp : layout.lamps()) {
+			if (!lamp.built() && lampPost(out, terrain, rects, lamp.x(), lamp.z())) {
+				lamp.setBuilt(true);
 			}
 		}
 		if (out.isEmpty()) {

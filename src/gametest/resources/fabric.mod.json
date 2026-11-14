@@ -29,6 +29,7 @@
 			"com.mlin.notas.gametest.DungeonGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresGameTest",
 			"com.mlin.notas.gametest.VillageGameTest",
+			"com.mlin.notas.gametest.Village2GameTest",
 			"com.mlin.notas.gametest.SNetherGameTest",
 			"com.mlin.notas.gametest.ExplorationQolGameTest",
 			"com.mlin.notas.gametest.StorageGameTest",

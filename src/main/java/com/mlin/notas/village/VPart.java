@@ -101,7 +101,15 @@ public enum VPart {
 	CROP_WHEAT(Flag.LATE),
 	CROP_CARROT(Flag.LATE),
 	CROP_POTATO(Flag.LATE),
-	CROP_BEET(Flag.LATE);
+	CROP_BEET(Flag.LATE),
+	/** Terraplenagem: grama no topo do chao aplainado (natural; nao entra no registro de demolicao). */
+	TURF(Flag.SOLID | Flag.GROUND | Flag.EARTHWORK),
+	/** Terraplenagem: terra do aterro. */
+	EARTH(Flag.SOLID | Flag.EARTHWORK),
+	/** Terraplenagem: pedra natural no fundo do aterro. */
+	ROCK(Flag.SOLID | Flag.EARTHWORK),
+	/** Terraplenagem: muro de arrimo na borda de aterro alto. */
+	RETAIN(Flag.SOLID | Flag.EARTHWORK);
 
 	private static final class Flag {
 		static final int NONE = 0;
@@ -114,6 +122,7 @@ public enum VPart {
 		static final int SKIP = 64;
 		static final int CLIMB = 128;
 		static final int STANDABLE_SOFT = 256;
+		static final int EARTHWORK = 512;
 	}
 
 	private final int flags;
@@ -160,6 +169,11 @@ public enum VPart {
 	/** Precisa de apoio (vai por ultimo na construcao). */
 	public boolean late() {
 		return (flags & Flag.LATE) != 0;
+	}
+
+	/** Bloco de terraplenagem (corte/aterro), nao faz parte da construcao. */
+	public boolean earthwork() {
+		return (flags & Flag.EARTHWORK) != 0;
 	}
 
 	/** So reserva espaco no plano (a ponte coloca junto com outra parte). */

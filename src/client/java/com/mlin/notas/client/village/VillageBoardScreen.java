@@ -3,6 +3,7 @@ package com.mlin.notas.client.village;
 import com.mlin.notas.village.Bounty;
 import com.mlin.notas.village.BountyBoard;
 import com.mlin.notas.village.VillageCost;
+import com.mlin.notas.village.VillageLayout;
 import com.mlin.notas.village.VillageLevel;
 import com.mlin.notas.village.VillagePayloads;
 import com.mlin.notas.village.VillageProject;
@@ -11,6 +12,8 @@ import com.mlin.notas.village.VillageState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -39,7 +42,7 @@ import java.util.Map;
  */
 public class VillageBoardScreen extends Screen {
 	public enum Tab {
-		PROJECTS, BOUNTIES, SHOP
+		PROJECTS, BOUNTIES, SHOP, BUILDINGS
 	}
 
 	private static final int PANEL = 0xF0201A14;
@@ -50,6 +53,8 @@ public class VillageBoardScreen extends Screen {
 	private static final int PROJECT_ROW = 24;
 	private static final int PROJECTS_PER_PAGE = 6;
 	private static final int SHOP_ROWS = 5;
+	private static final int AREA_BUTTON = 86;
+	private static final int BUILDING_ROW = 22;
 
 	private VillagePayloads.View view;
 	private Tab tab = Tab.PROJECTS;
@@ -110,6 +115,7 @@ public class VillageBoardScreen extends Screen {
 		return switch (tab) {
 			case PROJECTS -> (VillageProject.values().length + PROJECTS_PER_PAGE - 1) / PROJECTS_PER_PAGE;
 			case SHOP -> (VillageShop.OFFERS.size() + SHOP_ROWS * 2 - 1) / (SHOP_ROWS * 2);
+			case BUILDINGS -> Math.max(1, (buildingRows().size() + buildingsPerPage() - 1) / buildingsPerPage());
 			case BOUNTIES -> 1;
 		};
 	}
@@ -119,7 +125,7 @@ public class VillageBoardScreen extends Screen {
 		int l = left();
 		int t = top();
 		int w = panelW();
-		int tabW = (w - 24) / 3;
+		int tabW = (w - 28) / 4;
 		Tab[] tabs = Tab.values();
 		for (int i = 0; i < tabs.length; i++) {
 			Tab target = tabs[i];
@@ -133,6 +139,7 @@ public class VillageBoardScreen extends Screen {
 			case PROJECTS -> initProjects();
 			case BOUNTIES -> initBounties();
 			case SHOP -> initShop();
+			case BUILDINGS -> initBuildings();
 		}
 		int bottom = t + panelH() - 22;
 		if (pages() > 1) {
@@ -146,6 +153,15 @@ public class VillageBoardScreen extends Screen {
 			}).bounds(l + w - 98, bottom, 18, 18).build());
 		}
 		addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> onClose()).bounds(l + w - 76, bottom, 68, 18).build());
+		boolean showing = VillageOverlay.showing(state().key());
+		addRenderableWidget(Button.builder(Component.translatable(showing ? "gui.mlinnotas.village.area_hide" : "gui.mlinnotas.village.area_show"), b -> {
+			if (VillageOverlay.showing(state().key())) {
+				VillageOverlay.clear();
+			} else {
+				VillageClient.send(view.board(), "overlay", "");
+			}
+			minecraft.execute(this::rebuildWidgets);
+		}).bounds(l + 8, bottom, AREA_BUTTON, 18).tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.area_tooltip"))).build());
 	}
 
 	private void initProjects() {
@@ -202,6 +218,152 @@ public class VillageBoardScreen extends Screen {
 		return (contentBottom() - contentTop()) / SHOP_ROWS;
 	}
 
+	// ---------------------------------------------------------------- obras (fila, lotes, demolir)
+
+	/** Linha da aba Obras: obra da fila, tipo com lote livre ou obra pronta. */
+	private record BuildingRow(int queueIndex, String kind, VillageLayout.Lot lot) {
+	}
+
+	private int buildingsPerPage() {
+		return Math.max(1, (contentBottom() - contentTop() - 12) / BUILDING_ROW);
+	}
+
+	private List<BuildingRow> buildingRows() {
+		List<BuildingRow> rows = new ArrayList<>();
+		VillageState s = state();
+		for (int i = 0; i < s.queue().size(); i++) {
+			rows.add(new BuildingRow(i, s.queue().get(i).id(), null));
+		}
+		VillageLayout layout = s.layout();
+		if (layout != null) {
+			for (VillageProject project : VillageLayout.LOT_PROJECTS) {
+				if (!layout.freeLots(project.id()).isEmpty() && s.status(project) != VillageState.Status.LOCKED) {
+					rows.add(new BuildingRow(-1, project.id(), null));
+				}
+			}
+			for (VillageLayout.Lot lot : layout.lots()) {
+				if (lot.built()) {
+					rows.add(new BuildingRow(-1, lot.kind(), lot));
+				}
+			}
+		}
+		return rows;
+	}
+
+	private void initBuildings() {
+		List<BuildingRow> rows = buildingRows();
+		int per = buildingsPerPage();
+		int y = contentTop() + 12;
+		int right = left() + panelW() - 8;
+		for (int i = page * per; i < Math.min(rows.size(), (page + 1) * per); i++) {
+			BuildingRow row = rows.get(i);
+			Button button;
+			if (row.queueIndex() >= 0) {
+				int index = row.queueIndex();
+				button = Button.builder(Component.translatable("gui.mlinnotas.village.cancel"), b -> VillageClient.send(view.board(), "cancel",
+						String.valueOf(index))).bounds(right - 92, y + 1, 88, 18)
+						.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.cancel_tooltip"))).build();
+				button.active = !(index == 0 && !view.building().isEmpty());
+			} else if (row.lot() == null) {
+				String kind = row.kind();
+				button = Button.builder(Component.translatable("gui.mlinnotas.village.choose"), b -> choose(kind)).bounds(right - 92, y + 1, 88, 18)
+						.tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.choose_tooltip"))).build();
+			} else {
+				VillageLayout.Lot lot = row.lot();
+				button = Button.builder(Component.translatable("gui.mlinnotas.village.demolish"), b -> confirmDemolish(lot)).bounds(right - 92, y + 1, 88,
+						18).tooltip(Tooltip.create(Component.translatable(lot.legacy() ? "gui.mlinnotas.village.demolish_legacy"
+						: "gui.mlinnotas.village.demolish_tooltip"))).build();
+				button.active = !lot.legacy();
+			}
+			addRenderableWidget(button);
+			y += BUILDING_ROW;
+		}
+	}
+
+	/** Fecha a tela e comeca a escolher o lugar da proxima obra do tipo. */
+	public void choose(String kind) {
+		VillageLayout layout = state().layout();
+		if (layout == null) {
+			return;
+		}
+		BlockPos center = new BlockPos(state().x(), state().y(), state().z());
+		if (VillagePlacement.start(kind, view.board(), center, layout, state().style())) {
+			onClose();
+		}
+	}
+
+	private void confirmDemolish(VillageLayout.Lot lot) {
+		Component name = VillageOverlay.kindName(lot.kind());
+		minecraft.gui.setScreen(new ConfirmScreen(yes -> {
+			if (yes) {
+				VillageClient.send(view.board(), "demolish", String.valueOf(lot.id()));
+			}
+			minecraft.gui.setScreen(this);
+		}, Component.translatable("gui.mlinnotas.village.demolish_title", name), Component.translatable("gui.mlinnotas.village.demolish_message",
+				name, (int) Math.round(com.mlin.notas.village.Refunds.DEMOLISH_FRACTION * 100))));
+	}
+
+	private void buildings(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+		VillageState s = state();
+		List<BuildingRow> rows = buildingRows();
+		int x = left() + 8;
+		int right = left() + panelW() - 8;
+		graphics.text(font, Component.translatable("gui.mlinnotas.village.buildings_hint").withStyle(ChatFormatting.GRAY), x, contentTop(), 0xFFFFFFFF);
+		if (rows.isEmpty()) {
+			graphics.text(font, Component.translatable("gui.mlinnotas.village.buildings_empty").withStyle(ChatFormatting.DARK_GRAY), x, contentTop() + 16,
+					0xFFFFFFFF);
+			return;
+		}
+		int per = buildingsPerPage();
+		int y = contentTop() + 12;
+		for (int i = page * per; i < Math.min(rows.size(), (page + 1) * per); i++) {
+			BuildingRow row = rows.get(i);
+			graphics.fill(x, y, right, y + BUILDING_ROW - 2, ROW);
+			VillageProject project = VillageProject.byId(row.kind());
+			ItemStack icon = project == null ? new ItemStack(Items.CAMPFIRE) : stack(project.icon());
+			graphics.item(icon, x + 2, y + 2);
+			Component title;
+			Component sub;
+			if (row.queueIndex() >= 0) {
+				title = Component.translatable("gui.mlinnotas.village.row.queued", VillageOverlay.kindName(row.kind()), row.queueIndex() + 1);
+				boolean building = row.queueIndex() == 0 && !view.building().isEmpty();
+				sub = building ? Component.translatable("gui.mlinnotas.village.building", view.total() == 0 ? 0 : view.done() * 100 / view.total())
+						.withStyle(ChatFormatting.YELLOW) : view.waiting() && row.queueIndex() == 0
+						? Component.translatable("gui.mlinnotas.village.row.waiting").withStyle(ChatFormatting.RED)
+						: Component.translatable("gui.mlinnotas.village.queued").withStyle(ChatFormatting.GRAY);
+			} else if (row.lot() == null) {
+				int free = s.layout().freeLots(row.kind()).size();
+				title = Component.translatable("gui.mlinnotas.village.row.free", VillageOverlay.kindName(row.kind()), free);
+				VillageLayout.Lot next = s.layout().firstFree(row.kind());
+				sub = Component.translatable(next != null && next.preferred() ? "gui.mlinnotas.village.row.chosen" : "gui.mlinnotas.village.row.auto")
+						.withStyle(ChatFormatting.GRAY);
+			} else {
+				VillageLayout.Lot lot = row.lot();
+				title = Component.translatable("gui.mlinnotas.village.row.built", VillageOverlay.kindName(lot.kind()));
+				int dx = lot.x() + lot.w() / 2;
+				int dz = lot.z() + lot.d() / 2;
+				sub = Component.translatable("gui.mlinnotas.village.row.where", Math.round(Math.sqrt(dx * dx + dz * dz)), direction(dx, dz))
+						.withStyle(ChatFormatting.GRAY);
+			}
+			graphics.text(font, title, x + 22, y + 2, 0xFFFFFFFF);
+			graphics.text(font, sub, x + 22, y + 11, 0xFFFFFFFF);
+			y += BUILDING_ROW;
+		}
+	}
+
+	/** Direcao (N, NE, L...) do quadro ate o ponto. */
+	private static Component direction(int dx, int dz) {
+		String[] keys = {"e", "se", "s", "sw", "w", "nw", "n", "ne"};
+		double angle = Math.toDegrees(Math.atan2(dz, dx));
+		int index = (int) Math.floorMod(Math.round(angle / 45.0), 8);
+		return Component.translatable("gui.mlinnotas.village.dir." + keys[index]);
+	}
+
+	/** Reconstroi os botoes (contorno ligado/desligado chegou). */
+	public void refresh() {
+		rebuildWidgets();
+	}
+
 	// ---------------------------------------------------------------- desenho
 
 	@Override
@@ -222,6 +384,7 @@ public class VillageBoardScreen extends Screen {
 			case PROJECTS -> projects(graphics, mouseX, mouseY);
 			case BOUNTIES -> bounties(graphics, mouseX, mouseY);
 			case SHOP -> shop(graphics, mouseX, mouseY);
+			case BUILDINGS -> buildings(graphics, mouseX, mouseY);
 		}
 		footer(graphics);
 	}
@@ -514,7 +677,7 @@ public class VillageBoardScreen extends Screen {
 
 	private void footer(GuiGraphicsExtractor graphics) {
 		VillageState s = state();
-		int x = left() + 8;
+		int x = left() + 12 + AREA_BUTTON;
 		int y = top() + panelH() - 17;
 		Component status;
 		if (!view.building().isEmpty()) {
@@ -529,7 +692,7 @@ public class VillageBoardScreen extends Screen {
 		} else {
 			status = Component.translatable("gui.mlinnotas.village.footer.idle", s.totalBuilt()).withStyle(ChatFormatting.GRAY);
 		}
-		int max = panelW() - (pages() > 1 ? 136 : 92);
+		int max = panelW() - (pages() > 1 ? 136 : 92) - AREA_BUTTON - 4;
 		graphics.text(font, font.split(status, max).getFirst(), x, y, 0xFFFFFFFF);
 	}
 

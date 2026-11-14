@@ -242,6 +242,7 @@ public class ContentGen {
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
 		VillageContent.generate();
+		Village2Content.generate();
 		SNetherContent.generate();
 		CompassContent.generate();
 		StorageContent.generate(pickaxeMineable);

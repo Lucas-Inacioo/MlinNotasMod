@@ -95,10 +95,10 @@ public final class VillageServer {
 	public static void init() {
 		PayloadTypeRegistry.clientboundPlay().register(VillagePayloads.View.TYPE, VillagePayloads.View.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(VillagePayloads.Action.TYPE, VillagePayloads.Action.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(VillagePayloads.Overlay.TYPE, VillagePayloads.Overlay.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(VillagePayloads.Action.TYPE, (payload, context) -> action(context.player(), payload));
 		ServerTickEvents.END_SERVER_TICK.register(VillageServer::tick);
 		ServerLivingEntityEvents.AFTER_DEATH.register(VillageServer::onDeath);
-		ServerLifecycleEvents.SERVER_STARTED.register(StartingVillage::onServerStarted);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			RETRY_AT.clear();
 			WAITING.clear();
@@ -106,6 +106,8 @@ public final class VillageServer {
 		});
 		ServerPlayerEvents.JOIN.register(StartingVillage::greet);
 		VillageBoardFeature.init();
+		StartingVillage.init();
+		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> VillageCommand.register(dispatcher));
 	}
 
 	public static String dimension(Level level) {
@@ -196,10 +198,14 @@ public final class VillageServer {
 		if (village == null) {
 			village = create(level, board, false);
 			player.sendSystemMessage(Component.translatable("message.mlinnotas.village.founded", village.name()).withStyle(ChatFormatting.GOLD));
+			VillagePlanning.ensureLayout(level, village);
+			VillagePlanning.showNearby(level, village, VillagePlanning.AUTO_SECONDS, Component.translatable("message.mlinnotas.village.area_shown",
+					VillagePlanning.AUTO_SECONDS).withStyle(ChatFormatting.AQUA));
 		}
 		if (village.refreshBounties(day(level.getServer()))) {
 			VillageData.get(level.getServer()).changed();
 		}
+		VillagePlanning.ensureLayout(level, village);
 		VIEWING.put(player.getUUID(), board);
 		send(player, village, board, true);
 	}
@@ -228,7 +234,11 @@ public final class VillageServer {
 	private static void action(ServerPlayer player, VillagePayloads.Action payload) {
 		ServerLevel level = player.level();
 		BlockPos board = payload.board();
-		if (!player.blockPosition().closerThan(board, USE_RANGE) || !(level.getBlockState(board).getBlock() instanceof VillageBoardBlock)) {
+		double range = switch (payload.action()) {
+			case "place", "pick", "overlay" -> VillagePlanning.SHOW_RANGE;
+			default -> USE_RANGE;
+		};
+		if (!player.blockPosition().closerThan(board, range) || !(level.getBlockState(board).getBlock() instanceof VillageBoardBlock)) {
 			return;
 		}
 		VillageState village = nearest(level, board, JOIN_RADIUS);
@@ -250,6 +260,23 @@ public final class VillageServer {
 				}
 			}
 			case "buy" -> buy(player, village, payload.arg());
+			case "overlay" -> VillagePlanning.show(player, village, "off".equals(payload.arg()) ? 0 : VillagePlanning.TOGGLE_SECONDS);
+			case "pick" -> VillagePlanning.pick(player, village, payload.arg());
+			case "place" -> VillagePlanning.place(player, village, payload.arg());
+			case "cancel" -> {
+				try {
+					VillagePlanning.cancel(player, village, board, Integer.parseInt(payload.arg()));
+				} catch (NumberFormatException ignored) {
+					// pedido invalido
+				}
+			}
+			case "demolish" -> {
+				try {
+					VillagePlanning.demolish(player, village, board, Integer.parseInt(payload.arg()));
+				} catch (NumberFormatException ignored) {
+					// pedido invalido
+				}
+			}
 			default -> {
 			}
 		}
@@ -278,8 +305,9 @@ public final class VillageServer {
 		}
 		VillageState.Deposit result = village.deposit(project, available);
 		if (result.accepted()) {
-			result.taken().forEach((id, count) ->
-					ContainerHelper.clearOrCountMatchingItems(player.getInventory(), SkillServer.matcher(id), count, false));
+			Map<String, Integer> items = new LinkedHashMap<>();
+			result.taken().forEach((id, count) -> VillagePlanning.take(player, id, count).forEach((item, n) -> items.merge(item, n, Integer::sum)));
+			village.recordPaid(project, items, result.outcome() == VillageState.Outcome.COMPLETE);
 			player.getInventory().setChanged();
 			VillageData.get(server).changed();
 		}
@@ -443,6 +471,9 @@ public final class VillageServer {
 		if (world == null) {
 			return;
 		}
+		VillagePlanning.grow(world, village);
+		VillagePlanning.showNearby(world, village, VillagePlanning.AUTO_SECONDS, Component.translatable("message.mlinnotas.village.area_grown",
+				VillagePlanning.AUTO_SECONDS).withStyle(ChatFormatting.AQUA));
 		BlockPos center = center(village);
 		world.playSound(null, center, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.NEUTRAL, 2.0F, 1.0F);
 		world.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, center.getX() + 0.5, center.getY() + 2, center.getZ() + 0.5, 80, 1.5, 1.5, 1.5, 0.4);
@@ -483,6 +514,12 @@ public final class VillageServer {
 		if (now % 100 == 0) {
 			long day = day(server);
 			for (VillageState village : data.villages()) {
+				if (village.layout() == null) {
+					ServerLevel world = levelOf(server, village);
+					if (world != null && world.isLoaded(center(village))) {
+						VillagePlanning.ensureLayout(world, village);
+					}
+				}
 				if (village.refreshBounties(day)) {
 					data.changed();
 					sync(server, village);
@@ -503,6 +540,7 @@ public final class VillageServer {
 		if (level == null || !level.isLoaded(center)) {
 			return null;
 		}
+		VillagePlanning.ensureLayout(level, village);
 		VillageProject project = village.queue().getFirst();
 		long seed = village.seed() ^ (project.ordinal() * 7919L) ^ ((village.built(project) + village.lots().size() + 1) * 104729L);
 		VillagePlanner.Planned planned = VillagePlanner.plan(project, village, new WorldTerrain(level, center), seed);
@@ -531,6 +569,13 @@ public final class VillageServer {
 		VillageData data = VillageData.get(server);
 		data.endJob(village.key());
 		VillageBuilder.spawnResidents(level, village, job);
+		VillageLayout.Lot lot = job.lot >= 0 && village.layout() != null ? village.layout().lot(job.lot) : null;
+		if (lot != null) {
+			lot.setBuilt(true);
+			lot.setPreferred(false);
+			lot.setPaid(village.queuedPaid(job.project));
+			data.putRecord(village.key(), lot.id(), job.buildRecord());
+		}
 		VillageLevel up = village.finishBuild(job.project);
 		data.changed();
 		BlockPos center = center(village);
@@ -561,14 +606,15 @@ public final class VillageServer {
 					continue;
 				}
 			}
-			VillagePalette palette = VillagePalette.of(village.style(), job.variant());
-			while (!job.done()) {
-				Placement p = job.placement(job.index);
-				VillageBuilder.place(level, palette, VillageBuilder.world(village, p.x(), p.y(), p.z()), p, job.index);
-				job.index++;
-			}
+			VillageBuilder.runJob(level, village, job, false);
 			finish(server, level, village, job);
 		}
+	}
+
+	/** Tira a vila da espera por lugar (fila mudou). */
+	public static void clearWaiting(VillageState village) {
+		WAITING.remove(village.key());
+		RETRY_AT.remove(village.key());
 	}
 
 	public static boolean waiting(VillageState village) {
