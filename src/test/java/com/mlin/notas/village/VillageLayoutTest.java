@@ -103,7 +103,15 @@ class VillageLayoutTest {
 				assertSane(layout, level.radius());
 			}
 			for (VillageProject project : VillageLayout.LOT_PROJECTS) {
-				assertEquals(project.maxBuilds(level), layout.lotsOf(project.id()).size(), level + ": lotes de " + project.id());
+				if (CraftsPlans.handles(project)) {
+					// oficios da fase 6 disputam lotes M/L raros do plano com as casas: ganham o que o plano tem (nunca passam do pedido)
+					assertTrue(layout.lotsOf(project.id()).size() <= project.maxBuilds(level), level + ": lotes demais de " + project.id());
+				} else {
+					// no fim (Coroa) as casas podem perder 1 lote para os oficios da fase 6 (os lotes S/M do plano acabam): ver CLAUDE.md
+					int got = layout.lotsOf(project.id()).size();
+					assertTrue(got <= project.maxBuilds(level) && got >= project.maxBuilds(level) - (level == VillageLevel.CROWN_CITY ? 1 : 0),
+							level + ": lotes de " + project.id() + " = " + got + " de " + project.maxBuilds(level));
+				}
 			}
 		}
 	}

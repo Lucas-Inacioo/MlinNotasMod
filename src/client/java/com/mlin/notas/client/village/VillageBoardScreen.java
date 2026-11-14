@@ -250,7 +250,7 @@ public class VillageBoardScreen extends Screen {
 	}
 
 	private int bountyRow() {
-		return (contentBottom() - contentTop()) / BountyBoard.PER_DAY;
+		return (contentBottom() - contentTop()) / Math.max(BountyBoard.PER_DAY, state().bounties().size());
 	}
 
 	private void initShop() {
@@ -774,6 +774,8 @@ public class VillageBoardScreen extends Screen {
 			case BOOK, RARE_BOOK -> new ItemStack(Items.ENCHANTED_BOOK);
 			case REPAIR -> new ItemStack(Items.ANVIL);
 			case LODGING -> new ItemStack(Items.BED.red());
+			case TIPPED -> new ItemStack(Items.TIPPED_ARROW);
+			case RUMOR -> new ItemStack(Items.PAPER);
 		};
 	}
 
@@ -803,7 +805,7 @@ public class VillageBoardScreen extends Screen {
 					+ VillageLevel.requiredLevel(req)))).withStyle(ChatFormatting.DARK_GRAY)
 					: offer.kind() == VillageShop.Kind.REPAIR ? Component.translatable("gui.mlinnotas.village.forge_repair_price",
 					com.mlin.notas.village.VillageBuildings.level(s, "smithy")).withStyle(ChatFormatting.GREEN)
-					: Component.translatable("gui.mlinnotas.village.price", offer.price()).withStyle(ChatFormatting.GREEN);
+					: Component.translatable("gui.mlinnotas.village.price", VillageShop.price(offer, s)).withStyle(ChatFormatting.GREEN);
 			graphics.text(font, sub, x + 22, y + 13, 0xFFFFFFFF);
 			if (hover(mouseX, mouseY, x, y, x + colW - 52, y + rowH - 2)) {
 				graphics.setTooltipForNextFrame(font, font.split(Component.translatable("village.mlinnotas.shop." + offer.id() + ".desc")

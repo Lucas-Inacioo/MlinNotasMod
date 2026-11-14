@@ -476,6 +476,9 @@ public class QuestBookScreen extends Screen {
 		} else if (chapter != null) {
 			tooltip = drawGraph(graphics, progress, player, mouseX, mouseY);
 		}
+		if (selected == null) {
+			drawRumors(graphics);
+		}
 		if (selected != null) {
 			drawDetail(graphics, progress, player, mouseX, mouseY);
 		}
@@ -483,6 +486,31 @@ public class QuestBookScreen extends Screen {
 		super.extractRenderState(graphics, mouseX, mouseY, a);
 		if (tooltip != null) {
 			graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
+		}
+	}
+
+	/** Boatos da taverna (ultimos tres): linhas no canto de baixo do grafo; os pontos tambem estao no minimapa. */
+	private void drawRumors(GuiGraphicsExtractor graphics) {
+		List<Component> lines = com.mlin.notas.client.village.CraftsClient.rumorLines(3);
+		if (lines.isEmpty() || chapter == null) {
+			return;
+		}
+		int w = 0;
+		for (Component line : lines) {
+			w = Math.max(w, font.width(line));
+		}
+		Component head = Component.translatable("gui.mlinnotas.quests.rumors");
+		w = Math.max(w, font.width(head)) + 8;
+		int h = (lines.size() + 1) * (font.lineHeight + 1) + 6;
+		int x = graphLeft() + 6;
+		int y = graphBottom() - h - 6;
+		graphics.fill(x, y, x + w, y + h, 0xC0101014);
+		graphics.outline(x, y, w, h, PANEL_EDGE);
+		graphics.text(font, head, x + 4, y + 3, 0xFFFFD83A);
+		int ly = y + 3 + font.lineHeight + 1;
+		for (Component line : lines) {
+			graphics.text(font, line, x + 4, ly, 0xFFC8C8C8);
+			ly += font.lineHeight + 1;
 		}
 	}
 

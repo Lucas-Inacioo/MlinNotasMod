@@ -207,7 +207,22 @@ public final class VillagePalette {
 				p.plant = Blocks.DEAD_BUSH;
 			}
 		}
+		applySeason(p);
 		return p;
+	}
+
+	/** Flores da estacao do mundo (jardim e canteiros das obras novas; sem estacoes ou no deserto, as do estilo). */
+	private static void applySeason(VillagePalette p) {
+		com.mlin.notas.season.SeasonDate date = com.mlin.notas.season.SeasonState.current();
+		if (date == null || p.hedge == null) {
+			return;
+		}
+		p.flowers = switch (date.season()) {
+			case SPRING -> new Block[] {Blocks.PINK_TULIP, Blocks.WHITE_TULIP, Blocks.AZURE_BLUET, Blocks.LILY_OF_THE_VALLEY};
+			case SUMMER -> new Block[] {Blocks.POPPY, Blocks.DANDELION, Blocks.CORNFLOWER, Blocks.ALLIUM, Blocks.OXEYE_DAISY};
+			case AUTUMN -> new Block[] {Blocks.ORANGE_TULIP, Blocks.RED_TULIP, Blocks.POPPY, Blocks.DANDELION};
+			case WINTER -> new Block[] {Blocks.BLUE_ORCHID, Blocks.LILY_OF_THE_VALLEY, Blocks.ALLIUM};
+		};
 	}
 
 	private static Direction direction(@Nullable Facing dir, Direction fallback) {
@@ -321,6 +336,17 @@ public final class VillagePalette {
 			case RETAIN -> (pick % 5 == 0 ? foundation : brick).defaultBlockState();
 			case SAPLING -> sapling();
 			case DRAIN -> Blocks.AIR.defaultBlockState();
+			case TANNING_VAT -> CraftsRegistry.TANNING_VAT.defaultBlockState();
+			case ENCHANTING_TABLE -> Blocks.ENCHANTING_TABLE.defaultBlockState();
+			case BELL -> Blocks.BELL.defaultBlockState().setValue(net.minecraft.world.level.block.BellBlock.FACING, facing)
+					.setValue(net.minecraft.world.level.block.BellBlock.ATTACHMENT, net.minecraft.world.level.block.state.properties.BellAttachType.FLOOR);
+			case TARGET -> Blocks.TARGET.defaultBlockState();
+			case WOOL_ACCENT -> (soil == Blocks.SAND ? Blocks.WOOL.yellow() : Blocks.WOOL.blue()).defaultBlockState();
+			case CARPET_ACCENT -> (soil == Blocks.SAND ? Blocks.CARPET.yellow() : Blocks.CARPET.blue()).defaultBlockState();
+			case ROUGH_STONE -> (soil == Blocks.SAND ? (pick % 2 == 0 ? Blocks.SANDSTONE : Blocks.CUT_SANDSTONE)
+					: pick % 3 == 0 ? Blocks.ANDESITE : pick % 3 == 1 ? Blocks.STONE : Blocks.COBBLESTONE).defaultBlockState();
+			case TOMBSTONE -> stoneWall.defaultBlockState();
+			case STAKE -> fence.defaultBlockState();
 		};
 	}
 

@@ -32,6 +32,7 @@
 			"com.mlin.notas.gametest.Village2GameTest",
 			"com.mlin.notas.gametest.Village3GameTest",
 			"com.mlin.notas.gametest.Village4GameTest",
+			"com.mlin.notas.gametest.CraftsGameTest",
 			"com.mlin.notas.gametest.SNetherGameTest",
 			"com.mlin.notas.gametest.ExplorationQolGameTest",
 			"com.mlin.notas.gametest.StorageGameTest",
@@ -77,6 +78,7 @@
 			"com.mlin.notas.gametest.Qol2ClientGameTest",
 			"com.mlin.notas.gametest.GravesClientGameTest",
 			"com.mlin.notas.gametest.Village4ClientGameTest",
+			"com.mlin.notas.gametest.CraftsClientGameTest",
 			"com.mlin.notas.gametest.VillageWorksClientGameTest"
 		]
 	},

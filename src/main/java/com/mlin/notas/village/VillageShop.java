@@ -19,7 +19,11 @@ public final class VillageShop {
 		/** Conserta o item da mao principal; o preco cresce com o desgaste. */
 		REPAIR,
 		/** Quarto na estalagem: o ponto de renascer do jogador passa a ser a estalagem. */
-		LODGING
+		LODGING,
+		/** Flechas com pocao ({@code target} = id da pocao, {@code count} = flechas); a flecharia baixa o preco. */
+		TIPPED,
+		/** Boato da taverna ({@code target} = categoria de {@link Rumors}): revela uma estrutura ainda nao achada. */
+		RUMOR
 	}
 
 	public record Offer(String id, Kind kind, String target, int count, int price, VillageLevel level) {
@@ -51,19 +55,36 @@ public final class VillageShop {
 			new Offer("cobalt_pickaxe", Kind.ITEM, "mlinnotas:cobalt_pickaxe", 1, 24, VillageLevel.VILLAGE),
 			new Offer("cobalt_sword", Kind.ITEM, "mlinnotas:cobalt_sword", 1, 20, VillageLevel.VILLAGE),
 			new Offer("cobalt_ingot", Kind.ITEM, "mlinnotas:cobalt_ingot", 1, 10, VillageLevel.VILLAGE),
-			new Offer("lodging", Kind.LODGING, "", 1, 2, VillageLevel.HAMLET));
+			new Offer("lodging", Kind.LODGING, "", 1, 2, VillageLevel.HAMLET),
+			// oficios e servicos (Vilas 2.0, fase 6)
+			new Offer("backpack", Kind.ITEM, "mlinnotas:backpack", 1, 18, VillageLevel.VILLAGE),
+			new Offer("tipped_poison", Kind.TIPPED, "minecraft:poison", 8, 6, VillageLevel.VILLAGE),
+			new Offer("tipped_slowness", Kind.TIPPED, "minecraft:slowness", 8, 6, VillageLevel.VILLAGE),
+			new Offer("tipped_harming", Kind.TIPPED, "minecraft:harming", 8, 9, VillageLevel.VILLAGE),
+			new Offer("rumor_ruin", Kind.RUMOR, "ruin", 1, 4, VillageLevel.VILLAGE),
+			new Offer("rumor_vanilla", Kind.RUMOR, "vanilla", 1, 8, VillageLevel.VILLAGE),
+			new Offer("rumor_dungeon", Kind.RUMOR, "dungeon", 1, 12, VillageLevel.VILLAGE),
+			new Offer("rumor_lair", Kind.RUMOR, "lair", 1, 16, VillageLevel.VILLAGE));
 
 	/**
 	 * Oferta que so aparece com uma construcao funcionando no nivel ({@code tipo:nivel}): forja I conserta, forja II
 	 * vende ferramentas de cobalto, mercado III livros raros, estalagem II hospeda (ponto de renascer).
 	 */
-	public static final java.util.Map<String, String> REQUIRES = java.util.Map.of(
-			"repair", "smithy:1",
-			"cobalt_pickaxe", "smithy:2",
-			"cobalt_sword", "smithy:2",
-			"cobalt_ingot", "smithy:2",
-			"rare_book", "market:3",
-			"lodging", "inn:2");
+	public static final java.util.Map<String, String> REQUIRES = java.util.Map.ofEntries(
+			java.util.Map.entry("repair", "smithy:1"),
+			java.util.Map.entry("cobalt_pickaxe", "smithy:2"),
+			java.util.Map.entry("cobalt_sword", "smithy:2"),
+			java.util.Map.entry("cobalt_ingot", "smithy:2"),
+			java.util.Map.entry("rare_book", "market:3"),
+			java.util.Map.entry("lodging", "inn:2"),
+			java.util.Map.entry("backpack", "tailor:1"),
+			java.util.Map.entry("tipped_poison", "fletcher:1"),
+			java.util.Map.entry("tipped_slowness", "fletcher:1"),
+			java.util.Map.entry("tipped_harming", "fletcher:2"),
+			java.util.Map.entry("rumor_ruin", "tavern:1"),
+			java.util.Map.entry("rumor_vanilla", "tavern:1"),
+			java.util.Map.entry("rumor_dungeon", "tavern:1"),
+			java.util.Map.entry("rumor_lair", "tavern:1"));
 
 	private VillageShop() {
 	}
@@ -100,6 +121,12 @@ public final class VillageShop {
 		int emeralds = Math.max(1, base - (level - 1));
 		int material = Math.max(1, (int) Math.ceil(damage * 4.0 / maxDamage) - (level >= 3 ? 1 : 0));
 		return new int[] {emeralds, material};
+	}
+
+	/** Preco da oferta com os descontos das construcoes (alfaiate na mochila, flecheiro nas flechas com pocao). */
+	public static int price(Offer offer, VillageState state) {
+		return CraftsRules.price(offer.id(), offer.price(), java.util.Map.of("tailor", VillageBuildings.level(state, "tailor"), "fletcher",
+				VillageBuildings.level(state, "fletcher")));
 	}
 
 	public static Offer byId(String id) {

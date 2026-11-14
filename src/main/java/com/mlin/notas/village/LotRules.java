@@ -37,6 +37,7 @@ public final class LotRules {
 		register("inn", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
 		register("library", SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
 		register(BuildingTypes.TOWN_HALL, SizeClass.M, false, Zone.CENTER, Zone.DISTRICT);
+		CraftsBuildings.registerLots();
 	}
 
 	private LotRules() {

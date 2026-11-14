@@ -40,7 +40,9 @@ public final class VillageLayout {
 	public static final String CAMPFIRE = "campfire";
 	/** Projetos que ocupam lote, na ordem em que os lotes sao reservados (um de cada por vez). */
 	public static final List<VillageProject> LOT_PROJECTS = List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY,
-			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL);
+			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL,
+			VillageProject.ENCHANTER, VillageProject.CHURCH, VillageProject.TAVERN, VillageProject.TAILOR, VillageProject.FLETCHER, VillageProject.QUARRY,
+			VillageProject.TANNERY, VillageProject.GARDEN, VillageProject.EMPTY_LOT);
 	/** Postes que a praca ja coloca (os da rua guardam distancia deles). */
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
 

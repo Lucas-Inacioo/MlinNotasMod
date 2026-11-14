@@ -108,7 +108,7 @@ public final class VillageTerrain {
 					plan.block(id).setPrepared(true);
 				}
 			});
-			work.setCost(RingCost.of(plan, ring, terrain, village.stockpile()));
+			work.setCost(RingCost.of(plan, ring, terrain, village.stockpile() + CraftsRules.quarryFillCredit(VillageBuildings.level(village, CraftsBuildings.QUARRY))));
 			if (work.state() == RingWork.State.OPEN && work.emeralds() == 0 && work.columns() > 0 && work.ready() >= work.columns()) {
 				work.setState(RingWork.State.DONE);
 				plan.setRingPrepared(ring);
@@ -178,6 +178,12 @@ public final class VillageTerrain {
 			MasterPlan.Block block = plan.block(p.block());
 			if (p.player() && block != null && block.ring() <= open) {
 				areas.add(p.rect());
+			}
+		}
+		// lote vazio da vila (fase 6): com cama e porta dentro o jogador fez a propria casa e ela conta como casa da vila
+		for (VillageLayout.Lot lot : village.layout() == null ? List.<VillageLayout.Lot>of() : village.layout().lots()) {
+			if (lot.built() && CraftsBuildings.EMPTY_LOT.equals(lot.kind())) {
+				areas.add(lot.rect());
 			}
 		}
 		int houses = 0;

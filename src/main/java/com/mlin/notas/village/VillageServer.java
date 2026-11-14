@@ -426,8 +426,12 @@ public final class VillageServer {
 			// conserto na forja: esmeraldas + material, desconto pelo nivel da forja
 			return BuildingServer.forgeRepair(player, village);
 		}
+		if (offer.kind() == VillageShop.Kind.RUMOR) {
+			// boato da taverna: preco, limite diario e busca ficam no CraftsServer
+			return CraftsServer.buyRumor(player, village, offer);
+		}
 		ServerLevel level = player.level();
-		int price = offer.price();
+		int price = VillageShop.price(offer, village);
 		ItemStack hand = player.getMainHandItem();
 		if (offer.kind() == VillageShop.Kind.LODGING && BuildingServer.innRoom(level.getServer(), village) == null) {
 			BuildingServer.lodge(player, village);
@@ -449,7 +453,10 @@ public final class VillageServer {
 					return false;
 				}
 			}
-			case BOOK, RARE_BOOK -> result = book(level, random, offer.kind() == VillageShop.Kind.RARE_BOOK);
+			case BOOK, RARE_BOOK -> result = book(level, random, offer.kind() == VillageShop.Kind.RARE_BOOK, VillageBuildings.level(village, "enchanter"));
+			case TIPPED -> result = CraftsServer.tippedArrows(offer.target(), offer.count());
+			case RUMOR -> {
+			}
 			case REPAIR -> hand.setDamageValue(0);
 			case LODGING -> BuildingServer.lodge(player, village);
 		}
@@ -479,7 +486,7 @@ public final class VillageServer {
 		return map;
 	}
 
-	private static ItemStack book(ServerLevel level, Random random, boolean rare) {
+	private static ItemStack book(ServerLevel level, Random random, boolean rare, int enchanterLevel) {
 		Registry<Enchantment> registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 		List<Holder<Enchantment>> options = new ArrayList<>();
 		registry.get(rare ? EnchantmentTags.TREASURE : EnchantmentTags.IN_ENCHANTING_TABLE)
@@ -493,6 +500,10 @@ public final class VillageServer {
 		// teto de encantamento do mundo (Mineracao da arvore de habilidades), como na mesa e na bigorna
 		lvl = Math.max(1, Math.min(lvl, com.mlin.notas.enchanting.EnchantRules.cappedLevel(max,
 				com.mlin.notas.skills.SkillServer.progress(level.getServer()).level(com.mlin.notas.skills.SkillBranch.MINING))));
+		if (!rare) {
+			// o Encantador e o unico lugar de encantar: sem ele o mercado vende livros de nivel I; com ele, ate o nivel da casa
+			lvl = Math.min(lvl, Math.max(1, enchanterLevel));
+		}
 		return EnchantmentHelper.createBook(new EnchantmentInstance(pick, lvl));
 	}
 
@@ -561,6 +572,7 @@ public final class VillageServer {
 		}
 		VillageTerrain.tick(server, data, now);
 		BuildingServer.tick(server, data, now);
+		CraftsServer.tick(server, data, now);
 		if (now % 20 == 0) {
 			for (VillageState village : List.copyOf(data.villages())) {
 				if (!village.queue().isEmpty() && data.job(village.key()) == null && now >= RETRY_AT.getOrDefault(village.key(), 0L)) {

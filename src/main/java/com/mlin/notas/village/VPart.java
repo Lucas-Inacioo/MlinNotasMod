@@ -113,7 +113,25 @@ public enum VPart {
 	/** Muda de arvore (replantio nos arredores depois da terraplenagem). */
 	SAPLING(Flag.LATE),
 	/** Terraplenagem: tira a agua rasa (e o que for natural) para o chao ficar seco. */
-	DRAIN(Flag.EARTHWORK);
+	DRAIN(Flag.EARTHWORK),
+	// ---- Vilas 2.0 fase 6 (apendice) ----
+	/** Tina de curtir do curtume (bloco do mod: 8 espacos, cura carne podre em couro). */
+	TANNING_VAT(Flag.SOLID),
+	/** Mesa de encantamento vanilla do Encantador (a unica que abre). */
+	ENCHANTING_TABLE(Flag.SOLID),
+	/** Sino pendurado (a igreja, a prefeitura). Fica em cima de um bloco. */
+	BELL(Flag.LATE),
+	/** Alvo do campo de tiro da flecharia. */
+	TARGET(Flag.SOLID),
+	/** Terceira cor de la e tapete (azul ou amarelo, pelo estilo). */
+	WOOL_ACCENT(Flag.SOLID),
+	CARPET_ACCENT(Flag.LATE),
+	/** Pedra bruta da pedreira (em pilhas e terracos). */
+	ROUGH_STONE(Flag.SOLID),
+	/** Lapide: laje em pe de pedra com musgo. */
+	TOMBSTONE(Flag.SOLID),
+	/** Estaca do lote vazio. */
+	STAKE(Flag.SOLID);
 
 	private static final class Flag {
 		static final int NONE = 0;

@@ -95,6 +95,7 @@ public final class BuildingTypes {
 		register(type("inn").maxLevel(3).workers(1).need(VillageNeeds.Need.HOUSING, 2, 3, 4).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
 		register(type("library").maxLevel(3).workers(1).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
 		register(type(TOWN_HALL).maxLevel(5).need(VillageNeeds.Need.SAFETY, 10, 12, 15, 18, 20).need(VillageNeeds.Need.LEISURE, 5, 8, 10, 12, 15));
+		CraftsBuildings.registerTypes();
 	}
 
 	private BuildingTypes() {

@@ -35,7 +35,12 @@ public final class Buildings {
 			case LIBRARY -> library(style, random);
 			case PLAZA -> well(style, random);
 			case TOWN_HALL -> BuildingPlans.townHall(style, random, 1);
-			default -> throw new IllegalArgumentException("projeto sem planta: " + project);
+			default -> {
+				if (CraftsPlans.handles(project)) {
+					yield CraftsPlans.plan(project, style, seed, 1);
+				}
+				throw new IllegalArgumentException("projeto sem planta: " + project);
+			}
 		};
 	}
 

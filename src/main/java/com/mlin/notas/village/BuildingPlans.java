@@ -21,6 +21,9 @@ public final class BuildingPlans {
 
 	/** Planta do tipo no nivel (I = a de sempre). */
 	public static Canvas plan(VillageProject project, VillageStyle style, long seed, int level) {
+		if (CraftsPlans.handles(project)) {
+			return CraftsPlans.plan(project, style, seed, Math.max(1, level));
+		}
 		if (project == VillageProject.TOWN_HALL) {
 			return townHall(style, new Random(seed), Math.max(1, level));
 		}

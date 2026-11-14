@@ -42,6 +42,12 @@ public final class SelectiveEnchanting {
 				return InteractionResult.PASS;
 			}
 			if (player instanceof ServerPlayer serverPlayer) {
+				// so se encanta no Encantador da vila: mesa em outro lugar (inclusive as ja colocadas no mundo) nao abre nada
+				if (level instanceof net.minecraft.server.level.ServerLevel serverLevel
+						&& com.mlin.notas.village.CraftsServer.levelAt(serverLevel, hit.getBlockPos(), "enchanter") < 1) {
+					if (serverPlayer.connection != null) serverPlayer.sendOverlayMessage(Component.translatable("message.mlinnotas.enchanter.only").withStyle(net.minecraft.ChatFormatting.RED));
+					return InteractionResult.SUCCESS;
+				}
 				open(serverPlayer, ContainerLevelAccess.create(level, hit.getBlockPos()));
 			}
 			return InteractionResult.SUCCESS;

@@ -74,8 +74,8 @@ public final class VillageState {
 	private final List<Rect> lots = new ArrayList<>();
 	private long bountyDay = Long.MIN_VALUE;
 	private final List<Bounty> bounties = new ArrayList<>();
-	private final int[] bountyProgress = new int[BountyBoard.PER_DAY];
-	private final boolean[] bountyDone = new boolean[BountyBoard.PER_DAY];
+	private final int[] bountyProgress = new int[BountyBoard.MAX_PER_DAY];
+	private final boolean[] bountyDone = new boolean[BountyBoard.MAX_PER_DAY];
 	/** Plano do espaco (null = vila de antes do plano; o servidor calcula ao carregar). */
 	private VillageLayout layout;
 	/** Itens de verdade entregues em cada projeto ainda aberto (devolucao). */
@@ -480,12 +480,13 @@ public final class VillageState {
 
 	/** Troca as missoes se mudou o dia. Devolve true se trocou. */
 	public boolean refreshBounties(long day) {
-		if (day == bountyDay && bounties.size() == BountyBoard.PER_DAY) {
+		if (day == bountyDay && bounties.size() >= BountyBoard.PER_DAY) {
 			return false;
 		}
 		bountyDay = day;
 		bounties.clear();
-		bounties.addAll(BountyBoard.roll(seed, day, level));
+		// a taverna acrescenta missoes extras a partir do dia seguinte a obra
+		bounties.addAll(BountyBoard.roll(seed, day, level, CraftsRules.extraBounties(VillageBuildings.level(this, CraftsBuildings.TAVERN))));
 		java.util.Arrays.fill(bountyProgress, 0);
 		java.util.Arrays.fill(bountyDone, false);
 		return true;
@@ -584,7 +585,7 @@ public final class VillageState {
 		this.bountyDay = bountyDay;
 		this.bounties.clear();
 		this.bounties.addAll(bounties);
-		for (int i = 0; i < BountyBoard.PER_DAY; i++) {
+		for (int i = 0; i < BountyBoard.MAX_PER_DAY; i++) {
 			bountyProgress[i] = i < progress.length ? progress[i] : 0;
 			bountyDone[i] = i < done.length && done[i];
 		}
