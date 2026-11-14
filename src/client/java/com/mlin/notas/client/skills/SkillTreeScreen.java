@@ -424,6 +424,7 @@ public class SkillTreeScreen extends Screen {
 		switch (node.branch()) {
 			case MINING -> {
 				out.add(Component.translatable("skill.mlinnotas.unlock.mining", Component.translatable("skill.mlinnotas.tier." + node.tier().id())));
+				out.add(Component.translatable("skill.mlinnotas.unlock.tools", Component.translatable("skill.mlinnotas.tier." + node.tier().id())));
 				if (node.tier() == Tier.CELESTIUM) {
 					out.add(Component.translatable("skill.mlinnotas.unlock.celestium_alloy"));
 				}

@@ -340,6 +340,28 @@
           "xp": 30
         }
       ]
+    },
+    {
+      "id": "network_tablet",
+      "icon": "mlinnotas:network_tablet",
+      "x": 3,
+      "y": 5,
+      "dependencies": [
+        "storage_terminal",
+        "mining/skill_cobalt"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:network_tablet",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 120
+        }
+      ]
     }
   ]
 }

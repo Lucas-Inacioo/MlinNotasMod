@@ -224,6 +224,11 @@ public final class WailaHud {
 		if (state.getDestroySpeed(level, pos) < 0) {
 			return Row.text(font, Component.translatable("hud.mlinnotas.waila.unbreakable"), GRAY);
 		}
+		Tier toolLocked = com.mlin.notas.gating.ToolLocks.missing(minecraft.player, minecraft.player.getMainHandItem());
+		if (toolLocked != null) {
+			// ferramenta acima da Mineracao do mundo: nao quebra nada
+			return Row.text(font, Component.literal("✘ ").append(com.mlin.notas.gating.ToolLocks.message(toolLocked)), RED);
+		}
 		boolean canHarvest = !state.requiresCorrectToolForDrops() || minecraft.player.getMainHandItem().isCorrectToolForDrops(state);
 		String mark = canHarvest ? "✔ " : "✘ ";
 		int color = canHarvest ? GREEN : RED;

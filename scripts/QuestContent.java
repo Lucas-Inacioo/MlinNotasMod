@@ -241,8 +241,8 @@ class QuestContent {
 						"An axe on a log with leaves fells the whole tree (sneak to break a single block). Gather 16 logs.")
 						.dep("welcome").haveTag("minecraft:logs", 16, "minecraft:oak_log", "logs", "Tenha 16x troncos", "Have 16x logs").item("minecraft:apple", 4),
 				q("stone_tools", "minecraft:stone_pickaxe", 2, 0, "Idade da Pedra", "Stone Age",
-						"Faça uma picareta de pedra. Atenção: minérios só quebram com o nível certo de Mineração na árvore de habilidades (tecla K). Veja o capítulo Mineração.",
-						"Craft a stone pickaxe. Note: ores only break with the right Mining level in the skill tree (K key). See the Mining chapter.")
+						"Faça uma picareta de pedra. Atenção: ela só funciona depois de Mineração: Pedra na árvore de habilidades (tecla K; 32 pedregulhos minerados com a de madeira). Cada nível de Mineração libera os minérios e as ferramentas e armas do seu material. Veja o capítulo Mineração.",
+						"Craft a stone pickaxe. Note: it only works after Mining: Stone in the skill tree (K key; 32 cobblestone mined with the wooden one). Each Mining level unlocks its material's ores, tools and weapons. See the Mining chapter.")
 						.dep("wood").have("minecraft:stone_pickaxe", 1).item("minecraft:torch", 16).xp(20),
 				q("wand", "mlinnotas:wooden_wand", 3, 0, "Varinha de Construção", "Building Wand",
 						"Clique numa face com a varinha para estender a parede com blocos do seu inventário: madeira põe 9 de uma vez, e cada nível põe mais (até 1024 no celéstio).",
@@ -280,8 +280,8 @@ class QuestContent {
 
 		chapter("mining", 1, "minecraft:iron_pickaxe", "Mineração", "Mining",
 				q("skill_stone", "minecraft:stone_pickaxe", 0, 1, "Mineração: Pedra", "Mining: Stone",
-						"Abra a árvore de habilidades (K) e deposite 32 pedregulhos em Mineração: Pedra. Sem esse nível nem o carvão quebra. A árvore é do mundo: qualquer um pode depositar.",
-						"Open the skill tree (K) and deposit 32 cobblestone into Mining: Stone. Without it not even coal breaks. The tree belongs to the world: anyone can deposit.")
+						"Abra a árvore de habilidades (K) e deposite 32 pedregulhos em Mineração: Pedra. Sem esse nível nem o carvão quebra, e as ferramentas de pedra não funcionam (cada nível libera as ferramentas e armas do material; achar uma de diamante num baú não pula etapas). A árvore é do mundo: qualquer um pode depositar.",
+						"Open the skill tree (K) and deposit 32 cobblestone into Mining: Stone. Without it not even coal breaks and stone tools don't work (each level unlocks its material's tools and weapons; finding a diamond one in a chest skips nothing). The tree belongs to the world: anyone can deposit.")
 						.dep("basics/stone_tools").skill("mining", 2).item("minecraft:torch", 16).xp(30),
 				q("skill_copper", "minecraft:copper_ingot", 1, 1, "Mineração: Cobre", "Mining: Copper",
 						"Custa 24 carvões (o minério ou o carvão que cai). Libera o minério de cobre e o primeiro nível dos ramos laterais.",

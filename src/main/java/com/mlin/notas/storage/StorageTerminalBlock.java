@@ -49,8 +49,14 @@ public class StorageTerminalBlock extends Block {
 	}
 
 	public static void open(Player player, BlockPos pos, boolean crafting) {
-		TerminalMenu.Data data = new TerminalMenu.Data(pos.immutable(), crafting);
-		Component title = Component.translatable(crafting ? "block.mlinnotas.crafting_terminal" : "block.mlinnotas.storage_terminal");
+		open(player, pos, crafting, false);
+	}
+
+	/** Abre o terminal; {@code remote} = pelo Tablet de Rede (sem limite de distancia, titulo "Terminal Remoto"/"Crafting Remoto"). */
+	public static void open(Player player, BlockPos pos, boolean crafting, boolean remote) {
+		TerminalMenu.Data data = new TerminalMenu.Data(pos.immutable(), crafting, remote);
+		Component base = Component.translatable(crafting ? "block.mlinnotas.crafting_terminal" : "block.mlinnotas.storage_terminal");
+		Component title = remote ? Component.translatable(crafting ? "container.mlinnotas.remote_crafting_terminal" : "container.mlinnotas.remote_terminal") : base;
 		player.openMenu(new ExtendedMenuProvider<TerminalMenu.Data>() {
 			@Override
 			public TerminalMenu.Data getScreenOpeningData(ServerPlayer serverPlayer) {

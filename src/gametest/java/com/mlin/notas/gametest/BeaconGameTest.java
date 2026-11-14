@@ -274,7 +274,7 @@ public class BeaconGameTest {
 			for (int i = 0; i < ores; i++) {
 				helper.setBlock(i % 6, 1 + i / 6, 0, Blocks.IRON_ORE);
 			}
-			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_PICKAXE));
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_PICKAXE));
 			for (int i = 0; i < ores; i++) {
 				player.gameMode.destroyBlock(helper.absolutePos(new BlockPos(i % 6, 1 + i / 6, 0)));
 			}
