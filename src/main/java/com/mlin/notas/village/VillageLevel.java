@@ -6,19 +6,26 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Niveis da vila (logica pura). Sobe sozinho quando a prosperidade, o numero de obras prontas e as obras exigidas
- * chegam no minimo do nivel; nunca desce. Cada nivel define o teto de nivel de profissao dos aldeoes que moram na
- * vila, o desconto nas trocas, o raio onde cabem obras novas e o que o mercado da vila vende.
+ * Niveis da vila (logica pura). Sobe sozinho quando a prosperidade, os pontos de obra, as obras exigidas e a
+ * terraplenagem dos aneis do nivel chegam no minimo; nunca desce. Cada nivel define o teto de nivel de profissao dos
+ * aldeoes que moram na vila, o desconto nas trocas, o alcance da vila, quantos aneis do plano diretor ficam abertos e
+ * o que o mercado da vila vende.
+ *
+ * <p>Ids salvos pelo ordinal: niveis novos so entram no fim ({@code metropolis}, {@code crown_city}). As obras exigidas
+ * sao ids de projeto; id que ainda nao existe (prefeitura, celeiro, torre de vigia... das fases seguintes) e ignorado
+ * ate ser registrado em {@link VillageProject}. Prefeitura com nivel: {@code town_hall:2}.
  *
  * <p>Inspirado no nivel da prefeitura do MineColonies (limita o nivel das outras construcoes) e nos tamanhos
  * aldeia/vila/cidade do ChoiceTheorem's Overhauled Village.
  */
 public enum VillageLevel {
-	CAMP(0, 0, new String[] {}, 2, 0, 22, 0),
-	HAMLET(80, 3, new String[] {"plaza"}, 3, 0, 28, 0),
-	VILLAGE(250, 7, new String[] {"farm", "smithy"}, 4, 1, 34, 0),
-	TOWN(550, 12, new String[] {"wall", "market"}, 5, 2, 40, 1),
-	CAPITAL(1000, 17, new String[] {"inn", "library"}, 5, 3, 44, 1);
+	CAMP(0, 0, new String[] {}, 2, 0, 22, 0, 2),
+	HAMLET(80, 3, new String[] {"plaza"}, 3, 0, 30, 0, 3),
+	VILLAGE(250, 8, new String[] {"farm", "smithy", "town_hall:1"}, 4, 1, 38, 0, 4),
+	TOWN(600, 16, new String[] {"wall", "market", "granary"}, 5, 2, 46, 1, 5),
+	CAPITAL(1100, 26, new String[] {"inn", "library", "town_hall:2", "watchtower"}, 5, 3, 52, 1, 6),
+	METROPOLIS(1800, 38, new String[] {"barracks", "school", "post_office", "town_hall:3"}, 5, 3, 64, 2, 6),
+	CROWN_CITY(2800, 52, new String[] {"outer_wall", "museum", "beacon:2", "town_hall:4"}, 5, 4, 76, 3, 6);
 
 	/** Teto de nivel de profissao de aldeoes fora de qualquer vila fundada (jornaleiro): mestre so em vila do mod. */
 	public static final int WILD_TRADE_CAP = 3;
@@ -30,8 +37,9 @@ public enum VillageLevel {
 	private final int discount;
 	private final int radius;
 	private final int golems;
+	private final int rings;
 
-	VillageLevel(int prosperity, int projects, String[] required, int tradeCap, int discount, int radius, int golems) {
+	VillageLevel(int prosperity, int projects, String[] required, int tradeCap, int discount, int radius, int golems, int rings) {
 		this.prosperity = prosperity;
 		this.projects = projects;
 		this.required = required;
@@ -39,6 +47,7 @@ public enum VillageLevel {
 		this.discount = discount;
 		this.radius = radius;
 		this.golems = golems;
+		this.rings = rings;
 	}
 
 	public String id() {
@@ -50,16 +59,37 @@ public enum VillageLevel {
 		return prosperity;
 	}
 
-	/** Obras prontas (somando repeticoes) minimas. */
+	/** Pontos de obra da tabela (obras prontas + niveis de construcao). */
 	public int projects() {
 		return projects;
 	}
 
-	/** Obras que precisam existir (pelo menos uma vez). */
+	/**
+	 * Pontos de obra exigidos de verdade: a tabela, mas nunca mais do que as obras que existem hoje deixam fazer no
+	 * nivel anterior (assim a vila continua subindo enquanto as construcoes novas nao chegam).
+	 */
+	public int projectsNeeded() {
+		VillageLevel before = ordinal() == 0 ? this : values()[ordinal() - 1];
+		int possible = 0;
+		for (VillageProject p : VillageProject.values()) {
+			possible += p.maxBuilds(before);
+		}
+		return Math.min(projects, possible);
+	}
+
+	/** Ids exigidos como estao na tabela (inclusive os que ainda nao existem). */
+	public List<String> requiredIds() {
+		return List.of(required);
+	}
+
+	/** Obras que precisam existir (pelo menos uma vez); ids desconhecidos ficam de fora. */
 	public List<VillageProject> required() {
 		List<VillageProject> out = new ArrayList<>();
 		for (String id : required) {
-			out.add(VillageProject.byId(id));
+			VillageProject project = VillageProject.byId(id.contains(":") ? id.substring(0, id.indexOf(':')) : id);
+			if (project != null && !out.contains(project)) {
+				out.add(project);
+			}
 		}
 		return out;
 	}
@@ -74,7 +104,7 @@ public enum VillageLevel {
 		return discount;
 	}
 
-	/** Raio (blocos a partir do quadro) onde cabem obras novas. */
+	/** Alcance (blocos a partir do quadro) da vila: moradores, contorno. */
 	public int radius() {
 		return radius;
 	}
@@ -82,6 +112,11 @@ public enum VillageLevel {
 	/** Golens de guarda que chegam quando a vila alcanca este nivel. */
 	public int golems() {
 		return golems;
+	}
+
+	/** Aneis do plano diretor abertos neste nivel (1..6); cada um precisa da terraplenagem pronta para subir. */
+	public int rings() {
+		return rings;
 	}
 
 	public VillageLevel next() {
@@ -92,30 +127,59 @@ public enum VillageLevel {
 		return values()[Math.max(0, Math.min(values().length - 1, ordinal))];
 	}
 
-	/** O que falta para chegar neste nivel: {@code prosperity}, {@code projects} ou {@code project:<id>}. Vazio = pode. */
-	public List<String> missing(int prosperityNow, Map<VillageProject, Integer> built) {
+	/**
+	 * Situacao da vila para conferir o nivel: prosperidade, obras prontas, aneis com terraplenagem pronta (bit
+	 * {@code 1 << (anel - 1)}; {@code -1} = nao confere aneis, vila sem plano) e pontos extras (casas de jogador).
+	 */
+	public record Context(int prosperity, Map<VillageProject, Integer> built, int ringsDone, int extraPoints) {
+		public static Context legacy(int prosperity, Map<VillageProject, Integer> built) {
+			return new Context(prosperity, built, -1, 0);
+		}
+	}
+
+	/**
+	 * O que falta para chegar neste nivel: {@code prosperity}, {@code projects}, {@code project:<id>} ou
+	 * {@code ring:<n>} (terraplenagem). Vazio = pode.
+	 */
+	public List<String> missing(Context ctx) {
 		List<String> out = new ArrayList<>();
-		if (prosperityNow < prosperity) {
+		if (ctx.prosperity() < prosperity) {
 			out.add("prosperity");
 		}
-		int total = built.values().stream().mapToInt(Integer::intValue).sum();
-		if (total < projects) {
+		int total = ctx.built().values().stream().mapToInt(Integer::intValue).sum() + ctx.extraPoints();
+		if (total < projectsNeeded()) {
 			out.add("projects");
 		}
 		for (VillageProject project : required()) {
-			if (built.getOrDefault(project, 0) < 1) {
+			if (ctx.built().getOrDefault(project, 0) < 1) {
 				out.add("project:" + project.id());
+			}
+		}
+		if (ctx.ringsDone() >= 0) {
+			for (int ring = 1; ring <= rings; ring++) {
+				if ((ctx.ringsDone() & (1 << (ring - 1))) == 0) {
+					out.add("ring:" + ring);
+				}
 			}
 		}
 		return out;
 	}
 
-	/** Maior nivel que a vila alcanca com esses numeros, sem descer de {@code current}. */
-	public static VillageLevel reached(VillageLevel current, int prosperityNow, Map<VillageProject, Integer> built) {
+	/** Como {@link #missing(Context)} sem conferir aneis (vila sem plano diretor). */
+	public List<String> missing(int prosperityNow, Map<VillageProject, Integer> built) {
+		return missing(Context.legacy(prosperityNow, built));
+	}
+
+	/** Maior nivel que a vila alcanca, sem descer de {@code current}. */
+	public static VillageLevel reached(VillageLevel current, Context ctx) {
 		VillageLevel level = current;
-		while (level.next() != null && level.next().missing(prosperityNow, built).isEmpty()) {
+		while (level.next() != null && level.next().missing(ctx).isEmpty()) {
 			level = level.next();
 		}
 		return level;
+	}
+
+	public static VillageLevel reached(VillageLevel current, int prosperityNow, Map<VillageProject, Integer> built) {
+		return reached(current, Context.legacy(prosperityNow, built));
 	}
 }

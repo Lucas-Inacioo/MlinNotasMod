@@ -25,6 +25,10 @@ class VillagePlannerTest {
 		final IntBinaryOperator height;
 		final Set<Long> blocked = new HashSet<>();
 		final Set<Long> built = new HashSet<>();
+		/** Agua em cima do fundo (coluna -> blocos de agua). */
+		final Map<Long, Integer> water = new HashMap<>();
+		/** Chao mexido (terraplenagem aplicada): coluna -> topo novo. */
+		final Map<Long, Integer> moved = new HashMap<>();
 
 		FakeTerrain(IntBinaryOperator height) {
 			this.height = height;
@@ -36,12 +40,30 @@ class VillagePlannerTest {
 
 		@Override
 		public int ground(int x, int z) {
-			return height.applyAsInt(x, z);
+			Integer m = moved.get(col(x, z));
+			return m != null ? m : height.applyAsInt(x, z) + water.getOrDefault(col(x, z), 0);
+		}
+
+		@Override
+		public int water(int x, int z) {
+			return moved.containsKey(col(x, z)) ? 0 : water.getOrDefault(col(x, z), 0);
 		}
 
 		@Override
 		public boolean free(int x, int z) {
-			return !blocked.contains(col(x, z)) && !built.contains(col(x, z)) && !(x == 0 && z == 0);
+			return !blocked.contains(col(x, z)) && !built.contains(col(x, z)) && !(x == 0 && z == 0) && water(x, z) == 0;
+		}
+
+		/** Aplica a terraplenagem pronta de todo o plano diretor (chao na altura planejada). */
+		void prepare(MasterPlan plan, int ring) {
+			for (long c : plan.columns(ring)) {
+				int x = VillageLayout.colX(c);
+				int z = VillageLayout.colZ(c);
+				if (!blocked.contains(col(x, z)) || plan.ground(x, z)) {
+					moved.put(col(x, z), plan.plannedHeight(x, z));
+				}
+			}
+			plan.setRingPrepared(ring);
 		}
 
 		void apply(List<Placement> placements) {
@@ -246,8 +268,20 @@ class VillagePlannerTest {
 		return v;
 	}
 
+	/** Plano diretor da vila com a terraplenagem dos aneis abertos ja feita no terreno falso. */
+	static void prepareAll(VillageState v, FakeTerrain terrain) {
+		VillageLayout layout = VillagePlanner.layout(v, terrain);
+		for (int ring = 1; ring <= v.level().rings(); ring++) {
+			if (!layout.master().ringPrepared(ring)) {
+				terrain.prepare(layout.master(), ring);
+				v.ring(ring).setState(RingWork.State.DONE);
+			}
+		}
+	}
+
 	/** Planeja e "constroi" no terreno falso, guardando o lote. */
 	private static VillagePlanner.Planned build(VillageProject project, VillageState v, FakeTerrain terrain, Voxels voxels, long seed) {
+		prepareAll(v, terrain);
 		VillagePlanner.Planned planned = VillagePlanner.plan(project, v, terrain, seed);
 		if (planned != null) {
 			if (planned.lot() != null) {
@@ -323,7 +357,7 @@ class VillagePlannerTest {
 				VillageState.Rect r = lots.get(i);
 				assertFalse(r.contains(0, 0), "lote em cima do quadro");
 				for (int[] c : new int[][] {{r.x0(), r.z0()}, {r.x1(), r.z0()}, {r.x0(), r.z1()}, {r.x1(), r.z1()}}) {
-					assertTrue(c[0] * c[0] + c[1] * c[1] <= VillageLevel.CAPITAL.radius() * VillageLevel.CAPITAL.radius());
+					assertTrue(Math.abs(c[0]) <= StreetPlanner.OUTER && Math.abs(c[1]) <= StreetPlanner.OUTER, "lote fora do plano");
 				}
 			}
 			// cada morador nasce num lugar alcancavel a pe a partir da porta
@@ -366,9 +400,18 @@ class VillagePlannerTest {
 	void neverTouchesPlayerColumns() {
 		FakeTerrain terrain = new FakeTerrain((x, z) -> 64);
 		Random random = new Random(3);
-		// "construcoes de jogador" espalhadas
-		for (int i = 0; i < 400; i++) {
-			terrain.blocked.add(FakeTerrain.col(random.nextInt(100) - 50, random.nextInt(100) - 50));
+		// "construcoes de jogador": casinhas espalhadas (6x6) e algumas tochas soltas
+		for (int i = 0; i < 10; i++) {
+			int hx = random.nextInt(110) - 55;
+			int hz = random.nextInt(110) - 55;
+			for (int x = hx; x < hx + 6; x++) {
+				for (int z = hz; z < hz + 6; z++) {
+					terrain.blocked.add(FakeTerrain.col(x, z));
+				}
+			}
+		}
+		for (int i = 0; i < 20; i++) {
+			terrain.blocked.add(FakeTerrain.col(random.nextInt(140) - 70, random.nextInt(140) - 70));
 		}
 		Set<Long> blocked = Set.copyOf(terrain.blocked);
 		Voxels voxels = new Voxels(terrain);
@@ -406,7 +449,7 @@ class VillagePlannerTest {
 					max = Math.max(max, terrain.ground(x, z));
 				}
 			}
-			assertTrue(max - min <= VillageLayout.MAX_SPREAD, "desnivel " + (max - min));
+			assertEquals(0, max - min, "lote fora do plato: desnivel " + (max - min));
 		}
 		assertEquals(List.of(), voxels.floating());
 	}
@@ -433,7 +476,7 @@ class VillagePlannerTest {
 			for (int z = -60; z <= 60; z++) {
 				if (VillagePlanner.wallCell(x, z)) {
 					cells++;
-					assertTrue(x * x + z * z > VillageLevel.CAPITAL.radius() * VillageLevel.CAPITAL.radius());
+					assertTrue(x * x + z * z > VillageLevel.TOWN.radius() * VillageLevel.TOWN.radius());
 					// anel ligado: cada celula tem pelo menos 2 vizinhas do anel (8 direcoes)
 					int n = 0;
 					for (int dx = -1; dx <= 1; dx++) {

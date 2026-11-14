@@ -59,7 +59,7 @@ public final class VillagePlanner {
 			default -> {
 				VillageLayout layout = layout(state, terrain);
 				VillageLayout.Lot lot = layout.buildable(project.id(), terrain);
-				if (lot == null) {
+				if (lot == null && layout.master() == null) {
 					// nenhum lote reservado serve agora (jogador construiu em cima, etc.): reserva outro
 					VillageLayout.Lot extra = layout.addLot(project.id(), state.style(), state.seed(), terrain, random);
 					lot = extra == null ? null : layout.buildable(project.id(), terrain);
@@ -73,6 +73,9 @@ public final class VillagePlanner {
 	public static VillageLayout layout(VillageState state, Terrain terrain) {
 		if (state.layout() == null) {
 			state.setLayout(VillageLayout.create(state, terrain));
+		} else if (state.layout().master() == null) {
+			// plano de antes do plano diretor: passa para o plano diretor (obras prontas ficam onde estao)
+			state.layout().migrate(state, terrain);
 		} else if (state.layout().radius() < state.level().radius()) {
 			// nivel mudou sem passar pelo crescimento (comando, teste): o plano acompanha
 			state.layout().extend(state, terrain, state.level());
@@ -100,6 +103,27 @@ public final class VillagePlanner {
 			int z = VillageLayout.colZ(key);
 			return insideAny(others, x, z) || x * x + z * z <= PLAZA_RADIUS * PLAZA_RADIUS;
 		};
+		MasterPlan master = layout.master();
+		MasterPlan.Parcel parcel = master == null ? null : master.parcel(lot.parcel());
+		if (parcel != null) {
+			// plano diretor: o quarteirao ja esta aplainado; so o acerto fino (ate 1 bloco) dentro do lote, sem rampa fora
+			int target = master.block(parcel.block()).target();
+			TerrainPrep.Result prep = TerrainPrep.prepare(rect, List.of(), terrain, locked, target, 0);
+			Lot placed = new Lot(lot.x(), lot.z(), lot.w(), lot.d(), lot.rot(), target);
+			List<Placement> out = new ArrayList<>(prep.placements());
+			out.addAll(place(canvas, placed));
+			// quintal da frente ate a rua: caminho na altura do plato
+			for (int[] c : lot.access()) {
+				if (master.ground(c[0], c[1]) || rect.contains(c[0], c[1]) || !terrain.free(c[0], c[1])) {
+					continue;
+				}
+				out.add(new Placement(c[0], target, c[1], VPart.PATH, null, false));
+				out.add(new Placement(c[0], target + 1, c[1], VPart.AIR, null, false));
+				out.add(new Placement(c[0], target + 2, c[1], VPart.AIR, null, false));
+			}
+			return new Planned(project, placed, sort(dedupe(out)), worldPoints(placed, canvas, canvas.spawns()), worldPoints(placed, canvas,
+					canvas.golems()), lot.id());
+		}
 		TerrainPrep.Result prep = TerrainPrep.prepare(rect, lot.access(), terrain, locked);
 		Lot placed = new Lot(lot.x(), lot.z(), lot.w(), lot.d(), lot.rot(), prep.target());
 		List<Placement> out = new ArrayList<>(prep.placements());
@@ -413,7 +437,8 @@ public final class VillagePlanner {
 			rects.add(lot.rect());
 		}
 		for (VillageLayout.Lamp lamp : layout.lamps()) {
-			if (!lamp.built() && lampPost(out, terrain, rects, lamp.x(), lamp.z())) {
+			MasterPlan.Block block = layout.master() == null ? null : layout.master().blockAt(lamp.x(), lamp.z());
+			if (!lamp.built() && (layout.master() == null || (block != null && block.prepared())) && lampPost(out, terrain, rects, lamp.x(), lamp.z())) {
 				lamp.setBuilt(true);
 			}
 		}
@@ -479,7 +504,7 @@ public final class VillagePlanner {
 		}
 		List<int[]> golems = new ArrayList<>();
 		for (Facing side : Facing.values()) {
-			gate(out, terrain, side, golems);
+			gate(out, terrain, side, golems, state.layout() == null || state.layout().master() == null);
 		}
 		return new Planned(VillageProject.WALL, null, sort(dedupe(out)), List.of(), golems.subList(0, Math.min(1, golems.size())));
 	}
@@ -524,7 +549,7 @@ public final class VillagePlanner {
 	}
 
 	/** Portao em arco no meio do lado {@code side}, com pilares, lanterna pendurada e rua ate a praca. */
-	private static void gate(List<Placement> out, Terrain terrain, Facing side, List<int[]> golems) {
+	private static void gate(List<Placement> out, Terrain terrain, Facing side, List<int[]> golems, boolean road) {
 		int h = WALL_HALF;
 		int base = Integer.MIN_VALUE;
 		for (int t = -2; t <= 2; t++) {
@@ -578,7 +603,10 @@ public final class VillagePlanner {
 		// rua do portao ate a praca
 		int gx = side.dx * (h - 2);
 		int gz = side.dz * (h - 2);
-		out.addAll(path(gx, gz, terrain, List.of()));
+		if (road) {
+			// plano antigo: rua de terra do portao ate a praca (no plano diretor a avenida ja esta la)
+			out.addAll(path(gx, gz, terrain, List.of()));
+		}
 		golems.add(new int[] {gx, terrain.ground(gx, gz) + 1, gz});
 	}
 

@@ -45,7 +45,7 @@ class VillageLayoutTest {
 				assertFalse(a.overlaps(lots.get(j).rect(), VillageLayout.LOT_GAP - 1), "lotes " + i + " e " + j + " encostam");
 			}
 			for (int[] c : new int[][] {{a.x0(), a.z0()}, {a.x1(), a.z0()}, {a.x0(), a.z1()}, {a.x1(), a.z1()}}) {
-				assertTrue(c[0] * c[0] + c[1] * c[1] <= radius * radius, "lote fora do raio");
+				assertTrue(Math.abs(c[0]) <= StreetPlanner.OUTER && Math.abs(c[1]) <= StreetPlanner.OUTER, "lote fora do plano");
 			}
 			for (int x = a.x0() - 1; x <= a.x1() + 1; x++) {
 				for (int z = a.z0() - 1; z <= a.z1() + 1; z++) {
@@ -136,6 +136,7 @@ class VillageLayoutTest {
 	void lampUpgradeOnlyAddsPostsAtNewSpots() {
 		VillagePlannerTest.FakeTerrain terrain = new VillagePlannerTest.FakeTerrain((x, z) -> 64);
 		VillageState v = village(VillageLevel.CAMP);
+		VillagePlannerTest.prepareAll(v, terrain);
 		VillagePlanner.Planned first = VillagePlanner.plan(VillageProject.LAMPS, v, terrain, 1);
 		assertNotNull(first);
 		Set<Long> posts = new java.util.HashSet<>();
@@ -148,6 +149,7 @@ class VillageLayoutTest {
 		assertNull(VillagePlanner.plan(VillageProject.LAMPS, v, terrain, 2), "sem rua nova nao ha poste novo");
 		v.setLevel(VillageLevel.VILLAGE);
 		v.layout().extend(v, terrain, VillageLevel.VILLAGE);
+		VillagePlannerTest.prepareAll(v, terrain);
 		VillagePlanner.Planned second = VillagePlanner.plan(VillageProject.LAMPS, v, terrain, 3);
 		assertNotNull(second, "o nivel novo traz lugares de poste novos");
 		for (Placement p : second.placements()) {
@@ -187,6 +189,7 @@ class VillageLayoutTest {
 			VillageState v = village(VillageLevel.TOWN);
 			for (VillageProject project : List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.HOUSE, VillageProject.SMITHY,
 					VillageProject.MARKET)) {
+				VillagePlannerTest.prepareAll(v, terrain);
 				VillagePlanner.Planned planned = VillagePlanner.plan(project, v, terrain, 5);
 				if (planned == null) {
 					continue;

@@ -9,33 +9,33 @@ import java.util.List;
  */
 public enum VillageProject {
 	/** Praca calcada em volta do quadro, com poco, bancos, canteiros e postes. */
-	PLAZA("plaza", "minecraft:cobblestone", 0, 40, new int[] {1, 1, 1, 1, 1}, 0, 0,
+	PLAZA("plaza", "minecraft:cobblestone", 0, 40, new int[] {1, 1, 1, 1, 1, 1, 1}, 0, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:logs", 8), VillageCost.of("minecraft:water_bucket", 1))),
 	/** Casa nova com cama: chega um aldeao. */
-	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 4, 6, 8, 10}, 1, 0,
+	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 4, 6, 8, 10, 12, 14}, 1, 0,
 			List.of(VillageCost.of("#minecraft:planks", 64), VillageCost.of("#minecraft:logs", 12), VillageCost.of("#mlinnotas:village/glass", 6),
 					VillageCost.of("#minecraft:beds", 1))),
 	/** Plantacao irrigada com composteira: chega um fazendeiro. */
-	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 3, 4, 4}, 1, 0,
+	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 3, 4, 4, 5, 6}, 1, 0,
 			List.of(VillageCost.of("#mlinnotas:village/food", 32), VillageCost.of("#mlinnotas:village/seeds", 16))),
 	/** Postes com lanterna nos caminhos e na praca. */
-	LAMPS("lamps", "minecraft:lantern", 0, 20, new int[] {1, 1, 2, 2, 3}, 0, 0,
+	LAMPS("lamps", "minecraft:lantern", 0, 20, new int[] {1, 1, 2, 2, 3, 3, 4}, 0, 0,
 			List.of(VillageCost.of("minecraft:torch", 24), VillageCost.of("#minecraft:wooden_fences", 12))),
 	/** Forja com bigorna, alto-forno e mesa de ferraria: chega um ferreiro e um golem de ferro. */
-	SMITHY("smithy", "minecraft:anvil", 1, 60, new int[] {0, 1, 1, 1, 1}, 1, 1,
+	SMITHY("smithy", "minecraft:anvil", 1, 60, new int[] {0, 1, 1, 1, 1, 1, 1}, 1, 1,
 			List.of(VillageCost.of("minecraft:iron_ingot", 24), VillageCost.of("#mlinnotas:village/stone", 48), VillageCost.of("#minecraft:coals", 8))),
 	/** Mercado com barracas: chegam dois comerciantes (pedreiro, pastor...). */
-	MARKET("market", "minecraft:emerald", 1, 50, new int[] {0, 1, 1, 1, 1}, 2, 0,
+	MARKET("market", "minecraft:emerald", 1, 50, new int[] {0, 1, 1, 1, 1, 1, 1}, 2, 0,
 			List.of(VillageCost.of("minecraft:emerald", 16), VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:wool", 12))),
 	/** Muralha octogonal com torres e quatro portoes. */
-	WALL("wall", "minecraft:stone_bricks", 1, 100, new int[] {0, 1, 1, 1, 1}, 0, 1,
+	WALL("wall", "minecraft:stone_bricks", 1, 100, new int[] {0, 1, 1, 1, 1, 1, 1}, 0, 1,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 384), VillageCost.of("#minecraft:logs", 32))),
 	/** Estalagem de dois andares com quartos: chegam dois aldeoes. */
-	INN("inn", "minecraft:red_bed", 2, 70, new int[] {0, 0, 1, 1, 1}, 2, 0,
+	INN("inn", "minecraft:red_bed", 2, 70, new int[] {0, 0, 1, 1, 1, 1, 1}, 2, 0,
 			List.of(VillageCost.of("#minecraft:wool", 24), VillageCost.of("#minecraft:beds", 3), VillageCost.of("#minecraft:planks", 64),
 					VillageCost.of("#minecraft:logs", 16))),
 	/** Biblioteca com estantes e atris: chega um bibliotecario. */
-	LIBRARY("library", "minecraft:bookshelf", 2, 70, new int[] {0, 0, 1, 1, 1}, 1, 0,
+	LIBRARY("library", "minecraft:bookshelf", 2, 70, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
 			List.of(VillageCost.of("minecraft:book", 24), VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:logs", 8),
 					VillageCost.of("#mlinnotas:village/glass", 6)));
 
@@ -78,7 +78,7 @@ public enum VillageProject {
 
 	/** Quantas vezes pode estar pronto com a vila no nivel {@code level}. */
 	public int maxBuilds(VillageLevel level) {
-		return maxByLevel[level.ordinal()];
+		return maxByLevel[Math.min(level.ordinal(), maxByLevel.length - 1)];
 	}
 
 	public int villagers() {

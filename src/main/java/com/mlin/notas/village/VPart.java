@@ -109,7 +109,11 @@ public enum VPart {
 	/** Terraplenagem: pedra natural no fundo do aterro. */
 	ROCK(Flag.SOLID | Flag.EARTHWORK),
 	/** Terraplenagem: muro de arrimo na borda de aterro alto. */
-	RETAIN(Flag.SOLID | Flag.EARTHWORK);
+	RETAIN(Flag.SOLID | Flag.EARTHWORK),
+	/** Muda de arvore (replantio nos arredores depois da terraplenagem). */
+	SAPLING(Flag.LATE),
+	/** Terraplenagem: tira a agua rasa (e o que for natural) para o chao ficar seco. */
+	DRAIN(Flag.EARTHWORK);
 
 	private static final class Flag {
 		static final int NONE = 0;

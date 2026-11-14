@@ -27,6 +27,15 @@ import java.util.stream.LongStream;
 public class VillageData extends SavedData {
 	private static final Codec<Map<String, Integer>> INT_MAP = Codec.unboundedMap(Codec.STRING, Codec.INT);
 
+	/** Lista de inteiros opcional (vazia se faltar); cada leitura ganha um fluxo novo (o padrao compartilhado so serve uma vez). */
+	private static com.mojang.serialization.MapCodec<IntStream> ints(String name) {
+		return Codec.INT_STREAM.optionalFieldOf(name).xmap(o -> o.orElseGet(IntStream::empty), Optional::of);
+	}
+
+	private static com.mojang.serialization.MapCodec<LongStream> longs(String name) {
+		return Codec.LONG_STREAM.optionalFieldOf(name).xmap(o -> o.orElseGet(LongStream::empty), Optional::of);
+	}
+
 	public static final Codec<Bounty> BOUNTY_CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.STRING.fieldOf("kind").forGetter(b -> b.kind().id()),
 			Codec.STRING.fieldOf("target").forGetter(Bounty::target),
@@ -85,10 +94,73 @@ public class VillageData extends SavedData {
 			Codec.BOOL.optionalFieldOf("built", false).forGetter(VillageLayout.Lot::built),
 			Codec.BOOL.optionalFieldOf("legacy", false).forGetter(VillageLayout.Lot::legacy),
 			Codec.BOOL.optionalFieldOf("preferred", false).forGetter(VillageLayout.Lot::preferred),
-			Codec.INT_STREAM.optionalFieldOf("access", IntStream.empty()).forGetter(l -> l.access().stream().flatMapToInt(IntStream::of)),
-			INT_MAP.optionalFieldOf("paid", Map.of()).forGetter(VillageLayout.Lot::paid)
-	).apply(i, (id, kind, x, z, rot, cw, cd, door, seed, built, legacy, preferred, access, paid) ->
-			VillageLayout.restoreLot(id, kind, x, z, rot, cw, cd, door, seed, built, legacy, preferred, pairs(access.toArray()), paid)));
+			ints("access").forGetter(l -> l.access().stream().flatMapToInt(IntStream::of)),
+			INT_MAP.optionalFieldOf("paid", Map.of()).forGetter(VillageLayout.Lot::paid),
+			Codec.INT.optionalFieldOf("parcel", -1).forGetter(VillageLayout.Lot::parcel)
+	).apply(i, (id, kind, x, z, rot, cw, cd, door, seed, built, legacy, preferred, access, paid, parcel) ->
+			VillageLayout.restoreLot(id, kind, x, z, rot, cw, cd, door, seed, built, legacy, preferred, pairs(access.toArray()), paid, parcel)));
+
+	/**
+	 * Plano diretor: grade (pares valor/repeticoes), anel de cada celula, altura das ruas, quarteiroes (id, anel, alvo,
+	 * celulas, cx, cz, pronto), lotes (id, quarteirao, x0, z0, x1, z1, frente, tamanho, zona, jogador) e recortes.
+	 */
+	public static final Codec<MasterPlan> MASTER_CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.INT.optionalFieldOf("version", MasterPlan.VERSION).forGetter(m -> MasterPlan.VERSION),
+			Codec.LONG.optionalFieldOf("seed", 0L).forGetter(MasterPlan::seed),
+			Codec.INT.fieldOf("extent").forGetter(MasterPlan::extent),
+			Codec.INT.fieldOf("plaza_y").forGetter(MasterPlan::plazaY),
+			Codec.INT_STREAM.fieldOf("grid").forGetter(m -> IntStream.of(m.gridRle())),
+			Codec.INT_STREAM.fieldOf("rings").forGetter(m -> IntStream.of(m.ringRle())),
+			ints("heights").forGetter(m -> IntStream.of(m.streetHeights())),
+			ints("blocks").forGetter(m -> m.blocks().stream().flatMapToInt(b -> IntStream.of(b.id(),
+					b.ring(), b.target(), b.cells(), b.cx(), b.cz(), b.prepared() ? 1 : 0))),
+			ints("parcels").forGetter(m -> m.parcels().stream().flatMapToInt(p -> IntStream.of(p.id(),
+					p.block(), p.rect().x0(), p.rect().z0(), p.rect().x1(), p.rect().z1(), p.front().ordinal(), p.size().ordinal(), p.zone().ordinal(),
+					p.player() ? 1 : 0))),
+			ints("player_areas").forGetter(m -> rects(m.playerAreas())),
+			ints("fixed_areas").forGetter(m -> rects(m.fixedAreas()))
+	).apply(i, (version, seed, extent, plazaY, grid, ring, heights, blocks, parcels, player, fixed) -> {
+		int[] b = blocks.toArray();
+		List<MasterPlan.Block> blockList = new ArrayList<>();
+		for (int k = 0; k + 6 < b.length; k += 7) {
+			blockList.add(new MasterPlan.Block(b[k], b[k + 1], b[k + 2], b[k + 3], b[k + 4], b[k + 5], b[k + 6] != 0));
+		}
+		int[] p = parcels.toArray();
+		List<MasterPlan.Parcel> parcelList = new ArrayList<>();
+		for (int k = 0; k + 9 < p.length; k += 10) {
+			parcelList.add(new MasterPlan.Parcel(p[k], p[k + 1], new VillageState.Rect(p[k + 2], p[k + 3], p[k + 4], p[k + 5]),
+					Facing.values()[Math.floorMod(p[k + 6], 4)], SizeClass.byOrdinal(p[k + 7]), Zone.byOrdinal(p[k + 8]), p[k + 9] != 0));
+		}
+		return MasterPlan.restore(seed, extent, plazaY, grid.toArray(), ring.toArray(), heights.toArray(), blockList, parcelList,
+				rects(player.toArray()), rects(fixed.toArray()));
+	}));
+
+	private static final Codec<RingWork> RING_CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.INT.fieldOf("ring").forGetter(RingWork::ring),
+			Codec.INT.optionalFieldOf("state", 0).forGetter(w -> w.state().ordinal()),
+			Codec.INT.optionalFieldOf("emeralds", 0).forGetter(RingWork::emeralds),
+			Codec.INT.optionalFieldOf("fill", 0).forGetter(RingWork::fill),
+			Codec.INT.optionalFieldOf("dep_emeralds", 0).forGetter(RingWork::depositedEmeralds),
+			Codec.INT.optionalFieldOf("dep_fill", 0).forGetter(RingWork::depositedFill),
+			Codec.INT.optionalFieldOf("columns", 0).forGetter(RingWork::columns),
+			Codec.INT.optionalFieldOf("ready", 0).forGetter(RingWork::ready),
+			Codec.INT.optionalFieldOf("cut", 0).forGetter(RingWork::cut),
+			Codec.INT.optionalFieldOf("filled", 0).forGetter(RingWork::filled),
+			INT_MAP.optionalFieldOf("paid", Map.of()).forGetter(RingWork::paid)
+	).apply(i, (ring, state, emeralds, fill, depE, depF, columns, ready, cut, filled, paid) -> {
+		RingWork w = new RingWork(ring);
+		w.restore(RingWork.State.byOrdinal(state), emeralds, fill, depE, depF, columns, ready, cut, filled, paid);
+		return w;
+	}));
+
+	private record TerrainPart(List<RingWork> rings, int stockpile, int playerHouses) {
+	}
+
+	private static final Codec<TerrainPart> TERRAIN_CODEC = RecordCodecBuilder.create(i -> i.group(
+			RING_CODEC.listOf().optionalFieldOf("rings", List.of()).forGetter(TerrainPart::rings),
+			Codec.INT.optionalFieldOf("stockpile", 0).forGetter(TerrainPart::stockpile),
+			Codec.INT.optionalFieldOf("player_houses", 0).forGetter(TerrainPart::playerHouses)
+	).apply(i, TerrainPart::new));
 
 	private static List<int[]> pairs(int[] flat) {
 		List<int[]> out = new ArrayList<>();
@@ -115,11 +187,12 @@ public class VillageData extends SavedData {
 			Codec.INT.optionalFieldOf("radius", 0).forGetter(VillageLayout::radius),
 			Codec.INT.optionalFieldOf("next_id", 0).forGetter(VillageLayout::nextId),
 			LOT_CODEC.listOf().optionalFieldOf("lots", List.of()).forGetter(VillageLayout::lots),
-			Codec.LONG_STREAM.optionalFieldOf("roads", LongStream.empty()).forGetter(l -> l.roads().stream().mapToLong(Long::longValue)),
-			Codec.INT_STREAM.optionalFieldOf("lamps", IntStream.empty()).forGetter(l -> l.lamps().stream()
+			longs("roads").forGetter(l -> l.roads().stream().mapToLong(Long::longValue)),
+			ints("lamps").forGetter(l -> l.lamps().stream()
 					.flatMapToInt(m -> IntStream.of(m.x(), m.z(), m.built() ? 1 : 0))),
-			Codec.INT_STREAM.optionalFieldOf("protect", IntStream.empty()).forGetter(l -> rects(l.protectedAreas()))
-	).apply(i, (radius, nextId, lots, roads, lamps, protect) -> {
+			ints("protect").forGetter(l -> rects(l.protectedAreas())),
+			MASTER_CODEC.optionalFieldOf("master").forGetter(l -> Optional.ofNullable(l.master()))
+	).apply(i, (radius, nextId, lots, roads, lamps, protect, master) -> {
 		VillageLayout layout = new VillageLayout();
 		int[] flat = lamps.toArray();
 		List<VillageLayout.Lamp> lampList = new ArrayList<>();
@@ -127,6 +200,7 @@ public class VillageData extends SavedData {
 			lampList.add(new VillageLayout.Lamp(flat[k], flat[k + 1], flat[k + 2] != 0));
 		}
 		layout.restore(radius, nextId, lots, roads.boxed().toList(), lampList, rects(protect.toArray()));
+		layout.setMaster(master.orElse(null));
 		return layout;
 	}));
 
@@ -134,8 +208,14 @@ public class VillageData extends SavedData {
 	public static final Codec<VillageState> VILLAGE_CODEC = RecordCodecBuilder.create(i -> i.group(
 			CORE_CODEC.fieldOf("core").forGetter(VillageData::core),
 			PROGRESS_CODEC.fieldOf("progress").forGetter(VillageData::progress),
-			LAYOUT_CODEC.optionalFieldOf("layout").forGetter(v -> Optional.ofNullable(v.layout()))
-	).apply(i, VillageData::fromParts));
+			LAYOUT_CODEC.optionalFieldOf("layout").forGetter(v -> Optional.ofNullable(v.layout())),
+			TERRAIN_CODEC.optionalFieldOf("terrain").forGetter(v -> v.ringWorks().isEmpty() && v.stockpile() == 0 && v.playerHouses() == 0
+					? Optional.empty() : Optional.of(new TerrainPart(v.ringWorks(), v.stockpile(), v.playerHouses())))
+	).apply(i, (core, progress, layout, terrain) -> {
+		VillageState v = fromParts(core, progress, layout);
+		terrain.ifPresent(t -> v.restoreTerrain(t.rings(), t.stockpile(), t.playerHouses()));
+		return v;
+	}));
 
 	/** Blocos que uma obra pronta colocou (demolir tira so os que ainda estao la). */
 	public static final class BuildRecord {
@@ -191,6 +271,32 @@ public class VillageData extends SavedData {
 		private final List<Long> recordPositions = new ArrayList<>();
 		private final List<Integer> recordBlocks = new ArrayList<>();
 		private final List<String> recordPalette = new ArrayList<>();
+		/** Coluna (x, z empacotados) onde a obra parou porque o plato foi mexido; {@link Long#MIN_VALUE} = andando. */
+		public long pausedAt = Long.MIN_VALUE;
+		/** Colunas do lote ja conferidas nesta execucao (nao salvo; as com bloco registrado contam como conferidas). */
+		private final java.util.Set<Long> verified = new java.util.HashSet<>();
+
+		public boolean paused() {
+			return pausedAt != Long.MIN_VALUE;
+		}
+
+
+		public boolean isVerified(long col) {
+			return verified.contains(col);
+		}
+
+		public void markVerified(long col) {
+			verified.add(col);
+		}
+
+		/** Colunas (x, z absolutos empacotados como col) com bloco registrado: ja comecadas antes de reiniciar. */
+		public java.util.Set<Long> recordedColumns() {
+			java.util.Set<Long> out = new java.util.HashSet<>();
+			for (long pos : recordPositions) {
+				out.add(VillageLayout.col(net.minecraft.core.BlockPos.getX(pos), net.minecraft.core.BlockPos.getZ(pos)));
+			}
+			return out;
+		}
 
 		public Job(String village, VillageProject project, long[] positions, int[] parts, int[] spawns, int[] golems, int index) {
 			this(village, project, positions, parts, spawns, golems, index, -1, 0);
@@ -272,17 +378,19 @@ public class VillageData extends SavedData {
 			Codec.STRING.fieldOf("project").forGetter(j -> j.project.id()),
 			Codec.LONG_STREAM.fieldOf("positions").forGetter(j -> LongStream.of(j.positions)),
 			Codec.INT_STREAM.fieldOf("parts").forGetter(j -> IntStream.of(j.parts)),
-			Codec.INT_STREAM.optionalFieldOf("spawns", IntStream.empty()).forGetter(j -> IntStream.of(j.spawns)),
-			Codec.INT_STREAM.optionalFieldOf("golems", IntStream.empty()).forGetter(j -> IntStream.of(j.golems)),
+			ints("spawns").forGetter(j -> IntStream.of(j.spawns)),
+			ints("golems").forGetter(j -> IntStream.of(j.golems)),
 			Codec.INT.fieldOf("index").forGetter(j -> j.index),
 			Codec.INT.optionalFieldOf("lot", -1).forGetter(j -> j.lot),
 			Codec.INT.optionalFieldOf("ground", 0).forGetter(j -> j.ground),
-			Codec.LONG_STREAM.optionalFieldOf("rec_positions", LongStream.empty()).forGetter(j -> j.recordPositions.stream().mapToLong(Long::longValue)),
-			Codec.INT_STREAM.optionalFieldOf("rec_blocks", IntStream.empty()).forGetter(j -> j.recordBlocks.stream().mapToInt(Integer::intValue)),
-			Codec.STRING.listOf().optionalFieldOf("rec_palette", List.of()).forGetter(j -> j.recordPalette)
-	).apply(i, (village, project, positions, parts, spawns, golems, index, lot, ground, recPos, recBlocks, recPalette) -> {
+			longs("rec_positions").forGetter(j -> j.recordPositions.stream().mapToLong(Long::longValue)),
+			ints("rec_blocks").forGetter(j -> j.recordBlocks.stream().mapToInt(Integer::intValue)),
+			Codec.STRING.listOf().optionalFieldOf("rec_palette", List.of()).forGetter(j -> j.recordPalette),
+			Codec.LONG.optionalFieldOf("paused_at", Long.MIN_VALUE).forGetter(j -> j.pausedAt)
+	).apply(i, (village, project, positions, parts, spawns, golems, index, lot, ground, recPos, recBlocks, recPalette, paused) -> {
 		Job job = new Job(village, VillageProject.byId(project), positions.toArray(), parts.toArray(), spawns.toArray(), golems.toArray(), index, lot,
 				ground);
+		job.pausedAt = paused;
 		long[] rp = recPos.toArray();
 		int[] rb = recBlocks.toArray();
 		job.recordPalette.addAll(recPalette);
@@ -293,16 +401,64 @@ public class VillageData extends SavedData {
 		return job;
 	}));
 
+	/**
+	 * Terraplenagem de um anel em andamento: a vila, o anel e a proxima coluna (a lista de colunas sai do plano diretor,
+	 * sempre na mesma ordem; cada coluna e lida do mundo na hora). Colunas acabadas: estacas nos cantos dos lotes.
+	 */
+	public static final class TerrainJob {
+		public final String village;
+		public final int ring;
+		public int index;
+
+		public TerrainJob(String village, int ring, int index) {
+			this.village = village;
+			this.ring = ring;
+			this.index = index;
+		}
+	}
+
+	private static final Codec<TerrainJob> TERRAIN_JOB_CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.STRING.fieldOf("village").forGetter(j -> j.village),
+			Codec.INT.fieldOf("ring").forGetter(j -> j.ring),
+			Codec.INT.optionalFieldOf("index", 0).forGetter(j -> j.index)
+	).apply(i, TerrainJob::new));
+
+	private final Map<String, TerrainJob> terrainJobs = new LinkedHashMap<>();
+
+	public TerrainJob terrainJob(String village) {
+		return terrainJobs.get(village);
+	}
+
+	public Collection<TerrainJob> terrainJobs() {
+		return terrainJobs.values();
+	}
+
+	public void startTerrainJob(TerrainJob job) {
+		terrainJobs.put(job.village, job);
+		setDirty();
+	}
+
+	public void endTerrainJob(String village) {
+		terrainJobs.remove(village);
+		setDirty();
+	}
+
 	public static final Codec<VillageData> CODEC = RecordCodecBuilder.create(i -> i.group(
 			VILLAGE_CODEC.listOf().optionalFieldOf("villages", List.of()).forGetter(d -> List.copyOf(d.villages.values())),
 			JOB_CODEC.listOf().optionalFieldOf("jobs", List.of()).forGetter(d -> List.copyOf(d.jobs.values())),
 			Codec.BOOL.optionalFieldOf("starter_checked", false).forGetter(d -> d.starterChecked),
 			RECORD_CODEC.listOf().optionalFieldOf("records", List.of()).forGetter(VillageData::recordList),
-			Codec.INT_STREAM.optionalFieldOf("starter_site", IntStream.empty()).forGetter(d -> d.starterSite == null ? IntStream.empty()
+			ints("starter_site").forGetter(d -> d.starterSite == null ? IntStream.empty()
 					: IntStream.of(d.starterSite)),
-			Codec.INT_STREAM.optionalFieldOf("starter_protect", IntStream.empty()).forGetter(d -> rects(d.starterProtect))
-	).apply(i, (villages, jobs, checked, records, site, protect) -> {
+			ints("starter_protect").forGetter(d -> rects(d.starterProtect)),
+			TERRAIN_JOB_CODEC.listOf().optionalFieldOf("terrain_jobs", List.of()).forGetter(d -> List.copyOf(d.terrainJobs.values()))
+	).apply(i, (villages, jobs, checked, records, site, protect, terrainJobs) -> {
 		VillageData data = new VillageData(villages, jobs, checked);
+		for (TerrainJob job : terrainJobs) {
+			if (data.villages.containsKey(job.village)) {
+				data.terrainJobs.put(job.village, job);
+			}
+		}
 		for (RecordEntry e : records) {
 			data.records.computeIfAbsent(e.village(), k -> new LinkedHashMap<>()).put(e.lot(), e.record());
 		}
@@ -360,6 +516,7 @@ public class VillageData extends SavedData {
 		villages.remove(key);
 		jobs.remove(key);
 		records.remove(key);
+		terrainJobs.remove(key);
 		setDirty();
 	}
 

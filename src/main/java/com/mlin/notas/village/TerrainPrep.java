@@ -44,7 +44,14 @@ public final class TerrainPrep {
 	}
 
 	public static Result prepare(VillageState.Rect lot, List<int[]> access, Terrain terrain, LongPredicate locked) {
-		int target = target(terrain, lot);
+		return prepare(lot, access, terrain, locked, target(terrain, lot), BAND);
+	}
+
+	/**
+	 * Como {@link #prepare(VillageState.Rect, List, Terrain, LongPredicate)} com a altura dada (plato do plano diretor)
+	 * e a faixa de rampa {@code band} em volta (0 = sem rampa: o quarteirao ja esta aplainado).
+	 */
+	public static Result prepare(VillageState.Rect lot, List<int[]> access, Terrain terrain, LongPredicate locked, int target, int band) {
 		Map<Long, Integer> desired = new LinkedHashMap<>();
 		for (int x = lot.x0(); x <= lot.x1(); x++) {
 			for (int z = lot.z0(); z <= lot.z1(); z++) {
@@ -52,8 +59,8 @@ public final class TerrainPrep {
 			}
 		}
 		// faixa em volta: 1 de desnivel por bloco ate o chao natural
-		for (int x = lot.x0() - BAND; x <= lot.x1() + BAND; x++) {
-			for (int z = lot.z0() - BAND; z <= lot.z1() + BAND; z++) {
+		for (int x = lot.x0() - band; x <= lot.x1() + band; x++) {
+			for (int z = lot.z0() - band; z <= lot.z1() + band; z++) {
 				if (lot.contains(x, z)) {
 					continue;
 				}

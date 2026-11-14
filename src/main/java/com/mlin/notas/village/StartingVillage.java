@@ -56,7 +56,7 @@ public final class StartingVillage {
 	/** Raio do acampamento (um pouco mais folgado que o do nivel, para caber mesmo com arvores e desnivel). */
 	public static final int CAMP_RADIUS = 28;
 	/** Inicio de vila vanilla a menos disso do centro da vila inicial nao e gerado (raio da Capital + 40 + pecas). */
-	public static final int SUPPRESS_RADIUS = VillageLevel.CAPITAL.radius() + 40 + 80;
+	public static final int SUPPRESS_RADIUS = VillageLevel.CROWN_CITY.radius() + 40 + 80;
 	/** Quadro do worldgen nunca a menos disso da vila inicial. */
 	public static final int BOARD_RADIUS = 160;
 	/** Folga em volta de chunks ja existentes (mundo antigo) onde a vila nao planeja nada. */
@@ -252,6 +252,12 @@ public final class StartingVillage {
 		}
 		village.setLayout(layout);
 		layout.ensureRadius(VillageLevel.CAMP.radius());
+		// plano diretor e os aneis do Acampamento ja aplainados (presente do mundo novo: arvores cortadas)
+		layout.planMaster(village, terrain);
+		for (int ring = 1; ring <= VillageLevel.CAMP.rings(); ring++) {
+			VillageTerrain.prepareNow(level, village, ring, true);
+		}
+		terrain = new WorldTerrain(level, board, true);
 		Random random = new Random(village.seed());
 		VillageData data = VillageData.get(level.getServer());
 		VillageLayout.Lot fire = layout.addNear(VillageLayout.CAMPFIRE, village.style(), village.seed(), terrain, random, 0);
