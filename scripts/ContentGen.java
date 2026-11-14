@@ -239,6 +239,7 @@ public class ContentGen {
 		GuideContent.generate();
 		AccessoryContent.generate();
 		GatingContent.generate();
+		GraveContent.generate();
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
 		VillageContent.generate();

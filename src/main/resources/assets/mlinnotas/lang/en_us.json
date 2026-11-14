@@ -1644,5 +1644,22 @@
   "commands.mlinnotas.village.unknown": "No village named %s",
   "commands.mlinnotas.village.removed": "Village record %s removed (%s)",
   "commands.mlinnotas.village.restart_failed": "Could not create the starting village",
-  "commands.mlinnotas.village.restarted": "Starting village %s created at %s, %s, %s"
+  "commands.mlinnotas.village.restarted": "Starting village %s created at %s, %s, %s",
+  "block.mlinnotas.gravestone": "Gravestone",
+  "block.mlinnotas.gravestone.of": "%s's Gravestone",
+  "block.mlinnotas.gravestone.day": "Day %s",
+  "container.mlinnotas.gravestone": "%s's Gravestone",
+  "message.mlinnotas.grave.placed": "☠ Your items are in a gravestone at %s (%s): %s stacks and %s XP. The minimap marks the spot.",
+  "message.mlinnotas.grave.placed_other": "☠ %s's gravestone is at %s (%s)",
+  "message.mlinnotas.grave.restored": "You got your things back",
+  "message.mlinnotas.grave.dim.overworld": "Overworld",
+  "message.mlinnotas.grave.dim.nether": "Nether",
+  "message.mlinnotas.grave.dim.end": "End",
+  "hud.mlinnotas.waila.grave.summary": "%s stacks · %s XP",
+  "hud.mlinnotas.waila.grave.owner_hint": "Sneak + right-click: everything back in place",
+  "gui.mlinnotas.grave.map_tooltip": "%s's gravestone (%s, %s, %s) · %s stacks, %s XP",
+  "block.mlinnotas.gravestone.tooltip": "Decoration. Real gravestones appear when someone dies.",
+  "quest.mlinnotas.task.recover_grave": "Recover one of your gravestones",
+  "quest.mlinnotas.basics.rest_in_peace": "Rest in Peace",
+  "quest.mlinnotas.basics.rest_in_peace.desc": "When you die, everything you carried (inventory, armor, accessories and half your XP) stays in a gravestone at the nearest safe spot. Chat tells you where and the minimap marks it. Anyone can open it; the owner, sneaking and right-clicking, gets everything back in the same slots."
 }

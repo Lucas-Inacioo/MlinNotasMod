@@ -196,7 +196,11 @@ public final class WailaHud {
 			}
 			rows.add(contentsRow(font, contents));
 		}
-		return new Info(new ItemStack(block.asItem()), block.getName(), modName(BuiltInRegistries.BLOCK.getKey(block).getNamespace()), rows);
+		Component title = block.getName();
+		if (level.getBlockEntity(pos) instanceof com.mlin.notas.grave.GraveBlockEntity grave) {
+			title = graveRows(font, grave, rows);
+		}
+		return new Info(new ItemStack(block.asItem()), title, modName(BuiltInRegistries.BLOCK.getKey(block).getNamespace()), rows);
 	}
 
 	/** Estacoes: se a cultura esta na estacao certa (e se esta numa estufa). Null = planta sem estacao aqui. */
@@ -264,6 +268,23 @@ public final class WailaHud {
 		int width = ItemGridDrawer.width(groups.size(), CONTENT_ROWS);
 		int height = ItemGridDrawer.height(groups.size(), CONTENT_ROWS, contents.more(), font) + 2;
 		return new Row(width, height, (graphics, f, x, y) -> ItemGridDrawer.draw(graphics, f, groups, x, y + 1, CONTENT_ROWS, contents.more()));
+	}
+
+	/** Lapide: dono no titulo, pilhas e XP guardados e a grade do conteudo (o block entity ja vem sincronizado). */
+	private static Component graveRows(Font font, com.mlin.notas.grave.GraveBlockEntity grave, List<Row> rows) {
+		String owner = grave.ownerName().isEmpty() ? "?" : grave.ownerName();
+		rows.add(Row.text(font, Component.translatable("hud.mlinnotas.waila.grave.summary", grave.stackCount(), grave.xp()), GOLD));
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.player != null && grave.isOwner(minecraft.player)) {
+			rows.add(Row.text(font, Component.translatable("hud.mlinnotas.waila.grave.owner_hint"), GRAY));
+		}
+		List<ItemGrid.Group<ItemStack>> groups = ItemGrid.group(grave.items(), ItemStack::isEmpty, ItemStack::isSameItemSameComponents, ItemStack::getCount);
+		if (!groups.isEmpty()) {
+			int width = ItemGridDrawer.width(groups.size(), CONTENT_ROWS);
+			int height = ItemGridDrawer.height(groups.size(), CONTENT_ROWS, 0, font) + 2;
+			rows.add(new Row(width, height, (graphics, f, x, y) -> ItemGridDrawer.draw(graphics, f, groups, x, y + 1, CONTENT_ROWS, 0)));
+		}
+		return Component.translatable("block.mlinnotas.gravestone.of", owner);
 	}
 
 	// ---------------------------------------------------------------- entidades

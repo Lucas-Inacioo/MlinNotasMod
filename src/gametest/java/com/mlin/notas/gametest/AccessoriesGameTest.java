@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Game tests dos acessorios (lote proprio: mexem no nivel de Mineracao do mundo, que define o estagio). Equipar aplica o
  * modificador {@code mlinnotas:accessory_*} cortado pelo estagio; a reducao de dano passa pelo mixin; reliquia dispara
- * no maximo 1x/s; shift+clique respeita encaixe e unicos; morte sem keepInventory solta tudo; o tesouro do dragao traz
+ * no maximo 1x/s; shift+clique respeita encaixe e unicos; morte sem keepInventory guarda tudo na lapide; o tesouro do dragao traz
  * a reliquia.
  */
 public class AccessoriesGameTest {
@@ -161,22 +161,35 @@ public class AccessoriesGameTest {
 	}
 
 	@GameTest(environment = ENV, maxTicks = 100)
-	public void deathDropsAccessoriesWithoutKeepInventory(GameTestHelper helper) {
+	public void deathPutsAccessoriesInTheGrave(GameTestHelper helper) {
 		ServerPlayer player = SkillsGameTest.survivalPlayer(helper, "accessory_death");
 		try {
 			AccessoryServer.equip(player, new ItemStack(AccessoryRegistry.item("champion_seal")));
 			Vec3 at = player.position();
 			player.die(player.damageSources().generic());
 			expect(AccessoryData.get(player).stream().allMatch(ItemStack::isEmpty), "encaixes deveriam ficar vazios");
+			// sem keepInventory os acessorios vao para a lapide (grave/GraveServer), nao para o chao
 			List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(at, at).inflate(4),
 					e -> e.getItem().is(AccessoryRegistry.item("champion_seal")));
-			expect(!drops.isEmpty(), "o selo deveria cair no chao");
-			drops.forEach(ItemEntity::discard);
+			expect(drops.isEmpty(), "o selo nao deveria cair no chao");
+			List<com.mlin.notas.grave.GraveInfo> graves = com.mlin.notas.grave.GraveData.get(helper.getLevel().getServer()).index()
+					.ofOwner(player.getStringUUID());
+			expect(!graves.isEmpty(), "lapide criada");
+			net.minecraft.core.BlockPos pos = new net.minecraft.core.BlockPos(graves.get(0).x(), graves.get(0).y(), graves.get(0).z());
+			com.mlin.notas.grave.GraveBlockEntity grave = (com.mlin.notas.grave.GraveBlockEntity) helper.getLevel().getBlockEntity(pos);
+			boolean found = false;
+			for (int i = com.mlin.notas.grave.GraveRules.ACCESSORY_START; i < com.mlin.notas.grave.GraveRules.EXTRA_START; i++) {
+				found |= grave.getItem(i).is(AccessoryRegistry.item("champion_seal"));
+			}
+			expect(found, "o selo deveria estar na lapide");
+			grave.clearContent();
+			helper.getLevel().removeBlock(pos, false);
 			helper.succeed();
 		} finally {
 			helper.getLevel().getServer().getPlayerList().remove(player);
 		}
 	}
+
 
 	@GameTest(environment = ENV, maxTicks = 100)
 	public void dragonHoardCarriesTheRelic(GameTestHelper helper) {

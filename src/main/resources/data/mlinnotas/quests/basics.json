@@ -309,6 +309,32 @@
           "xp": 20
         }
       ]
+    },
+    {
+      "id": "rest_in_peace",
+      "icon": "mlinnotas:gravestone",
+      "x": 3,
+      "y": 4,
+      "dependencies": [
+        "minimap"
+      ],
+      "tasks": [
+        {
+          "type": "advancement",
+          "target": "mlinnotas:recovered_grave",
+          "icon": "mlinnotas:gravestone",
+          "title": "quest.mlinnotas.task.recover_grave"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 1
+        },
+        {
+          "xp": 30
+        }
+      ]
     }
   ]
 }

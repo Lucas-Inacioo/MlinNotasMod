@@ -75,6 +75,7 @@ public final class MinimapHud {
 			drawWaypoints(graphics, MinimapClient.waypoints().inDimension(MinimapClient.currentDimension(minecraft)), x, y, size, zoom, px, pz);
 		}
 		com.mlin.notas.client.waystone.WaystoneMapIcons.drawHud(graphics, MinimapClient.currentDimension(minecraft), x, y, size, zoom, px, pz);
+		com.mlin.notas.client.grave.GraveMapIcons.drawHud(graphics, MinimapClient.currentDimension(minecraft), x, y, size, zoom, px, pz);
 		drawArrow(graphics, x + size / 2.0F, y + size / 2.0F, player.getViewYRot(partial));
 		graphics.disableScissor();
 

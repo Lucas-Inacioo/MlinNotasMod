@@ -41,7 +41,8 @@
 			"com.mlin.notas.gametest.CitadelGameTest",
 			"com.mlin.notas.gametest.GatingGameTest",
 			"com.mlin.notas.gametest.NetworkTabletGameTest",
-			"com.mlin.notas.gametest.Qol2GameTest"
+			"com.mlin.notas.gametest.Qol2GameTest",
+			"com.mlin.notas.gametest.GravesGameTest"
 		],
 		"fabric-client-gametest": [
 			"com.mlin.notas.gametest.MlinNotasClientGameTest",
@@ -70,7 +71,8 @@
 			"com.mlin.notas.gametest.SmainClientGameTest",
 			"com.mlin.notas.gametest.CitadelClientGameTest",
 			"com.mlin.notas.gametest.GatingClientGameTest",
-			"com.mlin.notas.gametest.Qol2ClientGameTest"
+			"com.mlin.notas.gametest.Qol2ClientGameTest",
+			"com.mlin.notas.gametest.GravesClientGameTest"
 		]
 	},
 	"depends": {

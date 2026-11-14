@@ -47,6 +47,7 @@ public class MlinNotasClient implements ClientModInitializer {
 		com.mlin.notas.client.combat.CombatClient.init();
 		com.mlin.notas.client.accessories.AccessoryClient.init();
 		com.mlin.notas.client.gating.ToolGateClient.init();
+		com.mlin.notas.client.grave.GraveClient.init();
 		for (ChestTier tier : ChestTier.values()) {
 			MenuScreens.register(ModMenus.forTier(tier), BigChestScreen::new);
 		}
