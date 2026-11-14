@@ -89,6 +89,9 @@ public class BossGameTest {
 			Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
 			player.setPos(altar.getX() + 3.5, altar.getY(), altar.getZ() + 0.5);
 			player.getInventory().add(new ItemStack(BossRegistry.offeringItem(kind), kind.offeringCount() - 1));
+			if (kind.extraOffering() != null) {
+				player.getInventory().add(new ItemStack(BossRegistry.extraOfferingItem(kind), kind.extraOfferingCount()));
+			}
 			helper.assertTrue(BossSummoning.trySummon(level, altar, player, kind) == BossSummoning.Result.MISSING_OFFERING, kind + ": recusa com 3");
 			helper.assertTrue(bosses(helper, kind).isEmpty(), kind + ": nada invocado");
 			helper.assertTrue(player.getInventory().countItem(BossRegistry.offeringItem(kind)) == kind.offeringCount() - 1, "nada consumido");
@@ -190,33 +193,112 @@ public class BossGameTest {
 		dragon.kill(level);
 		int scales = level.getEntitiesOfClass(ItemEntity.class, new AABB(at).inflate(6), e -> e.getItem().is(BossRegistry.DRAGON_SCALE)).stream()
 				.mapToInt(e -> e.getItem().getCount()).sum();
-		helper.assertTrue(scales >= 2 && scales <= 4, "2 a 4 escamas, deu " + scales);
+		// fora da luta do End nao e a "primeira morte": 1 a 2 escamas (e o Molde do Fim)
+		helper.assertTrue(scales >= 1 && scales <= 2, "1 a 2 escamas, deu " + scales);
+		helper.assertTrue(!level.getEntitiesOfClass(ItemEntity.class, new AABB(at).inflate(6),
+				e -> e.getItem().is(com.mlin.notas.smithing.SmithingTemplates.item(com.mlin.notas.smithing.SmithingChain.END))).isEmpty(), "Molde do Fim");
 		helper.succeed();
 	}
 
-	@GameTest(maxTicks = 40)
-	public void colossusSleepsUntilSomeoneComesClose(GameTestHelper helper) {
+	@GameTest(maxTicks = 60)
+	public void colossusOnlyWakesWithTheForgeKey(GameTestHelper helper) {
 		floor(helper);
 		ServerLevel level = helper.getLevel();
 		IgneousColossus colossus = helper.spawn(BossRegistry.IGNEOUS_COLOSSUS, new BlockPos(4, 1, 4));
 		colossus.setDormant(true);
-		Player far = helper.makeMockServerPlayer(GameType.SURVIVAL);
-		far.setPos(colossus.getX() + 20, colossus.getY(), colossus.getZ());
-		Player creative = helper.makeMockServerPlayer(GameType.CREATIVE);
-		creative.setPos(colossus.getX() + 3, colossus.getY(), colossus.getZ());
-		helper.assertTrue(!colossus.checkWake(level, List.of(far, creative)), "longe ou criativo nao acorda");
-		helper.assertTrue(colossus.dormant(), "continua dormindo");
 		Player near = helper.makeMockServerPlayer(GameType.SURVIVAL);
-		near.setPos(colossus.getX() + 10, colossus.getY(), colossus.getZ());
-		helper.assertTrue(colossus.checkWake(level, List.of(near)), "a 10 blocos acorda");
-		helper.assertTrue(!colossus.dormant() && colossus.spawning() && colossus.scaled(), "acordou com a animacao de surgimento");
+		near.setPos(colossus.getX() + 3, colossus.getY(), colossus.getZ());
+		// apanhar nao acorda nem machuca
+		float before = colossus.getHealth();
+		colossus.hurtServer(level, level.damageSources().playerAttack(near), 10.0F);
+		helper.assertTrue(colossus.dormant() && colossus.getHealth() == before, "adormecido nao apanha nem acorda");
 
-		IgneousColossus hit = helper.spawn(BossRegistry.IGNEOUS_COLOSSUS, new BlockPos(1, 1, 1));
-		hit.setDormant(true);
-		hit.hurtServer(level, level.damageSources().playerAttack(far), 1.0F);
-		helper.assertTrue(!hit.dormant(), "acorda ao apanhar de um jogador");
-		colossus.discard();
-		hit.discard();
+		IgneousColossus throne = helper.spawn(BossRegistry.IGNEOUS_COLOSSUS, new BlockPos(1, 1, 1));
+		throne.setDormant(true);
+		helper.runAfterDelay(20, () -> {
+			helper.assertTrue(colossus.dormant() && throne.dormant(), "jogador perto por 1 s nao acorda ninguem");
+			// chave no proprio colosso: acorda e gasta
+			ItemStack key = new ItemStack(BossRegistry.FORGE_KEY, 2);
+			near.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, key);
+			key.interactLivingEntity(near, colossus, net.minecraft.world.InteractionHand.MAIN_HAND);
+			helper.assertTrue(!colossus.dormant() && colossus.spawning() && colossus.scaled(), "a chave acorda com a animacao de surgimento");
+			helper.assertTrue(key.getCount() == 1, "chave gasta");
+			// chave no trono (bloco perto do outro colosso)
+			BlockPos block = helper.absolutePos(new BlockPos(1, 0, 2));
+			net.minecraft.world.InteractionResult used = key.useOn(new net.minecraft.world.item.context.UseOnContext(near,
+					net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(block),
+					net.minecraft.core.Direction.UP, block, false)));
+			helper.assertTrue(used.consumesAction() && !throne.dormant() && key.isEmpty(), "chave no trono acorda o colosso, deu " + used);
+			colossus.discard();
+			throne.discard();
+			helper.succeed();
+		});
+	}
+
+	@GameTest
+	public void witherGetsBossHealthAndRespawnBlocksDoNotExplode(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		var wither = EntityTypes.WITHER.create(level, EntitySpawnReason.TRIGGERED);
+		BlockPos at = helper.absolutePos(new BlockPos(4, 2, 4));
+		wither.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, 0, 0);
+		wither.makeInvulnerable();
+		level.addFreshEntity(wither);
+		boolean ok = wither.getMaxHealth() == (float) BossRules.WITHER_HEALTH && wither.getHealth() == wither.getMaxHealth()
+				&& wither.hasAttached(com.mlin.notas.boss.WitherBuff.SCALED);
+		String got = wither.getHealth() + "/" + wither.getMaxHealth();
+		wither.discard();
+		helper.assertTrue(ok, "wither com " + BossRules.WITHER_HEALTH + " de vida cheia, deu " + got);
+		// cama e ancora: o guarda do End so recusa o uso que explodiria
+		var guard = com.mlin.notas.dragon.RespawnExplosionGuard.class;
+		helper.assertTrue(com.mlin.notas.dragon.RespawnExplosionGuard.wouldExplode(Blocks.BED.red().defaultBlockState(), ItemStack.EMPTY), "cama explode");
+		var anchor = Blocks.RESPAWN_ANCHOR.defaultBlockState();
+		helper.assertTrue(!com.mlin.notas.dragon.RespawnExplosionGuard.wouldExplode(anchor, ItemStack.EMPTY), "ancora vazia nao explode");
+		var charged = anchor.setValue(net.minecraft.world.level.block.RespawnAnchorBlock.CHARGE, 2);
+		helper.assertTrue(com.mlin.notas.dragon.RespawnExplosionGuard.wouldExplode(charged, ItemStack.EMPTY), "ancora carregada explode");
+		helper.assertTrue(!com.mlin.notas.dragon.RespawnExplosionGuard.wouldExplode(charged, new ItemStack(net.minecraft.world.item.Items.GLOWSTONE)),
+				"recarregar com pedra luminosa e permitido");
+		helper.assertTrue(guard != null && !com.mlin.notas.dragon.RespawnExplosionGuard.wouldExplode(Blocks.STONE.defaultBlockState(), ItemStack.EMPTY), "pedra");
+		helper.succeed();
+	}
+
+	@GameTest
+	public void forgeKeyIsCraftedAndDoesNothingAwayFromAColossus(GameTestHelper helper) {
+		floor(helper);
+		var recipe = helper.getLevel().getServer().getRecipeManager().byKey(net.minecraft.resources.ResourceKey.create(Registries.RECIPE, MlinNotas.id("forge_key")));
+		helper.assertTrue(recipe.isPresent(), "receita da Chave da Forja");
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		ItemStack key = new ItemStack(BossRegistry.FORGE_KEY);
+		player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, key);
+		BlockPos block = helper.absolutePos(new BlockPos(3, 0, 3));
+		net.minecraft.world.InteractionResult used = key.useOn(new net.minecraft.world.item.context.UseOnContext(player,
+				net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(block),
+				net.minecraft.core.Direction.UP, block, false)));
+		helper.assertTrue(!used.consumesAction() && key.getCount() == 1, "sem colosso por perto a chave nao e gasta");
+		helper.succeed();
+	}
+
+	@GameTest(dimension = "minecraft:the_nether")
+	public void heraldAltarAlsoNeedsADragonScale(GameTestHelper helper) {
+		floor(helper);
+		ServerLevel level = helper.getLevel();
+		helper.setBlock(5, 1, 5, BossRegistry.ASTRAL_ALTAR);
+		BlockPos altar = helper.absolutePos(new BlockPos(5, 1, 5));
+		Player player = helper.makeMockServerPlayer(GameType.SURVIVAL);
+		player.setPos(altar.getX() + 3.5, altar.getY(), altar.getZ() + 0.5);
+		player.getInventory().add(new ItemStack(BossRegistry.offeringItem(BossKind.ASTRAL_HERALD), 4));
+		helper.assertTrue(BossSummoning.trySummon(level, altar, player, BossKind.ASTRAL_HERALD) == BossSummoning.Result.MISSING_OFFERING,
+				"4 nucleos sem escama: recusa");
+		helper.assertTrue(player.getInventory().countItem(BossRegistry.offeringItem(BossKind.ASTRAL_HERALD)) == 4, "nada gasto");
+		player.getInventory().add(new ItemStack(BossRegistry.DRAGON_SCALE, 2));
+		// pode haver outro arauto do teste de altares no Nether: so confere o consumo se invocou
+		BossSummoning.Result result = BossSummoning.trySummon(level, altar, player, BossKind.ASTRAL_HERALD);
+		if (result == BossSummoning.Result.SUMMONED) {
+			helper.assertTrue(player.getInventory().countItem(BossRegistry.DRAGON_SCALE) == 1, "gasta 1 escama");
+			helper.assertTrue(player.getInventory().countItem(BossRegistry.offeringItem(BossKind.ASTRAL_HERALD)) == 0, "gasta os 4 nucleos");
+		} else {
+			helper.assertTrue(result == BossSummoning.Result.BUSY, "com escama so recusa se ja houver arauto, deu " + result);
+		}
+		level.getEntities(BossRegistry.ASTRAL_HERALD, new AABB(altar).inflate(8), e -> true).forEach(BossMob::discard);
 		helper.succeed();
 	}
 

@@ -16,6 +16,8 @@ import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
+import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.ArrayList;
@@ -71,6 +73,23 @@ public final class RecipeExporter {
 			}
 			return new RecipeView(id, RecipeKind.SHAPELESS, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
 		}
+		if (recipe instanceof net.minecraft.world.item.crafting.TransmuteRecipe transmute) {
+			// item + material -> outro item com os mesmos componentes (caixa de shulker tingida, melhoria da unidade de armazenamento)
+			List<Ingredient> ingredients = transmute.placementInfo().ingredients();
+			List<ItemStack> sample = new ArrayList<>();
+			for (Ingredient ingredient : ingredients) {
+				sample.add(ingredient.items().findFirst().map(ItemStack::new).orElse(ItemStack.EMPTY));
+			}
+			ItemStack result = sample.isEmpty() ? ItemStack.EMPTY : transmute.assemble(CraftingInput.of(sample.size(), 1, sample));
+			if (result.isEmpty()) {
+				return null;
+			}
+			List<List<Integer>> inputs = new ArrayList<>();
+			for (Ingredient ingredient : ingredients) {
+				inputs.add(alternatives(ingredient));
+			}
+			return new RecipeView(id, RecipeKind.SHAPELESS, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
+		}
 		if (recipe instanceof AbstractCookingRecipe cooking) {
 			RecipeKind kind;
 			if (cooking instanceof SmeltingRecipe) {
@@ -99,7 +118,18 @@ public final class RecipeExporter {
 			return new RecipeView(id, RecipeKind.STONECUTTING, 0, 0, List.of(alternatives(stonecutter.input())),
 					itemId(result), result.getCount(), 0, 0);
 		}
-		return null;
+		if (recipe instanceof SmithingTransformRecipe smithing) {
+			ItemStack result = smithing.assemble(new SmithingRecipeInput(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
+			if (result.isEmpty()) {
+				return null;
+			}
+			List<List<Integer>> inputs = new ArrayList<>();
+			inputs.add(smithing.templateIngredient().map(RecipeExporter::alternatives).orElse(List.of()));
+			inputs.add(alternatives(smithing.baseIngredient()));
+			inputs.add(smithing.additionIngredient().map(RecipeExporter::alternatives).orElse(List.of()));
+			return new RecipeView(id, RecipeKind.SMITHING, 0, 0, inputs, itemId(result), result.getCount(), 0, 0);
+		}
+		return com.mlin.notas.food.FoodRecipeExport.export(id, recipe);
 	}
 
 	private static List<Integer> alternatives(Ingredient ingredient) {

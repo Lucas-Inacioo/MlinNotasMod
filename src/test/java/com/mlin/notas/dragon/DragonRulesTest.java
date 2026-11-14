@@ -25,11 +25,20 @@ class DragonRulesTest {
 
 	@Test
 	void healthIsBuiltForTwoPlayers() {
-		assertEquals(400.0, DragonRules.maxHealth(1));
-		assertEquals(400.0, DragonRules.maxHealth(2));
-		assertEquals(600.0, DragonRules.maxHealth(3));
-		assertEquals(800.0, DragonRules.maxHealth(4));
+		assertEquals(1000.0, DragonRules.maxHealth(1));
+		assertEquals(1000.0, DragonRules.maxHealth(2));
+		assertEquals(1500.0, DragonRules.maxHealth(3));
+		assertEquals(2000.0, DragonRules.maxHealth(4));
 		assertTrue(DragonRules.maxHealth(2) > 200.0, "mais forte que o vanilla");
+	}
+
+	@Test
+	void bedAndAnchorExplosionsAreBlockedAroundThePortal() {
+		assertTrue(DragonRules.guardsExplosionsAt(0, 0));
+		assertTrue(DragonRules.guardsExplosionsAt(100, -100), "pilares e santuario");
+		assertTrue(DragonRules.guardsExplosionsAt(150, 0));
+		assertFalse(DragonRules.guardsExplosionsAt(120, 120), "fora do raio de 150");
+		assertFalse(DragonRules.guardsExplosionsAt(1200, 40), "ilhas externas: cama explode como no vanilla");
 	}
 
 	@Test

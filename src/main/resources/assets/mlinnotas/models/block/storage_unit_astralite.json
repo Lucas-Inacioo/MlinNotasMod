@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "mlinnotas:block/storage_unit_astralite_front",
+    "side": "mlinnotas:block/storage_unit_astralite_side",
+    "top": "mlinnotas:block/storage_unit_astralite_top"
+  }
+}

@@ -29,6 +29,11 @@ public final class EnchantOptions {
 		public String name() {
 			return enchantment.value().description().getString();
 		}
+
+		/** Reagente tematico do encantamento ({@link EnchantReagents}). */
+		public EnchantReagents.Reagent reagent() {
+			return EnchantReagents.of(enchantment.unwrapKey().map(k -> k.identifier().toString()).orElse(""));
+		}
 	}
 
 	private EnchantOptions() {

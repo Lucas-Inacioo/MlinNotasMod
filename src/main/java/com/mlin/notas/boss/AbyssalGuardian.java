@@ -52,8 +52,9 @@ public class AbyssalGuardian extends BossMob {
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, BossKind.ABYSSAL_GUARDIAN.baseHealth())
-				.add(Attributes.ARMOR, 12.0)
-				.add(Attributes.ATTACK_DAMAGE, 13.0)
+				.add(Attributes.ARMOR, BossKind.ABYSSAL_GUARDIAN.armor())
+				.add(Attributes.ARMOR_TOUGHNESS, BossKind.ABYSSAL_GUARDIAN.toughness())
+				.add(Attributes.ATTACK_DAMAGE, BossKind.ABYSSAL_GUARDIAN.melee())
 				.add(Attributes.MOVEMENT_SPEED, 0.27)
 				.add(Attributes.FOLLOW_RANGE, 40.0)
 				.add(Attributes.KNOCKBACK_RESISTANCE, 0.9)
@@ -124,7 +125,7 @@ public class AbyssalGuardian extends BossMob {
 		}
 		level.sendParticles(ParticleTypes.SCULK_CHARGE_POP, victim.getX(), victim.getY() + 0.1, victim.getZ(), 20, 0.8, 0.05, 0.8, 0.02);
 		victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 4), this);
-		victim.hurtServer(level, damageSources().mobAttack(this), 5.0F);
+		victim.hurtServer(level, BossRegistry.ability(level, this, this), BossRules.GUARDIAN_TENDRIL);
 		victim.setDeltaMovement(0, Math.min(0, victim.getDeltaMovement().y), 0);
 		victim.needsSync = true;
 		victim.syncVelocity = true;
@@ -148,7 +149,7 @@ public class AbyssalGuardian extends BossMob {
 			}
 			playSound(ModSounds.ABYSSAL_GUARDIAN_PULSE, 3.0F, 1.0F);
 			if (hasLineOfSight(target)) {
-				target.hurtServer(level, damageSources().sonicBoom(this), phase() >= 2 ? 12.0F : 10.0F);
+				target.hurtServer(level, damageSources().sonicBoom(this), phase() >= 2 ? BossRules.GUARDIAN_PULSE_PHASE_TWO : BossRules.GUARDIAN_PULSE);
 				CobaltGolem.fling(target, step.x * 1.2, 0.3, step.z * 1.2);
 			}
 		}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:endite_ingot",
+  "base": "mlinnotas:infernite_dagger",
+  "result": {
+    "id": "mlinnotas:endite_dagger"
+  },
+  "template": "mlinnotas:end_upgrade_smithing_template"
+}

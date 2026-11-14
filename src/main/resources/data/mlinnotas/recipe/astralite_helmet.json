@@ -1,14 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "X": "mlinnotas:astralite_ingot"
-  },
-  "pattern": [
-    "XXX",
-    "X X"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:astralite_ingot",
+  "base": "mlinnotas:endite_helmet",
   "result": {
     "id": "mlinnotas:astralite_helmet"
-  }
+  },
+  "template": "mlinnotas:astral_upgrade_smithing_template"
 }

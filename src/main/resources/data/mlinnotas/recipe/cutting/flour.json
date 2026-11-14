@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:cutting",
+  "ingredient": "minecraft:wheat",
+  "result": {
+    "id": "mlinnotas:flour",
+    "count": 1
+  }
+}

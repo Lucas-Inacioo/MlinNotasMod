@@ -102,14 +102,15 @@ public class SelectiveEnchantScreen extends AbstractContainerScreen<SelectiveEnc
 
 	/** Nivel inicial: o maior que as estantes permitem (no minimo o atual + 1). */
 	private int defaultLevel(EnchantOptions.Option option) {
-		int allowed = EnchantRules.maxAllowedLevel(option.maxLevel(), menu.bookshelves());
+		int allowed = Math.min(EnchantRules.maxAllowedLevel(option.maxLevel(), menu.bookshelves()),
+				EnchantRules.cappedLevel(option.maxLevel(), menu.miningLevel()));
 		return Math.min(option.maxLevel(), Math.max(option.currentLevel() + 1, allowed));
 	}
 
 	private EnchantRules.Check check(EnchantOptions.Option option, int level) {
 		return EnchantRules.check(!menu.item().isEmpty(), true, option.compatible(), option.currentLevel(), level,
-				option.maxLevel(), option.anvilCost(), menu.bookshelves(), minecraft.player.experienceLevel,
-				menu.lapis().getCount(), minecraft.player.hasInfiniteMaterials());
+				option.maxLevel(), option.anvilCost(), menu.bookshelves(), menu.miningLevel(), minecraft.player.experienceLevel,
+				menu.lapis().getCount(), option.reagent().base(), menu.reagentCount(option.reagent()), minecraft.player.hasInfiniteMaterials());
 	}
 
 	private EnchantOptions.@Nullable Option selectedOption() {
@@ -145,7 +146,45 @@ public class SelectiveEnchantScreen extends AbstractContainerScreen<SelectiveEnc
 			return Component.translatable("gui.mlinnotas.enchant.needs_bookshelves",
 					EnchantRules.bookshelvesNeeded(option.maxLevel(), chosenLevel(option)));
 		}
+		if (check == EnchantRules.Check.MINING_CAP) {
+			return miningCapReason(chosenLevel(option));
+		}
+		if (check == EnchantRules.Check.NOT_ENOUGH_REAGENT) {
+			return Component.translatable("gui.mlinnotas.enchant.needs_reagent", reagentNeeded(option, chosenLevel(option)), reagentStack(option).getHoverName());
+		}
 		return SelectiveEnchanting.message(check);
+	}
+
+	/** "Nivel IV exige Mineracao: Infernita" (teto do mundo pela arvore de habilidades). */
+	/** Item do reagente do encantamento (barreira se o id nao existir). */
+	private static ItemStack reagentStack(EnchantOptions.Option option) {
+		return new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(net.minecraft.resources.Identifier.parse(option.reagent().item()))
+				.orElse(net.minecraft.world.item.Items.BARRIER));
+	}
+
+	private static int reagentNeeded(EnchantOptions.Option option, int level) {
+		return com.mlin.notas.enchanting.EnchantReagents.cost(option.reagent().base(), option.currentLevel(), level);
+	}
+
+	private static Component miningCapReason(int level) {
+		return Component.translatable("gui.mlinnotas.enchant.mining_cap", Component.translatable("enchantment.level." + level),
+				com.mlin.notas.skills.SkillServer.tierName(EnchantRules.tierForLevel(level)));
+	}
+
+	/** Seleciona Afiacao (ou o primeiro encantamento da lista); usado pelo client game test para a foto. */
+	public void selectFirstUsable() {
+		refreshOptions();
+		for (EnchantOptions.Option option : options) {
+			if (option.enchantment().is(net.minecraft.world.item.enchantment.Enchantments.SHARPNESS)) {
+				selected = option.enchantment();
+				updateButton();
+				return;
+			}
+		}
+		if (!options.isEmpty()) {
+			selected = options.getFirst().enchantment();
+			updateButton();
+		}
 	}
 
 	private void sendRequest() {
@@ -163,10 +202,14 @@ public class SelectiveEnchantScreen extends AbstractContainerScreen<SelectiveEnc
 		GridScreenBackground.panel(graphics, x, y, imageWidth, imageHeight);
 		GridScreenBackground.slot(graphics, x + SelectiveEnchantMenu.ITEM_X - 1, y + SelectiveEnchantMenu.ITEM_Y - 1);
 		GridScreenBackground.slot(graphics, x + SelectiveEnchantMenu.LAPIS_X - 1, y + SelectiveEnchantMenu.LAPIS_Y - 1);
+		GridScreenBackground.slot(graphics, x + SelectiveEnchantMenu.REAGENT_X - 1, y + SelectiveEnchantMenu.REAGENT_Y - 1);
 		GridScreenBackground.playerInventory(graphics, x + SelectiveEnchantMenu.INVENTORY_X, y + SelectiveEnchantMenu.INVENTORY_Y);
 
-		graphics.text(font, Component.translatable("gui.mlinnotas.enchant.bookshelves"), x + 6, y + 78, TEXT, false);
-		graphics.text(font, Math.min(menu.bookshelves(), EnchantRules.MAX_BOOKSHELVES) + "/" + EnchantRules.MAX_BOOKSHELVES, x + 6, y + 88, TEXT, false);
+		graphics.text(font, Component.translatable("gui.mlinnotas.enchant.bookshelves"), x + 6, y + 86, TEXT, false);
+		graphics.text(font, Math.min(menu.bookshelves(), EnchantRules.MAX_BOOKSHELVES) + "/" + EnchantRules.MAX_BOOKSHELVES, x + 6, y + 96, TEXT, false);
+		int cap = EnchantRules.miningCap(menu.miningLevel());
+		graphics.text(font, Component.translatable("gui.mlinnotas.enchant.cap", cap == Integer.MAX_VALUE
+				? Component.translatable("gui.mlinnotas.enchant.cap_none") : Component.translatable("enchantment.level." + cap)), x + 6, y + 106, TEXT, false);
 
 		drawList(graphics, mouseX, mouseY);
 	}
@@ -198,7 +241,7 @@ public class SelectiveEnchantScreen extends AbstractContainerScreen<SelectiveEnc
 			if (option.maxLevel() > 1) {
 				drawSmallButton(graphics, lx + MINUS_X, ry + 2, "-", level > option.currentLevel() + 1);
 				graphics.centeredText(font, Component.translatable("enchantment.level." + level), lx + (LEVEL_X + PLUS_X) / 2, ry + 4,
-						check == EnchantRules.Check.NEEDS_BOOKSHELVES ? TEXT_BAD : 0xFFFFFFFF);
+						check == EnchantRules.Check.NEEDS_BOOKSHELVES || check == EnchantRules.Check.MINING_CAP ? TEXT_BAD : 0xFFFFFFFF);
 				drawSmallButton(graphics, lx + PLUS_X, ry + 2, "+", level < option.maxLevel());
 			}
 
@@ -211,10 +254,33 @@ public class SelectiveEnchantScreen extends AbstractContainerScreen<SelectiveEnc
 				int lapis = EnchantRules.lapisCost(option.currentLevel(), level);
 				int xpColor = check == EnchantRules.Check.NOT_ENOUGH_XP ? TEXT_BAD : 0xFF80FF20;
 				int lapisColor = check == EnchantRules.Check.NOT_ENOUGH_LAPIS ? TEXT_BAD : 0xFF6080FF;
-				String xpText = xp + " XP";
+				String xpText = xp + "XP";
+				String lapisText = lapis + "L";
 				graphics.text(font, xpText, lx + COST_X, ry + 4, xpColor, true);
-				graphics.text(font, lapis + " L", lx + COST_X + font.width(xpText) + 6, ry + 4, lapisColor, true);
+				int rx = lx + COST_X + font.width(xpText) + 4;
+				graphics.text(font, lapisText, rx, ry + 4, lapisColor, true);
+				// reagente: icone pequeno + quantidade (vermelho se faltar)
+				rx += font.width(lapisText) + 3;
+				graphics.pose().pushMatrix();
+				graphics.pose().translate(rx, ry + 3);
+				graphics.pose().scale(0.5F, 0.5F);
+				graphics.item(reagentStack(option), 0, 0);
+				graphics.pose().popMatrix();
+				int need = reagentNeeded(option, level);
+				graphics.text(font, String.valueOf(need), rx + 9, ry + 4,
+						check == EnchantRules.Check.NOT_ENOUGH_REAGENT || menu.reagentCount(option.reagent()) < need ? TEXT_BAD : 0xFFFFE080, true);
 			}
+		}
+		// reagente do encantamento escolhido, por extenso, ao lado do botao
+		EnchantOptions.Option chosen = selectedOption();
+		if (chosen != null && chosen.compatible() && chosen.currentLevel() < chosen.maxLevel()) {
+			int level = chosenLevel(chosen);
+			int need = reagentNeeded(chosen, level);
+			int have = menu.reagentCount(chosen.reagent());
+			int by = ly + ROWS * ROW_H + 5;
+			graphics.item(reagentStack(chosen), lx, by - 4);
+			Component line = Component.translatable("gui.mlinnotas.enchant.reagent", reagentStack(chosen).getHoverName(), need, have);
+			graphics.text(font, font.split(line, LIST_W - 92).getFirst(), lx + 18, by, have >= need ? TEXT : TEXT_BAD, false);
 		}
 		// barra de rolagem
 		if (options.size() > ROWS) {

@@ -2,7 +2,7 @@ package com.mlin.notas.skills;
 
 /** Bonus de cada nivel dos ramos laterais (logica pura). */
 public final class SkillEffects {
-	public static final double MELEE_PER_LEVEL = 1.0;
+	public static final double MELEE_PER_LEVEL = 0.5;
 	public static final double HEALTH_PER_LEVEL = 2.0;
 	public static final double SPEED_PER_LEVEL = 0.04;
 	public static final double FALL_REDUCTION_PER_LEVEL = 0.10;

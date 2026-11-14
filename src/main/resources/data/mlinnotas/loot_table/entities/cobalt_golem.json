@@ -26,8 +26,8 @@
             "type": "minecraft:set_count",
             "count": {
               "type": "minecraft:uniform",
-              "max": 8,
-              "min": 4
+              "max": 4,
+              "min": 0
             }
           },
           "name": "minecraft:iron_ingot"

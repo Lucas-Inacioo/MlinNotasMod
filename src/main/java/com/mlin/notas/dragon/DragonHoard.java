@@ -19,17 +19,23 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Tesouro do dragao: quando o dragao da luta morre, um bau com o loot {@code mlinnotas:chests/dragon_hoard} aparece no
- * estrado norte do santuario ({@link ArenaPlanner#HOARD_X}, {@link ArenaPlanner#HOARD_Z}), a cada morte.
+ * Tesouro do dragao: quando o dragao da luta morre, um bau aparece no estrado norte do santuario
+ * ({@link ArenaPlanner#HOARD_X}, {@link ArenaPlanner#HOARD_Z}): o tesouro completo {@code mlinnotas:chests/dragon_hoard} (com o
+ * unico Totem garantido do mundo) so na primeira morte; quando o dragao e reinvocado, o bau pequeno
+ * {@code mlinnotas:chests/dragon_hoard_small}.
  */
 public final class DragonHoard {
 	public static final ResourceKey<LootTable> LOOT = ResourceKey.create(Registries.LOOT_TABLE, MlinNotas.id("chests/dragon_hoard"));
+	public static final ResourceKey<LootTable> LOOT_SMALL = ResourceKey.create(Registries.LOOT_TABLE, MlinNotas.id("chests/dragon_hoard_small"));
 
 	private DragonHoard() {
 	}
 
-	/** Poe o bau (no primeiro ar em cima do estrado; sobe se ja houver um bau ali). Devolve a posicao ou null. */
-	public static @Nullable BlockPos place(ServerLevel level) {
+	/**
+	 * Poe o bau (no primeiro ar em cima do estrado; sobe se ja houver um bau ali): completo na primeira morte
+	 * ({@code full}), pequeno nas outras. Devolve a posicao ou null.
+	 */
+	public static @Nullable BlockPos place(ServerLevel level, boolean full) {
 		int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, ArenaPlanner.HOARD_X, ArenaPlanner.HOARD_Z);
 		if (y <= level.getMinY() + 1) {
 			return null;
@@ -42,12 +48,12 @@ public final class DragonHoard {
 			return null;
 		}
 		level.setBlockAndUpdate(pos, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH));
-		RandomizableContainer.setBlockEntityLootTable(level, level.getRandom(), pos, LOOT);
+		RandomizableContainer.setBlockEntityLootTable(level, level.getRandom(), pos, full ? LOOT : LOOT_SMALL);
 		level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 40, 0.5, 1.5, 0.5, 0.08);
 		level.playSound(null, pos, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 2.0F, 0.6F);
 		for (ServerPlayer p : level.players()) {
 			if (p.connection != null) {
-				p.sendSystemMessage(Component.translatable("message.mlinnotas.dragon.hoard"));
+				p.sendSystemMessage(Component.translatable(full ? "message.mlinnotas.dragon.hoard" : "message.mlinnotas.dragon.hoard_small"));
 			}
 		}
 		return pos;

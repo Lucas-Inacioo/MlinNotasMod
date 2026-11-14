@@ -51,8 +51,9 @@ public class AstralHerald extends BossMob {
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, BossKind.ASTRAL_HERALD.baseHealth())
-				.add(Attributes.ARMOR, 10.0)
-				.add(Attributes.ATTACK_DAMAGE, 8.0)
+				.add(Attributes.ARMOR, BossKind.ASTRAL_HERALD.armor())
+				.add(Attributes.ARMOR_TOUGHNESS, BossKind.ASTRAL_HERALD.toughness())
+				.add(Attributes.ATTACK_DAMAGE, BossKind.ASTRAL_HERALD.melee())
 				.add(Attributes.MOVEMENT_SPEED, 0.45)
 				.add(Attributes.FLYING_SPEED, 0.6)
 				.add(Attributes.FOLLOW_RANGE, 48.0)

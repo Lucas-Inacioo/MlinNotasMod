@@ -133,10 +133,22 @@ class QuestContent {
 		ContentGen.EN.put(key, en);
 	}
 
+	/** Quests extras que outros scripts (ex.: AccessoryContent) penduram no fim de um capitulo; preencha antes de {@link #generate}. */
+	static final java.util.Map<String, List<Q>> EXTRA = new java.util.LinkedHashMap<>();
+	/** Capitulos com o XP das recompensas pela metade (plano de ritmo de progressao). */
+	static final java.util.Set<String> HALF_XP_CHAPTERS = java.util.Set.of("bosses", "end");
+
 	static void chapter(String id, int order, String icon, String pt, String en, Q... quests) throws IOException {
+		quests = CombatContent.arsenal(id, quests);
 		text("quest.mlinnotas.chapter." + id, pt, en);
 		List<String> json = new ArrayList<>();
-		for (Q q : quests) {
+		List<Q> all = new ArrayList<>(List.of(quests));
+		all.addAll(EXTRA.getOrDefault(id, List.of()));
+		for (Q q : all) {
+			if (HALF_XP_CHAPTERS.contains(id)) {
+				// ritmo: os chefes e o End ja pagam com os drops; o XP das quests deles vale a metade
+				q.rewards.replaceAll(r -> r.startsWith("{\"xp\":") ? "{\"xp\":" + Integer.parseInt(r.substring(6, r.length() - 1)) / 2 + "}" : r);
+			}
 			json.add(q.json());
 			text("quest.mlinnotas." + id + "." + q.id, q.pt, q.en);
 			text("quest.mlinnotas." + id + "." + q.id + ".desc", q.descPt, q.descEn);
@@ -272,56 +284,56 @@ class QuestContent {
 						"Open the skill tree (K) and deposit 32 cobblestone into Mining: Stone. Without it not even coal breaks. The tree belongs to the world: anyone can deposit.")
 						.dep("basics/stone_tools").skill("mining", 2).item("minecraft:torch", 16).xp(30),
 				q("skill_copper", "minecraft:copper_ingot", 1, 1, "Mineração: Cobre", "Mining: Copper",
-						"Custa 10 carvões (o minério ou o carvão que cai). Libera o minério de cobre e o primeiro nível dos ramos laterais.",
-						"Costs 10 coal (the ore or the dropped coal). Unlocks copper ore and the first level of the side branches.")
+						"Custa 24 carvões (o minério ou o carvão que cai). Libera o minério de cobre e o primeiro nível dos ramos laterais.",
+						"Costs 24 coal (the ore or the dropped coal). Unlocks copper ore and the first level of the side branches.")
 						.dep("skill_stone").skill("mining", 3).xp(40),
 				q("side_branch", "minecraft:iron_sword", 1, 2, "Ramos Laterais", "Side Branches",
-						"Combate, Vigor, Agilidade e Prospecção têm 5 níveis cada, pagos com lingotes e XP, e valem para todos os jogadores. Comece por Combate I (16 lingotes de cobre + 5 níveis).",
-						"Combat, Vigor, Agility and Prospecting have 5 levels each, paid with ingots and XP, and apply to every player. Start with Combat I (16 copper ingots + 5 levels).")
+						"Combate, Vigor, Agilidade e Prospecção têm 5 níveis cada, pagos com lingotes e XP, e valem para todos os jogadores. Comece por Combate I (32 lingotes de cobre + XP de 5 níveis).",
+						"Combat, Vigor, Agility and Prospecting have 5 levels each, paid with ingots and XP, and apply to every player. Start with Combat I (32 copper ingots + 5 levels' worth of XP).")
 						.dep("skill_copper").skill("combat", 1).xp(40),
 				q("skill_iron", "minecraft:iron_ingot", 2, 1, "Mineração: Ferro", "Mining: Iron",
-						"Custa 10 cobres brutos (ou minério) + 3 níveis de XP. Libera ferro e lápis-lazúli.",
-						"Costs 10 raw copper (or ore) + 3 XP levels. Unlocks iron and lapis.")
+						"Custa 32 cobres brutos (ou minério) + XP de 3 níveis (cobrado em pontos: dá para depositar aos poucos). Libera ferro e lápis-lazúli.",
+						"Costs 32 raw copper (or ore) + 3 levels' worth of XP (charged in points: you can deposit bit by bit). Unlocks iron and lapis.")
 						.dep("skill_copper").skill("mining", 4).xp(50),
 				q("iron_gear", "minecraft:iron_pickaxe", 2, 0, "Ferro na Mão", "Iron in Hand",
 						"Picareta de ferro. Com ferro vêm o upgrade de fornalha de ferro, baús maiores e os 4 blocos de ferro da oferenda do Golem de Cobalto.",
 						"An iron pickaxe. Iron also makes the iron furnace upgrade, bigger chests and the 4 iron blocks offered to the Cobalt Golem.")
 						.dep("skill_iron").have("minecraft:iron_pickaxe", 1).xp(50),
 				q("skill_gold", "minecraft:gold_ingot", 3, 1, "Mineração: Ouro", "Mining: Gold",
-						"Custa 10 ferros brutos + 5 níveis. O ouro agora é um nível de verdade, entre ferro e cobalto. Libera ouro e redstone.",
-						"Costs 10 raw iron + 5 levels. Gold is now a real tier between iron and cobalt. Unlocks gold and redstone.")
+						"Custa 32 ferros brutos + 1 bloco de ferro + 5 níveis. O ouro agora é um nível de verdade, entre ferro e cobalto. Libera ouro e redstone.",
+						"Costs 32 raw iron + 1 iron block + 5 levels. Gold is now a real tier between iron and cobalt. Unlocks gold and redstone.")
 						.dep("skill_iron").skill("mining", 5).xp(60),
 				q("skill_cobalt", "mlinnotas:cobalt_ingot", 4, 1, "Mineração: Cobalto", "Mining: Cobalt",
-						"Precisa do Coração de Cobalto, solto pelo Golem de Cobalto (capítulo Chefes), + 10 ouros brutos + 10 níveis.",
-						"Needs the Cobalt Heart dropped by the Cobalt Golem (Bosses chapter), + 10 raw gold + 10 levels.")
+						"Precisa do Coração de Cobalto, solto pelo Golem de Cobalto (capítulo Chefes), + 32 ouros brutos + 10 níveis.",
+						"Needs the Cobalt Heart dropped by the Cobalt Golem (Bosses chapter), + 32 raw gold + 10 levels.")
 						.dep("skill_gold").skill("mining", 6).xp(80),
 				q("cobalt", "mlinnotas:raw_cobalt", 4, 0, "Cobalto", "Cobalt",
-						"Minério azul do Overworld, em pedra e ardósia abaixo de y=32 (veios ricos bem no fundo). Pede picareta de ferro. Funda em lingotes: a pedra de teleporte usa um.",
-						"Blue Overworld ore in stone and deepslate below y=32 (rich veins deep down). Needs an iron pickaxe. Smelt it: the waystone recipe uses an ingot.")
+						"Minério azul do Overworld, em pedra e ardósia abaixo de y=16 (veios ricos bem no fundo). Pede picareta de ferro. Funda em lingotes: a pedra de teleporte usa um.",
+						"Blue Overworld ore in stone and deepslate below y=16 (rich veins deep down). Needs an iron pickaxe. Smelt it: the waystone recipe uses an ingot.")
 						.dep("skill_cobalt").have("mlinnotas:cobalt_ingot", 4).xp(80),
 				q("skill_diamond", "minecraft:diamond", 5, 1, "Mineração: Diamante", "Mining: Diamond",
-						"Custa 10 cobaltos brutos + 15 níveis. O diamante agora pede picareta de cobalto.",
-						"Costs 10 raw cobalt + 15 levels. Diamond now needs a cobalt pickaxe.")
+						"Custa 32 cobaltos brutos + 1 bloco de cobalto + 15 níveis. O diamante agora pede picareta de cobalto.",
+						"Costs 32 raw cobalt + 1 cobalt block + 15 levels. Diamond now needs a cobalt pickaxe.")
 						.dep("skill_cobalt").skill("mining", 7).item("minecraft:diamond", 1).xp(100),
 				q("skill_netherite", "minecraft:netherite_scrap", 6, 1, "Mineração: Netherite", "Mining: Netherite",
-						"Precisa do Núcleo Abissal (Guardião das Profundezas) + 5 diamantes + 20 níveis. Libera os detritos ancestrais.",
-						"Needs the Abyssal Core (Abyssal Guardian) + 5 diamonds + 20 levels. Unlocks ancient debris.")
+						"Precisa do Núcleo Abissal (Guardião das Profundezas) + 12 diamantes + 20 níveis. Libera os detritos ancestrais.",
+						"Needs the Abyssal Core (Abyssal Guardian) + 12 diamonds + 20 levels. Unlocks ancient debris.")
 						.dep("skill_diamond").skill("mining", 8).xp(150),
 				q("skill_infernite", "mlinnotas:raw_infernite", 7, 1, "Mineração: Infernita", "Mining: Infernite",
-						"Precisa da Brasa do Colosso (Colosso Ígneo) + 4 sucatas de netherite + 20 níveis. A infernita só existe no Nether e pede picareta de netherite.",
-						"Needs the Colossus Ember (Igneous Colossus) + 4 netherite scrap + 20 levels. Infernite only exists in the Nether and needs a netherite pickaxe.")
+						"Precisa da Brasa do Colosso (Colosso Ígneo) + 8 sucatas de netherite + 20 níveis. A infernita só existe no Nether e pede picareta de netherite.",
+						"Needs the Colossus Ember (Igneous Colossus) + 8 netherite scrap + 20 levels. Infernite only exists in the Nether and needs a netherite pickaxe.")
 						.dep("skill_netherite").skill("mining", 9).xp(200),
 				q("skill_endite", "mlinnotas:raw_endite", 8, 1, "Mineração: Endita", "Mining: Endite",
-						"Precisa de uma Escama de Dragão (Dragão do Ender) + 10 infernitas brutas + 25 níveis. A endita aparece em todo o End (picareta de infernita).",
-						"Needs a Dragon Scale (Ender Dragon) + 10 raw infernite + 25 levels. Endite appears all over the End (infernite pickaxe).")
+						"Precisa de uma Escama de Dragão (Dragão do Ender) + 32 infernitas brutas + 25 níveis. A endita só aparece nas ilhas externas do End (picareta de infernita).",
+						"Needs a Dragon Scale (Ender Dragon) + 32 raw infernite + 25 levels. Endite only appears on the outer End islands (infernite pickaxe).")
 						.dep("skill_infernite").skill("mining", 10).xp(250),
 				q("skill_astralite", "mlinnotas:raw_astralite", 9, 1, "Mineração: Astralita", "Mining: Astralite",
-						"Precisa do Fragmento Astral (Arauto Astral) + 10 enditas brutas + 30 níveis. A astralita só aparece nas ilhas externas do End (picareta de endita).",
-						"Needs the Astral Fragment (Astral Herald) + 10 raw endite + 30 levels. Astralite only appears on the outer End islands (endite pickaxe).")
+						"Precisa do Fragmento Astral (Arauto Astral) + 32 enditas brutas + 4 Núcleos de Sentinela + 30 níveis. A astralita só aparece nas ilhas externas do End (picareta de endita).",
+						"Needs the Astral Fragment (Astral Herald) + 32 raw endite + 4 Sentinel Cores + 30 levels. Astralite only appears on the outer End islands (endite pickaxe).")
 						.dep("skill_endite").skill("mining", 11).xp(300),
 				q("skill_celestium", "minecraft:nether_star", 10, 1, "Mineração: Celéstio", "Mining: Celestium",
-						"Precisa da Estrela do Nether (Wither) + 10 astralitas brutas + 40 níveis. Libera a liga de celéstio.",
-						"Needs a Nether Star (Wither) + 10 raw astralite + 40 levels. Unlocks the celestium alloy.")
+						"Precisa da Estrela do Nether (Wither) + 24 astralitas brutas + 40 níveis. Libera a liga de celéstio.",
+						"Needs a Nether Star (Wither) + 24 raw astralite + 40 levels. Unlocks the celestium alloy.")
 						.dep("skill_astralite").skill("mining", 12).xp(400),
 				q("celestium", "mlinnotas:celestium_ingot", 11, 1, "Celéstio", "Celestium",
 						"Liga sem forma: 2 astralitas + 2 enditas + 2 infernitas + 1 netherite. O topo da escada: armadura 20, varinha de 1024 blocos, baú de 243.",
@@ -373,7 +385,15 @@ class QuestContent {
 				q("deep_dark", "minecraft:sculk_shrieker", 1, 5, "Escuro Profundo", "Deep Dark",
 						"Bem fundo, sob as montanhas. Ande agachado: o sculk chama o Warden. Cidades antigas guardam fragmentos de eco, e o Santuário Abissal também fica aqui.",
 						"Deep below the mountains. Sneak: sculk calls the Warden. Ancient cities hold echo shards, and the Abyssal Sanctum lies here too.")
-						.dep("biomes").biome("minecraft:deep_dark").xp(80));
+						.dep("biomes").biome("minecraft:deep_dark").xp(80),
+				q("biome_compass", "mlinnotas:biome_compass", 0, 0, "Bússola de Biomas", "Biome Compass",
+						"Receita: bússola no meio, mudas e troncos em volta. Botão direito abre a lista de biomas desta dimensão (busque pelo nome); a agulha aponta para o mais perto e o tooltip mostra a distância.",
+						"Recipe: a compass in the middle, saplings and logs around it. Right-click opens the list of biomes in this dimension (search by name); the needle points to the nearest one and the tooltip shows the distance.")
+						.dep("explore").have("mlinnotas:biome_compass", 1).item("minecraft:map", 2).xp(40),
+				q("structure_compass", "mlinnotas:structure_compass", 3, 2, "Bússola de Estruturas", "Structure Compass",
+						"Receita: bússola no meio, lingotes de cobalto e tijolos de pedra em volta. Aponta para ruínas, masmorras, templos e vilas. Os covis dos chefes só aparecem na lista quando o mundo chega no nível de Mineração anterior ao do chefe.",
+						"Recipe: a compass in the middle, cobalt ingots and stone bricks around it. Points to ruins, dungeons, temples and villages. Boss lairs only show up in the list once the world reaches the Mining level before that boss.")
+						.dep("biome_compass", "mining/cobalt").have("mlinnotas:structure_compass", 1).item("mlinnotas:return_scroll", 1).xp(80));
 
 		chapter("bosses", 3, "mlinnotas:cobalt_heart", "Chefes", "Bosses",
 				q("cobalt_shrine", "mlinnotas:cobalt_altar", 0, 0, "Santuário de Cobalto", "Cobalt Shrine",
@@ -401,28 +421,32 @@ class QuestContent {
 						"A sonic pulse that ignores armor, and darkness; in phase 2 sculk tentacles grab you. Drops the Abyssal Core (Mining: Netherite).")
 						.dep("echo_shards").kill("mlinnotas:abyssal_guardian", 1).item("minecraft:golden_apple", 2).xp(400),
 				q("colossus_forge", "minecraft:blackstone", 0, 2, "Forja do Colosso", "Colossus Forge",
-						"Nos Picos de Infernita do Nether: arena de pedra-negra com anel de lava e colunas de basalto. O colosso dorme no trono e acorda com alguém em sobrevivência a 16 blocos.",
-						"In the Nether's Infernite Peaks: a blackstone arena with a lava ring and basalt pillars. The colossus sleeps on its throne and wakes when a survival player comes within 16 blocks.")
+						"Nos Picos de Infernita do Nether: arena de pedra-negra com anel de lava e colunas de basalto. O colosso dorme no trono e só acorda com a Chave da Forja.",
+						"In the Nether's Infernite Peaks: a blackstone arena with a lava ring and basalt pillars. The colossus sleeps on its throne and only wakes with the Forge Key.")
 						.dep("nether/infernite_peaks").structure("mlinnotas:colossus_forge").xp(80),
+				q("forge_key", "mlinnotas:forge_key", 1, 2, "Chave da Forja", "Forge Key",
+						"Núcleo Abissal + 8 varas de blaze na mesa de trabalho. Use a chave no colosso adormecido ou no trono dele para acordá-lo (ela é gasta). Sim, são dois Núcleos: um para a Mineração e outro para a chave.",
+						"Abyssal Core + 8 blaze rods on a crafting table. Use the key on the sleeping colossus or its throne to wake it (it is used up). Yes, that is two Cores: one for Mining and one for the key.")
+						.dep("colossus_forge", "abyssal_guardian").have("mlinnotas:forge_key", 1).xp(60),
 				q("igneous_colossus", "mlinnotas:colossus_ember", 2, 2, "Colosso Ígneo", "Igneous Colossus",
-						"Onda de fogo em anel e chuva de meteoros de magma; na fase 2 abre poças de lava avisadas por partículas. Leve resistência ao fogo. Solta a Brasa do Colosso (Mineração: Infernita).",
-						"A ring of fire and a magma meteor shower; in phase 2 it opens lava pools announced by particles. Bring fire resistance. Drops the Colossus Ember (Mining: Infernite).")
-						.dep("colossus_forge").kill("mlinnotas:igneous_colossus", 1).item("minecraft:golden_apple", 3).xp(500),
+						"Onda de fogo em anel e chuva de meteoros de magma; na fase 2 abre poças de lava avisadas por partículas. Leve resistência ao fogo. Solta a Brasa do Colosso (Mineração: Infernita) e o Molde Infernal (ferraria de infernita).",
+						"A ring of fire and a magma meteor shower; in phase 2 it opens lava pools announced by particles. Bring fire resistance. Drops the Colossus Ember (Mining: Infernite) and the Infernal Smithing Template (infernite smithing).")
+						.dep("forge_key").kill("mlinnotas:igneous_colossus", 1).item("minecraft:golden_apple", 3).xp(500),
 				q("ender_dragon", "minecraft:dragon_head", 2, 3, "Dragão do Ender", "Ender Dragon",
-						"Fase 1: meteoros do vazio e ácaros. Fase 2: dois cristais renascem, mergulhos e sentinelas. Fase 3: rajadas de sopro. Cada morte deixa Escamas de Dragão e um baú do tesouro no estrado norte.",
-						"Phase 1: void meteors and mites. Phase 2: two crystals respawn, dives and sentinels. Phase 3: breath barrages. Every kill leaves Dragon Scales and a treasure chest on the north dais.")
+						"Fase 1: meteoros do vazio e ácaros. Fase 2: dois cristais renascem, mergulhos e sentinelas. Fase 3: rajadas de sopro. A primeira morte deixa 2 a 4 Escamas, o Molde do Fim e o tesouro completo (com o Totem) no estrado norte; reinvocado, rende menos.",
+						"Phase 1: void meteors and mites. Phase 2: two crystals respawn, dives and sentinels. Phase 3: breath barrages. The first kill leaves 2 to 4 Dragon Scales, the End Smithing Template and the full hoard (with the Totem) on the north dais; respawned, it yields less.")
 						.dep("end/enter_end").kill("minecraft:ender_dragon", 1).item("minecraft:golden_apple", 3).xp(500),
 				q("sentinel_cores", "mlinnotas:sentinel_core", 1, 4, "Núcleos de Sentinela", "Sentinel Cores",
-						"As Sentinelas de Púrpura da Cidadela soltam núcleos. O altar astral, no cofre do topo, pede 4.",
-						"The Citadel's Purpur Sentinels drop cores. The astral altar in the top vault asks for 4.")
-						.dep("end/citadel").have("mlinnotas:sentinel_core", 4).xp(80),
+						"As Sentinelas de Púrpura da Cidadela soltam núcleos. O altar astral, no cofre do topo, pede 4 e mais 1 Escama de Dragão.",
+						"The Citadel's Purpur Sentinels drop cores. The astral altar in the top vault asks for 4 plus 1 Dragon Scale.")
+						.dep("end/citadel", "ender_dragon").have("mlinnotas:sentinel_core", 4).have("mlinnotas:dragon_scale", 1).xp(80),
 				q("astral_herald", "mlinnotas:astral_fragment", 2, 4, "Arauto Astral", "Astral Herald",
-						"Voa, dispara raios estelares teleguiados e se teleporta; na fase 2 invoca sentinelas. Solta o Fragmento Astral (Mineração: Astralita).",
-						"It flies, fires homing star bolts and teleports; in phase 2 it summons sentinels. Drops the Astral Fragment (Mining: Astralite).")
+						"Voa, dispara raios estelares teleguiados e se teleporta; na fase 2 invoca sentinelas. Solta o Fragmento Astral (Mineração: Astralita) e o Molde Astral.",
+						"It flies, fires homing star bolts and teleports; in phase 2 it summons sentinels. Drops the Astral Fragment (Mining: Astralite) and the Astral Smithing Template.")
 						.dep("sentinel_cores").kill("mlinnotas:astral_herald", 1).item("minecraft:enchanted_golden_apple", 1).xp(800),
 				q("wither", "minecraft:nether_star", 2, 5, "Wither", "Wither",
-						"3 crânios de esqueleto wither sobre 4 areias das almas em T. Lute longe da base! Solta a Estrela do Nether (Mineração: Celéstio e o sinalizador).",
-						"3 wither skeleton skulls on 4 soul sand in a T. Fight far from home! Drops the Nether Star (Mining: Celestium and the beacon).")
+						"3 crânios de esqueleto wither sobre 4 areias das almas em T. Lute longe da base! Solta a Estrela do Nether (Mineração: Celéstio e o sinalizador) e o Molde Celestial.",
+						"3 wither skeleton skulls on 4 soul sand in a T. Fight far from home! Drops the Nether Star (Mining: Celestium and the beacon) and the Celestial Smithing Template.")
 						.dep("nether/wither_skulls").kill("minecraft:wither", 1).item("minecraft:golden_apple", 3).xp(500),
 				q("legends", "minecraft:totem_of_undying", 4, 2.5, "Lendas do Mundo", "Legends of the World",
 						"Todos os chefes derrotados. Esta quest completa sozinha.",
@@ -452,8 +476,8 @@ class QuestContent {
 						"Basalt and blackstone plateaus with exposed infernite. The Colossus Forge is here (Bosses chapter).")
 						.dep("enter_nether").biome("mlinnotas:infernite_peaks").xp(60),
 				q("infernite", "mlinnotas:infernite_ingot", 2, 2, "Infernita", "Infernite",
-						"Minério só do Nether, com veios ricos nos Picos. Pede picareta de netherite e Mineração: Infernita.",
-						"A Nether-only ore with rich veins in the Peaks. Needs a netherite pickaxe and Mining: Infernite.")
+						"Minério só do Nether, com veios ricos nos Picos. Pede picareta de netherite e Mineração: Infernita. Ferramentas e armaduras de infernita saem da mesa de ferraria: peça de netherite + lingote + Molde Infernal.",
+						"A Nether-only ore with rich veins in the Peaks. Needs a netherite pickaxe and Mining: Infernite. Infernite tools and armor come from the smithing table: netherite piece + ingot + Infernal Smithing Template.")
 						.dep("infernite_peaks", "mining/skill_infernite").have("mlinnotas:infernite_ingot", 4).xp(150),
 				q("fortress", "minecraft:nether_bricks", 1, 3, "Fortaleza do Nether", "Nether Fortress",
 						"As fortalezas agora ficam assentadas no chão. Blazes e esqueletos wither moram lá.",
@@ -567,13 +591,29 @@ class QuestContent {
 						"The furnace upgrade smelts the contents using fuel from the backpack; crafting adds a 3x3 grid to its screen; water and lava tanks fill with Shift+click on a source.")
 						.dep("backpack_size").have("mlinnotas:backpack_upgrade_furnace", 1).xp(80),
 				q("enchanting", "minecraft:enchanting_table", 0, 3, "Encantamento Escolhido", "Chosen Enchantments",
-						"A mesa não sorteia mais: escolha o encantamento e o nível. Custa XP e 1 lápis por nível; 15 estantes liberam o máximo. Dá para subir um encantamento pagando só a diferença.",
-						"The table no longer rolls dice: pick the enchantment and level. Costs XP and 1 lapis per level; 15 bookshelves unlock the max. You can upgrade an enchantment paying only the difference.")
+						"A mesa não sorteia mais: escolha o encantamento e o nível. Custa XP e 1 lápis por nível; 15 estantes liberam o máximo, mas a Mineração do mundo limita o nível (Ferro: I, Ouro: II, Diamante: III, Infernita: IV, Astralita: máximo), também na bigorna. Cada encantamento pede ainda um reagente no slot abaixo do lápis, mais a cada nível: açúcar para Eficiência, pó de blaze para Aspecto Flamejante, pederneira para Afiação... Dá para subir um encantamento pagando só a diferença.",
+						"The table no longer rolls dice: pick the enchantment and level. Costs XP and 1 lapis per level; 15 bookshelves unlock the max, but the world's Mining level caps it (Iron: I, Gold: II, Diamond: III, Infernite: IV, Astralite: max), on the anvil too. Each enchantment also needs a reagent in the slot below the lapis, more per level: sugar for Efficiency, blaze powder for Fire Aspect, flint for Sharpness... You can upgrade an enchantment paying only the difference.")
 						.dep("mining/skill_diamond").advancement("minecraft:story/enchant_item", "minecraft:enchanted_book", "enchant",
 								"Encante um item", "Enchant an item").item("minecraft:lapis_lazuli", 16).xp(100),
 				q("beacon", "minecraft:beacon", 0, 4, "Sinalizador por Nível", "Tiered Beacon",
 						"O metal mais fraco da pirâmide define o nível: ferro alcança 50, cobalto 70, netherite 100, até celéstio 200. Infernita em diante libera nível III e Garimpo; celéstio libera Voo dentro do alcance.",
 						"The weakest metal in the pyramid sets the tier: iron reaches 50, cobalt 70, netherite 100, up to celestium 200. Infernite and up unlock level III and Prospecting; celestium unlocks Flight within range.")
-						.dep("bosses/wither").have("minecraft:beacon", 1).xp(300));
+						.dep("bosses/wither").have("minecraft:beacon", 1).xp(300),
+				q("storage_unit", "mlinnotas:storage_unit_copper", 0, 5, "Armazenamento em Massa", "Bulk Storage",
+						"A Unidade de Armazenamento guarda poucos tipos, mas muito de cada: a de cobre já leva 16 tipos com 1024 de cada, sem limite de pilha. Botão direito com um item guarda direto; quebrada, leva o conteúdo junto.",
+						"The Storage Unit holds few item types but lots of each: the copper one already takes 16 types with 1024 of each, no stack limit. Right-click with an item to store it; when broken it keeps its contents.")
+						.dep("stone_chest", "mining/skill_copper").have("mlinnotas:storage_unit_copper", 1).item("minecraft:redstone", 16).xp(50),
+				q("storage_terminal", "mlinnotas:storage_terminal", 1, 5, "Rede de Armazenamento", "Storage Network",
+						"Cabos ligam unidades, terminais e baús (baús, barris, caixas de shulker e baús do mod) numa rede só. O terminal mostra tudo com a quantidade somada: busque, ordene, tire e guarde de um lugar.",
+						"Cables link units, terminals and chests (chests, barrels, shulker boxes and the mod's chests) into one network. The terminal shows everything with summed amounts: search, sort, take and store from one place.")
+						.dep("storage_unit").have("mlinnotas:storage_terminal", 1).item("mlinnotas:storage_cable", 16).xp(80),
+				q("crafting_terminal", "mlinnotas:crafting_terminal", 2, 5, "Bancada Conectada", "Connected Workbench",
+						"O Terminal de Crafting tem uma grade 3x3 que se reabastece da rede: Shift+clique no resultado fabrica enquanto houver ingredientes.",
+						"The Crafting Terminal has a 3x3 grid that refills from the network: Shift+click the result to keep crafting while ingredients last.")
+						.dep("storage_terminal").have("mlinnotas:crafting_terminal", 1).xp(60),
+				q("storage_diamond", "mlinnotas:storage_unit_diamond", 2, 6, "Cofre Sem Fundo", "Bottomless Vault",
+						"Cada nível melhora a unidade anterior com o bloco do metal (no crafting, mantendo o conteúdo). A de diamante guarda 48 tipos com 65 mil de cada.",
+						"Each tier upgrades the previous unit with the metal's block (in the crafting grid, keeping the contents). The diamond one stores 48 types with 65 thousand of each.")
+						.dep("storage_terminal", "mining/skill_diamond").have("mlinnotas:storage_unit_diamond", 1).xp(200));
 	}
 }

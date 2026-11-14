@@ -22,5 +22,6 @@ public final class DragonRegistry {
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, MlinNotas.id("dragon_arena"), DragonArenaFeature.CODEC);
 		BiomeModifications.addFeature(BiomeSelectors.includeByKey(Biomes.THE_END), GenerationStep.Decoration.SURFACE_STRUCTURES, ARENA);
 		DragonBoss.init();
+		RespawnExplosionGuard.init();
 	}
 }

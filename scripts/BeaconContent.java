@@ -64,15 +64,15 @@ class BeaconContent {
 		String netherrack = "{\"predicate_type\":\"minecraft:block_match\",\"block\":\"minecraft:netherrack\"}";
 		String peaksStone = "{\"predicate_type\":\"minecraft:tag_match\",\"tag\":\"mlinnotas:infernite_peaks_stone\"}";
 		String endStone = "{\"predicate_type\":\"minecraft:block_match\",\"block\":\"minecraft:end_stone\"}";
-		richVein("ore_cobalt_rich", 48, "{\"state\":\"mlinnotas:cobalt_ore\",\"target\":" + stone + "},{\"state\":\"mlinnotas:deepslate_cobalt_ore\",\"target\":"
-				+ deepslate + "}", 14, uniform("{\"above_bottom\":8}", "{\"absolute\":0}"));
-		richVein("ore_infernite_rich", 44, "{\"state\":\"mlinnotas:infernite_ore\",\"target\":" + netherrack + "}", 20,
+		richVein("ore_cobalt_rich", 34, "{\"state\":\"mlinnotas:cobalt_ore\",\"target\":" + stone + "},{\"state\":\"mlinnotas:deepslate_cobalt_ore\",\"target\":"
+				+ deepslate + "}", 24, uniform("{\"above_bottom\":8}", "{\"absolute\":0}"));
+		richVein("ore_infernite_rich", 31, "{\"state\":\"mlinnotas:infernite_ore\",\"target\":" + netherrack + "}", 20,
 				uniform("{\"above_bottom\":10}", "{\"below_top\":10}"));
-		richVein("ore_infernite_rich_peaks", 52, "{\"state\":\"mlinnotas:infernite_ore\",\"target\":" + peaksStone + "}", 5,
+		richVein("ore_infernite_rich_peaks", 36, "{\"state\":\"mlinnotas:infernite_ore\",\"target\":" + peaksStone + "}", 5,
 				uniform("{\"absolute\":32}", "{\"absolute\":100}"));
-		richVein("ore_endite_rich", 48, "{\"state\":\"mlinnotas:endite_ore\",\"target\":" + endStone + "}", 10,
+		richVein("ore_endite_rich", 34, "{\"state\":\"mlinnotas:endite_ore\",\"target\":" + endStone + "}", 10,
 				uniform("{\"absolute\":8}", "{\"absolute\":96}"));
-		richVein("ore_astralite_rich", 40, "{\"state\":\"mlinnotas:astralite_ore\",\"target\":" + endStone + "}", 14,
+		richVein("ore_astralite_rich", 28, "{\"state\":\"mlinnotas:astralite_ore\",\"target\":" + endStone + "}", 14,
 				uniform("{\"absolute\":8}", "{\"absolute\":96}"));
 
 		// --- efeitos novos e tela do sinalizador ---

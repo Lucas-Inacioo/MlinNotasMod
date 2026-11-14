@@ -45,8 +45,8 @@ public class SkillData extends SavedData {
 		return progress;
 	}
 
-	public SkillProgress.Deposit deposit(SkillNode node, Map<String, Integer> available, int xpLevels) {
-		SkillProgress.Deposit result = progress.deposit(node, available, xpLevels);
+	public SkillProgress.Deposit deposit(SkillNode node, Map<String, Integer> available, int xpPoints) {
+		SkillProgress.Deposit result = progress.deposit(node, available, xpPoints);
 		if (result.accepted()) {
 			setDirty();
 		}

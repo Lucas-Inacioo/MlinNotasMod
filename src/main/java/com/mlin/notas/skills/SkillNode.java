@@ -10,7 +10,7 @@ import java.util.List;
  * @param branch         ramo
  * @param level          nivel que este no libera (Mineracao 2..12, ramos laterais 1..5)
  * @param items          custo em itens (id de item ou {@code #tag})
- * @param xpLevels       custo em niveis de XP
+ * @param xpLevels       custo de XP em niveis nominais (cobrado em pontos, {@link #xpPoints()})
  * @param miningRequired nivel de Mineracao minimo para comprar (ramos laterais); null no tronco
  * @param icon           item mostrado na tela
  */
@@ -36,6 +36,11 @@ public record SkillNode(SkillBranch branch, int level, List<Cost> items, int xpL
 
 	public SkillNode {
 		items = List.copyOf(items);
+	}
+
+	/** Custo de XP em pontos: os pontos para ir do nivel 0 a {@link #xpLevels()}. */
+	public int xpPoints() {
+		return com.mlin.notas.util.XpMath.pointsForLevels(xpLevels);
 	}
 
 	/** Chave estavel ({@code mining/3}) usada no save, nos pacotes e no lang. */

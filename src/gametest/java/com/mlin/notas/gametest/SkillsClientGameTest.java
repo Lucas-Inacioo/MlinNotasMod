@@ -91,15 +91,15 @@ public class SkillsClientGameTest implements FabricClientGameTest {
 			context.waitTicks(3);
 			context.takeScreenshot("skills_tree_locked");
 
-			// seleciona Diamante e deposita: 4 + 3 = 7 de cobalto bruto e mais 4 niveis (10/15)
+			// seleciona Diamante e deposita: 4 + 3 = 7 de cobalto bruto e mais 4 niveis em pontos (6 + 40 de 315)
 			hover(context, SkillBranch.MINING, diamond.level());
 			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
 			context.waitFor(mc -> ((SkillTreeScreen) mc.gui.screen()).selected() == diamond, 20);
 			context.clickScreenButton("gui.mlinnotas.skills.deposit");
 			context.waitFor(mc -> SkillClient.progress().deposited(diamond, "mlinnotas:raw_cobalt") == 7, 100);
 			int xp = singleplayer.getServer().computeOnServer(server -> SkillData.get(server).progress().depositedXp(diamond));
-			if (xp != 10) {
-				throw new IllegalStateException("XP depositado deveria ser 10, veio " + xp);
+			if (xp != 6 + com.mlin.notas.util.XpMath.pointsForLevels(4)) {
+				throw new IllegalStateException("XP depositado deveria ser 6 + 40 pontos, veio " + xp);
 			}
 			hover(context, SkillBranch.MINING, diamond.level());
 			context.waitTicks(3);

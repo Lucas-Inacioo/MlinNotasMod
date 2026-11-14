@@ -5,6 +5,16 @@
     "minecraft:pumpkin_seeds",
     "minecraft:melon_seeds",
     "minecraft:torchflower_seeds",
-    "minecraft:pitcher_pod"
+    "minecraft:pitcher_pod",
+    "mlinnotas:lettuce_seeds",
+    "mlinnotas:onion",
+    "mlinnotas:strawberry_seeds",
+    "mlinnotas:tomato_seeds",
+    "mlinnotas:corn_seeds",
+    "mlinnotas:bell_pepper_seeds",
+    "mlinnotas:rice",
+    "mlinnotas:beans",
+    "mlinnotas:garlic",
+    "mlinnotas:cabbage_seeds"
   ]
 }

@@ -29,7 +29,6 @@ class NetherContent {
 	static void generate(List<String> pickaxeMineable) throws IOException {
 		terrain();
 		biomes();
-		structures();
 		blocks(pickaxeMineable);
 	}
 
@@ -278,7 +277,7 @@ class NetherContent {
 				+ "\"targets\":" + targets + "}");
 		ContentGen.tag("block", "mlinnotas:infernite_peaks_stone", List.of("minecraft:basalt", "minecraft:blackstone", "minecraft:netherrack"), false);
 		ContentGen.write(placed + "ore_infernite_exposed.json", "{\"feature\":\"mlinnotas:ore_infernite_exposed\",\"placement\":["
-				+ "{\"type\":\"minecraft:count\",\"count\":10},{\"type\":\"minecraft:in_square\"},{\"type\":\"minecraft:height_range\",\"height\":"
+				+ "{\"type\":\"minecraft:count\",\"count\":4},{\"type\":\"minecraft:in_square\"},{\"type\":\"minecraft:height_range\",\"height\":"
 				+ "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":100},\"min_inclusive\":{\"absolute\":32}}},{\"type\":\"minecraft:biome\"}]}");
 		// afloramento: procura o chao (de cima para baixo a partir de uma altura no vao) e poe o veio ali, exposto
 		String findFloor = "{\"type\":\"minecraft:environment_scan\",\"allowed_search_condition\":{\"type\":\"minecraft:matching_block_tag\","
@@ -326,23 +325,7 @@ class NetherContent {
 				+ VanillaNetherRule.TAIL.strip() + "]}");
 	}
 
-	// ------------------------------------------------------------------ estruturas
-
-	static void structures() throws IOException {
-		// fortaleza e bastiao vanilla embrulhados em mlinnotas:grounded: gera igual e depois desce/sobe tudo para o chao
-		ContentGen.write("data/minecraft/worldgen/structure/fortress.json", "{\"type\":\"mlinnotas:grounded\",\"biomes\":"
-				+ "\"#minecraft:has_structure/nether_fortress\",\"floor_offset\":-4,\"spawn_overrides\":{\"monster\":{\"bounding_box\":\"piece\","
-				+ "\"spawns\":[{\"type\":\"minecraft:blaze\",\"count\":{\"type\":\"minecraft:uniform\",\"max_inclusive\":3,\"min_inclusive\":2},"
-				+ "\"weight\":10},{\"type\":\"minecraft:zombified_piglin\",\"count\":4,\"weight\":5},{\"type\":\"minecraft:wither_skeleton\",\"count\":5,"
-				+ "\"weight\":8},{\"type\":\"minecraft:skeleton\",\"count\":5,\"weight\":2},{\"type\":\"minecraft:magma_cube\",\"count\":4,\"weight\":3}]}},"
-				+ "\"step\":\"underground_decoration\",\"delegate\":{\"type\":\"minecraft:fortress\",\"biomes\":\"#minecraft:has_structure/nether_fortress\","
-				+ "\"spawn_overrides\":{},\"step\":\"underground_decoration\"}}");
-		ContentGen.write("data/minecraft/worldgen/structure/bastion_remnant.json", "{\"type\":\"mlinnotas:grounded\",\"biomes\":"
-				+ "\"#minecraft:has_structure/bastion_remnant\",\"floor_offset\":-2,\"max_top\":124,\"spawn_overrides\":{},\"step\":\"surface_structures\","
-				+ "\"terrain_adaptation\":\"beard_thin\",\"delegate\":{\"type\":\"minecraft:jigsaw\",\"biomes\":\"#minecraft:has_structure/bastion_remnant\","
-				+ "\"max_distance_from_center\":80,\"size\":6,\"spawn_overrides\":{},\"start_height\":{\"absolute\":33},\"start_pool\":"
-				+ "\"minecraft:bastion/starts\",\"step\":\"surface_structures\",\"use_expansion_hack\":false}}");
-	}
+	// fortaleza e bastiao: refeitos em vstructures/ (JSON em SNetherContent)
 
 	// ------------------------------------------------------------------ blocos, itens, criatura
 

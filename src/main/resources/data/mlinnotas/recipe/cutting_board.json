@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "#minecraft:wooden_slabs",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "SPP"
+  ],
+  "result": {
+    "id": "mlinnotas:cutting_board"
+  }
+}

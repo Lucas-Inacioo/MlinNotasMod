@@ -1,0 +1,7 @@
+{
+  "type": "mlinnotas:vanilla_remake",
+  "kind": "trail_ruins",
+  "biomes": "#minecraft:has_structure/trail_ruins",
+  "spawn_overrides": {},
+  "step": "underground_structures"
+}

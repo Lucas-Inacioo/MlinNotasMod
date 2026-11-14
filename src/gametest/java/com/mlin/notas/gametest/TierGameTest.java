@@ -134,7 +134,8 @@ public class TierGameTest {
 		helper.assertTrue(!biomeHas(helper, Biomes.PLAINS, ModWorldgen.ORE_INFERNITE), "infernita fora do Overworld");
 		helper.assertTrue(biomeHas(helper, Biomes.NETHER_WASTES, ModWorldgen.ORE_INFERNITE), "infernita no Nether");
 		helper.assertTrue(!biomeHas(helper, Biomes.NETHER_WASTES, ModWorldgen.ORE_ENDITE), "endita fora do Nether");
-		helper.assertTrue(biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ENDITE), "endita no End");
+		helper.assertTrue(biomeHas(helper, Biomes.END_HIGHLANDS, ModWorldgen.ORE_ENDITE), "endita nas ilhas externas");
+		helper.assertTrue(!biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ENDITE), "sem endita na ilha central");
 		helper.assertTrue(!biomeHas(helper, Biomes.THE_END, ModWorldgen.ORE_ASTRALITE), "astralita nao na ilha central");
 		helper.assertTrue(biomeHas(helper, Biomes.END_HIGHLANDS, ModWorldgen.ORE_ASTRALITE), "astralita nas ilhas externas");
 		helper.succeed();

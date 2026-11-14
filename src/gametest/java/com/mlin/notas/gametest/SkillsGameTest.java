@@ -133,9 +133,11 @@ public class SkillsGameTest {
 
 			// 5) atributos: alice compra Combate I (com XP) e os dois ganham o bonus
 			SkillServer.setLevel(server, SkillBranch.MINING, Tier.NETHERITE.level());
-			alice.getInventory().add(new ItemStack(Items.COPPER_INGOT, 16));
+			alice.getInventory().add(new ItemStack(Items.COPPER_INGOT, 32));
 			helper.assertTrue(SkillServer.deposit(alice, SkillTree.node(SkillBranch.COMBAT, 1)) == SkillProgress.Outcome.UNLOCKED, "Combate I");
-			helper.assertTrue(alice.experienceLevel == 5, "pagou 5 niveis, ficou com " + alice.experienceLevel);
+			int left = SkillServer.experiencePoints(alice);
+			helper.assertTrue(Math.abs(left - (com.mlin.notas.util.XpMath.pointsForLevels(10) - com.mlin.notas.util.XpMath.pointsForLevels(5))) <= 1,
+					"pagou os pontos de 5 niveis (55 de 160), ficou com " + left + " (nivel " + alice.experienceLevel + ")");
 			for (ServerPlayer player : List.of(alice, bob)) {
 				helper.assertTrue(modifier(player, Attributes.ATTACK_DAMAGE, SkillServer.COMBAT_MODIFIER) == SkillEffects.meleeBonus(1),
 						"Combate em " + player.getPlainTextName());

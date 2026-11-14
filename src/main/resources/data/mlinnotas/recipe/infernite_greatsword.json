@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:infernite_ingot",
+  "base": "mlinnotas:netherite_greatsword",
+  "result": {
+    "id": "mlinnotas:infernite_greatsword"
+  },
+  "template": "mlinnotas:infernal_upgrade_smithing_template"
+}

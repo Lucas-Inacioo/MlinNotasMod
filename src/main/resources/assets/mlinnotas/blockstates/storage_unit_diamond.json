@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/storage_unit_diamond"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/storage_unit_diamond",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/storage_unit_diamond",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/storage_unit_diamond",
+      "y": 270
+    }
+  }
+}

@@ -27,6 +27,10 @@ public final class VillageShop {
 			new Offer("bread", Kind.ITEM, "minecraft:bread", 6, 1, VillageLevel.CAMP),
 			new Offer("torches", Kind.ITEM, "minecraft:torch", 16, 1, VillageLevel.CAMP),
 			new Offer("bed", Kind.ITEM, "minecraft:white_bed", 1, 3, VillageLevel.CAMP),
+			new Offer("tomato_seeds", Kind.ITEM, "mlinnotas:tomato_seeds", 4, 1, VillageLevel.CAMP),
+			new Offer("cabbage_seeds", Kind.ITEM, "mlinnotas:cabbage_seeds", 4, 1, VillageLevel.CAMP),
+			new Offer("cooking_pot", Kind.ITEM, "mlinnotas:cooking_pot", 1, 4, VillageLevel.HAMLET),
+			new Offer("feijoada", Kind.ITEM, "mlinnotas:feijoada", 2, 3, VillageLevel.VILLAGE),
 			new Offer("iron", Kind.ITEM, "minecraft:iron_ingot", 3, 4, VillageLevel.HAMLET),
 			new Offer("return_scroll", Kind.ITEM, "mlinnotas:return_scroll", 1, 5, VillageLevel.HAMLET),
 			new Offer("ruin_map", Kind.MAP, "mlinnotas:on_village_maps/ruins", 1, 6, VillageLevel.HAMLET),
@@ -34,13 +38,13 @@ public final class VillageShop {
 			new Offer("book", Kind.BOOK, "", 1, 10, VillageLevel.VILLAGE),
 			new Offer("repair", Kind.REPAIR, "", 1, 1, VillageLevel.VILLAGE),
 			new Offer("shrine_map", Kind.MAP, "mlinnotas:on_village_maps/cobalt_shrine", 1, 12, VillageLevel.VILLAGE),
-			new Offer("diamond", Kind.ITEM, "minecraft:diamond", 1, 14, VillageLevel.TOWN),
+			new Offer("diamond", Kind.ITEM, "minecraft:diamond", 1, 20, VillageLevel.TOWN),
 			new Offer("golden_carrot", Kind.ITEM, "minecraft:golden_carrot", 8, 3, VillageLevel.TOWN),
 			new Offer("rare_book", Kind.RARE_BOOK, "", 1, 22, VillageLevel.TOWN),
 			new Offer("abyss_map", Kind.MAP, "mlinnotas:on_village_maps/abyssal_sanctum", 1, 18, VillageLevel.TOWN),
 			new Offer("xp", Kind.ITEM, "minecraft:experience_bottle", 8, 6, VillageLevel.CAPITAL),
-			new Offer("netherite_scrap", Kind.ITEM, "minecraft:netherite_scrap", 1, 32, VillageLevel.CAPITAL),
-			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 28, VillageLevel.CAPITAL));
+			new Offer("netherite_scrap", Kind.ITEM, "minecraft:netherite_scrap", 1, 48, VillageLevel.CAPITAL),
+			new Offer("totem", Kind.ITEM, "minecraft:totem_of_undying", 1, 48, VillageLevel.CAPITAL));
 
 	private VillageShop() {
 	}

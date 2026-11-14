@@ -1,0 +1,234 @@
+{
+  "icon": "mlinnotas:cooking_pot",
+  "order": 7,
+  "quests": [
+    {
+      "id": "garden",
+      "icon": "mlinnotas:tomato_seeds",
+      "x": 0,
+      "y": 0,
+      "dependencies": [
+        "basics/welcome"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/food_seeds",
+          "count": 1,
+          "icon": "mlinnotas:tomato_seeds",
+          "title": "quest.mlinnotas.task.food_seeds"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bone_meal",
+          "count": 8
+        },
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "cooking_pot",
+      "icon": "mlinnotas:cooking_pot",
+      "x": 1,
+      "y": 0,
+      "dependencies": [
+        "garden"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:cooking_pot",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bowl",
+          "count": 8
+        },
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "flour",
+      "icon": "mlinnotas:flour",
+      "x": 1,
+      "y": 1,
+      "dependencies": [
+        "garden"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:flour",
+          "count": 8
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:egg",
+          "count": 4
+        },
+        {
+          "xp": 20
+        }
+      ]
+    },
+    {
+      "id": "rice_and_beans",
+      "icon": "mlinnotas:rice_and_beans",
+      "x": 2,
+      "y": 0,
+      "dependencies": [
+        "cooking_pot"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:rice_and_beans",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:emerald",
+          "count": 2
+        },
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "feijoada",
+      "icon": "mlinnotas:feijoada",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "rice_and_beans"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:feijoada",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:emerald",
+          "count": 4
+        },
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "preserves",
+      "icon": "mlinnotas:strawberry_jam",
+      "x": 2,
+      "y": 1,
+      "dependencies": [
+        "cooking_pot"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/preserves",
+          "count": 4,
+          "icon": "mlinnotas:strawberry_jam",
+          "title": "quest.mlinnotas.task.preserves"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:glass_bottle",
+          "count": 8
+        },
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "barrel",
+      "icon": "mlinnotas:preserving_barrel",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "preserves"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:preserving_barrel",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "aged_cheese",
+      "icon": "mlinnotas:aged_cheese",
+      "x": 4,
+      "y": 1,
+      "dependencies": [
+        "barrel"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:aged_cheese",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:emerald",
+          "count": 3
+        },
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "winter_pantry",
+      "icon": "mlinnotas:pickles",
+      "x": 5,
+      "y": 0.5,
+      "dependencies": [
+        "feijoada",
+        "aged_cheese"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:quest/preserves",
+          "count": 16,
+          "icon": "mlinnotas:pickles",
+          "title": "quest.mlinnotas.task.preserves_16"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:golden_carrot",
+          "count": 8
+        },
+        {
+          "xp": 120
+        }
+      ]
+    }
+  ]
+}

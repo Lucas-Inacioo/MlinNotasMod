@@ -173,34 +173,6 @@
           },
           "name": "minecraft:golden_sword",
           "weight": 3
-        },
-        {
-          "type": "minecraft:item",
-          "modifier": {
-            "type": "minecraft:enchant_with_levels",
-            "levels": {
-              "type": "minecraft:uniform",
-              "max": 15,
-              "min": 5
-            },
-            "options": "#minecraft:on_random_loot"
-          },
-          "name": "mlinnotas:cobalt_sword",
-          "weight": 1
-        },
-        {
-          "type": "minecraft:item",
-          "modifier": {
-            "type": "minecraft:enchant_with_levels",
-            "levels": {
-              "type": "minecraft:uniform",
-              "max": 15,
-              "min": 5
-            },
-            "options": "#minecraft:on_random_loot"
-          },
-          "name": "mlinnotas:cobalt_pickaxe",
-          "weight": 1
         }
       ],
       "rolls": {

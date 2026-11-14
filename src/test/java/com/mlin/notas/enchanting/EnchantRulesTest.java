@@ -4,6 +4,8 @@ import com.mlin.notas.enchanting.EnchantRules.Check;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EnchantRulesTest {
 	@Test
@@ -39,9 +41,9 @@ class EnchantRulesTest {
 
 	@Test
 	void xpCostSumsEachNewLevel() {
-		assertEquals(2 + 3 + 4 + 5 + 6, EnchantRules.xpCost(1, 0, 5), "Afiacao V do zero");
-		assertEquals(5 + 6, EnchantRules.xpCost(1, 3, 5), "subir de III para V paga so os niveis novos");
-		assertEquals(9, EnchantRules.xpCost(8, 0, 1), "toque suave");
+		assertEquals(4 + 6 + 8 + 10 + 12, EnchantRules.xpCost(1, 0, 5), "Afiacao V do zero: 2*custo + 2*nivel por nivel");
+		assertEquals(10 + 12, EnchantRules.xpCost(1, 3, 5), "subir de III para V paga so os niveis novos");
+		assertEquals(18, EnchantRules.xpCost(8, 0, 1), "toque suave");
 		assertEquals(0, EnchantRules.xpCost(1, 3, 3));
 	}
 
@@ -54,20 +56,47 @@ class EnchantRulesTest {
 
 	@Test
 	void checkReportsFirstProblem() {
-		assertEquals(Check.NO_ITEM, EnchantRules.check(false, true, true, 0, 1, 5, 1, 15, 99, 64, false));
-		assertEquals(Check.NOT_APPLICABLE, EnchantRules.check(true, false, true, 0, 1, 5, 1, 15, 99, 64, false));
-		assertEquals(Check.NOT_APPLICABLE, EnchantRules.check(true, true, true, 0, 6, 5, 1, 15, 99, 64, false));
-		assertEquals(Check.INCOMPATIBLE, EnchantRules.check(true, true, false, 0, 1, 5, 1, 15, 99, 64, false));
-		assertEquals(Check.ALREADY_AT_LEVEL, EnchantRules.check(true, true, true, 3, 3, 5, 1, 15, 99, 64, false));
-		assertEquals(Check.NEEDS_BOOKSHELVES, EnchantRules.check(true, true, true, 0, 5, 5, 1, 0, 99, 64, false));
-		assertEquals(Check.NOT_ENOUGH_XP, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 19, 64, false));
-		assertEquals(Check.NOT_ENOUGH_LAPIS, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 20, 4, false));
-		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 20, 5, false));
+		assertEquals(Check.NO_ITEM, EnchantRules.check(false, true, true, 0, 1, 5, 1, 15, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.NOT_APPLICABLE, EnchantRules.check(true, false, true, 0, 1, 5, 1, 15, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.NOT_APPLICABLE, EnchantRules.check(true, true, true, 0, 6, 5, 1, 15, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.INCOMPATIBLE, EnchantRules.check(true, true, false, 0, 1, 5, 1, 15, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.ALREADY_AT_LEVEL, EnchantRules.check(true, true, true, 3, 3, 5, 1, 15, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.NEEDS_BOOKSHELVES, EnchantRules.check(true, true, true, 0, 5, 5, 1, 0, 12, 99, 64, 1, 99, false));
+		assertEquals(Check.NOT_ENOUGH_XP, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 12, 39, 64, 1, 99, false));
+		assertEquals(Check.NOT_ENOUGH_LAPIS, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 12, 40, 4, 1, 99, false));
+		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 12, 40, 5, 1, 99, false));
+	}
+
+	@Test
+	void worldMiningLevelCapsEnchantments() {
+		assertEquals(1, EnchantRules.miningCap(com.mlin.notas.tier.Tier.WOOD.level()));
+		assertEquals(1, EnchantRules.miningCap(com.mlin.notas.tier.Tier.IRON.level()));
+		assertEquals(2, EnchantRules.miningCap(com.mlin.notas.tier.Tier.GOLD.level()));
+		assertEquals(2, EnchantRules.miningCap(com.mlin.notas.tier.Tier.COBALT.level()));
+		assertEquals(3, EnchantRules.miningCap(com.mlin.notas.tier.Tier.DIAMOND.level()));
+		assertEquals(3, EnchantRules.miningCap(com.mlin.notas.tier.Tier.NETHERITE.level()));
+		assertEquals(4, EnchantRules.miningCap(com.mlin.notas.tier.Tier.INFERNITE.level()));
+		assertEquals(4, EnchantRules.miningCap(com.mlin.notas.tier.Tier.ENDITE.level()));
+		assertEquals(5, EnchantRules.cappedLevel(5, com.mlin.notas.tier.Tier.ASTRALITE.level()), "astralita libera o maximo");
+		assertEquals(1, EnchantRules.cappedLevel(1, 1), "encantamento de nivel unico nunca trava");
+		assertEquals(com.mlin.notas.tier.Tier.GOLD, EnchantRules.tierForLevel(2));
+		assertEquals(com.mlin.notas.tier.Tier.INFERNITE, EnchantRules.tierForLevel(4));
+		assertEquals(com.mlin.notas.tier.Tier.ASTRALITE, EnchantRules.tierForLevel(5));
+		// na mesa: Ferro so libera I, mesmo com 15 estantes e XP de sobra
+		int iron = com.mlin.notas.tier.Tier.IRON.level();
+		assertEquals(Check.MINING_CAP, EnchantRules.check(true, true, true, 0, 2, 5, 1, 15, iron, 99, 64, 1, 99, false));
+		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 1, 5, 1, 15, iron, 99, 64, 1, 99, false));
+		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 2, 5, 1, 15, iron, 0, 0, 1, 0, true), "criativo ignora o teto");
+		// bigorna: nao passa do teto, mas consertar um item achado com nivel alto continua valendo
+		assertFalse(EnchantRules.anvilAllows(0, 3, 5, com.mlin.notas.tier.Tier.GOLD.level()));
+		assertTrue(EnchantRules.anvilAllows(0, 2, 5, com.mlin.notas.tier.Tier.GOLD.level()));
+		assertTrue(EnchantRules.anvilAllows(4, 4, 5, com.mlin.notas.tier.Tier.GOLD.level()), "item ja tinha IV");
+		assertFalse(EnchantRules.anvilAllows(4, 5, 5, com.mlin.notas.tier.Tier.GOLD.level()), "juntar IV + IV = V passa do teto");
 	}
 
 	@Test
 	void creativeSkipsCostsButNotRules() {
-		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 0, 0, true));
-		assertEquals(Check.NEEDS_BOOKSHELVES, EnchantRules.check(true, true, true, 0, 5, 5, 1, 0, 0, 0, true));
+		assertEquals(Check.OK, EnchantRules.check(true, true, true, 0, 5, 5, 1, 15, 12, 0, 0, 1, 99, true));
+		assertEquals(Check.NEEDS_BOOKSHELVES, EnchantRules.check(true, true, true, 0, 5, 5, 1, 0, 12, 0, 0, 1, 99, true));
 	}
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "mlinnotas:item/weapon_greatsword",
+  "textures": {
+    "layer0": "mlinnotas:item/cobalt_greatsword"
+  }
+}

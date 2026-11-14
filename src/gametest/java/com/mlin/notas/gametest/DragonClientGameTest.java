@@ -191,8 +191,8 @@ public class DragonClientGameTest implements FabricClientGameTest {
 		});
 		MlinNotas.LOGGER.info("[DragonClientGameTest] dragao: vida/fase {} -> fase/cristais/meteoros {}", info, phase);
 		String[] p = phase.split(" ");
-		if (Float.parseFloat(info.split(" ")[0]) != 400.0F) {
-			throw new IllegalStateException("vida do dragao deveria ser escalada para 400 (1 jogador): " + info);
+		if (Float.parseFloat(info.split(" ")[0]) != (float) com.mlin.notas.dragon.DragonRules.BASE_HEALTH) {
+			throw new IllegalStateException("vida do dragao deveria ser escalada para " + com.mlin.notas.dragon.DragonRules.BASE_HEALTH + " (1 jogador): " + info);
 		}
 		if (Integer.parseInt(p[0]) != 2) {
 			throw new IllegalStateException("o dragao deveria ter entrado na fase 2: " + phase);

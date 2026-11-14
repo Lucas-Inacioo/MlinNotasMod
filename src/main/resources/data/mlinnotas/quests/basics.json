@@ -240,6 +240,56 @@
           "count": 8
         }
       ]
+    },
+    {
+      "id": "arsenal",
+      "icon": "mlinnotas:iron_greatsword",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "stone_tools"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "#mlinnotas:weapons",
+          "count": 1,
+          "icon": "mlinnotas:iron_greatsword",
+          "title": "quest.mlinnotas.task.any_weapon"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:iron_ingot",
+          "count": 4
+        },
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "dodge",
+      "icon": "minecraft:feather",
+      "x": 4,
+      "y": 1,
+      "dependencies": [
+        "arsenal"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:cooked_beef",
+          "count": 4
+        },
+        {
+          "xp": 20
+        }
+      ]
     }
   ]
 }

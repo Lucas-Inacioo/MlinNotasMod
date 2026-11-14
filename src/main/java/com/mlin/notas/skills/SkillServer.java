@@ -2,6 +2,7 @@ package com.mlin.notas.skills;
 
 import com.mlin.notas.MlinNotas;
 import com.mlin.notas.tier.Tier;
+import com.mlin.notas.util.XpMath;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -125,13 +126,13 @@ public final class SkillServer {
 		for (SkillNode.Cost cost : node.items()) {
 			available.put(cost.id(), ContainerHelper.clearOrCountMatchingItems(player.getInventory(), matcher(cost.id()), Integer.MAX_VALUE, true));
 		}
-		SkillProgress.Deposit result = data.deposit(node, available, player.experienceLevel);
+		SkillProgress.Deposit result = data.deposit(node, available, experiencePoints(player));
 		if (result.accepted()) {
 			result.taken().forEach((id, count) ->
 					ContainerHelper.clearOrCountMatchingItems(player.getInventory(), matcher(id), count, false));
 			player.getInventory().setChanged();
 			if (result.xpTaken() > 0) {
-				player.giveExperienceLevels(-result.xpTaken());
+				takeExperiencePoints(player, result.xpTaken());
 			}
 		}
 		Component nodeName = nodeName(node);
@@ -153,6 +154,20 @@ public final class SkillServer {
 			syncAll(server);
 		}
 		return result.outcome();
+	}
+
+	/** Pontos de XP do jogador (niveis inteiros + fracao da barra), pela conta do vanilla. */
+	public static int experiencePoints(Player player) {
+		return XpMath.totalPoints(player.experienceLevel, player.experienceProgress);
+	}
+
+	/** Tira {@code points} pontos de XP, recalculando nivel e barra (nunca abaixo de zero). */
+	public static void takeExperiencePoints(ServerPlayer player, int points) {
+		int left = Math.max(0, experiencePoints(player) - points);
+		int level = XpMath.levelForPoints(left);
+		player.setExperienceLevels(level);
+		player.setExperiencePoints(left - XpMath.pointsForLevels(level));
+		player.totalExperience = Math.max(0, player.totalExperience - points);
 	}
 
 	private static void notify(ServerPlayer player, Component message) {

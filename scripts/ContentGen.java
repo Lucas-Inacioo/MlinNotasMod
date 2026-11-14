@@ -151,14 +151,18 @@ public class ContentGen {
 					simpleItem(id, "item/handheld");
 				}
 				name("item", id, g[1] + " de " + t.pt, t.en + " " + g[2]);
-				shaped(id, g[3], Map.of("X", t.material, "#", "minecraft:stick"), "equipment");
+				if (!ProgressionContent.smithingUpgrade(t.id, g[0])) { // infernita+ = mesa de ferraria
+					shaped(id, g[3], Map.of("X", t.material, "#", "minecraft:stick"), "equipment");
+				}
 				vanillaItemTags.computeIfAbsent(g[0] + "s", k -> new ArrayList<>()).add("mlinnotas:" + id);
 			}
 			for (String[] a : ARMOR) {
 				String id = t.id + "_" + a[0];
 				simpleItem(id, "item/generated");
 				name("item", id, a[1] + " de " + t.pt, t.en + " " + a[2]);
-				shaped(id, a[3], Map.of("X", t.material), "equipment");
+				if (!ProgressionContent.smithingUpgrade(t.id, a[0])) {
+					shaped(id, a[3], Map.of("X", t.material), "equipment");
+				}
 				vanillaItemTags.computeIfAbsent(a[4], k -> new ArrayList<>()).add("mlinnotas:" + id);
 			}
 			write("assets/mlinnotas/equipment/" + t.id + ".json", "{\"layers\":{\"humanoid\":[{\"texture\":\"mlinnotas:" + t.id
@@ -231,9 +235,18 @@ public class ContentGen {
 		DungeonContent.generate();
 		BeaconContent.generate(pickaxeMineable);
 		DragonContent.generate(pickaxeMineable);
+		AccessoryContent.generate();
 		QuestContent.generate();
 		VanillaStructuresContent.generate();
 		VillageContent.generate();
+		SNetherContent.generate();
+		CompassContent.generate();
+		StorageContent.generate(pickaxeMineable);
+		SeaStructuresContent.generate();
+		FoodContent.generate();
+		CombatContent.generate();
+		SmainContent.generate();
+		ProgressionContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---
@@ -241,14 +254,14 @@ public class ContentGen {
 		String deepslate = "{\"predicate_type\":\"minecraft:tag_match\",\"tag\":\"minecraft:deepslate_ore_replaceables\"}";
 		String netherrack = "{\"predicate_type\":\"minecraft:block_match\",\"block\":\"minecraft:netherrack\"}";
 		String endStone = "{\"predicate_type\":\"minecraft:block_match\",\"block\":\"minecraft:end_stone\"}";
-		oreFeature("ore_cobalt", 6, 0.3, "{\"state\":\"mlinnotas:cobalt_ore\",\"target\":" + stone + "},{\"state\":\"mlinnotas:deepslate_cobalt_ore\",\"target\":" + deepslate + "}");
-		placed("ore_cobalt", 7, "{\"type\":\"minecraft:trapezoid\",\"max_inclusive\":{\"absolute\":32},\"min_inclusive\":{\"above_bottom\":0}}");
+		oreFeature("ore_cobalt", 5, 0.3, "{\"state\":\"mlinnotas:cobalt_ore\",\"target\":" + stone + "},{\"state\":\"mlinnotas:deepslate_cobalt_ore\",\"target\":" + deepslate + "}");
+		placed("ore_cobalt", 4, "{\"type\":\"minecraft:trapezoid\",\"max_inclusive\":{\"absolute\":16},\"min_inclusive\":{\"above_bottom\":0}}");
 		oreFeature("ore_infernite", 5, 0.2, "{\"state\":\"mlinnotas:infernite_ore\",\"target\":" + netherrack + "}");
 		placed("ore_infernite", 5, "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"below_top\":10},\"min_inclusive\":{\"above_bottom\":10}}");
 		oreFeature("ore_endite", 6, 0.0, "{\"state\":\"mlinnotas:endite_ore\",\"target\":" + endStone + "}");
-		placed("ore_endite", 10, "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":96},\"min_inclusive\":{\"absolute\":8}}");
+		placed("ore_endite", 5, "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":96},\"min_inclusive\":{\"absolute\":8}}");
 		oreFeature("ore_astralite", 4, 0.0, "{\"state\":\"mlinnotas:astralite_ore\",\"target\":" + endStone + "}");
-		placed("ore_astralite", 6, "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":96},\"min_inclusive\":{\"absolute\":8}}");
+		placed("ore_astralite", 3, "{\"type\":\"minecraft:uniform\",\"max_inclusive\":{\"absolute\":96},\"min_inclusive\":{\"absolute\":8}}");
 
 		// --- textos fixos ---
 		PT.put("gui.mlinnotas.chest.rows", "Linhas %s-%s de %s");

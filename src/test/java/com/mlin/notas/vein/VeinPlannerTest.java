@@ -22,8 +22,9 @@ class VeinPlannerTest {
 	@Test
 	void sizeGrowsWithMiningLevelAndIsCapped() {
 		assertEquals(8, VeinPlanner.maxBlocks(1));
-		assertEquals(12, VeinPlanner.maxBlocks(2));
-		assertEquals(52, VeinPlanner.maxBlocks(12));
+		assertEquals(10, VeinPlanner.maxBlocks(2));
+		assertEquals(30, VeinPlanner.maxBlocks(12));
+		assertEquals(32, VeinPlanner.HARD_CAP);
 		assertTrue(VeinPlanner.maxBlocks(100) <= VeinPlanner.HARD_CAP);
 	}
 

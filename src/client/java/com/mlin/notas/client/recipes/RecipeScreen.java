@@ -153,11 +153,40 @@ public class RecipeScreen extends Screen {
 			String xp = String.format(java.util.Locale.ROOT, "%.1f xp", recipe.experience());
 			graphics.text(font, time, inX + SLOT + 14, top + 2 * SLOT + 6, 0xFF404040);
 			graphics.text(font, xp, inX + SLOT + 14, top + 2 * SLOT + 16, 0xFF404040);
+		} else if (recipe.kind() == RecipeKind.COOKING_POT) {
+			// panela: ingredientes em 3x2, recipiente embaixo do resultado
+			boolean container = recipe.width() == 1;
+			int count = recipe.inputs().size() - (container ? 1 : 0);
+			int gridX = panelX + 12;
+			for (int i = 0; i < 6; i++) {
+				addSlot(gridX + (i % 3) * SLOT, top + (i / 3) * SLOT, i < count ? recipe.inputs().get(i) : List.of(), null, false);
+			}
+			drawArrow(graphics, gridX + 3 * SLOT + 10, top + 5);
+			addSlot(gridX + 3 * SLOT + 40, top, List.of(), output, true);
+			if (container) {
+				addSlot(gridX + 3 * SLOT + 40, top + 2 * SLOT + 4, recipe.inputs().getLast(), null, false);
+				Component label = Component.translatable("gui.mlinnotas.recipes.container");
+				graphics.text(font, label, gridX + 3 * SLOT + 36 - font.width(label), top + 2 * SLOT + 9, 0xFF404040);
+			}
+			String time = String.format(java.util.Locale.ROOT, "%.1fs", recipe.cookTicks() / 20.0F);
+			graphics.text(font, time, gridX, top + 2 * SLOT + 6, 0xFF404040);
+		} else if (recipe.kind() == com.mlin.notas.recipes.RecipeKind.SMITHING) {
+			// molde + peca + adicional -> resultado (como a mesa de ferraria)
+			int inX = panelX + 12;
+			for (int i = 0; i < 3; i++) {
+				addSlot(inX + i * SLOT, top + SLOT, i < recipe.inputs().size() ? recipe.inputs().get(i) : List.of(), null, false);
+			}
+			drawArrow(graphics, inX + 3 * SLOT + 10, top + SLOT + 5);
+			addSlot(inX + 3 * SLOT + 40, top + SLOT, List.of(), output, true);
 		} else {
 			int inX = panelX + 30;
 			addSlot(inX, top + SLOT, recipe.inputs().getFirst(), null, false);
 			drawArrow(graphics, inX + SLOT + 22, top + SLOT + 5);
 			addSlot(inX + SLOT + 64, top + SLOT, List.of(), output, true);
+			if (recipe.kind() == RecipeKind.FERMENTING) {
+				String days = String.format(java.util.Locale.ROOT, "%.1f", recipe.cookTicks() / 24000.0F);
+				graphics.text(font, Component.translatable("gui.mlinnotas.recipes.days", days), inX + SLOT + 14, top + 2 * SLOT + 6, 0xFF404040);
+			}
 		}
 
 		for (DrawnSlot slot : drawnSlots) {

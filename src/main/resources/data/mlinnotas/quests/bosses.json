@@ -18,7 +18,7 @@
       ],
       "rewards": [
         {
-          "xp": 50
+          "xp": 25
         }
       ]
     },
@@ -39,7 +39,7 @@
       ],
       "rewards": [
         {
-          "xp": 30
+          "xp": 15
         }
       ]
     },
@@ -64,7 +64,7 @@
           "count": 2
         },
         {
-          "xp": 300
+          "xp": 150
         }
       ]
     },
@@ -84,7 +84,7 @@
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
         }
       ]
     },
@@ -105,7 +105,7 @@
       ],
       "rewards": [
         {
-          "xp": 50
+          "xp": 25
         }
       ]
     },
@@ -130,7 +130,7 @@
           "count": 2
         },
         {
-          "xp": 400
+          "xp": 200
         }
       ]
     },
@@ -150,7 +150,29 @@
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "forge_key",
+      "icon": "mlinnotas:forge_key",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "colossus_forge",
+        "abyssal_guardian"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:forge_key",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
         }
       ]
     },
@@ -160,7 +182,7 @@
       "x": 2,
       "y": 2,
       "dependencies": [
-        "colossus_forge"
+        "forge_key"
       ],
       "tasks": [
         {
@@ -175,7 +197,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -200,7 +222,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -210,18 +232,24 @@
       "x": 1,
       "y": 4,
       "dependencies": [
-        "end/citadel"
+        "end/citadel",
+        "ender_dragon"
       ],
       "tasks": [
         {
           "type": "item",
           "target": "mlinnotas:sentinel_core",
           "count": 4
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:dragon_scale",
+          "count": 1
         }
       ],
       "rewards": [
         {
-          "xp": 80
+          "xp": 40
         }
       ]
     },
@@ -246,7 +274,7 @@
           "count": 1
         },
         {
-          "xp": 800
+          "xp": 400
         }
       ]
     },
@@ -271,7 +299,7 @@
           "count": 3
         },
         {
-          "xp": 500
+          "xp": 250
         }
       ]
     },
@@ -295,7 +323,202 @@
           "count": 2
         },
         {
-          "xp": 1000
+          "xp": 500
+        }
+      ]
+    },
+    {
+      "id": "golem_hammer",
+      "icon": "mlinnotas:golem_hammer",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "cobalt_golem"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:golem_hammer",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "abyssal_blade",
+      "icon": "mlinnotas:abyssal_blade",
+      "x": 3,
+      "y": 1,
+      "dependencies": [
+        "abyssal_guardian"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:abyssal_blade",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "igneous_greatsword",
+      "icon": "mlinnotas:igneous_greatsword",
+      "x": 3,
+      "y": 2,
+      "dependencies": [
+        "igneous_colossus"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:igneous_greatsword",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "dragon_fangs",
+      "icon": "mlinnotas:dragon_fangs",
+      "x": 3,
+      "y": 3,
+      "dependencies": [
+        "ender_dragon"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:dragon_fangs",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "astral_lance",
+      "icon": "mlinnotas:astral_lance",
+      "x": 3,
+      "y": 4,
+      "dependencies": [
+        "astral_herald"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:astral_lance",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "legendary_arsenal",
+      "icon": "mlinnotas:astral_lance",
+      "x": 4,
+      "y": 4.5,
+      "dependencies": [
+        "golem_hammer",
+        "abyssal_blade",
+        "igneous_greatsword",
+        "dragon_fangs",
+        "astral_lance"
+      ],
+      "tasks": [],
+      "rewards": [
+        {
+          "item": "minecraft:golden_apple",
+          "count": 2
+        },
+        {
+          "xp": 150
+        }
+      ]
+    },
+    {
+      "id": "first_relic",
+      "icon": "mlinnotas:resonant_pendant",
+      "x": 3,
+      "y": -1,
+      "dependencies": [
+        "cobalt_golem"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:resonant_pendant",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
+      "id": "all_relics",
+      "icon": "mlinnotas:wither_ring",
+      "x": 5,
+      "y": 2.5,
+      "dependencies": [
+        "legends"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:resonant_pendant",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:abyssal_shell",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:colossus_girdle",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:dragonscale_charm",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:herald_star",
+          "count": 1
+        },
+        {
+          "type": "item",
+          "target": "mlinnotas:wither_ring",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 150
         }
       ]
     }

@@ -1,16 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "#": "minecraft:stick",
-    "X": "mlinnotas:celestium_ingot"
-  },
-  "pattern": [
-    "XX",
-    " #",
-    " #"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:celestium_ingot",
+  "base": "mlinnotas:astralite_hoe",
   "result": {
     "id": "mlinnotas:celestium_hoe"
-  }
+  },
+  "template": "mlinnotas:celestial_upgrade_smithing_template"
 }

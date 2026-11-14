@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Colosso Igneo (Picos de Infernita, Nether). Dorme ajoelhado no trono da forja e acorda quando alguem chega a 16
- * blocos (ou o acerta). <b>Onda de fogo</b> que se espalha em anel a partir dele, <b>chuva de meteoros</b> de magma
+ * Colosso Igneo (Picos de Infernita, Nether). Dorme ajoelhado no trono da forja, invulneravel, e so acorda quando
+ * alguem usa a Chave da Forja ({@link ForgeKeyItem}) nele ou no trono. <b>Onda de fogo</b> que se espalha em anel a partir dele, <b>chuva de meteoros</b> de magma
  * sobre os jogadores. Fase 2: <b>pocas de lava</b> temporarias brotam sob os jogadores (avisadas por particulas).
  */
 public class IgneousColossus extends BossMob {
@@ -68,9 +68,9 @@ public class IgneousColossus extends BossMob {
 	public static AttributeSupplier.Builder createAttributes() {
 		return Monster.createMonsterAttributes()
 				.add(Attributes.MAX_HEALTH, BossKind.IGNEOUS_COLOSSUS.baseHealth())
-				.add(Attributes.ARMOR, 14.0)
-				.add(Attributes.ARMOR_TOUGHNESS, 4.0)
-				.add(Attributes.ATTACK_DAMAGE, 15.0)
+				.add(Attributes.ARMOR, BossKind.IGNEOUS_COLOSSUS.armor())
+				.add(Attributes.ARMOR_TOUGHNESS, BossKind.IGNEOUS_COLOSSUS.toughness())
+				.add(Attributes.ATTACK_DAMAGE, BossKind.IGNEOUS_COLOSSUS.melee())
 				.add(Attributes.MOVEMENT_SPEED, 0.24)
 				.add(Attributes.FOLLOW_RANGE, 40.0)
 				.add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
@@ -134,21 +134,14 @@ public class IgneousColossus extends BossMob {
 		}
 	}
 
-	/** Acorda se algum dos jogadores (sobrevivencia/aventura) estiver dentro do raio. */
-	public boolean checkWake(ServerLevel level, List<? extends Player> players) {
-		for (Player player : players) {
-			if (!player.isCreative() && !player.isSpectator() && BossRules.shouldWake(player.distanceToSqr(this), kind().wakeRadius())) {
-				wake(level);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
-		if (dormant() && source.getEntity() instanceof Player) {
-			wake(level);
+		if (dormant() && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			// adormecido nao apanha (nem acorda): so a Chave da Forja o acorda
+			if (source.getEntity() instanceof ServerPlayer player && player.connection != null) {
+				player.sendOverlayMessage(Component.translatable("message.mlinnotas.forge_key.asleep", getDisplayName()));
+			}
+			return false;
 		}
 		return super.hurtServer(level, source, damage);
 	}
@@ -157,9 +150,6 @@ public class IgneousColossus extends BossMob {
 	protected void serverTick(ServerLevel level) {
 		bossEvent.setVisible(!dormant());
 		if (dormant()) {
-			if (tickCount % 10 == 0) {
-				checkWake(level, playersAround(level, kind().wakeRadius()));
-			}
 			if (tickCount % 20 == 0) {
 				level.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + getBbHeight() * 0.7, getZ(), 2, 0.4, 0.2, 0.4, 0.01);
 			}
@@ -276,7 +266,7 @@ public class IgneousColossus extends BossMob {
 				e -> e != this && !(e instanceof BossMob))) {
 			double dist = Math.sqrt(near.distanceToSqr(getX(), near.getY(), getZ()));
 			if (BossRules.inRing(dist, radius, 1.6) && Math.abs(near.getY() - getY()) < 2.5 && waveHit.add(near.getId())) {
-				near.hurtServer(level, damageSources().mobAttack(this), phase() >= 2 ? 10.0F : 8.0F);
+				near.hurtServer(level, BossRegistry.ability(level, this, this), phase() >= 2 ? BossRules.COLOSSUS_WAVE_PHASE_TWO : BossRules.COLOSSUS_WAVE);
 				near.igniteForSeconds(4.0F);
 			}
 		}

@@ -12,13 +12,20 @@ import java.util.Map;
  */
 public final class HarvestRules {
 	/** Planta colhivel -> item que volta para o chao como semente (o proprio item do bloco no vanilla). */
-	private static final Map<String, String> SEEDS = Map.of(
+	private static final Map<String, String> SEEDS = new java.util.HashMap<>(Map.of(
 			"minecraft:wheat", "minecraft:wheat_seeds",
 			"minecraft:carrots", "minecraft:carrot",
 			"minecraft:potatoes", "minecraft:potato",
 			"minecraft:beetroots", "minecraft:beetroot_seeds",
 			"minecraft:nether_wart", "minecraft:nether_wart",
-			"minecraft:cocoa", "minecraft:cocoa_beans");
+			"minecraft:cocoa", "minecraft:cocoa_beans"));
+
+	static {
+		// culturas da cozinha (food/FoodCatalog): replanta com a semente ou com o proprio produto (cebola, alho...)
+		for (com.mlin.notas.food.FoodCatalog.Crop crop : com.mlin.notas.food.FoodCatalog.CROPS) {
+			SEEDS.put("mlinnotas:" + crop.blockName(), "mlinnotas:" + crop.seed());
+		}
+	}
 
 	private HarvestRules() {
 	}

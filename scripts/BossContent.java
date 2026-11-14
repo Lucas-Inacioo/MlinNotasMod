@@ -25,7 +25,7 @@ class BossContent {
 			{"abyssal_core", "Núcleo Abissal", "Abyssal Core", "Solto pelo Guardião das Profundezas", "Dropped by the Abyssal Guardian"},
 			{"colossus_ember", "Brasa do Colosso", "Colossus Ember", "Solta pelo Colosso Ígneo", "Dropped by the Igneous Colossus"},
 			{"astral_fragment", "Fragmento Astral", "Astral Fragment", "Solto pelo Arauto Astral", "Dropped by the Astral Herald"},
-			{"dragon_scale", "Escama de Dragão", "Dragon Scale", "Solta pelo Dragão do Ender (2 a 4)", "Dropped by the Ender Dragon (2 to 4)"},
+			{"dragon_scale", "Escama de Dragão", "Dragon Scale", "Solta pelo Dragão do Ender (2 a 4 na primeira vez, 1 a 2 depois)", "Dropped by the Ender Dragon (2 to 4 the first time, 1 to 2 after)"},
 	};
 	// id, step, spacing, separation, salt, biomes
 	static final String[][] LAIRS = {
@@ -48,8 +48,8 @@ class BossContent {
 				"Right-click with 4 iron blocks in your inventory to summon the Cobalt Golem");
 		text("block.mlinnotas.abyssal_altar.tooltip", "Botão direito com 4 fragmentos de eco invoca o Guardião das Profundezas",
 				"Right-click with 4 echo shards to summon the Abyssal Guardian");
-		text("block.mlinnotas.astral_altar.tooltip", "Botão direito com 4 Núcleos de Sentinela invoca o Arauto Astral",
-				"Right-click with 4 Sentinel Cores to summon the Astral Herald");
+		text("block.mlinnotas.astral_altar.tooltip", "Botão direito com 4 Núcleos de Sentinela e 1 Escama de Dragão invoca o Arauto Astral",
+				"Right-click with 4 Sentinel Cores and 1 Dragon Scale to summon the Astral Herald");
 
 		for (String[] b : BOSSES) {
 			ContentGen.name("entity", b[0], b[1], b[2]);
@@ -66,12 +66,12 @@ class BossContent {
 		}
 
 		// loot extra dos chefes (o item principal sai sempre, pelo codigo)
-		entity("cobalt_golem", pool("mlinnotas:raw_cobalt", 3, 6) + "," + pool("minecraft:iron_ingot", 4, 8) + "," + pool("minecraft:experience_bottle", 2, 4));
-		entity("abyssal_guardian", pool("minecraft:echo_shard", 1, 3) + "," + pool("minecraft:amethyst_shard", 2, 6) + ","
+		entity("cobalt_golem", pool("mlinnotas:raw_cobalt", 3, 6) + "," + pool("minecraft:iron_ingot", 0, 4) + "," + pool("minecraft:experience_bottle", 2, 4));
+		entity("abyssal_guardian", pool("minecraft:echo_shard", 0, 1) + "," + pool("minecraft:amethyst_shard", 2, 6) + ","
 				+ pool("minecraft:experience_bottle", 3, 6) + "," + chance("minecraft:sculk_catalyst", 0.5));
-		entity("igneous_colossus", pool("mlinnotas:raw_infernite", 2, 5) + "," + pool("minecraft:magma_cream", 4, 8) + ","
+		entity("igneous_colossus", pool("mlinnotas:infernal_upgrade_smithing_template", 1, 1) + "," + pool("mlinnotas:raw_infernite", 2, 5) + "," + pool("minecraft:magma_cream", 4, 8) + ","
 				+ pool("minecraft:blaze_rod", 2, 4) + "," + pool("minecraft:experience_bottle", 4, 8) + "," + chance("minecraft:netherite_scrap", 0.35));
-		entity("astral_herald", pool("mlinnotas:raw_endite", 2, 4) + "," + pool("minecraft:shulker_shell", 1, 3) + ","
+		entity("astral_herald", pool("mlinnotas:astral_upgrade_smithing_template", 1, 1) + "," + pool("mlinnotas:raw_endite", 2, 4) + "," + pool("minecraft:shulker_shell", 1, 3) + ","
 				+ pool("minecraft:ender_pearl", 2, 5) + "," + pool("minecraft:experience_bottle", 5, 10) + "," + chance("mlinnotas:raw_astralite", 0.5));
 
 		// baus dos covis

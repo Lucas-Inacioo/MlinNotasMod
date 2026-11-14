@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:astralite_ingot",
+  "base": "mlinnotas:endite_glaive",
+  "result": {
+    "id": "mlinnotas:astralite_glaive"
+  },
+  "template": "mlinnotas:astral_upgrade_smithing_template"
+}

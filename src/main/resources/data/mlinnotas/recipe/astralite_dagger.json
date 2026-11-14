@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:astralite_ingot",
+  "base": "mlinnotas:endite_dagger",
+  "result": {
+    "id": "mlinnotas:astralite_dagger"
+  },
+  "template": "mlinnotas:astral_upgrade_smithing_template"
+}

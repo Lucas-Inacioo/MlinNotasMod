@@ -155,10 +155,10 @@ public final class VillageServer {
 		return null;
 	}
 
-	/** Teto de nivel de profissao dos aldeoes em {@code pos} (0 = fora de vila, sem teto). */
+	/** Teto de nivel de profissao dos aldeoes em {@code pos} (fora de vila fundada: {@link VillageLevel#WILD_TRADE_CAP}). */
 	public static int tradeCap(ServerLevel level, BlockPos pos) {
 		VillageState village = villageAt(level, pos);
-		return village == null ? 0 : village.level().tradeCap();
+		return village == null ? VillageLevel.WILD_TRADE_CAP : village.level().tradeCap();
 	}
 
 	/** Esmeraldas de desconto nas trocas com aldeoes em {@code pos}. */
@@ -427,6 +427,9 @@ public final class VillageServer {
 		Holder<Enchantment> pick = options.get(random.nextInt(options.size()));
 		int max = pick.value().getMaxLevel();
 		int lvl = rare ? max : 1 + random.nextInt(Math.min(3, max));
+		// teto de encantamento do mundo (Mineracao da arvore de habilidades), como na mesa e na bigorna
+		lvl = Math.max(1, Math.min(lvl, com.mlin.notas.enchanting.EnchantRules.cappedLevel(max,
+				com.mlin.notas.skills.SkillServer.progress(level.getServer()).level(com.mlin.notas.skills.SkillBranch.MINING))));
 		return EnchantmentHelper.createBook(new EnchantmentInstance(pick, lvl));
 	}
 

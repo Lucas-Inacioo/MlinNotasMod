@@ -29,6 +29,14 @@
 			"com.mlin.notas.gametest.DungeonGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresGameTest",
 			"com.mlin.notas.gametest.VillageGameTest",
+			"com.mlin.notas.gametest.SNetherGameTest",
+			"com.mlin.notas.gametest.ExplorationQolGameTest",
+			"com.mlin.notas.gametest.StorageGameTest",
+			"com.mlin.notas.gametest.SeaStructuresGameTest",
+			"com.mlin.notas.gametest.FoodGameTest",
+			"com.mlin.notas.gametest.CombatGameTest",
+			"com.mlin.notas.gametest.AccessoriesGameTest",
+			"com.mlin.notas.gametest.SmainGameTest",
 			"com.mlin.notas.gametest.CitadelGameTest"
 		],
 		"fabric-client-gametest": [
@@ -48,6 +56,14 @@
 			"com.mlin.notas.gametest.DungeonClientGameTest",
 			"com.mlin.notas.gametest.VanillaStructuresClientGameTest",
 			"com.mlin.notas.gametest.VillageClientGameTest",
+			"com.mlin.notas.gametest.SNetherClientGameTest",
+			"com.mlin.notas.gametest.ExplorationQolClientGameTest",
+			"com.mlin.notas.gametest.StorageClientGameTest",
+			"com.mlin.notas.gametest.SeaStructuresClientGameTest",
+			"com.mlin.notas.gametest.FoodClientGameTest",
+			"com.mlin.notas.gametest.CombatClientGameTest",
+			"com.mlin.notas.gametest.AccessoriesClientGameTest",
+			"com.mlin.notas.gametest.SmainClientGameTest",
 			"com.mlin.notas.gametest.CitadelClientGameTest"
 		]
 	},

@@ -1,15 +1,9 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "key": {
-    "X": "mlinnotas:celestium_ingot"
-  },
-  "pattern": [
-    "XXX",
-    "X X",
-    "X X"
-  ],
+  "type": "minecraft:smithing_transform",
+  "addition": "mlinnotas:celestium_ingot",
+  "base": "mlinnotas:astralite_leggings",
   "result": {
     "id": "mlinnotas:celestium_leggings"
-  }
+  },
+  "template": "mlinnotas:celestial_upgrade_smithing_template"
 }
