@@ -1555,6 +1555,6 @@
   "quest.mlinnotas.structure.minecraft.trail_ruins": "Ruínas de Trilha",
   "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "Uma masmorra",
   "key.mlinnotas.quick_stack": "Guardar rápido no baú",
-  "button.mlinnotas.quick_stack": "⇩",
+  "button.mlinnotas.quick_stack": "Pôr",
   "button.mlinnotas.quick_stack.tooltip": "Guardar rápido: leva do seu inventário (sem a barra de atalhos) tudo o que já existe neste baú (tecla %s)"
 }

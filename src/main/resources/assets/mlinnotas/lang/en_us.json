@@ -1555,6 +1555,6 @@
   "quest.mlinnotas.structure.minecraft.trail_ruins": "Trail Ruins",
   "quest.mlinnotas.structure.mlinnotas.quest/dungeons": "A dungeon",
   "key.mlinnotas.quick_stack": "Quick stack to chest",
-  "button.mlinnotas.quick_stack": "⇩",
+  "button.mlinnotas.quick_stack": "Put",
   "button.mlinnotas.quick_stack.tooltip": "Quick stack: moves everything from your inventory (not the hotbar) that this chest already has (key %s)"
 }

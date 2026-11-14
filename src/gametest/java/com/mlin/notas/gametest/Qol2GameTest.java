@@ -279,6 +279,28 @@ public class Qol2GameTest {
 		helper.succeed();
 	}
 
+	@SuppressWarnings("removal")
+	@GameTest(environment = ENV)
+	public void quickStackFillsWholeBigChest(GameTestHelper helper) {
+		helper.setBlock(1, 1, 1, com.mlin.notas.registry.ModBlocks.chest(com.mlin.notas.chest.ChestTier.IRON));
+		com.mlin.notas.chest.BigChestBlockEntity chest = helper.getBlockEntity(new BlockPos(1, 1, 1), com.mlin.notas.chest.BigChestBlockEntity.class);
+		chest.setItem(50, new ItemStack(Items.SAND, 1));
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		try {
+			BlockPos abs = helper.absolutePos(new BlockPos(1, 1, 1));
+			player.teleportTo(abs.getX() + 0.5, abs.getY(), abs.getZ() + 2.5);
+			player.getInventory().clearContent();
+			player.getInventory().setItem(10, new ItemStack(Items.SAND, 16));
+			player.openMenu(chest);
+			int moved = QuickStackServer.quickStack(player);
+			helper.assertTrue(moved == 16, "bau grande: deveria guardar 16 areias, guardou " + moved + " menu " + player.containerMenu);
+			helper.assertTrue(chest.getItem(50).getCount() == 17, "areia junta na pilha existente");
+		} finally {
+			helper.getLevel().getServer().getPlayerList().remove(player);
+		}
+		helper.succeed();
+	}
+
 	// ------------------------------------------------------------------ reciclagem
 
 	/** Toda peca reconhecida pelo SalvageRules tem receita no lugar certo (alto-forno sempre, fornalha se nao for so do alto-forno). */

@@ -31,7 +31,7 @@ class Qol2Content {
 	static void generate() throws IOException {
 		// guardar rapido (sorting/QuickStackServer, client/QuickStackClient)
 		lang("key.mlinnotas.quick_stack", "Guardar rápido no baú", "Quick stack to chest");
-		lang("button.mlinnotas.quick_stack", "⇩", "⇩");
+		lang("button.mlinnotas.quick_stack", "Pôr", "Put");
 		lang("button.mlinnotas.quick_stack.tooltip",
 				"Guardar rápido: leva do seu inventário (sem a barra de atalhos) tudo o que já existe neste baú (tecla %s)",
 				"Quick stack: moves everything from your inventory (not the hotbar) that this chest already has (key %s)");
