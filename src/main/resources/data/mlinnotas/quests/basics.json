@@ -290,6 +290,25 @@
           "xp": 20
         }
       ]
+    },
+    {
+      "id": "seasons",
+      "icon": "minecraft:wheat_seeds",
+      "x": 4,
+      "y": 3,
+      "dependencies": [
+        "harvest"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 20
+        }
+      ]
     }
   ]
 }

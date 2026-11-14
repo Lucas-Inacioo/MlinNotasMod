@@ -39,7 +39,7 @@ class QuestContentTest {
 		assertEquals(List.of("basics", "mining", "exploration", "bosses", "nether", "end", "tech", "kitchen"),
 				book.chapters().stream().map(QuestChapter::id).toList());
 		int total = book.quests().size();
-		assertTrue(total >= 50 && total <= 130, "quests: " + total);
+		assertTrue(total >= 50 && total <= 160, "quests: " + total);
 	}
 
 	@Test

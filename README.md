@@ -28,6 +28,38 @@ powershell -ExecutionPolicy Bypass -File scripts\install-fabric.ps1   # instala 
 
 Depois selecione o perfil `fabric-loader-...-26.3` no launcher.
 
+## Instalar em outro computador (para jogar junto)
+
+Faca uma vez, no PowerShell do outro computador (Windows):
+
+1. Instale o Minecraft Java Edition (launcher oficial) e abra o Minecraft 26.3 pelo menos uma vez, depois feche.
+2. Instale o Java 25 e o Git:
+   ```powershell
+   winget install EclipseAdoptium.Temurin.25.JDK
+   winget install Git.Git
+   ```
+   Feche e abra o PowerShell de novo para o `java` e o `git` aparecerem.
+3. Baixe o projeto numa pasta local (nao use OneDrive/Google Drive). O repositorio e privado: entre no GitHub com uma conta que tenha acesso, ou baixe o ZIP pelo botao **Code > Download ZIP** e extraia em `Documentos\MlinNotasMod`.
+   ```powershell
+   cd $HOME\Documents
+   git clone https://github.com/Lucas-Inacioo/MlinNotasMod.git
+   cd MlinNotasMod
+   ```
+4. Instale o Fabric e a Fabric API, compile o mod e copie para a pasta de mods:
+   ```powershell
+   $env:JAVA_HOME = (Get-ChildItem "C:\Program Files\Eclipse Adoptium" -Directory | Where-Object Name -like "jdk-25*" | Select-Object -First 1).FullName
+   powershell -ExecutionPolicy Bypass -File scripts\install-fabric.ps1
+   .\gradlew.bat installToMinecraft
+   ```
+   A primeira compilacao baixa o Minecraft e as dependencias (alguns minutos).
+5. Abra o launcher, escolha o perfil `fabric-loader-0.20.1-26.3` e clique em Jogar. Ao abrir, aperte Y num mundo: o Livro de Quests do mod deve aparecer.
+
+**Atualizar depois** (quando houver versao nova): na pasta do projeto, `git pull` e de novo `.\gradlew.bat installToMinecraft` (com o `$env:JAVA_HOME` do passo 4).
+
+**Jogar junto:** os dois precisam do mesmo jar (mesma versao do repositorio). Na mesma rede, quem cria o mundo abre **Esc > Abrir para LAN** e o outro entra por **Multijogador**. O progresso de habilidades, quests e vilas e do mundo, entao fica salvo no computador de quem hospeda.
+
+**Teclas do mod:** Y livro de quests, K arvore de habilidades, M mapa grande, B waypoint, N HUD, R/U receitas/usos, O organizar inventario, V mochila, C tablet, ` (crase) mineracao em veio, Alt esquerdo esquiva, G brilho. Todas podem ser trocadas em **Opcoes > Controles**.
+
 ## Comandos no jogo
 
 - `/nota add <texto>`

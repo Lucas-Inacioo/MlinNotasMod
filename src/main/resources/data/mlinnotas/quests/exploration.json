@@ -315,6 +315,327 @@
       ]
     },
     {
+      "id": "village_board",
+      "icon": "mlinnotas:village_board",
+      "x": 4,
+      "y": 0,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "dungeon",
+      "icon": "minecraft:iron_bars",
+      "x": 4,
+      "y": 1,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "#mlinnotas:quest/dungeons"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 60
+        }
+      ]
+    },
+    {
+      "id": "dungeon_key",
+      "icon": "mlinnotas:dungeon_key",
+      "x": 5,
+      "y": 1,
+      "dependencies": [
+        "dungeon"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:dungeon_key",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "desert_temple",
+      "icon": "minecraft:chiseled_sandstone",
+      "x": 4,
+      "y": 2,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:desert_pyramid"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "jungle_temple",
+      "icon": "minecraft:mossy_cobblestone",
+      "x": 5,
+      "y": 2,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:jungle_pyramid"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "ruined_portal",
+      "icon": "minecraft:crying_obsidian",
+      "x": 6,
+      "y": 2,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "#minecraft:ruined_portal"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "outpost",
+      "icon": "minecraft:crossbow",
+      "x": 4,
+      "y": 3,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:pillager_outpost"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "mineshaft",
+      "icon": "minecraft:rail",
+      "x": 5,
+      "y": 3,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "#minecraft:mineshaft"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "mansion",
+      "icon": "minecraft:dark_oak_log",
+      "x": 6,
+      "y": 3,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:mansion"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "monument",
+      "icon": "minecraft:prismarine_bricks",
+      "x": 4,
+      "y": 4,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:monument"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 80
+        }
+      ]
+    },
+    {
+      "id": "shipwreck",
+      "icon": "minecraft:oak_boat",
+      "x": 5,
+      "y": 4,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "#minecraft:shipwreck"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "buried_treasure",
+      "icon": "minecraft:heart_of_the_sea",
+      "x": 6,
+      "y": 4,
+      "dependencies": [
+        "shipwreck"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:heart_of_the_sea",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "ocean_ruins",
+      "icon": "minecraft:suspicious_sand",
+      "x": 4,
+      "y": 5,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "#minecraft:ocean_ruin"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "igloo",
+      "icon": "minecraft:snow_block",
+      "x": 5,
+      "y": 5,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:igloo"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "swamp_hut",
+      "icon": "minecraft:cauldron",
+      "x": 6,
+      "y": 5,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:swamp_hut"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "trail_ruins",
+      "icon": "minecraft:brush",
+      "x": 7,
+      "y": 4.5,
+      "dependencies": [
+        "explore"
+      ],
+      "tasks": [
+        {
+          "type": "structure",
+          "target": "minecraft:trail_ruins"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
       "id": "trinkets",
       "icon": "mlinnotas:copper_ring",
       "x": 0,

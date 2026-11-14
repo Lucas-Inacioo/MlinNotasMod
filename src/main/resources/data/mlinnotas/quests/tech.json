@@ -321,6 +321,25 @@
           "xp": 200
         }
       ]
+    },
+    {
+      "id": "enchant_reagents",
+      "icon": "minecraft:blaze_powder",
+      "x": 1,
+      "y": 3,
+      "dependencies": [
+        "enchanting"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 30
+        }
+      ]
     }
   ]
 }

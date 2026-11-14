@@ -328,6 +328,25 @@
           "xp": 500
         }
       ]
+    },
+    {
+      "id": "vein_mining",
+      "icon": "minecraft:raw_iron",
+      "x": 3,
+      "y": 0,
+      "dependencies": [
+        "skill_copper"
+      ],
+      "tasks": [
+        {
+          "type": "checkmark"
+        }
+      ],
+      "rewards": [
+        {
+          "xp": 20
+        }
+      ]
     }
   ]
 }
