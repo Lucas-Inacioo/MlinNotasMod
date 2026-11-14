@@ -52,6 +52,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 			BlockPos c = camp.center();
 			shots(context, real, c, "camp", 26, 18);
 
+			Village2Shots.overlayAndGhost(context, real, c);
 			boardScreens(context, real, c, "camp");
 
 			// a vila cresce: varios projetos construidos de uma vez
@@ -88,6 +89,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 			shot(context, real, c, new double[] {0, 9, 62}, new double[] {0, 3, 49}, "mlinnotas-village-grown-gate");
 			boardScreens(context, real, c, "grown");
 			vanillaVillage(context, real, c);
+			Village2Shots.slopeVillage(context, real, c);
 			hideHud(context, false);
 		}
 	}
@@ -123,7 +125,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 		shot(context, real, board, new double[] {5, 3, 6}, new double[] {0, 1, 0}, "mlinnotas-village-vanilla-board");
 	}
 
-	private static VillageState starter(net.minecraft.server.MinecraftServer server) {
+	static VillageState starter(net.minecraft.server.MinecraftServer server) {
 		for (VillageState village : VillageData.get(server).villages()) {
 			if (village.starter()) {
 				return village;
@@ -145,7 +147,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 		});
 	}
 
-	private static void hideHud(ClientGameTestContext context, boolean hide) {
+	static void hideHud(ClientGameTestContext context, boolean hide) {
 		context.runOnClient(mc -> {
 			if (mc.gui.hud.isHidden() != hide) {
 				mc.gui.hud.toggle();
@@ -162,7 +164,7 @@ public class VillageClientGameTest implements FabricClientGameTest {
 		shot(context, real, c, new double[] {dist * 0.22, 3, dist * 0.28}, new double[] {0, 1.5, 0}, "mlinnotas-village-" + name + "-low");
 	}
 
-	private static void spectator(TestSingleplayerContext real, boolean on) {
+	static void spectator(TestSingleplayerContext real, boolean on) {
 		real.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
 				.setGameMode(on ? GameType.SPECTATOR : GameType.CREATIVE));
 	}
@@ -185,12 +187,15 @@ public class VillageClientGameTest implements FabricClientGameTest {
 		context.runOnClient(mc -> ((VillageBoardScreen) mc.gui.screen()).setTab(VillageBoardScreen.Tab.SHOP));
 		context.waitTicks(5);
 		context.takeScreenshot("mlinnotas-village-" + name + "-board-shop");
+		context.runOnClient(mc -> ((VillageBoardScreen) mc.gui.screen()).setTab(VillageBoardScreen.Tab.BUILDINGS));
+		context.waitTicks(5);
+		context.takeScreenshot("mlinnotas-village-" + name + "-board-buildings");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 		hideHud(context, true);
 	}
 
 	/** Camera em {@code eye} (relativo ao quadro) olhando para {@code look}; espera os chunks e tira a foto. */
-	private static void shot(ClientGameTestContext context, TestSingleplayerContext real, BlockPos o, double[] eye, double[] look, String name) {
+	static void shot(ClientGameTestContext context, TestSingleplayerContext real, BlockPos o, double[] eye, double[] look, String name) {
 		spectator(real, true);
 		double ex = o.getX() + 0.5 + eye[0];
 		double ey = o.getY() + eye[1];

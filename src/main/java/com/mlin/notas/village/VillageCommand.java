@@ -1,0 +1,73 @@
+package com.mlin.notas.village;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
+
+import java.util.List;
+
+/**
+ * Reparos de vila (operador): {@code /village admin list}, {@code /village admin remove <nome>} (apaga o registro da
+ * vila, sem mexer nos blocos) e {@code /village admin restart_starter} (apaga o registro da vila inicial e cria outra
+ * agora, longe das vilas vanilla).
+ */
+public final class VillageCommand {
+	private VillageCommand() {
+	}
+
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(Commands.literal("village")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("admin")
+						.then(Commands.literal("list").executes(VillageCommand::list))
+						.then(Commands.literal("remove")
+								.then(Commands.argument("name", StringArgumentType.greedyString())
+										.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(
+												VillageData.get(ctx.getSource().getServer()).villages().stream().map(VillageState::name), builder))
+										.executes(VillageCommand::remove)))
+						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))));
+	}
+
+	private static int list(CommandContext<CommandSourceStack> ctx) {
+		List<VillageState> villages = List.copyOf(VillageData.get(ctx.getSource().getServer()).villages());
+		for (VillageState v : villages) {
+			ctx.getSource().sendSuccess(() -> Component.translatable("commands.mlinnotas.village.entry", v.name(), v.x(), v.y(), v.z(),
+					VillageServer.levelName(v.level()), v.starter() ? "*" : ""), false);
+		}
+		return villages.size();
+	}
+
+	private static int remove(CommandContext<CommandSourceStack> ctx) {
+		String name = StringArgumentType.getString(ctx, "name");
+		VillageData data = VillageData.get(ctx.getSource().getServer());
+		int removed = 0;
+		for (VillageState v : List.copyOf(data.villages())) {
+			if (v.name().equalsIgnoreCase(name.trim())) {
+				data.remove(v.key());
+				removed++;
+			}
+		}
+		if (removed == 0) {
+			ctx.getSource().sendFailure(Component.translatable("commands.mlinnotas.village.unknown", name));
+			return 0;
+		}
+		int n = removed;
+		ctx.getSource().sendSuccess(() -> Component.translatable("commands.mlinnotas.village.removed", name, n), true);
+		return removed;
+	}
+
+	private static int restartStarter(CommandContext<CommandSourceStack> ctx) {
+		VillageState village = StartingVillage.restart(ctx.getSource().getServer());
+		if (village == null) {
+			ctx.getSource().sendFailure(Component.translatable("commands.mlinnotas.village.restart_failed"));
+			return 0;
+		}
+		ctx.getSource().sendSuccess(() -> Component.translatable("commands.mlinnotas.village.restarted", village.name(), village.x(), village.y(),
+				village.z()), true);
+		return 1;
+	}
+}

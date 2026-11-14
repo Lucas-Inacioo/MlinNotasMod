@@ -2,6 +2,7 @@ package com.mlin.notas.village;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -43,6 +44,7 @@ public final class VillageBuilder {
 	 * estiver num chunk descarregado. Devolve true quando terminou.
 	 */
 	public static boolean step(ServerLevel level, VillageState village, VillageData.Job job, VillagePalette palette) {
+		VillageState.Rect rect = lotRect(village, job);
 		int budget = BLOCKS_PER_TICK;
 		int airBudget = 64;
 		while (!job.done() && budget > 0 && airBudget > 0) {
@@ -52,6 +54,9 @@ public final class VillageBuilder {
 				return false;
 			}
 			boolean placed = place(level, palette, pos, p, job.index);
+			if (placed) {
+				record(level, job, rect, p, pos);
+			}
 			job.index++;
 			if (p.part() == VPart.AIR) {
 				airBudget--;
@@ -65,9 +70,70 @@ public final class VillageBuilder {
 		return job.done();
 	}
 
-	/** Coloca a obra inteira de uma vez (vila inicial, testes). */
-	public static void buildNow(ServerLevel level, VillageState village, VillagePlanner.Planned planned) {
-		buildNow(level, village, planned, false);
+	/** Lote do plano da obra (para anotar so os blocos da construcao, nao a rua nem a terraplenagem). */
+	static VillageState.Rect lotRect(VillageState village, VillageData.Job job) {
+		if (job.lot < 0 || village.layout() == null) {
+			return null;
+		}
+		VillageLayout.Lot lot = village.layout().lot(job.lot);
+		return lot == null ? null : lot.rect();
+	}
+
+	/** Anota o bloco que a obra colocou dentro do lote (demolir tira so o que a vila construiu). */
+	static void record(ServerLevel level, VillageData.Job job, VillageState.Rect rect, Placement p, BlockPos pos) {
+		if (rect == null || p.part().earthwork() || p.part() == VPart.AIR || !rect.contains(p.x(), p.z())) {
+			return;
+		}
+		BlockState state = level.getBlockState(pos);
+		if (!state.isAir()) {
+			job.record(pos.asLong(), BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
+		}
+	}
+
+	/** Termina a obra na hora, anotando os blocos (vila inicial, comandos, testes). */
+	public static void runJob(ServerLevel level, VillageState village, VillageData.Job job, boolean trees) {
+		VillagePalette palette = VillagePalette.of(village.style(), job.variant());
+		VillageState.Rect rect = lotRect(village, job);
+		while (!job.done()) {
+			Placement p = job.placement(job.index);
+			BlockPos pos = world(village, p.x(), p.y(), p.z());
+			if (place(level, palette, pos, p, job.index, trees)) {
+				record(level, job, rect, p, pos);
+			}
+			job.index++;
+		}
+	}
+
+	/**
+	 * Demole o que a obra colocou: de tras para frente (detalhes primeiro), so os blocos que ainda sao os mesmos. O que
+	 * ficava acima do chao vira ar; o chao e o que estava abaixo voltam a ser grama/terra. Conteudo de baus cai no chao.
+	 * Devolve quantos blocos foram tirados.
+	 */
+	public static int demolish(ServerLevel level, VillageState village, VillageData.BuildRecord record) {
+		VillagePalette palette = VillagePalette.of(village.style());
+		int removed = 0;
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		for (int i = record.size() - 1; i >= 0; i--) {
+			pos.set(BlockPos.getX(record.positions[i]), BlockPos.getY(record.positions[i]), BlockPos.getZ(record.positions[i]));
+			if (!level.isLoaded(pos)) {
+				continue;
+			}
+			BlockState current = level.getBlockState(pos);
+			if (!BuiltInRegistries.BLOCK.getKey(current.getBlock()).toString().equals(record.block(i))) {
+				continue;
+			}
+			BlockState replacement;
+			if (pos.getY() < record.ground) {
+				replacement = palette.subsoil.defaultBlockState();
+			} else if (pos.getY() == record.ground) {
+				replacement = palette.soil.defaultBlockState();
+			} else {
+				replacement = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+			}
+			level.setBlock(pos, replacement, Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
+			removed++;
+		}
+		return removed;
 	}
 
 	/** {@code trees}: corta arvores no caminho (vila inicial, mundo recem-criado). */

@@ -146,4 +146,47 @@ public final class WorldTerrain implements Terrain {
 	public boolean free(int x, int z) {
 		return column(x, z)[1] == 1;
 	}
+
+	/** O que impede (ou atrapalha) construir na coluna, para o contorno no mundo. */
+	public enum Obstacle {
+		NONE, TREE, PLAYER, WATER
+	}
+
+	/** Coluna vista de perto: o pior obstaculo e o bloco a destacar (null = nada). */
+	public record Inspection(Obstacle obstacle, BlockPos block) {
+	}
+
+	/**
+	 * Olha a coluna (x, z relativos ao centro): agua no chao, bloco que nao e natural (de jogador ou de outra
+	 * estrutura) no chao ou ate {@link #CLEARANCE} acima, ou tronco de arvore nascida no mundo (o construtor derruba).
+	 */
+	public Inspection inspect(int x, int z) {
+		int ground = ground(x, z);
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(cx + x, ground, cz + z);
+		BlockState groundState = level.getBlockState(pos);
+		if (!groundState.getFluidState().isEmpty()) {
+			return new Inspection(Obstacle.WATER, pos.immutable());
+		}
+		if (!naturalGround(groundState)) {
+			return new Inspection(Obstacle.PLAYER, pos.immutable());
+		}
+		BlockPos tree = null;
+		for (int dy = 1; dy <= CLEARANCE; dy++) {
+			pos.setY(ground + dy);
+			BlockState above = level.getBlockState(pos);
+			if (above.is(BlockTags.LOGS)) {
+				if (trees || naturalTree(level, pos)) {
+					if (tree == null) {
+						tree = pos.immutable();
+					}
+					continue;
+				}
+				return new Inspection(Obstacle.PLAYER, pos.immutable());
+			}
+			if (!clearable(above, trees)) {
+				return new Inspection(Obstacle.PLAYER, pos.immutable());
+			}
+		}
+		return tree == null ? new Inspection(Obstacle.NONE, null) : new Inspection(Obstacle.TREE, tree);
+	}
 }
