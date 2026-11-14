@@ -348,6 +348,27 @@ public class FoodTexGen {
 		outline(strawberry, 0xFF3A0608);
 		save(strawberry, items, "strawberry");
 
+		// uva: cacho de bagas roxas com folha
+		BufferedImage grapes = blank();
+		int[][] berries = {{8, 4}, {6, 6}, {10, 6}, {5, 8}, {8, 8}, {11, 8}, {7, 10}, {10, 10}, {8, 12}};
+		for (int[] p : berries) {
+			for (int dy = 0; dy < 3; dy++) {
+				for (int dx = 0; dx < 3; dx++) {
+					if (dx == 1 && dy == 1 || dx + dy == 0 && false) {
+						set(grapes, p[0] - 1 + dx, p[1] - 1 + dy, 0xFF8A4AB8);
+					} else if (!(dx == 0 && dy == 2) && !(dx == 2 && dy == 2) || true) {
+						set(grapes, p[0] - 1 + dx, p[1] - 1 + dy, dx + dy <= 1 ? 0xFF6A2A98 : 0xFF3E1460);
+					}
+				}
+			}
+			set(grapes, p[0] - 1, p[1] - 1, 0xFFC8A0E8);
+		}
+		for (int[] p : new int[][] {{8, 3}, {8, 2}, {9, 1}, {10, 1}, {11, 2}, {10, 2}, {11, 1}, {12, 2}, {12, 3}}) {
+			set(grapes, p[0], p[1], p[1] <= 1 ? 0xFF4E9A22 : 0xFF2E6A14);
+		}
+		outline(grapes, 0xFF1E0834);
+		save(grapes, items, "grapes");
+
 		// arroz: graos brancos
 		BufferedImage rice = vanilla("item/wheat_seeds");
 		recolorAll(rice, 0xFFB8B0A0, 0xFFF0ECE0, 0xFFFFFFFF);
@@ -386,6 +407,9 @@ public class FoodTexGen {
 		BufferedImage strawberry = vanilla("item/wheat_seeds");
 		recolorAll(strawberry, 0xFF8A2010, 0xFFE05030, 0xFFFFC060);
 		save(strawberry, items, "strawberry_seeds");
+		BufferedImage grape = vanilla("item/pumpkin_seeds");
+		recolorAll(grape, 0xFF2A1040, 0xFF5A2A78, 0xFF9A6AB8);
+		save(grape, items, "grape_seeds");
 	}
 
 	// ------------------------------------------------------------------ pratos
@@ -436,6 +460,35 @@ public class FoodTexGen {
 	static BufferedImage bottle(int... stops) throws IOException {
 		BufferedImage im = vanilla("item/honey_bottle");
 		recolor(im, c -> sat(c) > 0.45 && hue(c) > 15 && hue(c) < 60, stops);
+		return im;
+	}
+
+
+	/** Caneca de cerveja: vidro ambar com espuma e alca. */
+	static BufferedImage mug() {
+		BufferedImage im = blank();
+		for (int y = 4; y <= 14; y++) {
+			for (int x = 3; x <= 10; x++) {
+				int c = y <= 5 ? (x % 2 == 0 ? 0xFFFFFFF0 : 0xFFF0E8C0) : ramp(1.0 - (x - 3) / 8.0, 0xFF8A4A00, 0xFFD88A10, 0xFFF8C830);
+				set(im, x, y, c);
+			}
+		}
+		for (int y = 6; y <= 12; y++) {
+			set(im, 11, y, y == 6 || y == 12 ? 0xFFB0C0C8 : 0xFF9AA8B0);
+			set(im, 12, y, y == 6 || y == 12 ? 0xFFB0C0C8 : (y == 9 ? 0xFF9AA8B0 : 0));
+		}
+		for (int y = 7; y <= 11; y++) {
+			set(im, 12, y, y == 7 || y == 11 ? 0xFFB0C0C8 : 0xFF9AA8B0);
+			if (y == 9) {
+				set(im, 12, y, 0);
+			}
+		}
+		set(im, 12, 7, 0xFFB0C0C8);
+		set(im, 12, 11, 0xFFB0C0C8);
+		for (int y = 6; y <= 14; y++) {
+			set(im, 4, y, y > 5 ? 0xFFFFE890 : 0xFFFFFFFF);
+		}
+		outline(im, 0xFF4A3000);
 		return im;
 	}
 
@@ -541,6 +594,11 @@ public class FoodTexGen {
 		BufferedImage jerky = vanilla("item/cooked_beef");
 		recolorAll(jerky, 0xFF2A0A06, 0xFF5A1A10, 0xFF8A3A20, 0xFFC07050);
 		save(jerky, items, "charque");
+
+		// bebidas: vinho e cidra em garrafa, cerveja em caneca
+		save(bottle(0xFF1A0210, 0xFF5A0A2A, 0xFF9A1A48, 0xFFD0507A), items, "wine");
+		save(bottle(0xFF8A5A00, 0xFFD89A18, 0xFFF0C848, 0xFFFFF0A0), items, "cider");
+		save(mug(), items, "beer");
 
 		BufferedImage fish = vanilla("item/cooked_cod");
 		recolor(fish, c -> a(c) > 0 && sat(c) > 0.1 || lum(c) > 0.3, 0xFF8A7A58, 0xFFD8CCA8, 0xFFFFF8E8);
@@ -715,6 +773,34 @@ public class FoodTexGen {
 			}
 			if (s == 3) {
 				fruits(im, 0xFF7A0A10, 0xFFE02838, 0xFFFF9AA0, 37);
+			}
+			return im;
+		});
+		// uva: parreira alta de folhas largas; no fim, cachos roxos pendurados
+		cropSet("grapes", s -> {
+			BufferedImage im = vanilla("block/wheat_stage" + (s * 2 + 1));
+			recolorAll(im, 0xFF1F4A12, 0xFF3D8A22, 0xFF7CC04A);
+			if (s >= 1) {
+				for (int x = 2; x < 15; x += 4) {
+					for (int y = 0; y < 3 + s * 2; y++) {
+						set(im, x, y, y % 2 == 0 ? 0xFF4E9A22 : 0xFF2E6A14);
+						set(im, x + 1, y, 0xFF8A6A3A);
+					}
+				}
+			}
+			if (s == 2) {
+				dots(im, 0xFFE8F0C0, 0xFFC8D890, 41);
+			}
+			if (s == 3) {
+				for (int x : new int[] {3, 8, 12}) {
+					for (int y = 4; y < 11; y++) {
+						int w = y < 6 ? 1 : y < 9 ? 1 : 0;
+						for (int dx = -w; dx <= w; dx++) {
+							set(im, x + dx, y, (x + dx + y) % 3 == 0 ? 0xFF8A4AB8 : (dx < 0 ? 0xFF6A2A98 : 0xFF3E1460));
+						}
+					}
+					set(im, x, 3, 0xFF3A6A18);
+				}
 			}
 			return im;
 		});

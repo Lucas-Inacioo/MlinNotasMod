@@ -321,7 +321,22 @@ public final class VillagePalette {
 			case RETAIN -> (pick % 5 == 0 ? foundation : brick).defaultBlockState();
 			case SAPLING -> sapling();
 			case DRAIN -> Blocks.AIR.defaultBlockState();
+			case BEEHIVE -> Blocks.BEEHIVE.defaultBlockState().setValue(net.minecraft.world.level.block.BeehiveBlock.FACING, facing);
+			case FOLIAGE -> (hedge == null ? Blocks.JUNGLE_LEAVES : hedge).defaultBlockState().trySetValue(LeavesBlock.PERSISTENT, true);
+			case GRAPE_VINE -> grapeVine(pick);
+			case BERRY_BUSH -> Blocks.SWEET_BERRY_BUSH.defaultBlockState().setValue(net.minecraft.world.level.block.SweetBerryBushBlock.AGE, 3);
+			case TROUGH -> Blocks.WATER_CAULDRON.defaultBlockState().setValue(BlockStateProperties.LEVEL_CAULDRON, 3);
+			case SACK -> woolAlt.defaultBlockState();
 		};
+	}
+
+	/** Videira do parreiral: a cultura do mod madura (trigo se o bloco do mod nao existir). */
+	private static BlockState grapeVine(int pick) {
+		Block block = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(com.mlin.notas.MlinNotas.id("grapes_crop"));
+		if (block instanceof CropBlock crop) {
+			return crop.getStateForAge(Math.max(0, crop.getMaxAge() - pick % 3));
+		}
+		return ((CropBlock) Blocks.WHEAT).getStateForAge(7);
 	}
 
 	/** Muda da madeira do estilo (areia: nenhuma). */

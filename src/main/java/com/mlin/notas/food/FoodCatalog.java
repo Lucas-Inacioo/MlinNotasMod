@@ -73,7 +73,9 @@ public final class FoodCatalog {
 		/** Conserva: nao estraga. */
 		PRESERVE,
 		/** Ingrediente que nao se come (farinha, arroz...). */
-		INGREDIENT
+		INGREDIENT,
+		/** Bebida fermentada (vinho, cerveja, cidra): efeito curto. */
+		DRINK
 	}
 
 	/** Recipiente devolvido ao comer. */
@@ -103,6 +105,8 @@ public final class FoodCatalog {
 	public static final CropSeasons.Profile RICE = new CropSeasons.Profile(0.9F, 1.35F, 0.7F, 0.0F);
 	public static final CropSeasons.Profile BEANS = new CropSeasons.Profile(0.9F, 1.15F, 1.3F, 0.05F);
 	public static final CropSeasons.Profile GARLIC = new CropSeasons.Profile(0.8F, 0.6F, 1.35F, 0.35F);
+	/** Uva (parreira): cresce no verao, rende mais no outono; nada no inverno ao ar livre. */
+	public static final CropSeasons.Profile GRAPES = new CropSeasons.Profile(0.5F, 1.1F, 1.4F, 0.0F);
 	/** Repolho: o unico que segue crescendo (devagar) no inverno ao ar livre. */
 	public static final CropSeasons.Profile CABBAGE = new CropSeasons.Profile(1.1F, 0.6F, 1.3F, 0.5F);
 
@@ -116,7 +120,8 @@ public final class FoodCatalog {
 			new Crop("rice", "rice", "rice", RICE, WildHabitat.WETLAND),
 			new Crop("beans", "beans", "beans", BEANS, WildHabitat.TROPICAL),
 			new Crop("garlic", "garlic", "garlic", GARLIC, WildHabitat.COLD),
-			new Crop("cabbage", "cabbage", "cabbage_seeds", CABBAGE, WildHabitat.COLD));
+			new Crop("cabbage", "cabbage", "cabbage_seeds", CABBAGE, WildHabitat.COLD),
+			new Crop("grapes", "grapes", "grape_seeds", GRAPES, WildHabitat.FOREST));
 
 	private static Food f(String id, int nutrition, float saturation, Kind kind, Container container, boolean perishable, int stack) {
 		return new Food(id, nutrition, saturation, kind, container, perishable, stack);
@@ -140,6 +145,7 @@ public final class FoodCatalog {
 			produce("corn", 2, 0.3F, true),
 			produce("bell_pepper", 2, 0.3F, true),
 			produce("strawberry", 2, 0.3F, true),
+			produce("grapes", 2, 0.3F, true),
 			ingredient("garlic"),
 			ingredient("rice"),
 			ingredient("beans"),
@@ -174,7 +180,11 @@ public final class FoodCatalog {
 			f("sauerkraut", 4, 0.5F, Kind.PRESERVE, Container.NONE, false, 64),
 			f("aged_cheese", 5, 0.8F, Kind.PRESERVE, Container.NONE, false, 64),
 			f("charque", 6, 0.8F, Kind.PRESERVE, Container.NONE, false, 64),
-			f("dried_fish", 5, 0.7F, Kind.PRESERVE, Container.NONE, false, 64));
+			f("dried_fish", 5, 0.7F, Kind.PRESERVE, Container.NONE, false, 64),
+			// bebidas da vinicola (efeitos curtos em FoodRegistry.drinkEffects)
+			f("wine", 2, 0.3F, Kind.DRINK, Container.NONE, false, 16),
+			f("beer", 2, 0.2F, Kind.DRINK, Container.NONE, false, 16),
+			f("cider", 3, 0.4F, Kind.DRINK, Container.NONE, false, 16));
 
 	/** Itens de comida (vanilla e do mod) que vem de uma cultura sazonal: produto -> bloco da cultura. */
 	private static final Map<String, String> PRODUCE_CROP = new LinkedHashMap<>();

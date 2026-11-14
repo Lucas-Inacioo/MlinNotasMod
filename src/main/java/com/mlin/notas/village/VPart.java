@@ -113,7 +113,19 @@ public enum VPart {
 	/** Muda de arvore (replantio nos arredores depois da terraplenagem). */
 	SAPLING(Flag.LATE),
 	/** Terraplenagem: tira a agua rasa (e o que for natural) para o chao ficar seco. */
-	DRAIN(Flag.EARTHWORK);
+	DRAIN(Flag.EARTHWORK),
+	/** Vilas 2.0 fase 5 (novos valores sempre no fim): colmeia virada para a direcao. */
+	BEEHIVE(Flag.SOLID),
+	/** Folhagem de arvore frutifera (sempre existe, tambem no deserto). */
+	FOLIAGE(Flag.SOLID),
+	/** Videira de uvas no parreiral (precisa de chao de terra). */
+	GRAPE_VINE(Flag.LATE),
+	/** Arbusto de frutas doces maduro. */
+	BERRY_BUSH(Flag.LATE),
+	/** Cocho de agua (calda/cocho de animais): caldeirao de agua. */
+	TROUGH(Flag.SOLID),
+	/** Fardo de la no chao (sacaria, toldo): la na cor de destaque. */
+	SACK(Flag.SOLID);
 
 	private static final class Flag {
 		static final int NONE = 0;

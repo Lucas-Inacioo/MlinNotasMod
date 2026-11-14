@@ -40,7 +40,9 @@ public final class VillageLayout {
 	public static final String CAMPFIRE = "campfire";
 	/** Projetos que ocupam lote, na ordem em que os lotes sao reservados (um de cada por vez). */
 	public static final List<VillageProject> LOT_PROJECTS = List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY,
-			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL);
+			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL,
+			VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY, VillageProject.ORCHARD, VillageProject.PEN, VillageProject.APIARY,
+			VillageProject.BUTCHER, VillageProject.WINERY, VillageProject.SAWMILL);
 	/** Postes que a praca ja coloca (os da rua guardam distancia deles). */
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
 
@@ -467,7 +469,7 @@ public final class VillageLayout {
 		Random random = new Random(state.seed() ^ 0x5EED_1A70L ^ ((long) level.ordinal() * 7919L));
 		Map<VillageProject, Integer> need = new LinkedHashMap<>();
 		for (VillageProject project : LOT_PROJECTS) {
-			need.put(project, missing(state, project, level));
+			need.put(project, FoodPlans.handles(project) ? 0 : missing(state, project, level));
 		}
 		List<Lot> added = new ArrayList<>();
 		boolean progress = true;

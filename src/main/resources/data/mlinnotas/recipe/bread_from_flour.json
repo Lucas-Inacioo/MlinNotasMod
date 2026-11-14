@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:flour",
+    "mlinnotas:flour",
+    "mlinnotas:flour"
+  ],
+  "result": {
+    "id": "minecraft:bread",
+    "count": 2
+  }
+}

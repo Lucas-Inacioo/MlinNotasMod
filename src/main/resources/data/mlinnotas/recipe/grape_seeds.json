@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:grapes"
+  ],
+  "result": {
+    "id": "mlinnotas:grape_seeds",
+    "count": 2
+  }
+}

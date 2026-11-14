@@ -109,6 +109,7 @@ public final class CropHarvester {
 		} else {
 			level.removeBlock(pos, false);
 		}
+		com.mlin.notas.village.FoodBuildingsServer.harvestBonus(level, pos, drops, seed);
 		for (ItemStack drop : drops) {
 			if (!drop.isEmpty()) {
 				Block.popResource(level, pos, drop);

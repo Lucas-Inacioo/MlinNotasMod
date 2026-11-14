@@ -250,7 +250,7 @@ public class FoodGameTest {
 			}
 		}
 		helper.assertTrue(found, "bau de casa de vila deveria ter sementes da horta " + garden.size());
-		helper.assertTrue(FoodServer.grassSeeds().size() == 6, "seis sementes caem da grama");
+		helper.assertTrue(FoodServer.grassSeeds().size() == 7, "sete sementes caem da grama");
 		helper.succeed();
 	}
 

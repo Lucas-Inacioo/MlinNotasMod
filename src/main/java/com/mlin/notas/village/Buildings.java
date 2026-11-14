@@ -35,8 +35,12 @@ public final class Buildings {
 			case LIBRARY -> library(style, random);
 			case PLAZA -> well(style, random);
 			case TOWN_HALL -> BuildingPlans.townHall(style, random, 1);
-			default -> throw new IllegalArgumentException("projeto sem planta: " + project);
+			default -> FoodPlans.handles(project) ? FoodPlans.plan(project, style, seed, 1) : fail(project);
 		};
+	}
+
+	private static Canvas fail(VillageProject project) {
+		throw new IllegalArgumentException("projeto sem planta: " + project);
 	}
 
 	// ---------------------------------------------------------------- pecas comuns
