@@ -277,6 +277,17 @@ public final class VillageBuilder {
 		if (planned.project() == VillageProject.PLAZA) {
 			clearTrees(level, village, -7, -7, 7, 7, village.y() - 4, village.y() + 14, any);
 		}
+		if (planned.project() == VillageProject.OUTER_WALL) {
+			// faixa da muralha externa inteira (muralha, torres e portoes)
+			int h = RuralRing.BAND + 1;
+			for (int x = -h; x <= h; x++) {
+				for (int z = -h; z <= h; z++) {
+					if (RuralRing.inBand(x, z)) {
+						clearTrees(level, village, x, z, x, z, village.y() - 16, village.y() + 32, any);
+					}
+				}
+			}
+		}
 		if (planned.project() == VillageProject.WALL) {
 			// faixa de 3 blocos de cada lado da muralha
 			int h = VillagePlanner.WALL_HALF + 4;

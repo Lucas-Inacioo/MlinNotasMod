@@ -27,6 +27,7 @@ final class MasterPlanOverlay {
 	static final int DISTRICT = 0xFF6FD3FF;
 	static final int OUTSKIRTS = 0xFF8EE07A;
 	static final int WALL = 0xFFC9A0FF;
+	static final int RURAL = 0xFFE8D25A;
 	static final int UNPREPARED = 0xFFFF7A2E;
 	static final int CLOSED = 0xFF8A8A8A;
 	static final int PLAYER = 0xFFB070FF;
@@ -56,6 +57,7 @@ final class MasterPlanOverlay {
 			case DISTRICT -> DISTRICT;
 			case OUTSKIRTS -> OUTSKIRTS;
 			case WALL -> WALL;
+			case RURAL -> RURAL;
 		};
 	}
 
@@ -133,11 +135,11 @@ final class MasterPlanOverlay {
 
 	/** Cor da borda do quarteirao: zona (pronto), laranja (falta terraplenagem) ou cinza (anel fechado). */
 	static int blockColor(MasterPlan.Block block, int open) {
-		if (block.ring() > Math.min(6, open + 1)) {
+		if (!MasterPlan.isOpen(block.ring(), Math.min(6, open + 1))) {
 			return CLOSED;
 		}
 		if (!block.prepared()) {
-			return block.ring() > open ? (UNPREPARED & 0x00FFFFFF) | 0x90000000 : UNPREPARED;
+			return !MasterPlan.isOpen(block.ring(), open) ? (UNPREPARED & 0x00FFFFFF) | 0x90000000 : UNPREPARED;
 		}
 		return zoneColor(block.zone());
 	}
@@ -157,7 +159,7 @@ final class MasterPlanOverlay {
 			if (eye.distanceToSqr(cx, eye.y, cz) > range2) {
 				continue;
 			}
-			int color = streetColor(run.kind, run.ring <= open);
+			int color = streetColor(run.kind, MasterPlan.isOpen(run.ring, open));
 			double y = run.y + 1.03;
 			Gizmos.cuboid(new AABB(c.getX() + run.x0, y, c.getZ() + run.z, c.getX() + run.x1 + 1, y + 0.05, c.getZ() + run.z + 1), GizmoStyle.fill(color));
 		}
@@ -194,7 +196,7 @@ final class MasterPlanOverlay {
 			if (block == null || p.retired() || reserved(o, p.id()) || eye.distanceToSqr(px, eye.y, pz) > range2) {
 				continue;
 			}
-			int color = p.player() ? PLAYER : block.ring() > open ? CLOSED : zoneColor(p.zone());
+			int color = p.player() ? PLAYER : !MasterPlan.isOpen(block.ring(), open) ? CLOSED : zoneColor(p.zone());
 			double y = block.target() + 1.04;
 			Gizmos.cuboid(new AABB(c.getX() + r.x0() + 0.15, y, c.getZ() + r.z0() + 0.15, c.getX() + r.x1() + 0.85, y + 0.04, c.getZ() + r.z1() + 0.85),
 					GizmoStyle.strokeAndFill((color & 0x00FFFFFF) | 0xA0000000, 1.5F, (color & 0x00FFFFFF) | 0x18000000));

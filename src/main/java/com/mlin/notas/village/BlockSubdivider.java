@@ -20,6 +20,7 @@ final class BlockSubdivider {
 			case 2 -> new SizeClass[] {SizeClass.L, SizeClass.M};
 			case 3 -> new SizeClass[] {SizeClass.M};
 			case 5 -> new SizeClass[] {SizeClass.XL, SizeClass.L};
+			case RuralRing.RING -> new SizeClass[] {SizeClass.L, SizeClass.M};
 			default -> new SizeClass[] {};
 		};
 	}
@@ -31,6 +32,8 @@ final class BlockSubdivider {
 			case 3 -> new SizeClass[] {SizeClass.S, SizeClass.S, SizeClass.S, SizeClass.M};
 			case 5 -> new SizeClass[] {SizeClass.L, SizeClass.M, SizeClass.M, SizeClass.L};
 			case 6 -> new SizeClass[] {SizeClass.WL};
+			// anel rural: campos e galpoes medios, um grande de vez em quando (vinicola), um pequeno (apiario)
+			case RuralRing.RING -> new SizeClass[] {SizeClass.M, SizeClass.M, SizeClass.L, SizeClass.S, SizeClass.M};
 			default -> new SizeClass[] {};
 		};
 	}
@@ -50,6 +53,26 @@ final class BlockSubdivider {
 		List<MasterPlan.Parcel> out = new ArrayList<>();
 		for (MasterPlan.Block block : plan.blocks()) {
 			fillBlock(plan, block, seed, taken, out, 0);
+		}
+		return out;
+	}
+
+	/**
+	 * Lotes dos quarteiroes novos (id a partir de {@code firstBlock}) de um plano que ganhou o anel rural: os lotes que
+	 * ja existem ficam como estao e os novos tem ids depois deles.
+	 */
+	static List<MasterPlan.Parcel> subdivideFrom(MasterPlan plan, long seed, int firstBlock) {
+		boolean[] taken = emptyTaken(plan);
+		for (MasterPlan.Parcel p : plan.parcels()) {
+			if (!p.retired()) {
+				occupy(plan, taken, p.rect());
+			}
+		}
+		List<MasterPlan.Parcel> out = new ArrayList<>();
+		for (MasterPlan.Block block : plan.blocks()) {
+			if (block.id() >= firstBlock) {
+				fillBlock(plan, block, seed, taken, out, plan.parcels().size());
+			}
 		}
 		return out;
 	}
@@ -164,7 +187,7 @@ final class BlockSubdivider {
 			turn++;
 		}
 		// sobras (cantos chanfrados, esquinas largas): lotes minusculos
-		if (block.ring() != 6) {
+		if (block.ring() != 6 && block.ring() != RuralRing.RING) {
 			for (int guard = 0; guard < 32; guard++) {
 				Candidate c = best(plan, sat, SizeClass.T, false);
 				if (c == null) {

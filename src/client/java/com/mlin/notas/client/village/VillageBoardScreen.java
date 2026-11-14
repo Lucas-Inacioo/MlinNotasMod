@@ -202,7 +202,10 @@ public class VillageBoardScreen extends Screen {
 		List<Object> rows = new ArrayList<>();
 		VillageState s = state();
 		if (s.planned()) {
-			for (int ring = 1; ring <= Math.min(com.mlin.notas.village.MasterPlan.RINGS, s.level().rings() + 1); ring++) {
+			for (int ring = 1; ring <= com.mlin.notas.village.MasterPlan.RINGS; ring++) {
+				if (ring == com.mlin.notas.village.RuralRing.RING ? s.level().ordinal() < com.mlin.notas.village.RuralRing.OPENS.ordinal() || !s.planned() : ring > s.level().rings() + 1) {
+					continue;
+				}
 				rows.add(ring);
 			}
 		}
@@ -575,14 +578,14 @@ public class VillageBoardScreen extends Screen {
 		boolean rowHover = hover(mouseX, mouseY, x, y, r, y + PROJECT_ROW - 1);
 		graphics.fill(x, y, left() + panelW() - 8, y + PROJECT_ROW - 1, rowHover ? ROW_HOVER : ROW);
 		graphics.item(new ItemStack(work.done() ? Items.GRASS_BLOCK : Items.DIRT), x + 3, y + 3);
-		graphics.text(font, Component.translatable("gui.mlinnotas.village.terrain.name", ring), x + 23, y + 3, 0xFFFFFFFF);
+		graphics.text(font, ring == com.mlin.notas.village.RuralRing.RING ? Component.translatable("gui.mlinnotas.village.terrain.rural") : Component.translatable("gui.mlinnotas.village.terrain.name", ring), x + 23, y + 3, 0xFFFFFFFF);
 		Component sub;
 		switch (work.state()) {
 			case DONE -> sub = Component.translatable("gui.mlinnotas.village.terrain.done").withStyle(ChatFormatting.GREEN);
 			case QUEUED -> sub = work.columns() > 0 && work.ready() > 0
 					? Component.translatable("gui.mlinnotas.village.terrain.working", work.ready() * 100 / work.columns()).withStyle(ChatFormatting.YELLOW)
 					: Component.translatable("gui.mlinnotas.village.queued").withStyle(ChatFormatting.YELLOW);
-			default -> sub = ring > s.level().rings()
+			default -> sub = ring != com.mlin.notas.village.RuralRing.RING && ring > s.level().rings()
 					? Component.translatable("gui.mlinnotas.village.terrain.next_level").withStyle(ChatFormatting.GOLD)
 					: Component.translatable("gui.mlinnotas.village.terrain.ready_count", work.ready(), work.columns()).withStyle(ChatFormatting.GRAY);
 		}

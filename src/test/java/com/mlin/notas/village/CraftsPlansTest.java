@@ -187,8 +187,8 @@ class CraftsPlansTest {
 		assertEquals(Zone.CENTER, LotRules.of("church").zones().get(0));
 		assertEquals(Zone.CENTER, LotRules.of("tavern").zones().get(0));
 		assertEquals(Zone.CENTER, LotRules.of("enchanter").zones().get(0));
-		assertEquals(Zone.OUTSKIRTS, LotRules.of("quarry").zones().get(0));
-		assertEquals(Zone.OUTSKIRTS, LotRules.of("tannery").zones().get(0));
+		assertEquals(List.of(Zone.RURAL, Zone.OUTSKIRTS), LotRules.of("quarry").zones().subList(0, 2));
+		assertEquals(List.of(Zone.RURAL, Zone.OUTSKIRTS), LotRules.of("tannery").zones().subList(0, 2));
 	}
 
 	private static VillageLevel firstLevelWithBuilds(VillageProject p) {

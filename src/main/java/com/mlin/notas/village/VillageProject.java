@@ -12,11 +12,11 @@ public enum VillageProject {
 	PLAZA("plaza", "minecraft:cobblestone", 0, 40, new int[] {1, 1, 1, 1, 1, 1, 1}, 0, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:logs", 8), VillageCost.of("minecraft:water_bucket", 1))),
 	/** Casa nova com cama: chega um aldeao. */
-	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 3, 4, 6, 6, 6, 6}, 1, 0,
+	HOUSE("house", "minecraft:oak_door", 0, 35, new int[] {2, 3, 4, 6, 7, 8, 10}, 1, 0,
 			List.of(VillageCost.of("#minecraft:planks", 64), VillageCost.of("#minecraft:logs", 12), VillageCost.of("#mlinnotas:village/glass", 6),
 					VillageCost.of("#minecraft:beds", 1))),
 	/** Plantacao irrigada com composteira: chega um fazendeiro. */
-	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 2, 2, 2, 2, 2}, 1, 0,
+	FARM("farm", "minecraft:wheat", 0, 30, new int[] {1, 2, 2, 3, 3, 4, 4}, 1, 0,
 			List.of(VillageCost.of("#mlinnotas:village/food", 32), VillageCost.of("#mlinnotas:village/seeds", 16))),
 	/** Postes com lanterna nos caminhos e na praca. */
 	LAMPS("lamps", "minecraft:lantern", 0, 20, new int[] {1, 1, 2, 2, 3, 3, 4}, 0, 0,
@@ -149,7 +149,15 @@ public enum VillageProject {
 					VillageCost.of("minecraft:bell", 1), VillageCost.of("minecraft:emerald", 12), VillageCost.of("#minecraft:wool", 8))),
 	/** Lote vazio (bairros): patamar preparado com estacas para o jogador construir a propria casa; a vila nunca mexe nele. */
 	EMPTY_LOT("empty_lot", "minecraft:oak_fence", 3, 5, new int[] {0, 0, 0, 1, 1, 1, 1}, 0, 0,
-			List.of(VillageCost.of("#minecraft:wooden_fences", 8), VillageCost.of("minecraft:emerald", 2)));
+			List.of(VillageCost.of("#minecraft:wooden_fences", 8), VillageCost.of("minecraft:emerald", 2))),
+	// ---- Vilas 2.0 fase 8: Metropole e Cidade da Coroa (apendice no fim do enum) ----
+	/**
+	 * Muralha externa (Metropole, sem lote): 149x149 na faixa de fora do plano diretor, portoes onde as avenidas passam,
+	 * torres nos cantos e no meio dos lados; exigida para a Cidade da Coroa. Vem dois golens de guarda.
+	 */
+	OUTER_WALL("outer_wall", "minecraft:deepslate_bricks", 5, 200, new int[] {0, 0, 0, 0, 0, 1, 1}, 0, 2,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 768), VillageCost.of("#minecraft:logs", 48), VillageCost.of("minecraft:iron_ingot", 24),
+					VillageCost.of("minecraft:emerald", 40)));
 
 	private final String id;
 	private final String icon;

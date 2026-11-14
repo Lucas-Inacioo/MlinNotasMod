@@ -2100,5 +2100,15 @@
   "container.mlinnotas.tanning_vat": "Tina de Curtir",
   "block.mlinnotas.tanning_vat.tooltip": "Curte carne podre em couro dentro de um curtume (8 espaços, meio dia)",
   "gui.mlinnotas.village.no_room": "Sem lugar no plano %s/%s",
-  "message.mlinnotas.village.no_room": "%s: o plano da vila não tem mais lote livre para esta obra"
+  "message.mlinnotas.village.no_room": "%s: o plano da vila não tem mais lote livre para esta obra",
+  "village.mlinnotas.project.outer_wall": "Muralha externa",
+  "village.mlinnotas.project.outer_wall.desc": "Muralha de pedra de 149x149 em volta da cidade inteira, com adarve e ameias, torres salientes nos cantos e no meio dos lados e portões em arco onde as avenidas passam para o anel rural. Sobe do chão de fora até acima do nível da cidade; onde a linha passa por construção sua ou água funda fica um vão (aparece no contorno). Vêm dois golens de guarda. Exigida para a Cidade da Coroa, que ainda ganha barbacãs na frente dos portões dos eixos.",
+  "gui.mlinnotas.village.terrain.rural": "Terraplenagem do anel rural",
+  "message.mlinnotas.village.rural_open": "%s ganhou o anel rural: campos fora da muralha externa para plantações, moinho, pomar, curral, apiário, vinícola, serraria, pedreira e curtume. Pague a terraplenagem do anel rural no quadro para começar.",
+  "village.mlinnotas.work.stakes.7": "Estacas e placas dos lotes livres do anel rural",
+  "village.mlinnotas.work.bridges.7": "Pontes do anel rural",
+  "village.mlinnotas.work.fields.hedge": "Cerca viva e porteiras do anel rural",
+  "village.mlinnotas.work.fields.lamps": "Postes de lanterna nos campos",
+  "village.mlinnotas.work.wall.historic": "Centro histórico: arcos abertos e passeio na muralha",
+  "village.mlinnotas.work.wall.barbican": "Barbacãs dos portões da muralha externa"
 }

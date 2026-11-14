@@ -69,7 +69,12 @@ public final class VillageTerrain {
 
 	/** Anel que a vila pode pagar agora (aberto no nivel ou o proximo). */
 	public static boolean fundable(VillageState village, int ring) {
-		return ring >= 1 && ring <= Math.min(MasterPlan.RINGS, village.level().rings() + 1);
+		if (ring == RuralRing.RING) {
+			// anel rural: abre na Cidade, quando o plano ja ganhou os campos
+			return village.layout() != null && village.layout().master() != null && village.layout().master().rural()
+					&& village.level().ordinal() >= RuralRing.OPENS.ordinal();
+		}
+		return ring >= 1 && ring <= Math.min(RuralRing.RING - 1, village.level().rings() + 1);
 	}
 
 	/**
@@ -127,7 +132,7 @@ public final class VillageTerrain {
 		int open = Math.min(MasterPlan.RINGS, village.level().rings() + 1);
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (block == null || block.ring() > open || p.retired()) {
+			if (block == null || !MasterPlan.isOpen(block.ring(), open) || p.retired()) {
 				continue;
 			}
 			boolean taken = false;
@@ -170,13 +175,13 @@ public final class VillageTerrain {
 		int open = village.level().rings();
 		for (VillageState.Rect r : plan.playerAreas()) {
 			int ring = plan.ring((r.x0() + r.x1()) / 2, (r.z0() + r.z1()) / 2);
-			if (ring >= 1 && ring <= open) {
+			if (MasterPlan.isOpen(ring, open)) {
 				areas.add(r);
 			}
 		}
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (p.player() && block != null && block.ring() <= open) {
+			if (p.player() && block != null && MasterPlan.isOpen(block.ring(), open)) {
 				areas.add(p.rect());
 			}
 		}
@@ -489,6 +494,45 @@ public final class VillageTerrain {
 			}
 		}
 		VillagePlanning.grow(level, village);
+		prepareRuralLots(level, village, trees);
+	}
+
+	/**
+	 * Aplaina na hora so os quarteiroes do anel rural que ja tem obra reservada (testes, comandos): o anel inteiro e a
+	 * obra "Terraplenagem do anel rural", paga a parte.
+	 */
+	public static void prepareRuralLots(ServerLevel level, VillageState village, boolean trees) {
+		MasterPlan plan = village.layout() == null ? null : village.layout().master();
+		if (plan == null || !plan.rural() || village.ring(RuralRing.RING).done()) {
+			return;
+		}
+		java.util.Set<Integer> blocks = new java.util.HashSet<>();
+		for (VillageLayout.Lot lot : village.layout().lots()) {
+			MasterPlan.Parcel p = plan.parcel(lot.parcel());
+			MasterPlan.Block b = p == null ? null : plan.block(p.block());
+			if (b != null && b.ring() == RuralRing.RING && !b.prepared()) {
+				blocks.add(b.id());
+			}
+		}
+		if (blocks.isEmpty()) {
+			return;
+		}
+		VillagePalette palette = VillagePalette.of(village.style());
+		WorldTerrain natural = new WorldTerrain(level, VillageServer.center(village), trees);
+		int e = plan.extent();
+		for (int x = -e; x <= e; x++) {
+			for (int z = -e; z <= e; z++) {
+				MasterPlan.Block b = plan.blockAt(x, z);
+				if (b != null && blocks.contains(b.id())) {
+					level.getChunk(VillageBuilder.world(village, x, 0, z));
+					column(level, village, plan, x, z, palette, natural, trees, x * 31 + z);
+				}
+			}
+		}
+		for (int id : blocks) {
+			plan.block(id).setPrepared(true);
+		}
+		VillageData.get(level.getServer()).changed();
 	}
 
 	// ---------------------------------------------------------------- conferencia do plato
