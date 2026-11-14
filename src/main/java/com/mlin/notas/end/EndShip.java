@@ -100,13 +100,13 @@ final class EndShip {
 	}
 
 	static int depth(int u) {
-		if (u > 9) {
-			return Math.max(2, 6 - (u - 9 + 1) / 2);
+		if (u > 6) {
+			return Math.max(2, 6 - (u - 5) / 2);
 		}
-		return u < -11 ? 5 : 6;
+		return u < -9 ? Math.max(4, 6 - (-9 - u)) : 6;
 	}
 
-	private static final int[] DROP = {0, 0, 0, 1, 1, 2, 4};
+	private static final int[] DROP = {0, 0, 1, 1, 2, 3, 5};
 
 	/** Meia largura da camada {@code j} abaixo do convés (-1 se nao existe). */
 	static int layer(int u, int j) {
@@ -204,8 +204,9 @@ final class EndShip {
 				}
 				boolean gangway = v < 0 && u >= -1 && u <= 1 && Math.abs(v) == w;
 				if (edge && !gangway && u > CASTLE_FRONT) {
-					set(u, v, deck + 1, PURPUR);
-					if (Math.floorMod(u, 4) == 0 || u == BOW) {
+					boolean post = Math.floorMod(u, 4) == 0 || u == BOW;
+					set(u, v, deck + 1, post ? PILLAR : s(PURPUR_SLAB, "type=bottom"));
+					if (post) {
 						set(u, v, deck + 2, CitadelPlanner.rod("up"));
 					} else {
 						remove(u, v, deck + 2);

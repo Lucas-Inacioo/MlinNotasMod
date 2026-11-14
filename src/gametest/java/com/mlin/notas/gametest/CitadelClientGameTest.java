@@ -35,7 +35,9 @@ public class CitadelClientGameTest implements FabricClientGameTest {
 		try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("gamemode creative @p");
-			context.runOnClient(mc -> mc.options.gamma().set(1.0));
+			context.runOnClient(mc -> {
+				mc.options.gamma().set(1.0);
+			});
 			camera(context, world, 0, 60, 90, 0, 20, 0);
 			String report = world.getServer().computeOnServer(server -> {
 				ServerLevel end = server.getLevel(Level.END);
@@ -62,11 +64,14 @@ public class CitadelClientGameTest implements FabricClientGameTest {
 			}
 			CitadelPlan plan = CitadelPiece.planFor(SEED);
 			context.runOnClient(mc -> hud(mc, false));
+			camera(context, world, 50, 40, 50, 0, 18, 0);
+			context.waitTicks(100);
+			world.getConnection().waitForChunksRender();
 
 			// por fora
-			shot(context, world, "mlinnotas-citadel-overview", 62, 48, 62, 0, 18, 0);
-			shot(context, world, "mlinnotas-citadel-south", 0, 14, 82, 0, 22, 0);
-			shot(context, world, "mlinnotas-citadel-west", -80, 28, -12, 0, 18, 0);
+			shot(context, world, "mlinnotas-citadel-overview", 50, 40, 50, 0, 18, 0);
+			shot(context, world, "mlinnotas-citadel-south", 0, 14, 64, 0, 22, 0);
+			shot(context, world, "mlinnotas-citadel-west", -64, 26, -10, 0, 18, 0);
 			shot(context, world, "mlinnotas-citadel-below", 46, -40, -46, 0, -6, 0);
 			shot(context, world, "mlinnotas-citadel-courtyard", -19, 2, 20, 0, 14, 0);
 			CitadelPlan.Tower dock = plan.tower("dock");
@@ -111,8 +116,8 @@ public class CitadelClientGameTest implements FabricClientGameTest {
 			int ty = tall.floorY(tall.floors() - 1) + 1;
 			shot(context, world, "mlinnotas-citadel-tower-top", tall.x() - Integer.signum(tall.x()) * 2 + 1, ty, tall.z() - Integer.signum(tall.z()) * 2 + 1,
 					tall.x() + Integer.signum(tall.x()) * 4, ty + 1, tall.z() + Integer.signum(tall.z()) * 4);
-			shot(context, world, "mlinnotas-citadel-bridge", tall.x() / 2.0 + Math.abs(Integer.signum(tall.z())) * 10, 24,
-					tall.z() / 2.0 + Math.abs(Integer.signum(tall.x())) * 10, tall.x() / 2.0, 14, tall.z() / 2.0);
+			shot(context, world, "mlinnotas-citadel-bridge", tall.x() / 2.0 + Math.abs(Integer.signum(tall.z())) * 28, 30,
+					tall.z() / 2.0 + Math.abs(Integer.signum(tall.x())) * 28, tall.x() / 2.0, 10, tall.z() / 2.0);
 			context.runOnClient(mc -> hud(mc, true));
 		}
 	}
@@ -146,7 +151,9 @@ public class CitadelClientGameTest implements FabricClientGameTest {
 	private static void shot(ClientGameTestContext context, TestSingleplayerContext world, String name, double x, double y, double z, double tx, double ty,
 			double tz) {
 		camera(context, world, x, y, z, tx, ty, tz);
-		context.waitTicks(20);
+		context.waitTicks(40);
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(10);
 		world.getConnection().waitForChunksRender();
 		context.takeScreenshot(name);
 	}
