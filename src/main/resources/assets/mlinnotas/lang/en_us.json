@@ -2113,5 +2113,15 @@
   "sign.mlinnotas.statue.astral_herald": "Astral Herald",
   "sign.mlinnotas.statue.ender_dragon": "Ender Dragon",
   "sign.mlinnotas.statue.wither": "Wither",
-  "sign.mlinnotas.statue.hero": "The village heroes"
+  "sign.mlinnotas.statue.hero": "The village heroes",
+  "village.mlinnotas.project.outer_wall": "Outer wall",
+  "village.mlinnotas.project.outer_wall.desc": "A 149x149 stone wall around the whole city, with a wall-walk and battlements, towers jutting out at the corners and along the sides, and arched gates where the avenues pass into the rural ring. It rises from the ground outside to above the city level; where the line crosses something you built or deep water it leaves a gap (shown in the outline). Two guard golems arrive. Required for the Crown City, which also adds barbicans in front of the axis gates.",
+  "gui.mlinnotas.village.terrain.rural": "Rural ring earthworks",
+  "message.mlinnotas.village.rural_open": "%s gained the rural ring: fields outside the outer wall for farms, mill, orchard, pen, apiary, winery, sawmill, quarry and tannery. Pay for the rural ring earthworks at the board to start.",
+  "village.mlinnotas.work.stakes.7": "Stakes and signs of the free lots in the rural ring",
+  "village.mlinnotas.work.bridges.7": "Bridges of the rural ring",
+  "village.mlinnotas.work.fields.hedge": "Hedge and gateposts of the rural ring",
+  "village.mlinnotas.work.fields.lamps": "Lamp posts in the fields",
+  "village.mlinnotas.work.wall.historic": "Historic centre: open arches and a promenade on the wall",
+  "village.mlinnotas.work.wall.barbican": "Barbicans of the outer wall gates"
 }

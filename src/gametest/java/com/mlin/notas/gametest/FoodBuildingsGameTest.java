@@ -228,7 +228,7 @@ public class FoodBuildingsGameTest {
 			Container apiary = chest(helper, v, "apiary");
 			expect(count(apiary, "minecraft:honeycomb") >= 2 && count(apiary, "minecraft:honey_bottle") >= 2, "apiario I poe favos e mel (verao/sem estacao)");
 			// curral: no primeiro ciclo chegam 2 de cada; no segundo nasce um filhote de cada ate o limite
-			AABB all = new AABB(VillageServer.center(v)).inflate(R, 30, R);
+			AABB all = new AABB(VillageServer.center(v)).inflate(com.mlin.notas.village.RuralRing.EXTENT, 200, com.mlin.notas.village.RuralRing.EXTENT);
 			int cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, all).size();
 			int sheep = level.getEntitiesOfClass(net.minecraft.world.entity.animal.sheep.Sheep.class, all).size();
 			expect(cows == 2 && sheep == 2, "curral I recebe 2 vacas e 2 ovelhas: " + cows + "/" + sheep);

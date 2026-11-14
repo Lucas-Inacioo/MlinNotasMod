@@ -116,8 +116,9 @@ class VillageCapacityTest {
 		}
 		assertEquals(List.of(), problems, "lotes que o plano nao conseguiu dar");
 		System.out.println("oficios sem lugar na Coroa: " + optionalMissing + " em " + runs + " planos");
-		// guarda contra regressao: hoje ~1 oficio sem lugar a cada 2 planos (os essenciais sempre cabem)
-		assertTrue(optionalMissing <= runs * 3 / 4, "oficios demais sem lugar: " + optionalMissing + " em " + runs);
+		// guarda contra regressao: antes do anel rural (fase 8) ~1 oficio sem lugar a cada 2 planos (12 em 25); com os
+		// tipos rurais fora da muralha externa, nenhum (0 em 25)
+		assertTrue(optionalMissing <= runs / 10, "oficios demais sem lugar: " + optionalMissing + " em " + runs);
 	}
 
 	@Test

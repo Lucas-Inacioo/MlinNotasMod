@@ -69,6 +69,17 @@ public final class VillagePlanning {
 		if (village.layout().master() != null && village.layout().master().version() < MasterPlan.VERSION) {
 			upgradePlan(level, village, village.layout());
 		}
+		if (village.layout().needsRural(village.level())) {
+			// vila que ja era Cidade antes do anel rural: o plano ganha os campos fora da muralha externa
+			VillageLayout layout = village.layout();
+			int before = layout.master().parcels().size();
+			layout.extend(village, new WorldTerrain(level, VillageServer.center(village)), village.level());
+			VillageData.get(level.getServer()).changed();
+			MlinNotas.LOGGER.info("[{}] vila {} ganhou o anel rural: {} lotes novos no plano, {} quarteiroes no total", MlinNotas.MOD_ID, village.name(),
+					layout.master().parcels().size() - before, layout.master().blocks().size());
+			level.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.rural_open", village.name())
+					.withStyle(net.minecraft.ChatFormatting.GOLD), false);
+		}
 		clearRetired(level, village);
 		return village.layout();
 	}
@@ -223,6 +234,19 @@ public final class VillagePlanning {
 				}
 			}
 			infos.add(new VillagePayloads.LotInfo(lot.id(), status.ordinal(), ground));
+		}
+		if (master != null && master.rural() && village.level().ordinal() >= VillageProject.OUTER_WALL.minLevel().ordinal() && village.built(VillageProject.OUTER_WALL) == 0) {
+			// muralha externa: vaos onde ha construcao de jogador ou agua funda na linha (a obra deixa o trecho aberto)
+			int n = 0;
+			for (int[] b : OuterWallPlanner.breaches(master, terrain)) {
+				if (obstacles.size() >= MAX_OBSTACLES) {
+					break;
+				}
+				if (n++ % 2 == 0) {
+					obstacles.add(VillageBuilder.world(village, b[0], terrain.ground(b[0], b[1]), b[1]).asLong());
+					kinds.add((b[2] == 1 ? WorldTerrain.Obstacle.WATER : WorldTerrain.Obstacle.PLAYER).ordinal());
+				}
+			}
 		}
 		int rings = village.level().rings() | (village.ringsDone() << 4);
 		return new VillagePayloads.Overlay(village.key(), VillageServer.center(village), layout, infos, obstacles, kinds, seconds, rings);

@@ -26,7 +26,7 @@ public final class ParcelWorks {
 	/** Lote vago do anel: nao reservado, nao de jogador, nao aposentado, anel pronto. */
 	static boolean vacant(WorkContext ctx, MasterPlan.Parcel p) {
 		MasterPlan.Block b = ctx.plan().block(p.block());
-		return !p.retired() && !p.player() && b != null && b.prepared() && b.ring() <= ctx.openRings() && !ctx.reservedParcels().contains(p.id());
+		return !p.retired() && !p.player() && b != null && b.prepared() && com.mlin.notas.village.MasterPlan.isOpen(b.ring(), ctx.openRings()) && !ctx.reservedParcels().contains(p.id());
 	}
 
 	static String face(Facing f) {

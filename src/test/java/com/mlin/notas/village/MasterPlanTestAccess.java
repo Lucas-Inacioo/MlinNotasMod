@@ -49,6 +49,17 @@ public final class MasterPlanTestAccess {
 		return t;
 	}
 
+	/** Plano diretor (sem anel rural) num terreno qualquer. */
+	public static MasterPlan planOn(Terrain t, long seed) {
+		return MasterPlan.create(seed, t, t.ground(0, 0), java.util.List.of(), java.util.List.of(), java.util.Set.of(), 0);
+	}
+
+	/** Plano do terreno {@code terrain} ja com o anel rural (fase 8). */
+	public static MasterPlan ruralPlan(int terrain, long seed) {
+		VillagePlannerTest.FakeTerrain t = new VillagePlannerTest.FakeTerrain(MasterPlanTest.TERRAINS.get(terrain));
+		return RuralRing.expand(MasterPlanTest.plan(t, seed), t);
+	}
+
 	public static Terrain terrain(int terrain) {
 		return new VillagePlannerTest.FakeTerrain(MasterPlanTest.TERRAINS.get(terrain));
 	}

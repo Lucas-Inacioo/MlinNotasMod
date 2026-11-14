@@ -45,7 +45,7 @@ class VillageLayoutTest {
 				assertFalse(a.overlaps(lots.get(j).rect(), VillageLayout.LOT_GAP - 1), "lotes " + i + " e " + j + " encostam");
 			}
 			for (int[] c : new int[][] {{a.x0(), a.z0()}, {a.x1(), a.z0()}, {a.x0(), a.z1()}, {a.x1(), a.z1()}}) {
-				assertTrue(Math.abs(c[0]) <= StreetPlanner.OUTER && Math.abs(c[1]) <= StreetPlanner.OUTER, "lote fora do plano");
+				assertTrue(Math.abs(c[0]) <= RuralRing.HALF && Math.abs(c[1]) <= RuralRing.HALF, "lote fora do plano");
 			}
 			for (int x = a.x0() - 1; x <= a.x1() + 1; x++) {
 				for (int z = a.z0() - 1; z <= a.z1() + 1; z++) {

@@ -41,6 +41,8 @@ public final class LotRules {
 		FoodBuildings.registerLots();
 		com.mlin.notas.village.civic.CivicBuildings.registerLots();
 		CraftsBuildings.registerLots();
+		// Vilas 2.0 fase 8: tipos rurais preferem o anel rural fora da muralha externa
+		RuralRing.registerLots();
 	}
 
 

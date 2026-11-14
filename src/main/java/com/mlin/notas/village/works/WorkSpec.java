@@ -61,6 +61,11 @@ public record WorkSpec(String id, WorkCategory category, VillageLevel level) {
 				out.add(new WorkSpec("gardens:1", WorkCategory.GREEN, level));
 				out.add(new WorkSpec("decor:1", WorkCategory.DECOR, level));
 				out.add(new WorkSpec("facades:1", WorkCategory.FACADES, level));
+				// fase 8: anel rural (estacas, pontes, cerca viva e postes so quando o anel 7 estiver aplainado)
+				out.add(new WorkSpec("stakes:7", WorkCategory.SUBDIVISION, level));
+				out.add(new WorkSpec("bridges:7", WorkCategory.BRIDGES, level));
+				out.add(new WorkSpec("fields:hedge", WorkCategory.RURAL, level));
+				out.add(new WorkSpec("fields:lamps", WorkCategory.RURAL, level));
 			}
 			case CAPITAL -> {
 				out.add(new WorkSpec("streets:4", WorkCategory.STREETS, level));
@@ -73,10 +78,13 @@ public record WorkSpec(String id, WorkCategory category, VillageLevel level) {
 				out.add(new WorkSpec("streets:5", WorkCategory.STREETS, level));
 				out.add(new WorkSpec("plaza:4", WorkCategory.PLAZA, level));
 				out.add(new WorkSpec("arcades:1", WorkCategory.FACADES, level));
+				// fase 8: a muralha de pedra vira centro historico (arcos abertos nos portoes, passeio em cima)
+				out.add(new WorkSpec("wall:historic", WorkCategory.WALL, level));
 			}
 			case CROWN_CITY -> {
 				out.add(new WorkSpec("plaza:5", WorkCategory.PLAZA, level));
-				// gancho da muralha externa (fase F8): "wall:outer" entra aqui
+				// fase 8: barbacas na frente dos portoes dos eixos da muralha externa (obra paga OUTER_WALL)
+				out.add(new WorkSpec("wall:barbican", WorkCategory.WALL, level));
 			}
 		}
 		return out;

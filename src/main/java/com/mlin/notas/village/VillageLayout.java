@@ -466,6 +466,10 @@ public final class VillageLayout {
 	 */
 	public List<Lot> extend(VillageState state, Terrain terrain, VillageLevel level) {
 		if (master != null) {
+			if (level.ordinal() >= RuralRing.OPENS.ordinal() && !master.rural()) {
+				// Cidade: o plano ganha o anel rural fora da muralha externa (o que ja existe nao muda)
+				master = RuralRing.expand(master, terrain);
+			}
 			return extendMaster(state, level);
 		}
 		radius = Math.max(radius, level.radius());
@@ -504,6 +508,11 @@ public final class VillageLayout {
 		if (master == null) {
 			addAvenues();
 		}
+	}
+
+	/** O plano diretor ainda nao tem o anel rural e a vila ja chegou no nivel dele (mundo de antes da fase 8). */
+	public boolean needsRural(VillageLevel level) {
+		return master != null && !master.rural() && level.ordinal() >= RuralRing.OPENS.ordinal();
 	}
 
 	// ---------------------------------------------------------------- plano diretor
@@ -769,11 +778,11 @@ public final class VillageLayout {
 		BlockSubdivider.Carving best = null;
 		double bestScore = beatScore - CARVE_MARGIN;
 		for (MasterPlan.Block block : master.blocks()) {
-			if (block.ring() > open || block.zone() == null || (prepared && !block.prepared())
+			if (!MasterPlan.isOpen(block.ring(), open) || block.zone() == null || (prepared && !block.prepared())
 					|| !LotRules.accepts(rule, block.zone(), open >= 3, open >= 5)) {
 				continue;
 			}
-			double floor = rule.preference(block.zone()) * 1000 + (block.prepared() ? 0 : 500) - StreetPlanner.OUTER * 1.5;
+			double floor = rule.preference(block.zone()) * 1000 + (block.prepared() ? 0 : 500) - RuralRing.EXTENT * 1.5;
 			if (floor >= bestScore) {
 				continue;
 			}
@@ -834,7 +843,7 @@ public final class VillageLayout {
 			return Problem.PLAZA;
 		}
 		MasterPlan.Block block = master.block(p.block());
-		if (block == null || block.ring() > open) {
+		if (block == null || !MasterPlan.isOpen(block.ring(), open)) {
 			return Problem.CLOSED;
 		}
 		LotRules.Rule rule = LotRules.of(kind);
@@ -934,7 +943,7 @@ public final class VillageLayout {
 		for (int x = -e; x <= e; x++) {
 			for (int z = -e; z <= e; z++) {
 				MasterPlan.Block block = master.blockAt(x, z);
-				if (block == null || block.ring() > open || master.parcelAt(x, z) != null || lotAt(x, z) != null) {
+				if (block == null || !MasterPlan.isOpen(block.ring(), open) || master.parcelAt(x, z) != null || lotAt(x, z) != null) {
 					continue;
 				}
 				boolean byStreet = false;

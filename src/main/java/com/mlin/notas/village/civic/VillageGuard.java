@@ -127,8 +127,10 @@ public class VillageGuard extends PathfinderMob {
 		public void start() {
 			cooldown = 60 + random.nextInt(80);
 			int[] p = CivicRules.patrolPoint(random::nextDouble, Math.min(10, patrolRadius / 2), Math.max(12, patrolRadius - 6));
-			int x = patrolX + p[0];
-			int z = patrolZ + p[1];
+			// passos curtos ate o ponto: o caminho ate os campos passa pelos portoes da muralha externa
+			int[] step = com.mlin.notas.village.RuralRules.patrolStep(getBlockX(), getBlockZ(), patrolX + p[0], patrolZ + p[1]);
+			int x = step[0];
+			int z = step[1];
 			if (level() instanceof ServerLevel serverLevel && serverLevel.isLoaded(new BlockPos(x, 64, z))) {
 				BlockPos ground = serverLevel.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(x, 0, z));
 				navigation().moveTo(ground.getX() + 0.5, ground.getY(), ground.getZ() + 0.5, 0.6);

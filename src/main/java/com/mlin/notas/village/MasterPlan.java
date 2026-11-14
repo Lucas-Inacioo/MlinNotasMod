@@ -24,9 +24,10 @@ public final class MasterPlan {
 	public static final int VERSION = 2;
 	/** Versao do plano de antes da subdivisao densa (lotes {@link SizeClass#T}, faixa da muralha maior). */
 	public static final int VERSION_SPARSE = 1;
-	public static final int RINGS = 6;
-	/** Esmeraldas fixas da terraplenagem de cada anel (1..6). */
-	public static final int[] RING_EMERALDS = {5, 10, 15, 20, 30, 40};
+	/** Aneis de terraplenagem: 1..6 dentro da muralha externa e o 7 = anel rural fora dela ({@link RuralRing}). */
+	public static final int RINGS = 7;
+	/** Esmeraldas fixas da terraplenagem de cada anel (1..7). */
+	public static final int[] RING_EMERALDS = {5, 10, 15, 20, 30, 40, 30};
 	/** Agua mais funda que isso vira lago (nunca lote); ate isso e aterrada. */
 	public static final int SHALLOW = 2;
 	/** Diferenca maxima de altura entre quarteiroes vizinhos (a rua entre eles leva a rampa). */
@@ -36,6 +37,10 @@ public final class MasterPlan {
 	public static final int PLAZA = 1;
 	public static final int LAKE = 2;
 	public static final int CARVED = 3;
+	/** Faixa da muralha externa (fora do plano de 74, ate o anel rural): muralha, torres e barbacas; nunca lote. */
+	public static final int WALL_BAND = 4;
+	/** Borda do anel rural (cerca viva e porteiras). */
+	public static final int RURAL_EDGE = 5;
 	/** Rua: {@code STREET + tipo} ({@link StreetPlanner#AVENUE}...); ponte sobre agua funda: {@code BRIDGE + tipo}. */
 	public static final int STREET = 10;
 	public static final int BRIDGE = 20;
@@ -294,6 +299,19 @@ public final class MasterPlan {
 		return in(x, z) ? rings[idx(x, z)] : 0;
 	}
 
+	/**
+	 * Anel {@code ring} aberto com {@code open} aneis comuns abertos (1..6, {@link VillageLevel#rings}): o anel rural (7)
+	 * abre junto com os arredores (anel 5, Cidade), antes da muralha externa.
+	 */
+	public static boolean isOpen(int ring, int open) {
+		return ring == RuralRing.RING ? open >= RuralRing.OPENS_WITH : ring >= 1 && ring <= open;
+	}
+
+	/** O plano ja tem o anel rural (expandido ate {@link RuralRing#EXTENT}). */
+	public boolean rural() {
+		return extent >= RuralRing.EXTENT;
+	}
+
 	/** Altura final da rua na celula (Integer.MIN_VALUE se nao e rua de chao). */
 	public int streetHeight(int x, int z) {
 		return ground(x, z) ? heights[idx(x, z)] : Integer.MIN_VALUE;
@@ -443,7 +461,7 @@ public final class MasterPlan {
 			return true;
 		}
 		int c = code(x, z);
-		if (c == CARVED || c == PLAZA || (c >= STREET && c < BLOCK)) {
+		if (c == CARVED || c == PLAZA || c == WALL_BAND || c == RURAL_EDGE || (c >= STREET && c < BLOCK)) {
 			return true;
 		}
 		Parcel p = parcelAt(x, z);
@@ -612,7 +630,7 @@ public final class MasterPlan {
 				}
 			}
 		}
-		List<Block> blocks = label(grid, rings, bed, extent);
+		List<Block> blocks = label(grid, rings, bed, extent, 0);
 		int[] heights = new int[size * size];
 		List<VillageState.Rect> fixedAll = new ArrayList<>(fixed);
 		fixedAll.addAll(protect);
@@ -726,14 +744,14 @@ public final class MasterPlan {
 	}
 
 	/** Separa os quarteiroes (celulas -1 ligadas, mesmo anel) e grava {@code BLOCK + id}; alvo inicial = mediana. */
-	static List<Block> label(int[] grid, byte[] rings, int[] bed, int extent) {
+	static List<Block> label(int[] grid, byte[] rings, int[] bed, int extent, int firstId) {
 		int size = 2 * extent + 1;
 		List<Block> out = new ArrayList<>();
 		for (int start = 0; start < grid.length; start++) {
 			if (grid[start] != -1) {
 				continue;
 			}
-			int id = out.size();
+			int id = firstId + out.size();
 			int ring = rings[start];
 			List<Integer> cells = new ArrayList<>();
 			ArrayDeque<Integer> queue = new ArrayDeque<>();

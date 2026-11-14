@@ -8,7 +8,9 @@ import java.util.Locale;
  * portoes). O anel 4 e a faixa da muralha de pedra (sem lotes).
  */
 public enum Zone {
-	CENTER, DISTRICT, OUTSKIRTS, WALL;
+	CENTER, DISTRICT, OUTSKIRTS, WALL,
+	/** Anel rural fora da muralha externa (anel 7): plantacoes, moinho, pomar, curral, pedreira... Acrescentado no fim (ordinal salvo). */
+	RURAL;
 
 	public String id() {
 		return name().toLowerCase(Locale.ROOT);
@@ -21,6 +23,7 @@ public enum Zone {
 			case 3 -> DISTRICT;
 			case 5 -> OUTSKIRTS;
 			case 6 -> WALL;
+			case 7 -> RURAL;
 			default -> null;
 		};
 	}

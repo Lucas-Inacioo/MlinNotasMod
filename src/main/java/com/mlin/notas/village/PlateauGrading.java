@@ -27,6 +27,15 @@ final class PlateauGrading {
 	}
 
 	static void grade(MasterPlan plan, int[] bed) {
+		grade(plan, bed, 0, null);
+	}
+
+	/**
+	 * Como {@link #grade(MasterPlan, int[])}, com os quarteiroes de id menor que {@code firstFree} e as celulas de rua
+	 * marcadas em {@code fixedStreet} (indice da grade) parados na altura que ja tem: o anel rural acrescentado a um plano
+	 * salvo ({@link RuralRing}) nunca mexe no que ja foi planejado.
+	 */
+	static void grade(MasterPlan plan, int[] bed, int firstFree, boolean[] fixedStreet) {
 		int extent = plan.extent();
 		int size = 2 * extent + 1;
 		int[] grid = plan.grid;
@@ -102,11 +111,16 @@ final class PlateauGrading {
 		}
 		List<Limit> list = new ArrayList<>();
 		limits.forEach((k, max) -> list.add(new Limit((int) (k >> 32), (int) (long) k, max)));
-		envelope(target, plaza, list);
+		boolean[] fixedOwner = new boolean[owners];
+		for (int o = 0; o < Math.min(firstFree, plaza); o++) {
+			fixedOwner[o] = true;
+		}
+		fixedOwner[plaza] = true;
+		envelope(target, fixedOwner, list);
 		for (MasterPlan.Block b : blocks) {
 			b.setTarget(target[b.id()]);
 		}
-		streets(plan, bed, owner, target);
+		streets(plan, bed, owner, target, fixedStreet);
 	}
 
 	private static boolean isGround(int code) {
@@ -147,7 +161,7 @@ final class PlateauGrading {
 	 * permite; a media entre o maior envelope abaixo e o menor acima das medianas cumpre todos os limites (os dois
 	 * cumprem, e a media arredondada para baixo tambem).
 	 */
-	static void envelope(int[] target, int fixed, List<Limit> limits) {
+	static void envelope(int[] target, boolean[] fixed, List<Limit> limits) {
 		int n = target.length;
 		long inf = Long.MAX_VALUE / 4;
 		long[][] d = new long[n][n];
@@ -177,12 +191,29 @@ final class PlateauGrading {
 		long[] m = new long[n];
 		for (int i = 0; i < n; i++) {
 			m[i] = target[i];
-			if (d[i][fixed] < inf) {
-				m[i] = Math.max(target[fixed] - d[i][fixed], Math.min(target[fixed] + d[i][fixed], m[i]));
+			if (fixed[i]) {
+				continue;
+			}
+			long lo = Long.MIN_VALUE;
+			long hi = Long.MAX_VALUE;
+			for (int f = 0; f < n; f++) {
+				if (fixed[f] && d[i][f] < inf) {
+					lo = Math.max(lo, target[f] - d[i][f]);
+					hi = Math.min(hi, target[f] + d[i][f]);
+				}
+			}
+			if (lo <= hi) {
+				m[i] = Math.max(lo, Math.min(hi, m[i]));
+			} else {
+				m[i] = Math.floorDiv(lo + hi, 2);
 			}
 		}
-		m[fixed] = target[fixed];
+		long[] out = new long[n];
 		for (int i = 0; i < n; i++) {
+			if (fixed[i]) {
+				out[i] = m[i];
+				continue;
+			}
 			long low = Long.MAX_VALUE;
 			long high = Long.MIN_VALUE;
 			for (int j = 0; j < n; j++) {
@@ -191,13 +222,15 @@ final class PlateauGrading {
 					high = Math.max(high, m[j] - d[i][j]);
 				}
 			}
-			target[i] = (int) Math.floorDiv(low + high, 2);
+			out[i] = Math.floorDiv(low + high, 2);
 		}
-		target[fixed] = (int) m[fixed];
+		for (int i = 0; i < n; i++) {
+			target[i] = (int) out[i];
+		}
 	}
 
 	/** Alturas das ruas: dentro de 1 dos platos encostados, 1 por bloco entre vizinhas, o mais perto do chao. */
-	private static void streets(MasterPlan plan, int[] bed, int[][] owner, int[] target) {
+	private static void streets(MasterPlan plan, int[] bed, int[][] owner, int[] target, boolean[] fixed) {
 		int extent = plan.extent();
 		int size = 2 * extent + 1;
 		int n = owner.length;
@@ -207,6 +240,11 @@ final class PlateauGrading {
 		Arrays.fill(hi, INF);
 		for (int i = 0; i < n; i++) {
 			if (owner[i] == null) {
+				continue;
+			}
+			if (fixed != null && fixed[i]) {
+				lo[i] = plan.heights[i];
+				hi[i] = plan.heights[i];
 				continue;
 			}
 			for (int o : owner[i]) {
@@ -228,6 +266,9 @@ final class PlateauGrading {
 			}
 			if (high[i] < INF / 2) {
 				v = Math.min(v, high[i]);
+			}
+			if (fixed != null && fixed[i]) {
+				v = plan.heights[i];
 			}
 			h[i] = v;
 		}
@@ -253,7 +294,7 @@ final class PlateauGrading {
 					continue;
 				}
 				int j = (nx + extent) * size + (nz + extent);
-				if (owner[j] != null && h[i] + 1 < h[j]) {
+				if (owner[j] != null && h[i] + 1 < h[j] && (fixed == null || !fixed[j])) {
 					h[j] = h[i] + 1;
 					queue.add(new int[] {j, h[j]});
 				}

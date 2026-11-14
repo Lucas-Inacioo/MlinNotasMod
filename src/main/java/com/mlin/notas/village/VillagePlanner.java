@@ -56,6 +56,7 @@ public final class VillagePlanner {
 			case PLAZA -> plaza(state, terrain, random);
 			case LAMPS -> lamps(state, terrain);
 			case WALL -> wall(state, terrain);
+			case OUTER_WALL -> outerWall(state, terrain);
 			default -> {
 				VillageLayout layout = layout(state, terrain);
 				VillageLayout.Lot lot = layout.buildable(project.id(), terrain);
@@ -76,7 +77,7 @@ public final class VillagePlanner {
 		} else if (state.layout().master() == null) {
 			// plano de antes do plano diretor: passa para o plano diretor (obras prontas ficam onde estao)
 			state.layout().migrate(state, terrain);
-		} else if (state.layout().radius() < state.level().radius()) {
+		} else if (state.layout().radius() < state.level().radius() || state.layout().needsRural(state.level())) {
 			// nivel mudou sem passar pelo crescimento (comando, teste): o plano acompanha
 			state.layout().extend(state, terrain, state.level());
 		}
@@ -511,6 +512,16 @@ public final class VillagePlanner {
 			gate(out, terrain, side, golems, state.layout() == null || state.layout().master() == null);
 		}
 		return new Planned(VillageProject.WALL, null, sort(dedupe(out)), List.of(), golems.subList(0, Math.min(1, golems.size())));
+	}
+
+	/** Muralha externa (fase 8): {@link OuterWallPlanner} na faixa de fora do plano diretor com o anel rural. */
+	static Planned outerWall(VillageState state, Terrain terrain) {
+		MasterPlan plan = layout(state, terrain).master();
+		if (plan == null || !plan.rural()) {
+			return null;
+		}
+		OuterWallPlanner.Result r = OuterWallPlanner.plan(plan, terrain);
+		return new Planned(VillageProject.OUTER_WALL, null, r.placements(), List.of(), r.golems().subList(0, Math.min(2, r.golems().size())));
 	}
 
 	/** Torre 5x5 macica de 7 de altura com ameias e lanterna no topo. */

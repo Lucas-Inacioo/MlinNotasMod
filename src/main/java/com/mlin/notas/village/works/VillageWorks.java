@@ -208,9 +208,12 @@ public final class VillageWorks {
 			case "facades" -> FacadeWorks.facades(ctx, facadeSites(village));
 			case "townhouses" -> FacadeWorks.townhouses(ctx);
 			case "arcades" -> FacadeWorks.arcades(ctx, facadeSites(village));
+			case "fields" -> spec.arg().equals("hedge") ? CrownWorks.hedge(ctx) : CrownWorks.lamps(ctx);
 			case "wall" -> switch (spec.arg()) {
 				case "palisade" -> WallWorks.palisade(ctx);
 				case "gates" -> WallWorks.woodenGates(ctx);
+				case "historic" -> CrownWorks.promenade(ctx);
+				case "barbican" -> CrownWorks.barbican(ctx);
 				default -> WallWorks.battlements(ctx);
 			};
 			default -> new Blueprint();
@@ -289,6 +292,17 @@ public final class VillageWorks {
 	static void enqueue(VillageWorksData works, VillageWorksData.State st, VillageState village) {
 		int current = village.level().ordinal();
 		if (st.lastLevel >= current) {
+			// obra nova de um nivel que a vila ja passou (versao nova do mod: anel rural, centro historico...)
+			boolean added = false;
+			for (WorkSpec spec : WorkSpec.upTo(village.level())) {
+				if (st.entry(spec.id()) == null) {
+					st.entries.add(new VillageWorksData.Entry(spec.id(), 0, 0, 0, 0));
+					added = true;
+				}
+			}
+			if (added) {
+				works.changed();
+			}
 			return;
 		}
 		for (int l = st.lastLevel + 1; l <= current; l++) {
@@ -341,12 +355,16 @@ public final class VillageWorks {
 			if (spec == null || !st.enabled(spec.category())) {
 				continue;
 			}
-			if (spec.category() == WorkCategory.WALL && !spec.arg().equals("battlements") && stoneWall(village, data)) {
+			if (spec.category() == WorkCategory.WALL && (spec.arg().equals("palisade") || spec.arg().equals("gates")) && stoneWall(village, data)) {
 				e.state = 3;
 				works.changed();
 				continue;
 			}
 			if (spec.category() == WorkCategory.WALL && spec.arg().equals("battlements") && village.built(VillageProject.WALL) == 0) {
+				continue;
+			}
+			if (spec.id().equals("wall:historic") && village.built(VillageProject.WALL) == 0
+					|| spec.id().equals("wall:barbican") && village.built(VillageProject.OUTER_WALL) == 0) {
 				continue;
 			}
 			Cached cached = CACHE.get(cacheKey(village, e.id));
@@ -397,6 +415,9 @@ public final class VillageWorks {
 		PLACED.remove(cacheKey(village, e.id));
 		if (spec.category() == WorkCategory.WALL && spec.arg().equals("battlements")) {
 			registerGates(level, village, st);
+		}
+		if (spec.id().equals("wall:historic")) {
+			CrownServer.openHistoricGates(level, village, st);
 		}
 		works.changed();
 		if (placed > 0) {

@@ -62,6 +62,7 @@ public final class DefenseServer {
 
 	public static void clear() {
 		RANG.clear();
+		SHELTERS.clear();
 		ARCHER_COOLDOWN.clear();
 		lastKeys = Set.of();
 	}
@@ -81,6 +82,7 @@ public final class DefenseServer {
 			tower(server, level, village, t);
 			if (t % 100 == 0) {
 				guards(server, level, village);
+				ruralShelter(level, village);
 			}
 			if (t % 80 == 0) {
 				beacon(server, level, village);
@@ -146,16 +148,17 @@ public final class DefenseServer {
 				hostiles.add(e);
 			}
 		}
+		boolean rural = ruralPrepared(village);
 		if (night && t % 40 == 0) {
 			List<Integer> coords = new ArrayList<>();
 			for (LivingEntity e : hostiles) {
-				if (coords.size() < 400 && village.distanceSq(e.getBlockX(), e.getBlockZ()) <= (long) village.level().radius() * village.level().radius()) {
+				if (coords.size() < 400 && com.mlin.notas.village.RuralRules.watched(e.getBlockX() - village.x(), e.getBlockZ() - village.z(), village.level().radius(), rural)) {
 					coords.add(e.getBlockX());
 					coords.add(e.getBlockZ());
 				}
 			}
 			for (ServerPlayer p : server.getPlayerList().getPlayers()) {
-				if (p.level() == level && village.distanceSq(p.getBlockX(), p.getBlockZ()) <= (long) village.level().radius() * village.level().radius()
+				if (p.level() == level && com.mlin.notas.village.RuralRules.watched(p.getBlockX() - village.x(), p.getBlockZ() - village.z(), village.level().radius(), rural)
 						&& ServerPlayNetworking.canSend(p, CivicPayloads.Hostiles.TYPE)) {
 					ServerPlayNetworking.send(p, new CivicPayloads.Hostiles(coords));
 				}
@@ -245,6 +248,8 @@ public final class DefenseServer {
 		}
 		AABB box = villageBox(level, village, VillageServer.RESIDENT_MARGIN);
 		List<VillageGuard> present = level.getEntitiesOfClass(VillageGuard.class, box);
+		// com o anel rural aplainado a patrulha vai ate a cerca viva (fase 8)
+		int patrol = com.mlin.notas.village.RuralRules.patrolRadius(village.level().radius(), ruralPrepared(village));
 		int want = CivicRules.guards(best);
 		for (int i = present.size() - 1; i >= want; i--) {
 			present.remove(i).discard();
@@ -263,7 +268,7 @@ public final class DefenseServer {
 				continue;
 			}
 			guard.snapTo(post.getX() + 0.5, post.getY(), post.getZ() + 0.5, level.getRandom().nextFloat() * 360.0F, 0.0F);
-			guard.setPatrol(VillageServer.center(village), village.level().radius());
+			guard.setPatrol(VillageServer.center(village), patrol);
 			guard.setHomeTo(post, 10);
 			equip(guard, best);
 			guard.setCustomName(Component.translatable("entity.mlinnotas.village_guard"));
@@ -272,6 +277,9 @@ public final class DefenseServer {
 		// equipamento acompanha o nivel do quartel
 		for (VillageGuard g : present) {
 			equip(g, best);
+			if (g.patrolRadius() != patrol) {
+				g.setPatrol(VillageServer.center(village), patrol);
+			}
 		}
 	}
 
@@ -354,21 +362,86 @@ public final class DefenseServer {
 
 	// ---------------------------------------------------------------- refugio
 
-	/** Monstro de nascimento natural dentro de uma construcao da vila de muralha completa: nao nasce. */
+	/**
+	 * Monstro de nascimento natural dentro de uma construcao da vila de muralha completa, ou em qualquer lugar do anel
+	 * rural aplainado (campos, faixa da muralha externa, borda; fase 8): nao nasce.
+	 */
 	public static boolean refugeBlocks(ServerLevel level, BlockPos pos) {
-		MinecraftServer server = level.getServer();
 		VillageState village = com.mlin.notas.village.VillageServer.planVillageAt(level, pos);
-		if (village == null || village.built(com.mlin.notas.village.VillageProject.WALL) < 1 || village.layout() == null) {
+		if (village == null || village.layout() == null) {
 			return false;
 		}
 		int rx = pos.getX() - village.x();
 		int rz = pos.getZ() - village.z();
+		if (com.mlin.notas.village.RuralRules.blocksSpawn(ruralPrepared(village), true, rx, rz)) {
+			return true;
+		}
+		if (village.built(com.mlin.notas.village.VillageProject.WALL) < 1) {
+			return false;
+		}
 		for (var lot : village.layout().lots()) {
 			if (lot.built() && lot.rect().contains(rx, rz)) {
 				return CivicRules.refugeBlocksSpawn(true, true, true);
 			}
 		}
 		return false;
+	}
+
+	// ---------------------------------------------------------------- anel rural (fase 8)
+
+	/** O plano tem o anel rural e a terraplenagem dele esta pronta. */
+	public static boolean ruralPrepared(VillageState village) {
+		var layout = village.layout();
+		return layout != null && layout.master() != null && layout.master().rural()
+				&& village.ring(com.mlin.notas.village.RuralRing.RING).done();
+	}
+
+	private static final Map<String, List<int[]>> SHELTERS = new HashMap<>();
+
+	/** Abrigos (portoes por dentro da muralha externa) da vila, calculados uma vez por plano. */
+	public static List<int[]> shelters(VillageState village) {
+		var plan = village.layout().master();
+		return SHELTERS.computeIfAbsent(village.key() + "#" + System.identityHashCode(plan), k -> com.mlin.notas.village.RuralRules.shelters(plan));
+	}
+
+	/**
+	 * De noite ou com ataque de saqueadores, aldeao nos campos volta para dentro da muralha externa: anda ate o portao
+	 * mais perto (por dentro); a rotina vanilla leva ele dali para a cama (as casas ficam todas dentro da muralha).
+	 */
+	public static int ruralShelter(ServerLevel level, VillageState village) {
+		if (village.layout() == null || village.layout().master() == null || !village.layout().master().rural()) {
+			return 0;
+		}
+		BlockPos center = VillageServer.center(village);
+		int half = VillageServer.planHalf(village);
+		Raid raid = level.getRaids().getNearbyRaid(center, half * half);
+		boolean attack = raid != null && raid.isActive();
+		return ruralShelter(level, village, CivicRules.patrolNow(level.getOverworldClockTime()), attack);
+	}
+
+	/** Como {@link #ruralShelter(ServerLevel, VillageState)} com noite e ataque dados (testes). */
+	public static int ruralShelter(ServerLevel level, VillageState village, boolean night, boolean attack) {
+		if (!attack && !night || village.layout() == null || village.layout().master() == null || !village.layout().master().rural()) {
+			return 0;
+		}
+		List<int[]> shelters = shelters(village);
+		int sent = 0;
+		for (Villager v : level.getEntitiesOfClass(Villager.class, villageBox(level, village, 0))) {
+			int rx = v.getBlockX() - village.x();
+			int rz = v.getBlockZ() - village.z();
+			if (v.isSleeping() || !com.mlin.notas.village.RuralRules.evacuate(night, attack, rx, rz)) {
+				continue;
+			}
+			int[] s = com.mlin.notas.village.RuralRules.nearestShelter(shelters, rx, rz);
+			if (s == null) {
+				continue;
+			}
+			BlockPos to = new BlockPos(village.x() + s[0], s[2] + 1, village.z() + s[1]);
+			v.getBrain().setMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET,
+					new net.minecraft.world.entity.ai.memory.WalkTarget(to, 0.7F, 2));
+			sent++;
+		}
+		return sent;
 	}
 
 	// ---------------------------------------------------------------- seguro de morte
