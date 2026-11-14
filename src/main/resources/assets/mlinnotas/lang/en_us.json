@@ -2100,5 +2100,18 @@
   "container.mlinnotas.tanning_vat": "Tanning Vat",
   "block.mlinnotas.tanning_vat.tooltip": "Tans rotten flesh into leather inside a tannery (8 slots, half a day)",
   "gui.mlinnotas.village.no_room": "No room in the plan %s/%s",
-  "message.mlinnotas.village.no_room": "%s: the village plan has no free lot left for this building"
+  "message.mlinnotas.village.no_room": "%s: the village plan has no free lot left for this building",
+  "village.mlinnotas.work.facades.1": "Facades: stone pilasters and porticos on centre houses",
+  "village.mlinnotas.work.townhouses.1": "Stone townhouses on vacant centre lots",
+  "village.mlinnotas.work.arcades.1": "Stone arcades on centre shops",
+  "gui.mlinnotas.village.works.cat.facades": "Facades",
+  "gui.mlinnotas.village.works.cat.facades.tooltip": "Stone pilasters, townhouses and arcades on the centre streets (village blocks only).",
+  "sign.mlinnotas.statue.header": "In memory of",
+  "sign.mlinnotas.statue.cobalt_golem": "Cobalt Golem",
+  "sign.mlinnotas.statue.abyssal_guardian": "Abyssal Guardian",
+  "sign.mlinnotas.statue.igneous_colossus": "Igneous Colossus",
+  "sign.mlinnotas.statue.astral_herald": "Astral Herald",
+  "sign.mlinnotas.statue.ender_dragon": "Ender Dragon",
+  "sign.mlinnotas.statue.wither": "Wither",
+  "sign.mlinnotas.statue.hero": "The village heroes"
 }

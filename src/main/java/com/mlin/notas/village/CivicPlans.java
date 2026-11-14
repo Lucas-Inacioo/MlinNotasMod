@@ -31,6 +31,10 @@ public final class CivicPlans {
 	}
 
 	public static Canvas plan(VillageProject project, VillageStyle style, long seed, int level) {
+		return BodyDressing.with(() -> build(project, style, seed, level));
+	}
+
+	private static Canvas build(VillageProject project, VillageStyle style, long seed, int level) {
 		Random random = new Random(seed ^ (level * 0x9E3779B97F4A7C15L));
 		int max = BuildingTypes.maxLevel(project.id());
 		int lv = Math.max(1, Math.min(max, level));
@@ -38,11 +42,11 @@ public final class CivicPlans {
 			case POST_OFFICE -> postOffice(style, random, lv);
 			case SCHOOL -> school(style, random, lv);
 			case WATCHTOWER -> watchtower(style, random, lv);
-			case BARRACKS -> barracks(style, random, lv);
+			case BARRACKS -> CivicHalls.barracks(style, random, lv);
 			case VILLAGE_WAYSTONE -> waystone(style, random);
 			case BEACON -> beacon(style, random, lv);
 			case MUSEUM -> museum(style, random, lv);
-			case EXPLORERS_GUILD -> guild(style, random, lv);
+			case EXPLORERS_GUILD -> CivicHalls.guild(style, random, lv);
 			default -> throw new IllegalArgumentException("projeto sem planta civica: " + project);
 		};
 	}
@@ -405,101 +409,6 @@ public final class CivicPlans {
 		return (x == x0 || x == x1) && (z == z0 || z == z1);
 	}
 
-	// ---------------------------------------------------------------- quartel
-
-	/**
-	 * Quartel I: alojamento 11x7 com beliches e baus, mesa do rancho, armeiro, e patio de treino com alvos e bonecos
-	 * de feno. II: 13 de largura e dois andares (arsenal em cima). III: sineta de alarme no telhado e patio maior com
-	 * mais alvos. Os guardas nascem nos pontos {@code guard} do patio. Lote M.
-	 */
-	static Canvas barracks(VillageStyle style, Random random, int level) {
-		int bw = level >= 2 ? 13 : 11;
-		int floors = level >= 2 ? 2 : 1;
-		Canvas c = new Canvas(15, 13);
-		int x0 = (15 - bw) / 2;
-		int x1 = x0 + bw - 1;
-		int z0 = 1;
-		int z1 = 7;
-		BuildingPlans.body(c, style, x0, z0, x1, z1, floors, true, true);
-		int mid = (x0 + x1) / 2;
-		// beliches junto da parede do fundo, bau aos pes de cada um
-		for (int x = x0 + 2; x <= x1 - 3; x += 2) {
-			Buildings.bed(c, x, 1, z0 + 2, Facing.NORTH);
-			c.set(x, 1, z0 + 3, VPart.CHEST, Facing.NORTH);
-		}
-		c.set(x0 + 1, 1, z0 + 1, VPart.BARREL);
-		c.set(x0 + 1, 2, z0 + 1, VPart.LANTERN);
-		// rancho: mesa comprida com bancos
-		for (int x = mid - 1; x <= mid + 1; x++) {
-			c.set(x, 1, z0 + 4, VPart.WOOD_SLAB_TOP);
-		}
-		c.set(mid, 2, z0 + 4, VPart.LANTERN);
-		// armeiro e cozinha na parede da frente
-		c.set(x0 + 1, 1, z1 - 1, VPart.GRINDSTONE, Facing.EAST);
-		c.set(x0 + 2, 1, z1 - 1, VPart.FLETCHING);
-		c.set(x1 - 3, 1, z1 - 1, VPart.FURNACE, Facing.NORTH);
-		c.set(x1 - 2, 1, z1 - 1, VPart.SMOKER, Facing.NORTH);
-		c.set(x1 - 1, 1, z1 - 1, VPart.BARREL);
-		// grades de ferro nas janelas de baixo dos lados
-		for (int z = z0 + 1; z < z1; z++) {
-			if ((z - z0) % 3 == 2) {
-				c.set(x0, 2, z, VPart.IRON_BARS, Facing.SOUTH);
-				c.set(x1, 2, z, VPart.IRON_BARS, Facing.SOUTH);
-			}
-		}
-		if (floors > 1) {
-			int y = BuildingPlans.floorY(1) + 1;
-			for (int x = x0 + 1; x <= x1 - 3; x += 2) {
-				c.set(x, y, z0 + 1, VPart.CHEST, Facing.SOUTH);
-				c.set(x, y + 1, z0 + 1, VPart.LANTERN);
-			}
-			for (int x = x0 + 2; x <= x1 - 3; x++) {
-				c.set(x, y, z0 + 4, VPart.WOOD_SLAB_TOP);
-			}
-			c.set(x0 + 1, y, z1 - 1, VPart.ANVIL, Facing.EAST);
-			c.set(x0 + 2, y, z1 - 1, VPart.SMITHING_TABLE);
-			c.set(x0 + 3, y, z1 - 1, VPart.GRINDSTONE, Facing.NORTH);
-			Buildings.bed(c, x1 - 3, y, z1 - 2, Facing.NORTH);
-			Buildings.chimney(c, x0 + 1, z0 + 3, y, 2);
-		}
-		if (level >= 3) {
-			BuildingPlans.cupola(c, mid, (z0 + z1) / 2);
-			c.mark("bell", mid, Buildings.roofTop(c, mid, (z0 + z1) / 2) + 3, (z0 + z1) / 2, null);
-		}
-		// patio de parada calcado na frente, postos dos guardas e lampioes
-		rect(c, x0, z1 + 1, x1, z1 + 2, 0, VPart.PAVING);
-		for (int x = x0; x <= x1; x += 2) {
-			c.set(x, 0, z1 + 1, VPart.PAVING_ALT);
-		}
-		int[] gx = {mid - 4, mid - 2, mid, mid + 2, mid + 4, mid + 3};
-		for (int i = 0; i < 6; i++) {
-			int x = Math.max(x0, Math.min(x1, gx[i]));
-			c.mark("guard", x, 1, z1 + 2, null);
-		}
-		lampPost(c, x0, z1 + 3);
-		lampPost(c, x1, z1 + 3);
-		// campo de treino: bonecos de feno e alvos
-		int tz = 11;
-		for (int x : new int[] {x0 + 1, x0 + 4, x1 - 1, x1 - 4}) {
-			c.set(x, 0, tz, VPart.SOIL);
-			c.set(x, 1, tz, VPart.FENCE);
-			c.set(x, 2, tz, VPart.HAY);
-			c.set(x, 3, tz, VPart.PUMPKIN, Facing.NORTH);
-		}
-		c.set(mid - 1, 1, tz, VPart.HAY);
-		c.set(mid - 1, 2, tz, VPart.TARGET);
-		c.set(mid + 1, 1, tz, VPart.HAY);
-		c.set(mid + 1, 2, tz, VPart.TARGET);
-		for (int x = x0; x <= x1; x++) {
-			if (Math.abs(x - mid) > 1) {
-				c.set(x, 1, 12, VPart.STONE_WALL);
-			}
-		}
-		BuildingPlans.frontYard(c, mid);
-		c.spawn(x0 + 1, 1, z0 + 2);
-		return c;
-	}
-
 	// ---------------------------------------------------------------- pedra de teleporte da vila
 
 	/** Pedra de teleporte da vila: pracinha calcada 7x7 com a pedra no meio, bancos nos lados e lampioes nos cantos. Lote T. */
@@ -694,93 +603,5 @@ public final class CivicPlans {
 			return;
 		}
 		c.mark("frame", x, y, z, facing);
-	}
-
-	// ---------------------------------------------------------------- guilda dos exploradores
-
-	/**
-	 * Guilda I: alojamento 9x7 com o quadro de expedicoes no fundo, mesa de mapas, suprimentos e rosa dos ventos no
-	 * chao da frente, fogueira com bancos de lado. II: 11 de largura, armeiro. III: deposito maior e pergola.
-	 * IV: sala de trofeus no andar de cima. V: mirante com sino no telhado. Lote M.
-	 */
-	static Canvas guild(VillageStyle style, Random random, int level) {
-		int bw = level >= 2 ? 11 : 9;
-		int floors = level >= 4 ? 2 : 1;
-		Canvas c = new Canvas(15, 13);
-		int x0 = (15 - bw) / 2;
-		int x1 = x0 + bw - 1;
-		int z0 = 1;
-		int z1 = level >= 3 ? 8 : 7;
-		BuildingPlans.body(c, style, x0, z0, x1, z1, floors, true, false);
-		int mid = (x0 + x1) / 2;
-		// quadro de expedicoes no meio da parede do fundo, mesa de mapas e atril ao lado
-		c.set(mid, 1, z0 + 1, VPart.GUILD_BOARD, Facing.SOUTH);
-		c.mark("board", mid, 1, z0 + 1, Facing.SOUTH);
-		c.set(mid - 2, 1, z0 + 1, VPart.CARTOGRAPHY);
-		c.set(mid + 2, 1, z0 + 1, VPart.LECTERN, Facing.SOUTH);
-		c.set(mid - 2, 2, z0 + 1, VPart.LANTERN);
-		// suprimentos: barris e baus nas paredes laterais, beliche
-		c.set(x0 + 1, 1, z0 + 2, VPart.BARREL);
-		c.set(x0 + 1, 1, z0 + 3, VPart.CHEST, Facing.EAST);
-		c.set(x0 + 1, 2, z0 + 2, VPart.LANTERN);
-		c.set(x1 - 1, 1, z0 + 4, VPart.BARREL);
-		c.set(x1 - 1, 1, z0 + 5, VPart.BARREL);
-		Buildings.bed(c, x1 - 1, 1, z0 + 3, Facing.NORTH);
-		// mesa do conselho
-		for (int x = mid - 1; x <= mid + 1; x++) {
-			c.set(x, 1, z0 + 4, VPart.WOOD_SLAB_TOP);
-		}
-		c.set(mid, 2, z0 + 4, VPart.LANTERN);
-		c.set(mid - 1, 1, z0 + 5, VPart.WOOD_STAIRS, Facing.NORTH);
-		c.set(mid + 1, 1, z0 + 5, VPart.WOOD_STAIRS, Facing.NORTH);
-		if (level >= 2) {
-			c.set(x0 + 1, 1, z1 - 1, VPart.ANVIL, Facing.EAST);
-			c.set(x0 + 1, 1, z1 - 2, VPart.GRINDSTONE, Facing.EAST);
-			c.set(x0 + 1, 1, z1 - 3, VPart.FLETCHING);
-		}
-		if (level >= 3) {
-			c.set(x1 - 1, 1, z1 - 1, VPart.CHEST, Facing.WEST);
-			c.set(x1 - 1, 1, z1 - 2, VPart.CHEST, Facing.WEST);
-			c.set(x1 - 1, 2, z1 - 2, VPart.BARREL);
-		}
-		if (floors > 1) {
-			int y = BuildingPlans.floorY(1) + 1;
-			for (int x = x0 + 1; x <= x1 - 3; x++) {
-				c.set(x, y, z0 + 1, VPart.BOOKSHELF);
-			}
-			c.set(x0 + 1, y, z0 + 2, VPart.PUMPKIN, Facing.SOUTH);
-			c.set(mid, y, z0 + 3, VPart.WOOD_SLAB_TOP);
-			c.set(mid, y + 1, z0 + 3, VPart.LANTERN);
-			c.set(x0 + 1, y, z1 - 1, VPart.CHEST, Facing.EAST);
-			c.set(x1 - 3, y, z1 - 1, VPart.CARTOGRAPHY);
-			for (int z = z0 + 4; z <= z1 - 2; z++) {
-				c.set(mid, y, z, VPart.CARPET_ALT);
-			}
-		}
-		if (level >= 5) {
-			BuildingPlans.cupola(c, mid, (z0 + z1) / 2);
-			c.mark("bell", mid, Buildings.roofTop(c, mid, (z0 + z1) / 2) + 3, (z0 + z1) / 2, null);
-		}
-		// rosa dos ventos no chao da frente, fogueira com bancos de lado, lampioes
-		int rz = z1 + 3;
-		for (int dx = -2; dx <= 2; dx++) {
-			for (int dz = -1; dz <= 1; dz++) {
-				boolean star = dx == 0 || dz == 0;
-				if (rz + dz < c.d()) {
-					c.set(mid + dx, 0, rz + dz, star ? VPart.PAVING_ALT : VPart.PAVING);
-				}
-			}
-		}
-		c.set(mid, 0, rz, VPart.BRICK);
-		int fx = x0;
-		c.set(fx, 1, rz, VPart.CAMPFIRE);
-		c.set(fx - 1 >= 0 ? fx - 1 : fx, 1, rz, VPart.WOOD_STAIRS, Facing.EAST);
-		c.set(fx, 1, rz - 1, VPart.WOOD_STAIRS, Facing.SOUTH);
-		c.set(fx, 1, rz + 1, VPart.WOOD_STAIRS, Facing.NORTH);
-		lampPost(c, x1, z1 + 2);
-		signArms(c, mid, z1, 2);
-		BuildingPlans.frontYard(c, mid);
-		c.spawn(mid + 1, 1, z0 + 3);
-		return c;
 	}
 }

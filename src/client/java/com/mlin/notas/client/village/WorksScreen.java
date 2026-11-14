@@ -90,9 +90,6 @@ public class WorksScreen extends Screen {
 		int x = listRight() + 8;
 		int y = top() + 36;
 		for (WorkCategory category : WorkCategory.values()) {
-			if (category == WorkCategory.FACADES) {
-				continue;
-			}
 			boolean on = data == null || (data.disabled() & category.bit()) == 0;
 			Component label = Component.translatable("gui.mlinnotas.village.works.cat." + category.id()).append(": ")
 					.append(Component.translatable(on ? "gui.mlinnotas.village.works.on" : "gui.mlinnotas.village.works.off"));

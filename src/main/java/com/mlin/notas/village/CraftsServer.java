@@ -79,7 +79,6 @@ public final class CraftsServer {
 	private static final Map<String, Long> QUARRY_LAST = new HashMap<>();
 	private static final Map<String, Long> BELL_DAY = new HashMap<>();
 	private static final Map<String, Long> FAIR_DAY = new HashMap<>();
-	private static final Set<Long> REVEALED = new HashSet<>();
 	private static final List<String> FAIR_ARTIFACTS = List.of("pocket_watch", "feather_charm", "traveler_belt", "lucky_horseshoe",
 			"rabbit_foot_charm", "miner_lantern", "prospector_glove", "diver_ring");
 
@@ -311,7 +310,7 @@ public final class CraftsServer {
 		Collections.shuffle(pool, new Random(level.getGameTime() ^ player.getUUID().getLeastSignificantBits()));
 		for (String id : pool) {
 			BlockPos at = locate(level, id, player.blockPosition());
-			if (at != null && !REVEALED.contains(chunkKey(at))) {
+			if (at != null && !RumorsData.get(server).isTold(chunkKey(at))) {
 				found = at;
 				foundId = id;
 				break;
@@ -324,7 +323,7 @@ public final class CraftsServer {
 		ContainerHelper.clearOrCountMatchingItems(player.getInventory(), s -> s.is(Items.EMERALD), price, false);
 		player.getInventory().setChanged();
 		player.setAttached(RUMORS_TODAY, Rumors.afterBuying(stored, today));
-		REVEALED.add(chunkKey(found));
+		RumorsData.get(server).tell(chunkKey(found));
 		revealed(server, level, village, foundId, found, player);
 		return true;
 	}

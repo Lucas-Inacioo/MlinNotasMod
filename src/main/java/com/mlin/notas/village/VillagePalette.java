@@ -367,6 +367,7 @@ public final class VillagePalette {
 					: pick % 3 == 0 ? Blocks.ANDESITE : pick % 3 == 1 ? Blocks.STONE : Blocks.COBBLESTONE).defaultBlockState();
 			case TOMBSTONE -> stoneWall.defaultBlockState();
 			case STAKE -> fence.defaultBlockState();
+			case FRUIT -> Blocks.NETHER_WART_BLOCK.defaultBlockState();
 		};
 	}
 

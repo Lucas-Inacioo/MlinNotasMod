@@ -29,6 +29,11 @@ public record Mats(String wood, String log, String leaves, String planks, String
 		};
 	}
 
+	/** Reboco das paredes de enxaimel (terracota branca; arenito liso no deserto). */
+	public String plaster() {
+		return smooth.contains("sandstone") ? "minecraft:smooth_sandstone" : "minecraft:white_terracotta";
+	}
+
 	/** Folha que nao some sozinha. */
 	public String leavesKeep() {
 		return leaves + "[persistent=true]";

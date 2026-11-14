@@ -60,16 +60,19 @@ public record WorkSpec(String id, WorkCategory category, VillageLevel level) {
 				out.add(new WorkSpec("plaza:2", WorkCategory.PLAZA, level));
 				out.add(new WorkSpec("gardens:1", WorkCategory.GREEN, level));
 				out.add(new WorkSpec("decor:1", WorkCategory.DECOR, level));
+				out.add(new WorkSpec("facades:1", WorkCategory.FACADES, level));
 			}
 			case CAPITAL -> {
 				out.add(new WorkSpec("streets:4", WorkCategory.STREETS, level));
 				out.add(new WorkSpec("plaza:3", WorkCategory.PLAZA, level));
 				out.add(new WorkSpec("rural:1", WorkCategory.RURAL, level));
+				out.add(new WorkSpec("townhouses:1", WorkCategory.FACADES, level));
 				out.add(new WorkSpec("wall:battlements", WorkCategory.WALL, level));
 			}
 			case METROPOLIS -> {
 				out.add(new WorkSpec("streets:5", WorkCategory.STREETS, level));
 				out.add(new WorkSpec("plaza:4", WorkCategory.PLAZA, level));
+				out.add(new WorkSpec("arcades:1", WorkCategory.FACADES, level));
 			}
 			case CROWN_CITY -> {
 				out.add(new WorkSpec("plaza:5", WorkCategory.PLAZA, level));

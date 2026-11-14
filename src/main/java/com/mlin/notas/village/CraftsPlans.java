@@ -37,6 +37,10 @@ public final class CraftsPlans {
 
 	/** Planta do projeto no nivel (I = a base). */
 	public static Canvas plan(VillageProject project, VillageStyle style, long seed, int level) {
+		return BodyDressing.with(() -> build(project, style, seed, level));
+	}
+
+	private static Canvas build(VillageProject project, VillageStyle style, long seed, int level) {
 		int lv = Math.max(1, Math.min(BuildingTypes.maxLevel(project.id()), level));
 		Random random = new Random(seed ^ 0x6A09E667F3BCC908L);
 		return switch (project) {

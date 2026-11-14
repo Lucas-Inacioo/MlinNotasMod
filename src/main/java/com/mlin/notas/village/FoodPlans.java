@@ -34,6 +34,10 @@ public final class FoodPlans {
 
 	/** Planta do tipo no nivel (1..maximo do tipo). */
 	public static Canvas plan(VillageProject project, VillageStyle style, long seed, int level) {
+		return BodyDressing.with(() -> build(project, style, seed, level));
+	}
+
+	private static Canvas build(VillageProject project, VillageStyle style, long seed, int level) {
 		int lv = Math.max(1, Math.min(BuildingTypes.maxLevel(project.id()), level));
 		Random random = new Random(seed ^ 0x51F0_0D5EL ^ ((long) project.ordinal() << 40));
 		return switch (project) {
@@ -465,6 +469,12 @@ public final class FoodPlans {
 		c.set(x + 1, 5, z, VPart.FOLIAGE);
 		c.set(x, 5, z - 1, VPart.FOLIAGE);
 		c.set(x, 5, z + 1, VPart.FOLIAGE);
+		// macas maduras penduradas nas bordas da copa
+		c.set(x - 1, 3, z, VPart.FRUIT);
+		c.set(x + 1, 3, z + 1, VPart.FRUIT);
+		c.set(x, 3, z - 1, VPart.FRUIT);
+		c.set(x + 1, 4, z - 1, VPart.FRUIT);
+		c.set(x - 1, 4, z + 1, VPart.FRUIT);
 	}
 
 	/**
