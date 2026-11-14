@@ -56,12 +56,12 @@ public class EndGameTest {
 	public void citadelPieceBuildsTheHallAndSavesItsSeed(GameTestHelper helper) {
 		BlockPos origin = helper.absolutePos(new BlockPos(4, 1, 4));
 		CitadelPiece piece = new CitadelPiece(1234L, origin);
-		// so um pedaco 7x4x7 em volta do centro (o resto da cidadela ficaria fora da area do teste)
-		BoundingBox box = new BoundingBox(origin.getX() - 3, origin.getY(), origin.getZ() - 3, origin.getX() + 3, origin.getY() + 3, origin.getZ() + 3);
+		// so um pedaco 9x4x9 em volta do centro (o resto da cidadela ficaria fora da area do teste)
+		BoundingBox box = new BoundingBox(origin.getX() - 4, origin.getY(), origin.getZ() - 4, origin.getX() + 4, origin.getY() + 3, origin.getZ() + 4);
 		piece.postProcess(helper.getLevel(), helper.getLevel().structureManager(), helper.getLevel().getChunkSource().getGenerator(),
 				RandomSource.create(1), box, ChunkPos.containing(origin), origin);
 		helper.assertBlockPresent(ModBlocks.PURPUR_ELEVATOR, 4, 1, 4);
-		helper.assertBlockPresent(Blocks.PURPUR_BLOCK, 5, 1, 4);
+		helper.assertBlockPresent(Blocks.END_STONE_BRICKS, 5, 1, 4);
 		helper.assertBlockPresent(Blocks.AIR, 4, 2, 4);
 		long sentinels = helper.getLevel().getEntitiesOfClass(PurpurSentinel.class, new net.minecraft.world.phys.AABB(origin).inflate(4)).size();
 		helper.assertTrue(sentinels == 2, "duas sentinelas no hall, achou " + sentinels);
@@ -70,7 +70,7 @@ public class EndGameTest {
 		CitadelPiece loaded = new CitadelPiece(tag);
 		helper.assertTrue(loaded.origin().equals(origin), "origem salva");
 		helper.assertTrue(loaded.plan().blocks().equals(piece.plan().blocks()), "mesma semente, mesmo plano");
-		helper.assertTrue(loaded.plan().count(CitadelPlan.Kind.ELYTRA_FRAME) == 1, "elitro no cofre");
+		helper.assertTrue(loaded.plan().count(CitadelPlan.Kind.ELYTRA_FRAME) == 1, "um elitro (na cabine da nave)");
 		helper.succeed();
 	}
 

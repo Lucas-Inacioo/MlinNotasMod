@@ -1,11 +1,14 @@
 package com.mlin.notas.end;
 
-import com.mlin.notas.registry.ModBlocks;
 import com.mlin.notas.registry.ModEntities;
 import com.mlin.notas.registry.ModStructures;
+import com.mlin.notas.vstructures.VanillaRemakePiece;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -20,31 +23,43 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CrossCollisionBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * A Cidadela do End inteira numa peca so. Guarda so a semente e a origem; o plano ({@link CitadelPlanner}) e
- * refeito quando preciso e cada chamada de {@link #postProcess} coloca apenas o que cai no chunk sendo gerado.
+ * A Cidadela do End inteira numa peca so. Guarda so a semente e a origem; o plano ({@link CitadelPlanner}) e refeito
+ * quando preciso (com cache) e indexado por chunk, entao cada {@link #postProcess} coloca apenas o que cai no chunk
+ * sendo gerado. O terreno natural acima da ilha da cidadela e limpo (a cidadela fica num patio aberto).
  */
 public class CitadelPiece extends StructurePiece {
-	/** Fundo maximo da ilha e altura maxima da cidadela (folga incluida). */
-	private static final int DEPTH = 22;
-	private static final int HEIGHT = 32;
+	private static final Map<Long, CitadelPlan> PLANS = Collections.synchronizedMap(new LinkedHashMap<>(8, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<Long, CitadelPlan> eldest) {
+			return size() > 6;
+		}
+	});
 
 	private final long seed;
 	private final BlockPos origin;
-	private @Nullable CitadelPlan plan;
+	private volatile @Nullable Map<Long, List<Long>> byChunk;
+	private volatile @Nullable Map<Long, List<int[]>> clearColumns;
 
 	public CitadelPiece(long seed, BlockPos origin) {
-		super(ModStructures.CITADEL_PIECE, 0, box(origin));
+		super(ModStructures.CITADEL_PIECE, 0, box(planFor(seed), origin));
 		this.seed = seed;
 		this.origin = origin;
 	}
@@ -55,9 +70,10 @@ public class CitadelPiece extends StructurePiece {
 		this.origin = new BlockPos(tag.getIntOr("OX", 0), tag.getIntOr("OY", 64), tag.getIntOr("OZ", 0));
 	}
 
-	private static BoundingBox box(BlockPos origin) {
-		int r = CitadelPlanner.RADIUS + 1;
-		return new BoundingBox(origin.getX() - r, origin.getY() - DEPTH, origin.getZ() - r, origin.getX() + r, origin.getY() + HEIGHT, origin.getZ() + r);
+	private static BoundingBox box(CitadelPlan plan, BlockPos origin) {
+		int[] b = plan.bounds();
+		return new BoundingBox(origin.getX() + b[0], origin.getY() + b[1], origin.getZ() + b[2], origin.getX() + b[3], origin.getY() + b[4],
+				origin.getZ() + b[5]);
 	}
 
 	@Override
@@ -68,52 +84,64 @@ public class CitadelPiece extends StructurePiece {
 		tag.putInt("OZ", origin.getZ());
 	}
 
-	public CitadelPlan plan() {
+	public static CitadelPlan planFor(long seed) {
+		CitadelPlan plan = PLANS.get(seed);
 		if (plan == null) {
 			plan = CitadelPlanner.plan(seed);
+			PLANS.put(seed, plan);
 		}
 		return plan;
+	}
+
+	public CitadelPlan plan() {
+		return planFor(seed);
 	}
 
 	public BlockPos origin() {
 		return origin;
 	}
 
+	public BlockPos world(int x, int y, int z) {
+		return origin.offset(x, y, z);
+	}
+
+	private static long chunkOf(int x, int z) {
+		return ChunkPos.pack(x >> 4, z >> 4);
+	}
+
+	private Map<Long, List<Long>> byChunk() {
+		if (byChunk == null) {
+			Map<Long, List<Long>> out = new HashMap<>();
+			Map<Long, List<int[]>> clear = new HashMap<>();
+			CitadelPlan plan = plan();
+			int maxY = plan.maxY();
+			for (long k : plan.blocks().keySet()) {
+				int x = CitadelPlan.keyX(k);
+				int y = CitadelPlan.keyY(k);
+				int z = CitadelPlan.keyZ(k);
+				out.computeIfAbsent(chunkOf(origin.getX() + x, origin.getZ() + z), c -> new ArrayList<>()).add(k);
+				// colunas da ilha principal: limpa o que houver de terreno acima do topo
+				boolean islandTop = (y == 0 || y == CitadelPlanner.TERRACE_Y) && x * x + z * z <= (CitadelPlanner.RADIUS + 2) * (CitadelPlanner.RADIUS + 2)
+						&& plan.get(x, y - 1, z) != null;
+				if (islandTop) {
+					clear.computeIfAbsent(chunkOf(origin.getX() + x, origin.getZ() + z), c -> new ArrayList<>()).add(new int[] {x, y + 1, z, maxY});
+				}
+			}
+			clearColumns = clear;
+			byChunk = out;
+		}
+		return byChunk;
+	}
+
 	@Override
 	public void postProcess(WorldGenLevel level, StructureManager structureManager, ChunkGenerator generator, RandomSource random,
 			BoundingBox chunkBB, ChunkPos chunkPos, BlockPos referencePos) {
+		for (int cx = chunkBB.minX() >> 4; cx <= chunkBB.maxX() >> 4; cx++) {
+			for (int cz = chunkBB.minZ() >> 4; cz <= chunkBB.maxZ() >> 4; cz++) {
+				placeChunk(level, random, chunkBB, ChunkPos.pack(cx, cz));
+			}
+		}
 		CitadelPlan plan = plan();
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-
-		// limpa o terreno natural acima da ilha (a cidadela fica num patio aberto)
-		for (int x = chunkBB.minX(); x <= chunkBB.maxX(); x++) {
-			for (int z = chunkBB.minZ(); z <= chunkBB.maxZ(); z++) {
-				int rx = x - origin.getX();
-				int rz = z - origin.getZ();
-				if (plan.get(rx, 0, rz) == null) {
-					continue;
-				}
-				for (int ry = 1; ry <= plan.maxY(); ry++) {
-					pos.set(x, origin.getY() + ry, z);
-					if (plan.get(rx, ry, rz) == null && chunkBB.isInside(pos) && !level.getBlockState(pos).isAir()) {
-						level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-					}
-				}
-			}
-		}
-
-		for (Map.Entry<Long, CitadelPart> entry : plan.blocks().entrySet()) {
-			long key = entry.getKey();
-			pos.set(origin.getX() + CitadelPlan.keyX(key), origin.getY() + CitadelPlan.keyY(key), origin.getZ() + CitadelPlan.keyZ(key));
-			if (!chunkBB.isInside(pos)) {
-				continue;
-			}
-			level.setBlock(pos, state(entry.getValue()), Block.UPDATE_CLIENTS);
-			if (entry.getValue() == CitadelPart.CHEST) {
-				RandomizableContainer.setBlockEntityLootTable(level, random, pos.immutable(), BuiltInLootTables.END_CITY_TREASURE);
-			}
-		}
-
 		for (CitadelPlan.Spawn spawn : plan.spawns()) {
 			BlockPos at = origin.offset(spawn.x(), spawn.y(), spawn.z());
 			if (chunkBB.isInside(at)) {
@@ -122,28 +150,52 @@ public class CitadelPiece extends StructurePiece {
 		}
 	}
 
-	/** Bloco de cada papel do plano. */
-	public static BlockState state(CitadelPart part) {
-		return switch (part) {
-			case AIR -> Blocks.AIR.defaultBlockState();
-			case ISLAND -> Blocks.END_STONE.defaultBlockState();
-			case ISLAND_TOP -> ModBlocks.END_MOSS.defaultBlockState();
-			case PATH -> Blocks.END_STONE_BRICKS.defaultBlockState();
-			case FLOOR, WALL -> Blocks.PURPUR_BLOCK.defaultBlockState();
-			case PILLAR -> Blocks.PURPUR_PILLAR.defaultBlockState();
-			case TRIM -> ModBlocks.VOID_BRICKS.defaultBlockState();
-			case WINDOW -> Blocks.STAINED_GLASS.magenta().defaultBlockState();
-			case LAMP -> ModBlocks.PURPUR_LAMP.defaultBlockState();
-			case ELEVATOR -> ModBlocks.PURPUR_ELEVATOR.defaultBlockState();
-			case RAILING -> Blocks.PURPUR_SLAB.defaultBlockState();
-			case BOOKSHELF -> Blocks.BOOKSHELF.defaultBlockState();
-			case BREWING_STAND -> Blocks.BREWING_STAND.defaultBlockState();
-			case DRAGON_HEAD -> Blocks.DRAGON_HEAD.defaultBlockState();
-			case END_ROD -> Blocks.END_ROD.defaultBlockState();
-			case PLANT -> ModBlocks.VOID_GRASS.defaultBlockState();
-			case CHEST -> Blocks.CHEST.defaultBlockState();
-			case ASTRAL_ALTAR -> com.mlin.notas.boss.BossRegistry.ASTRAL_ALTAR.defaultBlockState();
-		};
+	private void placeChunk(WorldGenLevel level, RandomSource random, BoundingBox chunkBB, long chunk) {
+		CitadelPlan plan = plan();
+		Map<Long, List<Long>> index = byChunk();
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		List<int[]> columns = clearColumns.get(chunk);
+		if (columns != null) {
+			for (int[] c : columns) {
+				for (int y = c[1]; y <= c[3]; y++) {
+					if (plan.get(c[0], y, c[2]) != null) {
+						continue;
+					}
+					pos.set(origin.getX() + c[0], origin.getY() + y, origin.getZ() + c[2]);
+					if (chunkBB.isInside(pos) && !level.getBlockState(pos).isAir()) {
+						level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+					}
+				}
+			}
+		}
+		List<Long> keys = index.get(chunk);
+		if (keys != null) {
+			List<BlockPos> connect = new ArrayList<>();
+			for (long k : keys) {
+				pos.set(origin.getX() + CitadelPlan.keyX(k), origin.getY() + CitadelPlan.keyY(k), origin.getZ() + CitadelPlan.keyZ(k));
+				if (!chunkBB.isInside(pos)) {
+					continue;
+				}
+				BlockState state = VanillaRemakePiece.parse(plan.blocks().get(k));
+				level.setBlock(pos, state, Block.UPDATE_CLIENTS);
+				String table = plan.lootTables().get(k);
+				if (table != null) {
+					RandomizableContainer.setBlockEntityLootTable(level, random, pos.immutable(),
+							ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(table)));
+				}
+				Block block = state.getBlock();
+				if (block instanceof StairBlock || block instanceof WallBlock || block instanceof CrossCollisionBlock) {
+					connect.add(pos.immutable());
+				}
+			}
+			for (BlockPos p : connect) {
+				BlockState placed = level.getBlockState(p);
+				BlockState updated = Block.updateFromNeighbourShapes(placed, level, p);
+				if (updated != placed && !updated.isAir()) {
+					level.setBlock(p, updated, Block.UPDATE_CLIENTS);
+				}
+			}
+		}
 	}
 
 	private static void spawn(WorldGenLevel level, CitadelPlan.Spawn spawn, BlockPos at) {
