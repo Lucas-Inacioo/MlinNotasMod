@@ -169,10 +169,12 @@ public final class ParcelWorks {
 			}
 			MasterPlan.Block b = plan.block(p.block());
 			bp.needRing(b.ring());
-			int kind = ctx.roll(p.rect().x0(), p.rect().z0(), 31, 3);
+			int kind = ctx.roll(p.rect().x0(), p.rect().z0(), 31, 5);
 			switch (kind) {
 				case 0 -> plot(ctx, bp, p, b.target());
 				case 1 -> orchard(ctx, bp, p, b.target());
+				case 3 -> RuralBuildings.barn(ctx, bp, p, b.target());
+				case 4 -> RuralBuildings.windmill(ctx, bp, p, b.target());
 				default -> pasture(ctx, bp, p, b.target());
 			}
 		}

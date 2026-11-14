@@ -34,9 +34,10 @@ class FoodCatalogTest {
 
 	@Test
 	void cropsSpreadOverTheYear() {
-		Map<String, Season> expected = Map.of("lettuce", Season.SPRING, "onion", Season.SPRING, "strawberry", Season.SPRING,
+		Map<String, Season> expected = new java.util.HashMap<>(Map.of("lettuce", Season.SPRING, "onion", Season.SPRING, "strawberry", Season.SPRING,
 				"tomato", Season.SUMMER, "corn", Season.SUMMER, "bell_pepper", Season.SUMMER, "rice", Season.SUMMER,
-				"beans", Season.AUTUMN, "garlic", Season.AUTUMN, "cabbage", Season.AUTUMN);
+				"beans", Season.AUTUMN, "garlic", Season.AUTUMN, "cabbage", Season.AUTUMN));
+		expected.put("grapes", Season.AUTUMN);
 		assertEquals(expected.size(), FoodCatalog.CROPS.size());
 		for (FoodCatalog.Crop crop : FoodCatalog.CROPS) {
 			assertEquals(expected.get(crop.name()), crop.bestSeason(), crop.name());
@@ -81,7 +82,7 @@ class FoodCatalogTest {
 				assertTrue(List.of(FoodCatalog.Kind.PRODUCE, FoodCatalog.Kind.SALAD, FoodCatalog.Kind.SNACK).contains(food.kind()), food.id());
 			}
 		}
-		assertTrue(edible >= 25 && edible <= 35, "comidas: " + edible);
+		assertTrue(edible >= 25 && edible <= 40, "comidas: " + edible);
 		for (FoodCatalog.Crop crop : FoodCatalog.CROPS) {
 			assertNotNull(FoodCatalog.food(crop.produce()), "produto no catalogo: " + crop.produce());
 		}

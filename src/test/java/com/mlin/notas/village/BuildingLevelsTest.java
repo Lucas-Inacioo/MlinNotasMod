@@ -137,7 +137,7 @@ class BuildingLevelsTest {
 
 	@Test
 	void fromTownEveryNeedMustPassHalf() {
-		Map<VillageProject, Integer> built = Map.of(VillageProject.WALL, 1, VillageProject.MARKET, 1);
+		Map<VillageProject, Integer> built = Map.of(VillageProject.WALL, 1, VillageProject.MARKET, 1, VillageProject.GRANARY, 1);
 		VillageLevel.Context weak = new VillageLevel.Context(5000, built, -1, 100, Map.of(), 50);
 		assertTrue(VillageLevel.TOWN.missing(weak).contains("needs"), "50% nao basta");
 		assertTrue(VillageLevel.TOWN.missing(new VillageLevel.Context(5000, built, -1, 100, Map.of(), 51)).isEmpty());

@@ -289,6 +289,7 @@ public class Village4GameTest {
 		}
 		v.addBuilt(VillageProject.WALL);
 		v.addBuilt(VillageProject.MARKET);
+		v.addBuilt(VillageProject.GRANARY);
 		for (int i = 0; i < 16; i++) {
 			v.addBuilt(VillageProject.LAMPS);
 		}

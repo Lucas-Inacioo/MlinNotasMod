@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:fermenting",
+  "ingredient": "minecraft:apple",
+  "result": {
+    "id": "mlinnotas:cider"
+  },
+  "days": 1.0
+}

@@ -29,7 +29,8 @@ class FoodContent {
 			new Crop("rice", "Arroz", "Rice", null, null, null),
 			new Crop("beans", "Feijão", "Beans", null, null, null),
 			new Crop("garlic", "Alho", "Garlic", null, null, null),
-			new Crop("cabbage", "Repolho", "Cabbage", "cabbage_seeds", "Sementes de Repolho", "Cabbage Seeds"));
+			new Crop("cabbage", "Repolho", "Cabbage", "cabbage_seeds", "Sementes de Repolho", "Cabbage Seeds"),
+			new Crop("grapes", "Uva", "Grapes", "grape_seeds", "Sementes de Uva", "Grape Seeds"));
 
 	/** Comidas e ingredientes que nao sao produto de cultura: id, pt, en. */
 	static final String[][] FOODS = {
@@ -60,6 +61,9 @@ class FoodContent {
 			{"aged_cheese", "Queijo Curado", "Aged Cheese"},
 			{"charque", "Charque", "Jerky"},
 			{"dried_fish", "Bacalhau Seco", "Dried Cod"},
+			{"wine", "Vinho", "Wine"},
+			{"beer", "Cerveja", "Beer"},
+			{"cider", "Cidra", "Cider"},
 	};
 
 	static final List<String> PRESERVES = List.of("strawberry_jam", "tomato_sauce", "pickles", "sauerkraut", "aged_cheese", "charque", "dried_fish");
@@ -323,6 +327,14 @@ class FoodContent {
 		// barril de conserva
 		ferment("aged_cheese", "mlinnotas:fresh_cheese", "mlinnotas:aged_cheese", 2.0);
 		ferment("sauerkraut", "mlinnotas:cabbage", "mlinnotas:sauerkraut", 1.0);
+		// vinicola: bebidas em 1 dia
+		ferment("wine", "mlinnotas:grapes", "mlinnotas:wine", 1.0);
+		ferment("beer", "minecraft:wheat", "mlinnotas:beer", 1.0);
+		ferment("cider", "minecraft:apple", "mlinnotas:cider", 1.0);
+
+		// farinha na mesa: pao (3 farinhas rendem 2 paes, mais que os 3 trigos do pao vanilla) e biscoitos
+		vanillaShapeless("bread_from_flour", List.of("mlinnotas:flour", "mlinnotas:flour", "mlinnotas:flour"), "minecraft:bread", 2);
+		vanillaShapeless("cookie_from_flour", List.of("mlinnotas:flour", "mlinnotas:flour", "minecraft:cocoa_beans"), "minecraft:cookie", 8);
 	}
 
 	static String ingredient(String id) {
@@ -355,6 +367,11 @@ class FoodContent {
 				+ output + "\"}}");
 	}
 
+	static void vanillaShapeless(String name, List<String> ingredients, String result, int count) throws IOException {
+		ContentGen.write("data/mlinnotas/recipe/" + name + ".json", "{\"type\":\"minecraft:crafting_shapeless\",\"category\":\"misc\",\"ingredients\":["
+				+ ContentGen.quoteAll(ingredients) + "],\"result\":{\"id\":\"" + result + "\",\"count\":" + count + "}}");
+	}
+
 	static void shapeless(String result, List<String> ingredients, int count) throws IOException {
 		ContentGen.write("data/mlinnotas/recipe/" + result + ".json", "{\"type\":\"minecraft:crafting_shapeless\",\"category\":\"misc\",\"ingredients\":["
 				+ ContentGen.quoteAll(ingredients) + "],\"result\":{\"id\":\"mlinnotas:" + result + "\",\"count\":" + count + "}}");
@@ -377,8 +394,8 @@ class FoodContent {
 		text("block.mlinnotas.cooking_pot.tooltip", "Sobre uma fonte de calor, cozinha até 6 ingredientes", "Over a heat source, cooks up to 6 ingredients");
 		text("block.mlinnotas.cutting_board.tooltip", "Botão direito com o ingrediente para cortar (agachado: a pilha toda)",
 				"Right-click with an ingredient to cut it (sneak: the whole stack)");
-		text("block.mlinnotas.preserving_barrel.tooltip", "Guarda comida sem estragar e cura queijo e chucrute",
-				"Keeps food from spoiling and cures cheese and sauerkraut");
+		text("block.mlinnotas.preserving_barrel.tooltip", "Guarda comida sem estragar; cura queijo, chucrute, vinho, cerveja e cidra",
+				"Keeps food from spoiling; cures cheese, sauerkraut, wine, beer and cider");
 		text("gui.mlinnotas.recipes.kind.cooking_pot", "Panela", "Cooking Pot");
 		text("gui.mlinnotas.recipes.kind.cutting", "Tábua de Corte", "Cutting Board");
 		text("gui.mlinnotas.recipes.kind.fermenting", "Barril de Conserva", "Preserving Barrel");
@@ -424,6 +441,18 @@ class FoodContent {
 						"Botão direito na tábua com trigo dá farinha; milho vira fubá. Agachado corta a pilha inteira.",
 						"Right-click the board with wheat for flour; corn becomes cornmeal. Sneak to cut the whole stack.")
 						.dep("garden").have("mlinnotas:flour", 8).item("minecraft:egg", 4).xp(20),
+				QuestContent.q("mill_to_table", "minecraft:bread", 1, 2, "Do Moinho à Mesa", "From Mill to Table",
+						"Farinha rende mais que trigo: 3 farinhas fazem 2 pães na mesa de trabalho, e ainda dão biscoitos com cacau. Um Moinho na vila mói o trigo do baú para você.",
+						"Flour goes further than wheat: 3 flour make 2 bread at the crafting table, and cookies with cocoa too. A village Mill grinds the wheat in its chest for you.")
+						.dep("flour").have("minecraft:bread", 8).item("minecraft:emerald", 2).xp(25),
+				QuestContent.q("grapes", "mlinnotas:grapes", 3, 2, "Parreira", "Vineyard",
+						"A uva cresce no verão e rende mais no outono, e nasce selvagem nas florestas. Plante as sementes e colha com o botão direito.",
+						"Grapes grow in summer and do best in autumn, and grow wild in forests. Plant the seeds and harvest with a right-click.")
+						.dep("garden").have("mlinnotas:grapes", 8).item("minecraft:bone_meal", 8).xp(30),
+				QuestContent.q("vintner", "mlinnotas:wine", 4, 2, "Vinicultor", "Vintner",
+						"No Barril de Conserva a uva vira vinho em 1 dia; trigo vira cerveja e maçã vira cidra. Cada bebida dá um efeito curto: vinho regenera, cerveja resiste, cidra acelera.",
+						"In the Preserving Barrel grapes become wine in 1 day; wheat becomes beer and apples become cider. Each drink gives a short effect: wine regenerates, beer resists, cider speeds you up.")
+						.dep("barrel", "grapes").have("mlinnotas:wine", 1).item("minecraft:emerald", 3).xp(50),
 				QuestContent.q("rice_and_beans", "mlinnotas:rice_and_beans", 2, 0, "Arroz com Feijão", "Rice and Beans",
 						"Refeição farta: dá Bem Alimentado (um coração a mais e cura lenta). Arroz é de verão; feijão rende mais no outono.",
 						"A hearty meal: gives Well Fed (an extra heart and slow healing). Rice is a summer crop; beans do best in autumn.")

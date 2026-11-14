@@ -44,7 +44,44 @@ public enum VillageProject {
 	 */
 	TOWN_HALL("town_hall", "minecraft:bell", 1, 60, new int[] {0, 1, 1, 1, 1, 1, 1}, 0, 0,
 			List.of(VillageCost.of("#mlinnotas:village/stone", 96), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#mlinnotas:village/glass", 12),
-					VillageCost.of("minecraft:emerald", 8), VillageCost.of("minecraft:lectern", 1)));
+					VillageCost.of("minecraft:emerald", 8), VillageCost.of("minecraft:lectern", 1))),
+	// ---- Vilas 2.0 fase 5: producao e comida (ver FoodBuildings). Novos valores sempre no fim: os saves usam o id.
+	/** Celeiro: estoque de comida da vila; as plantacoes, o pomar, o curral e a padaria abastecem sozinhos. */
+	GRANARY("granary", "minecraft:hay_block", 1, 45, new int[] {0, 1, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:planks", 48), VillageCost.of("#minecraft:logs", 16), VillageCost.of("minecraft:hay_block", 4),
+					VillageCost.of("#mlinnotas:village/food", 16))),
+	/** Moinho de vento: mo o trigo em farinha com rendimento melhor. */
+	MILL("mill", "minecraft:grindstone", 1, 45, new int[] {0, 1, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 12),
+					VillageCost.of("#minecraft:wool", 8), VillageCost.of("minecraft:wheat", 16))),
+	/** Padaria: o forno assa farinha e ingredientes do bau sozinho; o padeiro vende pao. */
+	BAKERY("bakery", "minecraft:bread", 2, 60, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 48), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 8),
+					VillageCost.of("minecraft:bricks", 16), VillageCost.of("minecraft:wheat", 16))),
+	/** Pomar: macieiras e frutas da estacao, colhidas com o botao direito. */
+	ORCHARD("orchard", "minecraft:apple", 1, 40, new int[] {0, 1, 1, 1, 1, 1, 2}, 1, 0,
+			List.of(VillageCost.of("#minecraft:saplings", 6), VillageCost.of("#minecraft:wooden_fences", 16), VillageCost.of("#minecraft:logs", 8),
+					VillageCost.of("#minecraft:planks", 16), VillageCost.of("minecraft:apple", 6))),
+	/** Curral: vacas, ovelhas e porcos que se reproduzem ate o limite do nivel; leite e la no bau. */
+	PEN("pen", "minecraft:white_wool", 1, 40, new int[] {0, 1, 1, 1, 1, 1, 2}, 1, 0,
+			List.of(VillageCost.of("#minecraft:wooden_fences", 32), VillageCost.of("#minecraft:planks", 16), VillageCost.of("#minecraft:logs", 8),
+					VillageCost.of("minecraft:hay_block", 6), VillageCost.of("minecraft:wheat", 16))),
+	/** Apiario: colmeias, flores e mel no bau. */
+	APIARY("apiary", "minecraft:honeycomb", 2, 50, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:planks", 32), VillageCost.of("#minecraft:logs", 8), VillageCost.of("minecraft:honeycomb", 8),
+					VillageCost.of("#minecraft:flowers", 16), VillageCost.of("minecraft:glass_bottle", 4))),
+	/** Acougue: acougueiro, cortes de carne e charque mais barato. */
+	BUTCHER("butcher", "minecraft:cooked_beef", 2, 50, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 40), VillageCost.of("#minecraft:planks", 24), VillageCost.of("#minecraft:logs", 8),
+					VillageCost.of("minecraft:iron_ingot", 6), VillageCost.of("#minecraft:coals", 8))),
+	/** Vinicola: parreiral de uvas no caramanchao, cervejaria e adega. */
+	WINERY("winery", "minecraft:glass_bottle", 3, 90, new int[] {0, 0, 0, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#mlinnotas:village/stone", 64), VillageCost.of("#minecraft:logs", 24), VillageCost.of("#minecraft:planks", 32),
+					VillageCost.of("minecraft:barrel", 4), VillageCost.of("mlinnotas:grape_seeds", 8), VillageCost.of("minecraft:emerald", 6))),
+	/** Serraria: carpinteiro, tabuas mais baratas e uma bancada que faz 6 tabuas por tronco. */
+	SAWMILL("sawmill", "minecraft:stonecutter", 2, 55, new int[] {0, 0, 1, 1, 1, 1, 1}, 1, 0,
+			List.of(VillageCost.of("#minecraft:logs", 32), VillageCost.of("#minecraft:planks", 16), VillageCost.of("#mlinnotas:village/stone", 24),
+					VillageCost.of("minecraft:iron_ingot", 8)));
 
 	private final String id;
 	private final String icon;

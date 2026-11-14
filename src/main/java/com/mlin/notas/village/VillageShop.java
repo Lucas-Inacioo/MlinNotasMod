@@ -51,7 +51,29 @@ public final class VillageShop {
 			new Offer("cobalt_pickaxe", Kind.ITEM, "mlinnotas:cobalt_pickaxe", 1, 24, VillageLevel.VILLAGE),
 			new Offer("cobalt_sword", Kind.ITEM, "mlinnotas:cobalt_sword", 1, 20, VillageLevel.VILLAGE),
 			new Offer("cobalt_ingot", Kind.ITEM, "mlinnotas:cobalt_ingot", 1, 10, VillageLevel.VILLAGE),
-			new Offer("lodging", Kind.LODGING, "", 1, 2, VillageLevel.HAMLET));
+			new Offer("lodging", Kind.LODGING, "", 1, 2, VillageLevel.HAMLET),
+			// producao e comida (Vilas 2.0, fase 5): exigencias em FoodBuildings.SHOP_REQUIRES
+			new Offer("mill_flour", Kind.ITEM, "mlinnotas:flour", 8, 1, VillageLevel.CAMP),
+			new Offer("bakery_bread", Kind.ITEM, "minecraft:bread", 8, 1, VillageLevel.CAMP),
+			new Offer("bakery_broa", Kind.ITEM, "mlinnotas:corn_bread", 4, 2, VillageLevel.CAMP),
+			new Offer("bakery_cheese_bread", Kind.ITEM, "mlinnotas:cheese_bread", 4, 3, VillageLevel.CAMP),
+			new Offer("bakery_cake", Kind.ITEM, "minecraft:cake", 1, 3, VillageLevel.CAMP),
+			new Offer("orchard_apples", Kind.ITEM, "minecraft:apple", 8, 1, VillageLevel.CAMP),
+			new Offer("pen_wool", Kind.ITEM, "minecraft:white_wool", 8, 2, VillageLevel.CAMP),
+			new Offer("pen_milk", Kind.ITEM, "minecraft:milk_bucket", 3, 2, VillageLevel.CAMP),
+			new Offer("apiary_honey", Kind.ITEM, "minecraft:honey_bottle", 4, 2, VillageLevel.CAMP),
+			new Offer("apiary_comb", Kind.ITEM, "minecraft:honeycomb", 6, 3, VillageLevel.CAMP),
+			new Offer("butcher_beef", Kind.ITEM, "minecraft:beef", 8, 2, VillageLevel.CAMP),
+			new Offer("butcher_pork", Kind.ITEM, "minecraft:porkchop", 8, 2, VillageLevel.CAMP),
+			new Offer("butcher_jerky", Kind.ITEM, "mlinnotas:charque", 4, 2, VillageLevel.CAMP),
+			new Offer("butcher_jerky_bulk", Kind.ITEM, "mlinnotas:charque", 12, 4, VillageLevel.CAMP),
+			new Offer("winery_wine", Kind.ITEM, "mlinnotas:wine", 2, 3, VillageLevel.CAMP),
+			new Offer("winery_beer", Kind.ITEM, "mlinnotas:beer", 2, 2, VillageLevel.CAMP),
+			new Offer("winery_cider", Kind.ITEM, "mlinnotas:cider", 2, 2, VillageLevel.CAMP),
+			new Offer("winery_grape_seeds", Kind.ITEM, "mlinnotas:grape_seeds", 4, 2, VillageLevel.CAMP),
+			new Offer("sawmill_planks", Kind.ITEM, "minecraft:oak_planks", 32, 1, VillageLevel.CAMP),
+			new Offer("sawmill_planks_bulk", Kind.ITEM, "minecraft:spruce_planks", 64, 1, VillageLevel.CAMP),
+			new Offer("sawmill_planks_birch", Kind.ITEM, "minecraft:birch_planks", 64, 1, VillageLevel.CAMP));
 
 	/**
 	 * Oferta que so aparece com uma construcao funcionando no nivel ({@code tipo:nivel}): forja I conserta, forja II
@@ -70,7 +92,8 @@ public final class VillageShop {
 
 	/** Exigencia de construcao da oferta ({@code tipo:nivel}) ou null. */
 	public static String requirement(Offer offer) {
-		return REQUIRES.get(offer.id());
+		String req = REQUIRES.get(offer.id());
+		return req != null ? req : FoodBuildings.SHOP_REQUIRES.get(offer.id());
 	}
 
 	/** A vila tem o que a oferta exige (nivel da vila e construcao funcionando no nivel). */

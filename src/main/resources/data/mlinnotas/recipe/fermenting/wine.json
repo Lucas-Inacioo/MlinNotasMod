@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:fermenting",
+  "ingredient": "mlinnotas:grapes",
+  "result": {
+    "id": "mlinnotas:wine"
+  },
+  "days": 1.0
+}

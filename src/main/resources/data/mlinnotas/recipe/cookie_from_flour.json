@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mlinnotas:flour",
+    "mlinnotas:flour",
+    "minecraft:cocoa_beans"
+  ],
+  "result": {
+    "id": "minecraft:cookie",
+    "count": 8
+  }
+}

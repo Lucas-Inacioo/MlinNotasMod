@@ -171,8 +171,18 @@ public final class FoodRegistry {
 		if (!food.edible()) {
 			return properties;
 		}
-		FoodProperties nutrition = new FoodProperties.Builder().nutrition(food.nutrition()).saturationModifier(food.saturation()).build();
-		Consumable.Builder consumable = Consumables.defaultFood();
+		boolean drink = food.kind() == FoodCatalog.Kind.DRINK;
+		FoodProperties.Builder builder = new FoodProperties.Builder().nutrition(food.nutrition()).saturationModifier(food.saturation());
+		if (drink) {
+			builder.alwaysEdible();
+		}
+		FoodProperties nutrition = builder.build();
+		Consumable.Builder consumable = drink ? Consumables.defaultDrink() : Consumables.defaultFood();
+		if (drink) {
+			for (MobEffectInstance effect : drinkEffects(food.id())) {
+				consumable.onConsume(new ApplyStatusEffectsConsumeEffect(effect));
+			}
+		}
 		if (food.kind() == FoodCatalog.Kind.SNACK && food.nutrition() <= 3) {
 			consumable.consumeSeconds(1.0F);
 		}
@@ -188,6 +198,17 @@ public final class FoodRegistry {
 			}
 		}
 		return properties;
+	}
+
+	/** Efeitos curtos das bebidas: vinho regenera, cerveja resiste (e pesa um pouco), cidra acelera. */
+	public static List<MobEffectInstance> drinkEffects(String id) {
+		return switch (id) {
+			case "wine" -> List.of(new MobEffectInstance(net.minecraft.world.effect.MobEffects.REGENERATION, 160, 0));
+			case "beer" -> List.of(new MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 400, 0),
+					new MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 120, 0));
+			case "cider" -> List.of(new MobEffectInstance(net.minecraft.world.effect.MobEffects.SPEED, 600, 0));
+			default -> List.of();
+		};
 	}
 
 	/** Item do mod pelo nome (semente, produto ou comida); null se nao existir. */

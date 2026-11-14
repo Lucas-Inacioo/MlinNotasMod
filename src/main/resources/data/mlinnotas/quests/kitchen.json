@@ -80,6 +80,82 @@
       ]
     },
     {
+      "id": "mill_to_table",
+      "icon": "minecraft:bread",
+      "x": 1,
+      "y": 2,
+      "dependencies": [
+        "flour"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "minecraft:bread",
+          "count": 8
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:emerald",
+          "count": 2
+        },
+        {
+          "xp": 25
+        }
+      ]
+    },
+    {
+      "id": "grapes",
+      "icon": "mlinnotas:grapes",
+      "x": 3,
+      "y": 2,
+      "dependencies": [
+        "garden"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:grapes",
+          "count": 8
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:bone_meal",
+          "count": 8
+        },
+        {
+          "xp": 30
+        }
+      ]
+    },
+    {
+      "id": "vintner",
+      "icon": "mlinnotas:wine",
+      "x": 4,
+      "y": 2,
+      "dependencies": [
+        "barrel",
+        "grapes"
+      ],
+      "tasks": [
+        {
+          "type": "item",
+          "target": "mlinnotas:wine",
+          "count": 1
+        }
+      ],
+      "rewards": [
+        {
+          "item": "minecraft:emerald",
+          "count": 3
+        },
+        {
+          "xp": 50
+        }
+      ]
+    },
+    {
       "id": "rice_and_beans",
       "icon": "mlinnotas:rice_and_beans",
       "x": 2,

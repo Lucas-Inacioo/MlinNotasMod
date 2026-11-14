@@ -1,0 +1,8 @@
+{
+  "type": "mlinnotas:fermenting",
+  "ingredient": "minecraft:wheat",
+  "result": {
+    "id": "mlinnotas:beer"
+  },
+  "days": 1.0
+}
