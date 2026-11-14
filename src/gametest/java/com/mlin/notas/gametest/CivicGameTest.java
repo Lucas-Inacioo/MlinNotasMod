@@ -346,6 +346,8 @@ public class CivicGameTest {
 		if (tower.marks("archer").size() != 4) {
 			fail("a torre III precisa de 4 postos de arqueiro");
 		}
+		// espera as chunks recem-forcadas virarem acessiveis a busca por entidades (senao o zumbi que acabou de nascer nao e visto)
+		helper.runAfterDelay(5, () -> {
 		BlockPos post = tower.marks("archer").get(0);
 		// zumbi parado a 8 blocos do posto, no chao, com ceu aberto e a vista do posto (a torre fica na beira do plano: o
 		// lado de fora pode ser a muralha externa ou outra obra)
@@ -386,6 +388,7 @@ public class CivicGameTest {
 		zombie.discard();
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- quartel
