@@ -174,7 +174,7 @@ public final class VillageBuilder {
 		return (Long.hashCode(firstKey * 0x9E3779B97F4A7C15L) >>> 3) % 1000;
 	}
 
-	static void effects(ServerLevel level, BlockPos pos, int index) {
+	public static void effects(ServerLevel level, BlockPos pos, int index) {
 		BlockState state = level.getBlockState(pos);
 		if (state.isAir()) {
 			return;

@@ -105,7 +105,7 @@ public class VillageData extends SavedData {
 	 * celulas, cx, cz, pronto), lotes (id, quarteirao, x0, z0, x1, z1, frente, tamanho, zona, jogador) e recortes.
 	 */
 	public static final Codec<MasterPlan> MASTER_CODEC = RecordCodecBuilder.create(i -> i.group(
-			Codec.INT.optionalFieldOf("version", MasterPlan.VERSION).forGetter(m -> MasterPlan.VERSION),
+			Codec.INT.optionalFieldOf("version", MasterPlan.VERSION_SPARSE).forGetter(MasterPlan::version),
 			Codec.LONG.optionalFieldOf("seed", 0L).forGetter(MasterPlan::seed),
 			Codec.INT.fieldOf("extent").forGetter(MasterPlan::extent),
 			Codec.INT.fieldOf("plaza_y").forGetter(MasterPlan::plazaY),
@@ -131,8 +131,10 @@ public class VillageData extends SavedData {
 			parcelList.add(new MasterPlan.Parcel(p[k], p[k + 1], new VillageState.Rect(p[k + 2], p[k + 3], p[k + 4], p[k + 5]),
 					Facing.values()[Math.floorMod(p[k + 6], 4)], SizeClass.byOrdinal(p[k + 7]), Zone.byOrdinal(p[k + 8]), p[k + 9] != 0));
 		}
-		return MasterPlan.restore(seed, extent, plazaY, grid.toArray(), ring.toArray(), heights.toArray(), blockList, parcelList,
+		MasterPlan restored = MasterPlan.restore(seed, extent, plazaY, grid.toArray(), ring.toArray(), heights.toArray(), blockList, parcelList,
 				rects(player.toArray()), rects(fixed.toArray()));
+		restored.setVersion(version);
+		return restored;
 	}));
 
 	private static final Codec<RingWork> RING_CODEC = RecordCodecBuilder.create(i -> i.group(

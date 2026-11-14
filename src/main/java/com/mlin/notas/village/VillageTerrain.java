@@ -58,7 +58,7 @@ public final class VillageTerrain {
 		List<int[]> out = new ArrayList<>();
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (block != null && block.ring() == ring) {
+			if (block != null && block.ring() == ring && !p.retired()) {
 				out.addAll(p.corners());
 			}
 		}
@@ -127,7 +127,7 @@ public final class VillageTerrain {
 		int open = Math.min(MasterPlan.RINGS, village.level().rings() + 1);
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (block == null || block.ring() > open) {
+			if (block == null || block.ring() > open || p.retired()) {
 				continue;
 			}
 			boolean taken = false;

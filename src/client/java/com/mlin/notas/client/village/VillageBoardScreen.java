@@ -249,7 +249,7 @@ public class VillageBoardScreen extends Screen {
 	}
 
 	private int buildingsPerPage() {
-		return Math.max(1, (contentBottom() - contentTop() - 12) / BUILDING_ROW);
+		return Math.max(1, (contentBottom() - contentTop() - 12 - 16) / BUILDING_ROW);
 	}
 
 	private List<BuildingRow> buildingRows() {
@@ -275,6 +275,8 @@ public class VillageBoardScreen extends Screen {
 	}
 
 	private void initBuildings() {
+		addRenderableWidget(Button.builder(Component.translatable("gui.mlinnotas.village.works.open"), b -> minecraft.gui.setScreen(new WorksScreen(view.board(), this)))
+				.bounds(left() + 8, contentBottom() - 14, 140, 14).tooltip(Tooltip.create(Component.translatable("gui.mlinnotas.village.works.open_tooltip"))).build());
 		List<BuildingRow> rows = buildingRows();
 		int per = buildingsPerPage();
 		int y = contentTop() + 12;
