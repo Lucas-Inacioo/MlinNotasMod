@@ -246,6 +246,7 @@ public class ContentGen {
 		Village2Content.generate();
 		Village3Content.generate();
 		Village4Content.generate();
+		WorksContent.generate();
 		SNetherContent.generate();
 		CompassContent.generate();
 		StorageContent.generate(pickaxeMineable);

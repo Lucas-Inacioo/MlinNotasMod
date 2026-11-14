@@ -30,78 +30,202 @@ final class BlockSubdivider {
 			case 2 -> new SizeClass[] {SizeClass.M, SizeClass.S, SizeClass.S, SizeClass.L};
 			case 3 -> new SizeClass[] {SizeClass.S, SizeClass.S, SizeClass.S, SizeClass.M};
 			case 5 -> new SizeClass[] {SizeClass.L, SizeClass.M, SizeClass.M, SizeClass.L};
-			case 6 -> new SizeClass[] {SizeClass.W};
+			case 6 -> new SizeClass[] {SizeClass.WL};
 			default -> new SizeClass[] {};
 		};
 	}
 
+	/** Distancia maxima da porta ate a rua (o acesso e um caminho de ate 4 celulas) e da metade da frente. */
+	static final int ACCESS_MAX = 4;
+	static final int NEAR_MAX = 6;
+
 	private record Candidate(int x0, int z0, int w, int d, Facing front, double score) {
 	}
 
+	/** Subdivisao densa de um plano novo (todos os quarteiroes). */
 	static List<MasterPlan.Parcel> subdivide(MasterPlan plan, long seed) {
-		Random random = new Random(seed ^ 0xB10C5L);
 		int extent = plan.extent();
 		int size = 2 * extent + 1;
 		boolean[] taken = new boolean[size * size];
 		List<MasterPlan.Parcel> out = new ArrayList<>();
 		for (MasterPlan.Block block : plan.blocks()) {
-			Zone zone = block.zone();
-			if (zone == null || block.cells() < 30) {
-				continue;
-			}
-			// caixa do quarteirao
-			int bx0 = Integer.MAX_VALUE;
-			int bz0 = Integer.MAX_VALUE;
-			int bx1 = Integer.MIN_VALUE;
-			int bz1 = Integer.MIN_VALUE;
-			for (int x = -extent; x <= extent; x++) {
-				for (int z = -extent; z <= extent; z++) {
-					if (plan.code(x, z) == MasterPlan.BLOCK + block.id()) {
-						bx0 = Math.min(bx0, x);
-						bz0 = Math.min(bz0, z);
-						bx1 = Math.max(bx1, x);
-						bz1 = Math.max(bz1, z);
-					}
-				}
-			}
-			Sat sat = new Sat(plan, block.id(), taken, bx0, bz0, bx1, bz1);
-			for (SizeClass cls : corners(block.ring())) {
-				for (int n = 0; n < 2; n++) {
-					Candidate c = best(plan, sat, cls, true);
-					if (c == null) {
-						break;
-					}
-					out.add(take(plan, c, cls, zone, block, out.size(), taken, sat));
-				}
-			}
-			SizeClass[] mix = mix(block.ring());
-			int turn = random.nextInt(Math.max(1, mix.length));
-			for (int guard = 0; guard < 64 && mix.length > 0; guard++) {
-				Candidate c = null;
-				SizeClass used = null;
-				for (int k = 0; k < mix.length && c == null; k++) {
-					SizeClass cls = mix[(turn + k) % mix.length];
-					c = best(plan, sat, cls, false);
-					used = cls;
-				}
-				if (c == null) {
-					// nada da mistura coube: tenta o menor
-					SizeClass small = block.ring() == 6 ? SizeClass.W : SizeClass.S;
-					c = best(plan, sat, small, false);
-					used = small;
-				}
-				if (c == null) {
-					break;
-				}
-				out.add(take(plan, c, used, zone, block, out.size(), taken, sat));
-				turn++;
-			}
+			fillBlock(plan, block, seed, taken, out, 0);
 		}
 		return out;
 	}
 
+	/** O que {@link #densify} mudou: lotes aposentados (com o retangulo antigo, para tirar as estacas) e quantos novos. */
+	record Densified(List<MasterPlan.Parcel> retired, int added) {
+	}
+
+	/**
+	 * Refaz a subdivisao de um plano salvo antes da versao densa. Quarteirao sem nenhum lote reservado (obra em
+	 * andamento, pronta ou lote de jogador) e subdividido de novo (os lotes velhos viram {@link MasterPlan.Parcel#retired
+	 * aposentados}); quarteirao com lote reservado so ganha lotes novos no espaco que sobrou, sem tocar nos antigos.
+	 * Deterministico pela semente do plano.
+	 */
+	static Densified densify(MasterPlan plan, java.util.Set<Integer> reserved, java.util.Collection<int[]> keepFree) {
+		int extent = plan.extent();
+		int size = 2 * extent + 1;
+		boolean[] taken = new boolean[size * size];
+		List<MasterPlan.Parcel> retired = new ArrayList<>();
+		for (int[] c : keepFree) {
+			mark(plan, taken, c[0], c[1], 1, 1);
+		}
+		int added = 0;
+		for (MasterPlan.Block block : plan.blocks()) {
+			List<MasterPlan.Parcel> mine = new ArrayList<>();
+			boolean used = false;
+			for (MasterPlan.Parcel p : plan.parcels()) {
+				if (p.block() == block.id() && !p.retired()) {
+					mine.add(p);
+					used |= reserved.contains(p.id()) || p.player();
+				}
+			}
+			if (!used) {
+				for (MasterPlan.Parcel p : mine) {
+					retired.add(p);
+					plan.retireParcel(p.id());
+				}
+			} else {
+				for (MasterPlan.Parcel p : mine) {
+					VillageState.Rect r = p.rect();
+					mark(plan, taken, r.x0(), r.z0(), r.x1() - r.x0() + 1, r.z1() - r.z0() + 1);
+				}
+			}
+			List<MasterPlan.Parcel> out = new ArrayList<>();
+			fillBlock(plan, block, plan.seed(), taken, out, plan.parcels().size());
+			for (MasterPlan.Parcel p : out) {
+				plan.addParcel(p);
+				added++;
+			}
+		}
+		plan.setVersion(MasterPlan.VERSION);
+		return new Densified(retired, added);
+	}
+
+	/** Preenche o quarteirao com lotes novos (ids a partir de {@code firstId + out.size()}); {@code taken} ja marca o que existe. */
+	private static void fillBlock(MasterPlan plan, MasterPlan.Block block, long seed, boolean[] taken, List<MasterPlan.Parcel> out, int firstId) {
+		Zone zone = block.zone();
+		if (zone == null || block.cells() < 30) {
+			return;
+		}
+		Random random = new Random(seed ^ 0xB10C5L ^ (block.id() * 0x9E3779B97F4A7C15L));
+		int extent = plan.extent();
+		int bx0 = Integer.MAX_VALUE;
+		int bz0 = Integer.MAX_VALUE;
+		int bx1 = Integer.MIN_VALUE;
+		int bz1 = Integer.MIN_VALUE;
+		for (int x = -extent; x <= extent; x++) {
+			for (int z = -extent; z <= extent; z++) {
+				if (plan.code(x, z) == MasterPlan.BLOCK + block.id()) {
+					bx0 = Math.min(bx0, x);
+					bz0 = Math.min(bz0, z);
+					bx1 = Math.max(bx1, x);
+					bz1 = Math.max(bz1, z);
+				}
+			}
+		}
+		Sat sat = new Sat(plan, block.id(), taken, bx0, bz0, bx1, bz1);
+		for (SizeClass cls : corners(block.ring())) {
+			for (int n = 0; n < 2; n++) {
+				Candidate c = best(plan, sat, cls, true);
+				if (c == null) {
+					break;
+				}
+				out.add(take(plan, c, cls, zone, block, firstId + out.size(), taken, sat));
+			}
+		}
+		SizeClass[] mix = mix(block.ring());
+		int turn = random.nextInt(Math.max(1, mix.length));
+		for (int guard = 0; guard < 64 && mix.length > 0; guard++) {
+			Candidate c = null;
+			SizeClass used = null;
+			for (int k = 0; k < mix.length && c == null; k++) {
+				SizeClass cls = mix[(turn + k) % mix.length];
+				c = best(plan, sat, cls, false);
+				used = cls;
+			}
+			if (c == null) {
+				// nada da mistura coube: tenta o menor
+				SizeClass small = block.ring() == 6 ? SizeClass.W : SizeClass.S;
+				c = best(plan, sat, small, false);
+				used = small;
+			}
+			if (c == null) {
+				break;
+			}
+			out.add(take(plan, c, used, zone, block, firstId + out.size(), taken, sat));
+			turn++;
+		}
+		// sobras (cantos chanfrados, esquinas largas): lotes minusculos
+		if (block.ring() != 6) {
+			for (int guard = 0; guard < 32; guard++) {
+				Candidate c = best(plan, sat, SizeClass.T, false);
+				if (c == null) {
+					break;
+				}
+				out.add(take(plan, c, SizeClass.T, zone, block, firstId + out.size(), taken, sat));
+			}
+		}
+	}
+
+	private static void mark(MasterPlan plan, boolean[] taken, int x0, int z0, int w, int d) {
+		int extent = plan.extent();
+		int size = 2 * extent + 1;
+		for (int x = x0 - 1; x <= x0 + w; x++) {
+			for (int z = z0 - 1; z <= z0 + d; z++) {
+				if (plan.in(x, z)) {
+					taken[(x + extent) * size + (z + extent)] = true;
+				}
+			}
+		}
+	}
+
+	/** Sobra menor que isso (nao cabe nem um lote minusculo) e engolida pelo lote vizinho. */
+	static final int GROW_LIMIT = 7;
+
+	/**
+	 * Cresce o lote para o fundo e para os lados quando a sobra livre que ficaria depois dele e menor que um lote
+	 * minusculo (esse resto so viraria quintal): "mescla com o vizinho". O fundo e os lados ficam livres ate a rua ou
+	 * o proximo lote; a frente nunca muda.
+	 */
+	private static Candidate grow(Sat sat, Candidate c) {
+		int x0 = c.x0;
+		int z0 = c.z0;
+		int x1 = c.x0 + c.w - 1;
+		int z1 = c.z0 + c.d - 1;
+		Facing back = c.front.opposite();
+		for (Facing f : new Facing[] {back, c.front.rotate(1), c.front.rotate(3)}) {
+			int k = 0;
+			for (int n = 1; n <= GROW_LIMIT; n++) {
+				boolean free = switch (f) {
+					case NORTH -> sat.all(x0, z0 - n, x1, z0 - n);
+					case SOUTH -> sat.all(x0, z1 + n, x1, z1 + n);
+					case WEST -> sat.all(x0 - n, z0, x0 - n, z1);
+					case EAST -> sat.all(x1 + n, z0, x1 + n, z1);
+				};
+				if (!free) {
+					break;
+				}
+				k = n;
+			}
+			if (k >= GROW_LIMIT) {
+				continue;
+			}
+			switch (f) {
+				case NORTH -> z0 -= k;
+				case SOUTH -> z1 += k;
+				case WEST -> x0 -= k;
+				case EAST -> x1 += k;
+			}
+		}
+		return new Candidate(x0, z0, x1 - x0 + 1, z1 - z0 + 1, c.front, c.score);
+	}
+
 	private static MasterPlan.Parcel take(MasterPlan plan, Candidate c, SizeClass cls, Zone zone, MasterPlan.Block block, int id, boolean[] taken,
 			Sat sat) {
+		c = grow(sat, c);
 		int extent = plan.extent();
 		int size = 2 * extent + 1;
 		for (int x = c.x0 - 1; x <= c.x0 + c.w; x++) {
@@ -181,13 +305,13 @@ final class BlockSubdivider {
 	private static double frontScore(MasterPlan plan, int x0, int z0, int w, int d, Facing f) {
 		int[][] edge = edge(x0, z0, w, d, f);
 		int[] door = edge[edge.length / 2];
-		int doorDist = streetAhead(plan, door[0], door[1], f, 2);
+		int doorDist = streetAhead(plan, door[0], door[1], f, ACCESS_MAX);
 		if (doorDist == 0) {
 			return -1;
 		}
 		int near = 0;
 		for (int[] c : edge) {
-			if (streetAhead(plan, c[0], c[1], f, 3) > 0) {
+			if (streetAhead(plan, c[0], c[1], f, NEAR_MAX) > 0) {
 				near++;
 			}
 		}
@@ -265,6 +389,9 @@ final class BlockSubdivider {
 		}
 
 		boolean all(int ax, int az, int bx, int bz) {
+			if (ax < x0 || az < z0 || bx > x1 || bz > z1) {
+				return false;
+			}
 			int d = z1 - z0 + 1;
 			int i0 = ax - x0;
 			int j0 = az - z0;

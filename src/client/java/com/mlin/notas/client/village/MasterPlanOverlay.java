@@ -191,7 +191,7 @@ final class MasterPlanOverlay {
 			var r = p.rect();
 			double px = c.getX() + (r.x0() + r.x1() + 1) / 2.0;
 			double pz = c.getZ() + (r.z0() + r.z1() + 1) / 2.0;
-			if (block == null || reserved(o, p.id()) || eye.distanceToSqr(px, eye.y, pz) > range2) {
+			if (block == null || p.retired() || reserved(o, p.id()) || eye.distanceToSqr(px, eye.y, pz) > range2) {
 				continue;
 			}
 			int color = p.player() ? PLAYER : block.ring() > open ? CLOSED : zoneColor(p.zone());

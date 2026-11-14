@@ -107,6 +107,9 @@ public class CombatClientGameTest implements FabricClientGameTest {
 			world.getServer().runCommand("kill @e[type=minecraft:armor_stand]");
 
 			// arco do montante: tres zumbis a frente, golpe pelo cliente (passa pelo servidor de verdade)
+			// a trava de ferramentas (gating/) cancela golpes de armas acima da Mineracao do mundo: libera tudo
+			world.getServer().runOnServer(server -> com.mlin.notas.skills.SkillServer.ensureLevel(server,
+					com.mlin.notas.skills.SkillBranch.MINING, Tier.CELESTIUM.level()));
 			hold(context, world, CombatRegistry.weapon(Tier.IRON, WeaponClass.GREATSWORD));
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
 			int[] ids = world.getServer().computeOnServer(server -> {

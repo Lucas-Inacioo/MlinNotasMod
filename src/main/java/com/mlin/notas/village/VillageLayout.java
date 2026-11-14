@@ -544,6 +544,34 @@ public final class VillageLayout {
 		return added;
 	}
 
+	/**
+	 * Plano de antes da subdivisao densa passa para a versao nova: quarteirao sem lote reservado e subdividido de novo,
+	 * os outros so ganham lotes no espaco que sobrou (os reservados e os prontos nunca mudam). Postes ja feitos e
+	 * caminhos de porta ficam livres. Devolve os lotes aposentados (para tirar as estacas velhas).
+	 */
+	public List<MasterPlan.Parcel> densifyMaster() {
+		if (master == null || master.version() >= MasterPlan.VERSION) {
+			return List.of();
+		}
+		java.util.Set<Integer> reserved = new java.util.HashSet<>();
+		List<int[]> keep = new ArrayList<>();
+		for (Lot lot : lots) {
+			if (lot.parcel >= 0) {
+				reserved.add(lot.parcel);
+			}
+			keep.addAll(lot.access);
+		}
+		for (Lamp lamp : lamps) {
+			if (lamp.built) {
+				keep.add(new int[] {lamp.x, lamp.z});
+			}
+		}
+		List<MasterPlan.Parcel> retired = BlockSubdivider.densify(master, reserved, keep).retired();
+		lamps.removeIf(lamp -> !lamp.built && master.parcelAt(lamp.x, lamp.z) != null);
+		addMasterLamps(openRings());
+		return retired;
+	}
+
 	/** Reserva um lote do plano diretor para o tipo (null = nenhum serve). */
 	public Lot reserve(String kind, VillageStyle style, long villageSeed, int open) {
 		int id = nextId;
@@ -590,7 +618,7 @@ public final class VillageLayout {
 
 	/** O lote {@code p} serve para o tipo agora? null = serve. {@code exclude}: lote da propria obra (ao mudar). */
 	public Problem parcelProblem(String kind, MasterPlan.Parcel p, int cw, int cd, int open, int exclude) {
-		if (master == null || p == null) {
+		if (master == null || p == null || p.retired()) {
 			return Problem.OUTSIDE;
 		}
 		if (p.player()) {

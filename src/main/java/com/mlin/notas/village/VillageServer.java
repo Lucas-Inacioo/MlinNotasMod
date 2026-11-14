@@ -107,6 +107,7 @@ public final class VillageServer {
 		});
 		ServerPlayerEvents.JOIN.register(StartingVillage::greet);
 		VillageBoardFeature.init();
+		com.mlin.notas.village.works.VillageWorks.init();
 		StartingVillage.init();
 		net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> VillageCommand.register(dispatcher));
 	}
@@ -276,6 +277,7 @@ public final class VillageServer {
 			case "overlay" -> VillagePlanning.show(player, village, "off".equals(payload.arg()) ? 0 : VillagePlanning.TOGGLE_SECONDS);
 			case "pick" -> VillagePlanning.pick(player, village, payload.arg());
 			case "place" -> VillagePlanning.place(player, village, payload.arg());
+			case "works" -> com.mlin.notas.village.works.VillageWorks.action(player, village, payload.arg());
 			case "cancel" -> {
 				try {
 					VillagePlanning.cancel(player, village, board, Integer.parseInt(payload.arg()));
@@ -595,6 +597,7 @@ public final class VillageServer {
 			return;
 		}
 		MasterPlan.Parcel parcel = layout.master().parcel(layout.lot(lotId).parcel());
+		com.mlin.notas.village.works.VillageWorks.releaseLot(level, village, lotId);
 		if (parcel != null) {
 			VillageTerrain.removeStakes(level, village, layout.master(), parcel);
 		}
@@ -622,6 +625,9 @@ public final class VillageServer {
 		WAITING.remove(village.key());
 		if (planned.lot() != null) {
 			village.addLot(planned.lot().rect());
+		}
+		if (project == VillageProject.WALL) {
+			com.mlin.notas.village.works.VillageWorks.beforeWall(level, village);
 		}
 		VillageBuilder.clearSite(level, village, planned, false);
 		removeStakes(level, village, planned.lotId());

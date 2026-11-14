@@ -15,6 +15,7 @@ public final class VillageClient {
 	}
 
 	public static void init() {
+		WorksClient.init();
 		ClientPlayNetworking.registerGlobalReceiver(VillagePayloads.View.TYPE, (payload, context) -> {
 			if (payload.open()) {
 				context.client().gui.setScreen(new VillageBoardScreen(payload));

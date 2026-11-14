@@ -149,7 +149,7 @@ class MasterPlanTest {
 				// porta no meio da frente: rua de chao a ate 2, alcancavel a pe da praca e a no maximo 1 do plato
 				int[] door = doorCell(p);
 				boolean ok = false;
-				for (int k = 1; k <= 2 && !ok; k++) {
+				for (int k = 1; k <= BlockSubdivider.ACCESS_MAX && !ok; k++) {
 					int sx = door[0] + p.front().dx * k;
 					int sz = door[1] + p.front().dz * k;
 					if (plan.ground(sx, sz)) {

@@ -17,7 +17,11 @@ public enum SizeClass {
 	/** Muito grande: prefeitura, quartel, museu (lotes de esquina). */
 	XL(25, 13),
 	/** Encostado na muralha externa: torres e guaritas. */
-	W(7, 5);
+	W(7, 5),
+	/** Minusculo (cantos chanfrados, esquinas largas): jardim, quiosque, lote livre. Acrescentado no fim (ordinal salvo). */
+	T(7, 7),
+	/** Faixa da muralha onde o fundo deixa: torre maior, casa da guarda. Acrescentado no fim (ordinal salvo). */
+	WL(11, 6);
 
 	private final int width;
 	private final int depth;
@@ -48,8 +52,10 @@ public enum SizeClass {
 
 	/** Este lote serve para uma construcao da classe {@code need} (mesmo tamanho ou maior, mesma familia). */
 	public boolean holds(SizeClass need) {
-		if (this == W || need == W) {
-			return this == need;
+		boolean wall = this == W || this == WL;
+		boolean needWall = need == W || need == WL;
+		if (wall || needWall) {
+			return wall && needWall && width >= need.width && depth >= need.depth;
 		}
 		return width >= need.width && depth >= need.depth;
 	}

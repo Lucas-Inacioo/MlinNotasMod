@@ -21,7 +21,9 @@ import java.util.Set;
  * {@link #columns}, e tipos novos de construcao registram classe e zonas em {@link LotRules}.
  */
 public final class MasterPlan {
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
+	/** Versao do plano de antes da subdivisao densa (lotes {@link SizeClass#T}, faixa da muralha maior). */
+	public static final int VERSION_SPARSE = 1;
 	public static final int RINGS = 6;
 	/** Esmeraldas fixas da terraplenagem de cada anel (1..6). */
 	public static final int[] RING_EMERALDS = {5, 10, 15, 20, 30, 40};
@@ -148,6 +150,15 @@ public final class MasterPlan {
 			return zone;
 		}
 
+		/** Lote aposentado pela subdivisao nova (retangulo vazio): o indice fica, ninguem usa. */
+		public boolean retired() {
+			return rect.x1() < rect.x0() || rect.z1() < rect.z0();
+		}
+
+		static Parcel retiredOf(Parcel old) {
+			return new Parcel(old.id, old.block, new VillageState.Rect(0, 0, -1, -1), old.front, old.size, old.zone, false);
+		}
+
 		/** "Lote do jogador": apareceu construcao de jogador nele; a vila nunca mexe nem constroi aqui. */
 		public boolean player() {
 			return player;
@@ -185,6 +196,9 @@ public final class MasterPlan {
 	private final List<VillageState.Rect> playerAreas;
 	private final List<VillageState.Rect> fixedAreas;
 	private int[] parcelIndex;
+	private int version = VERSION;
+	/** Colunas com decoracao das obras publicas (nao contam como construcao de jogador); preenchido pelo servidor, nao salvo. */
+	private java.util.Set<Long> ownedColumns = java.util.Set.of();
 
 	public MasterPlan(long seed, int extent, int plazaY, int[] grid, byte[] rings, int[] heights, List<Block> blocks, List<Parcel> parcels,
 			List<VillageState.Rect> playerAreas, List<VillageState.Rect> fixedAreas) {
@@ -202,6 +216,31 @@ public final class MasterPlan {
 	}
 
 	// ---------------------------------------------------------------- consultas
+
+	public void setOwnedColumns(java.util.Set<Long> columns) {
+		this.ownedColumns = columns;
+	}
+
+	/** Versao do plano (1 = subdivisao esparsa de antes das obras publicas). */
+	public int version() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+	/** Aposenta o lote (a lista guarda o indice). */
+	void retireParcel(int id) {
+		parcels.set(id, Parcel.retiredOf(parcels.get(id)));
+		parcelIndex = null;
+	}
+
+	/** Acrescenta um lote (o id e o indice na lista). */
+	void addParcel(Parcel parcel) {
+		parcels.add(parcel);
+		parcelIndex = null;
+	}
 
 	public long seed() {
 		return seed;
@@ -290,6 +329,9 @@ public final class MasterPlan {
 			Arrays.fill(index, -1);
 			for (Parcel p : parcels) {
 				VillageState.Rect r = p.rect;
+				if (p.retired()) {
+					continue;
+				}
 				for (int px = r.x0(); px <= r.x1(); px++) {
 					for (int pz = r.z0(); pz <= r.z1(); pz++) {
 						if (in(px, pz)) {
@@ -397,6 +439,9 @@ public final class MasterPlan {
 
 	/** Celula onde o plano espera construcao da vila ou do jogador (nao conta como "coluna de jogador nova"). */
 	public boolean known(int x, int z) {
+		if (!ownedColumns.isEmpty() && ownedColumns.contains(VillageLayout.col(x, z))) {
+			return true;
+		}
 		int c = code(x, z);
 		if (c == CARVED || c == PLAZA || (c >= STREET && c < BLOCK)) {
 			return true;

@@ -66,7 +66,38 @@ public final class VillagePlanning {
 					layout.lots().size(), layout.lamps().size());
 			VillageTerrain.refresh(level, village);
 		}
+		if (village.layout().master() != null && village.layout().master().version() < MasterPlan.VERSION) {
+			upgradePlan(level, village, village.layout());
+		}
 		return village.layout();
+	}
+
+	/**
+	 * Plano salvo antes da subdivisao densa: refaz so os quarteiroes sem lote reservado e preenche o espaco que sobrou
+	 * nos outros ({@link VillageLayout#densifyMaster}); as estacas dos lotes aposentados saem do mundo (carregando o
+	 * chunk se preciso, para nao sobrar cerca solta que pareceria construcao de jogador).
+	 */
+	static void upgradePlan(ServerLevel level, VillageState village, VillageLayout layout) {
+		List<MasterPlan.Parcel> retired = layout.densifyMaster();
+		MasterPlan plan = layout.master();
+		int removed = 0;
+		for (MasterPlan.Parcel p : retired) {
+			MasterPlan.Block block = plan.block(p.block());
+			if (block == null) {
+				continue;
+			}
+			for (int[] c : p.corners()) {
+				BlockPos pos = VillageBuilder.world(village, c[0], block.target() + 1, c[1]);
+				level.getChunk(pos);
+				if (level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.FenceBlock) {
+					level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), net.minecraft.world.level.block.Block.UPDATE_ALL);
+					removed++;
+				}
+			}
+		}
+		VillageData.get(level.getServer()).changed();
+		MlinNotas.LOGGER.info("[{}] plano da vila {} passou para a subdivisao densa: {} lotes aposentados, {} estacas tiradas, {} lotes no plano", MlinNotas.MOD_ID,
+				village.name(), retired.size(), removed, plan.parcels().size());
 	}
 
 	/** A vila subiu de nivel: o plano abre o proximo anel (lotes novos mais longe, os antigos ficam). */
