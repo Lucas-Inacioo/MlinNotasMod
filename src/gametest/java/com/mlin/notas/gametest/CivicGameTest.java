@@ -175,6 +175,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		VillageState v = village(helper, RUN, VillageLevel.CAPITAL, houses(5, VillageProject.POST_OFFICE, VillageProject.SCHOOL, VillageProject.WATCHTOWER,
 				VillageProject.BARRACKS, VillageProject.VILLAGE_WAYSTONE, VillageProject.BEACON, VillageProject.MUSEUM, VillageProject.EXPLORERS_GUILD));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		MinecraftServer server = level.getServer();
 		for (String kind : CivicBuildings.IDS) {
 			if (VillageBuildings.level(v, kind) < 1) {
@@ -203,6 +205,7 @@ public class CivicGameTest {
 		// a Prefeitura agora tem sino de verdade? (a planta I-III usa o lampiao no lanternim; o sino entra no turreto)
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	private static void expectBlock(ServerLevel level, List<BlockPos> marks, net.minecraft.world.level.block.Block block, String what) {
@@ -225,6 +228,8 @@ public class CivicGameTest {
 		CivicData.get(server).parcels().clear();
 		VillageState a = village(helper, RUN + 400, VillageLevel.TOWN, houses(2, VillageProject.POST_OFFICE));
 		VillageState b = village(helper, RUN + 1000, VillageLevel.TOWN, houses(2, VillageProject.POST_OFFICE));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		CivicSites.Site siteA = site(server, a, CivicBuildings.POST_OFFICE);
 		CivicSites.Site siteB = site(server, b, CivicBuildings.POST_OFFICE);
 		ServerPlayer sender = player(helper, level, siteA.marks("mailbox").get(0));
@@ -274,6 +279,7 @@ public class CivicGameTest {
 		release(helper, a);
 		release(helper, b);
 		helper.succeed();
+		});
 	}
 
 	@GameTest(maxTicks = 400, environment = "mlinnotas-gametest:civic")
@@ -281,6 +287,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState a = village(helper, RUN + 1600, VillageLevel.TOWN, houses(2, VillageProject.POST_OFFICE));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		CivicSites.Site siteA = site(server, a, CivicBuildings.POST_OFFICE);
 		ServerPlayer sender = player(helper, level, siteA.marks("mailbox").get(0));
 		String friend = "00000000-0000-0000-0000-0000000000aa";
@@ -301,6 +309,7 @@ public class CivicGameTest {
 		data.knownPlayers().remove(friend);
 		release(helper, a);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- escola
@@ -309,6 +318,8 @@ public class CivicGameTest {
 	public void schoolMakesBabiesGrowFasterAndNovicesEarnExperience(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		VillageState v = village(helper, RUN + 2200, VillageLevel.TOWN, houses(2, VillageProject.SCHOOL));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		BlockPos at = VillageServer.center(v).offset(4, 1, 4);
 		Villager baby = EntityTypes.VILLAGER.spawn(level, at, EntitySpawnReason.MOB_SUMMONED);
 		baby.setAge(-24_000);
@@ -332,6 +343,7 @@ public class CivicGameTest {
 		novice.discard();
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- torre
@@ -398,6 +410,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState v = village(helper, RUN + 3400, VillageLevel.CAPITAL, houses(3, VillageProject.BARRACKS));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		AABB box = new AABB(VillageServer.center(v)).inflate(90, 60, 90);
 		DefenseServer.guards(server, level, v);
 		List<VillageGuard> guards = level.getEntitiesOfClass(VillageGuard.class, box);
@@ -433,6 +447,7 @@ public class CivicGameTest {
 		}
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- farol
@@ -442,6 +457,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState v = village(helper, RUN + 4000, VillageLevel.CAPITAL, VillageProject.BEACON);
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		BlockPos center = VillageServer.center(v);
 		ServerPlayer inside = player(helper, level, center.offset(30, 0, 0));
 		ServerPlayer far = player(helper, level, center.offset(300, 0, 0));
@@ -459,6 +476,7 @@ public class CivicGameTest {
 		}
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- museu
@@ -468,6 +486,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState v = village(helper, RUN + 4600, VillageLevel.CAPITAL, houses(2, VillageProject.MUSEUM));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		CivicSites.Site museum = site(server, v, CivicBuildings.MUSEUM);
 		BlockPos pedestal = museum.marks("pedestal").get(0);
 		ServerPlayer player = player(helper, level, pedestal);
@@ -525,6 +545,7 @@ public class CivicGameTest {
 		}
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- guilda
@@ -535,6 +556,8 @@ public class CivicGameTest {
 		MinecraftServer server = level.getServer();
 		CivicData.get(server).expeditions().clear();
 		VillageState v = village(helper, RUN + 5200, VillageLevel.TOWN, houses(2, VillageProject.EXPLORERS_GUILD));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		CivicSites.Site guild = site(server, v, CivicBuildings.GUILD);
 		BlockPos board = guild.marks("board").get(0);
 		Villager explorer = EntityTypes.VILLAGER.spawn(level, board.south(2), EntitySpawnReason.MOB_SUMMONED);
@@ -601,6 +624,7 @@ public class CivicGameTest {
 		back.get(0).discard();
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- pedras de vila
@@ -611,6 +635,8 @@ public class CivicGameTest {
 		MinecraftServer server = level.getServer();
 		VillageState a = village(helper, RUN + 5800, VillageLevel.VILLAGE, VillageProject.VILLAGE_WAYSTONE);
 		VillageState b = village(helper, RUN + 6400, VillageLevel.VILLAGE, VillageProject.VILLAGE_WAYSTONE);
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		DefenseServer.syncWaystones(server, true);
 		BlockPos pa = site(server, a, CivicBuildings.WAYSTONE).marks("waystone").get(0);
 		BlockPos pb = site(server, b, CivicBuildings.WAYSTONE).marks("waystone").get(0);
@@ -631,6 +657,7 @@ public class CivicGameTest {
 		release(helper, b);
 		DefenseServer.syncWaystones(server, true);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- refugio
@@ -640,6 +667,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState v = village(helper, RUN + 7000, VillageLevel.TOWN, houses(2, VillageProject.SCHOOL));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		CivicSites.Site school = site(server, v, CivicBuildings.SCHOOL);
 		BlockPos inside = school.world(new int[] {school.canvas().w() / 2, 1, 3, -1});
 		// sem muralha completa: nasce
@@ -666,6 +695,7 @@ public class CivicGameTest {
 		outside.discard();
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- seguro de morte
@@ -675,6 +705,8 @@ public class CivicGameTest {
 		ServerLevel level = helper.getLevel();
 		MinecraftServer server = level.getServer();
 		VillageState v = village(helper, RUN + 7600, VillageLevel.TOWN, houses(2, VillageProject.INN));
+		// espera as chunks recem-forcadas aceitarem a busca por entidades antes de gerar/procurar qualquer entidade
+		helper.runAfterDelay(5, () -> {
 		ServerPlayer player = player(helper, level, VillageServer.center(v).offset(10, 0, 10));
 		GraveContents contents = new GraveContents();
 		contents.set(0, new ItemStack(Items.DIAMOND_SWORD));
@@ -714,6 +746,7 @@ public class CivicGameTest {
 		}
 		release(helper, v);
 		helper.succeed();
+		});
 	}
 
 	// ---------------------------------------------------------------- dados
