@@ -257,6 +257,7 @@ public class ContentGen {
 		ProgressionContent.generate();
 		Qol2Content.generate();
 		FoodBuildingsContent.generate();
+		CivicContent.generate(pickaxeMineable);
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

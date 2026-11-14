@@ -39,10 +39,12 @@ public final class VillageLayout {
 	public static final int MAX_ACCESS = 40;
 	public static final String CAMPFIRE = "campfire";
 	/** Projetos que ocupam lote, na ordem em que os lotes sao reservados (um de cada por vez). */
-	public static final List<VillageProject> LOT_PROJECTS = List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY,
-			VillageProject.MARKET, VillageProject.INN, VillageProject.LIBRARY, VillageProject.TOWN_HALL,
-			VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY, VillageProject.ORCHARD, VillageProject.PEN, VillageProject.APIARY,
-			VillageProject.BUTCHER, VillageProject.WINERY, VillageProject.SAWMILL);
+	public static final List<VillageProject> LOT_PROJECTS = java.util.stream.Stream.concat(
+			List.of(VillageProject.HOUSE, VillageProject.FARM, VillageProject.SMITHY, VillageProject.MARKET, VillageProject.INN,
+					VillageProject.LIBRARY, VillageProject.TOWN_HALL, VillageProject.GRANARY, VillageProject.MILL, VillageProject.BAKERY,
+					VillageProject.ORCHARD, VillageProject.PEN, VillageProject.APIARY, VillageProject.BUTCHER, VillageProject.WINERY,
+					VillageProject.SAWMILL).stream(),
+			com.mlin.notas.village.civic.CivicBuildings.PROJECTS.stream()).toList();
 	/** Postes que a praca ja coloca (os da rua guardam distancia deles). */
 	static final int[][] PLAZA_LAMPS = {{5, 2}, {-5, 2}, {2, 5}, {2, -5}};
 
@@ -608,6 +610,9 @@ public final class VillageLayout {
 			}
 			VillageState.Rect r = p.rect();
 			double dist = Math.hypot((r.x0() + r.x1()) / 2.0, (r.z0() + r.z1()) / 2.0);
+			if (LotRules.prefersOuter(kind)) {
+				dist = -dist;
+			}
 			double waste = p.size().width() * p.size().depth() - rule.size().width() * rule.size().depth();
 			double score = rule.preference(p.zone()) * 1000 + waste * 0.5 + dist + (block.prepared() ? 0 : 500);
 			if (score < bestScore) {
@@ -630,6 +635,12 @@ public final class VillageLayout {
 			if (lot.parcel == p.id() && lot.id != exclude) {
 				return Problem.OVERLAP;
 			}
+		}
+		VillageState.Rect pr = p.rect();
+		int nx = Math.max(pr.x0(), Math.min(0, pr.x1()));
+		int nz = Math.max(pr.z0(), Math.min(0, pr.z1()));
+		if (nx * nx + nz * nz <= LOT_CLEARANCE * LOT_CLEARANCE) {
+			return Problem.PLAZA;
 		}
 		MasterPlan.Block block = master.block(p.block());
 		if (block == null || block.ring() > open) {

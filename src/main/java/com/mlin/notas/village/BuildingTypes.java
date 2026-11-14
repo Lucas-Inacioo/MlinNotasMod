@@ -96,6 +96,7 @@ public final class BuildingTypes {
 		register(type("library").maxLevel(3).workers(1).need(VillageNeeds.Need.LEISURE, 20, 30, 40));
 		register(type(TOWN_HALL).maxLevel(5).need(VillageNeeds.Need.SAFETY, 10, 12, 15, 18, 20).need(VillageNeeds.Need.LEISURE, 5, 8, 10, 12, 15));
 		FoodBuildings.registerTypes();
+		com.mlin.notas.village.civic.CivicBuildings.registerTypes();
 	}
 
 	private BuildingTypes() {
@@ -177,6 +178,9 @@ public final class BuildingTypes {
 			out.merge(cost.id(), (int) Math.ceil(cost.count() * mult - 1e-9), Integer::sum);
 		}
 		for (VillageCost cost : tierExtras(level)) {
+			out.merge(cost.id(), cost.count(), Integer::sum);
+		}
+		for (VillageCost cost : com.mlin.notas.village.civic.CivicBuildings.upgradeExtras(project, level)) {
 			out.merge(cost.id(), cost.count(), Integer::sum);
 		}
 		List<VillageCost> list = new ArrayList<>();

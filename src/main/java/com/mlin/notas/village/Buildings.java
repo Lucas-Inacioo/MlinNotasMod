@@ -35,7 +35,15 @@ public final class Buildings {
 			case LIBRARY -> library(style, random);
 			case PLAZA -> well(style, random);
 			case TOWN_HALL -> BuildingPlans.townHall(style, random, 1);
-			default -> FoodPlans.handles(project) ? FoodPlans.plan(project, style, seed, 1) : fail(project);
+			default -> {
+				if (FoodPlans.handles(project)) {
+					yield FoodPlans.plan(project, style, seed, 1);
+				}
+				if (CivicPlans.handles(project)) {
+					yield CivicPlans.plan(project, style, seed, 1);
+				}
+				yield fail(project);
+			}
 		};
 	}
 

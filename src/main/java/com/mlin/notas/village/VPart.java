@@ -125,7 +125,30 @@ public enum VPart {
 	/** Cocho de agua (calda/cocho de animais): caldeirao de agua. */
 	TROUGH(Flag.SOLID),
 	/** Fardo de la no chao (sacaria, toldo): la na cor de destaque. */
-	SACK(Flag.SOLID);
+	SACK(Flag.SOLID),
+	/** Sino de verdade pendurado (torre da Prefeitura, torre de vigia). */
+	BELL(Flag.LATE),
+	/** Caixa de correio do Correio (bloco do mod). */
+	MAILBOX(Flag.SOLID),
+	/** Pedestal de doacao do Museu (bloco do mod). */
+	PEDESTAL(Flag.SOLID),
+	/** Quadro de expedicoes da Guilda dos Exploradores (bloco do mod). */
+	GUILD_BOARD(Flag.SOLID),
+	/** Pedra de teleporte da vila (2 de altura): a de baixo ativa a pedra, a de cima so reserva o espaco. */
+	WAYSTONE(Flag.SOLID | Flag.LATE),
+	WAYSTONE_TOP(Flag.SOLID | Flag.SKIP),
+	/** Sinalizador vanilla no topo da piramide do Farol comunitario. */
+	BEACON(Flag.SOLID),
+	/** Blocos de metal da piramide do Farol: ferro, ouro, diamante, netherite e celestio (nivel I..V). */
+	METAL_1(Flag.SOLID),
+	METAL_2(Flag.SOLID),
+	METAL_3(Flag.SOLID),
+	METAL_4(Flag.SOLID),
+	METAL_5(Flag.SOLID),
+	/** Grade de ferro (janelas do quartel, cela). */
+	IRON_BARS(Flag.SOLID),
+	/** Alvo de tiro (quartel, torre). */
+	TARGET(Flag.SOLID);
 
 	private static final class Flag {
 		static final int NONE = 0;

@@ -47,6 +47,7 @@
     "mlinnotas:storage_unit_celestium",
     "mlinnotas:storage_cable",
     "mlinnotas:storage_terminal",
-    "mlinnotas:crafting_terminal"
+    "mlinnotas:crafting_terminal",
+    "mlinnotas:museum_pedestal"
   ]
 }

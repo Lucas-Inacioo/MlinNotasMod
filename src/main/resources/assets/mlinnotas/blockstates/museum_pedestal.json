@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "mlinnotas:block/museum_pedestal"
+    },
+    "facing=east": {
+      "model": "mlinnotas:block/museum_pedestal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "mlinnotas:block/museum_pedestal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mlinnotas:block/museum_pedestal",
+      "y": 270
+    }
+  }
+}
