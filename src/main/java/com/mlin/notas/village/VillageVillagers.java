@@ -179,6 +179,11 @@ public final class VillageVillagers {
 					&& s.is(BlockTags.VILLAGERS_CAN_SLEEP_ON_BED) && !s.getValue(BedBlock.OCCUPIED);
 		}, v.blockPosition(), radius, PoiManager.Occupancy.HAS_SPACE).map(pair -> pair.getSecond()).findFirst();
 		if (bed.isEmpty()) {
+			if (home != null) {
+				// sem cama livre na vila: larga a cama de fora (ou invalida) em vez de dormir fora da area
+				poi.release(home.pos());
+				brain.eraseMemory(MemoryModuleType.HOME);
+			}
 			return false;
 		}
 		BlockPos target = bed.get();
