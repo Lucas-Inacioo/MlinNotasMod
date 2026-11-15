@@ -265,6 +265,7 @@ public class ContentGen {
 		FieldContent.generate();
 		Terrain3Content.generate();
 		PlotsContent.generate();
+		VillageGenContent.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

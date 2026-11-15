@@ -62,8 +62,10 @@ public final class VillageFieldServer {
 	public static HeightFieldBuilder.Natural natural(ServerLevel level, int cx, int cz) {
 		ChunkGenerator generator = level.getChunkSource().getGenerator();
 		RandomState random = level.getChunkSource().randomState();
-		return HeightFieldBuilder.coarse((x, z) -> generator.getBaseHeight(cx + x, cz + z, Heightmap.Types.OCEAN_FLOOR_WG, level, random) - 1,
-				HeightFieldBuilder.EXTENT, HeightFieldBuilder.SAMPLE_STEP);
+		// Vilas 3.0 fase 2: o gerador ja mistura o terreno com o campo ativo; aqui le o terreno cru (desvio por thread)
+		return com.mlin.notas.village.gen.VillageGen.raw(() -> HeightFieldBuilder.coarse(
+				(x, z) -> generator.getBaseHeight(cx + x, cz + z, Heightmap.Types.OCEAN_FLOOR_WG, level, random) - 1, HeightFieldBuilder.EXTENT,
+				HeightFieldBuilder.SAMPLE_STEP));
 	}
 
 	/**

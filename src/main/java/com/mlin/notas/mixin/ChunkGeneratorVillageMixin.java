@@ -13,6 +13,16 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mlin.notas.village.gen.VillageGen;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import java.util.function.Predicate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,5 +44,21 @@ public abstract class ChunkGeneratorVillageMixin {
 				&& selected.structure().is(StructureTags.VILLAGE)) {
 			cir.setReturnValue(false);
 		}
+	}
+
+	/**
+	 * Vilas 3.0 fase 2: nenhuma estrutura de superficie cuja caixa cruze o campo de alturas da vila inicial (plano + faixa
+	 * de transicao), e as subterraneas so se ficam abaixo da camada fechada ({@link VillageGen#filterStart}). Pela caixa
+	 * pronta do inicio (pecas inclusas), nao so pelo chunk de origem.
+	 */
+	@WrapOperation(method = "tryGenerateStructure", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/levelgen/structure/Structure;generate(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/biome/BiomeSource;Lnet/minecraft/world/level/biome/Climate$Sampler;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;JLnet/minecraft/world/level/ChunkPos;ILnet/minecraft/world/level/LevelHeightAccessor;Ljava/util/function/Predicate;)Lnet/minecraft/world/level/levelgen/structure/StructureStart;"))
+	private StructureStart mlinnotas$noStructureInVillageField(Structure structure, Holder<Structure> selected, ResourceKey<Level> dimension,
+			RegistryAccess registryAccess, ChunkGenerator chunkGenerator, BiomeSource biomeSource, Climate.Sampler climateSampler, RandomState randomState,
+			StructureTemplateManager templates, long seed, ChunkPos sourceChunkPos, int references, LevelHeightAccessor heightAccessor,
+			Predicate<Holder<Biome>> validBiome, Operation<StructureStart> original) {
+		StructureStart start = original.call(structure, selected, dimension, registryAccess, chunkGenerator, biomeSource, climateSampler, randomState, templates,
+				seed, sourceChunkPos, references, heightAccessor, validBiome);
+		return dimension == Level.OVERWORLD ? VillageGen.filterStart(structure, start) : start;
 	}
 }
