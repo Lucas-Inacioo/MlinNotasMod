@@ -170,6 +170,7 @@ public final class HeightFieldBuilder {
 		MasterPlan plan = MasterPlan.create(seed, terrain, plazaY, List.of(), protect, Set.of(), 0);
 		plan = RuralRing.expand(plan, terrain);
 		HeightField field = solve(plan, centerX, centerZ, n, filtered, minY, pins, true);
+		plan.adoptField(field);
 		return new Result(plan, field);
 	}
 

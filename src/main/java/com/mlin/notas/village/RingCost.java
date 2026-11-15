@@ -1,45 +1,33 @@
 package com.mlin.notas.village;
 
 /**
- * Conta da terraplenagem de um anel (logica pura): quantas colunas ele tem, quantas ja estao na altura (trabalho do
- * jogador inclusive), quantos blocos sobram para cortar e faltam para aterrar, e o preco: esmeraldas fixas do anel
- * proporcionais ao que falta e 1 terra/pedregulho a cada {@link RingWork#FILL_PER_ITEM} blocos de aterro que o corte
- * e o estoque da vila nao cobrem. Colunas de jogador ficam de fora (nunca sao mexidas).
+ * Preco FIXO da terraplenagem de um anel (logica pura, Vilas 3.0): o campo de alturas ja diz a altura final de cada
+ * coluna, entao o preco nao depende mais do terreno de agora. Esmeraldas em {@link MasterPlan#RING_EMERALDS} e uma
+ * quantidade fixa de terra/pedregulho por anel ({@link #FILL_ITEMS}), que a pedreira da vila abate
+ * ({@link com.mlin.notas.village.CraftsRules#quarryFillCredit}, em blocos de aterro = {@link RingWork#FILL_PER_ITEM} por item).
+ *
+ * <p>Tabela de terra (itens, aneis 1..7): 16, 32, 48, 64, 96, 128, 96. Escala com a area de cada anel (o 1 e o miolo da
+ * praca, o 5 e o 6 sao os maiores) e fica entre meia pilha e duas pilhas, juntavel numa sessao de escavacao; nao e o
+ * volume real (o corte do proprio anel ja alimenta o aterro e o mundo novo nasce quase pronto).
  */
-public record RingCost(int columns, int ready, int cut, int fill, int emeralds, int fillItems) {
-	/** Preco do anel {@code ring} com o terreno de agora. */
-	public static RingCost of(MasterPlan plan, int ring, Terrain terrain, int stockpile) {
-		int columns = 0;
-		int ready = 0;
-		int cut = 0;
-		int fill = 0;
-		for (long col : plan.columns(ring)) {
-			int x = VillageLayout.colX(col);
-			int z = VillageLayout.colZ(col);
-			int h = plan.plannedHeight(x, z);
-			boolean street = plan.ground(x, z);
-			if (!street && terrain.playerBuilt(x, z)) {
-				continue;
-			}
-			columns++;
-			int bed = terrain.bed(x, z);
-			int water = terrain.water(x, z);
-			if (bed == h && water == 0) {
-				ready++;
-				continue;
-			}
-			cut += Math.max(0, bed - h);
-			fill += Math.max(0, h - bed);
-		}
-		int base = MasterPlan.RING_EMERALDS[Math.max(0, Math.min(MasterPlan.RINGS - 1, ring - 1))];
-		int unready = columns - ready;
-		int emeralds = unready <= 0 ? 0 : Math.max(1, (int) Math.ceil((double) base * unready / columns));
-		int items = (int) Math.ceil(Math.max(0, fill - cut - stockpile) / (double) RingWork.FILL_PER_ITEM);
-		return new RingCost(columns, ready, cut, fill, emeralds, items);
+public final class RingCost {
+	/** Itens de terra/pedregulho de cada anel (1..7). */
+	public static final int[] FILL_ITEMS = {16, 32, 48, 64, 96, 128, 96};
+
+	private RingCost() {
 	}
 
-	/** Estoque de terra da vila depois de aplainar o anel (sobra do corte paga aterro de outros aneis). */
-	public int stockpileAfter(int stockpile) {
-		return Math.max(0, stockpile + cut - fill);
+	private static int index(int ring) {
+		return Math.max(0, Math.min(MasterPlan.RINGS - 1, ring - 1));
+	}
+
+	/** Esmeraldas do anel. */
+	public static int emeralds(int ring) {
+		return MasterPlan.RING_EMERALDS[index(ring)];
+	}
+
+	/** Itens de terra do anel depois do credito da pedreira (em blocos de aterro). */
+	public static int fillItems(int ring, int quarryCreditBlocks) {
+		return Math.max(0, FILL_ITEMS[index(ring)] - quarryCreditBlocks / RingWork.FILL_PER_ITEM);
 	}
 }

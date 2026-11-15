@@ -263,6 +263,7 @@ public class ContentGen {
 		PolishContent.generate();
 		CrownContent.generate();
 		FieldContent.generate();
+		Terrain3Content.generate();
 		tag("block", "minecraft:mineable/pickaxe", pickaxeMineable, false);
 
 		// --- worldgen ---

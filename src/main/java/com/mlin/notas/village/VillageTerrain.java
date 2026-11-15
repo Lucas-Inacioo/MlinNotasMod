@@ -26,19 +26,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Lado servidor da terraplenagem do plano diretor: preco de cada anel lido do mundo (o que o jogador acertou a mao
- * baixa o preco e quarteirao inteiro na altura ja conta como pronto), entregas, a obra que aplaina o anel coluna por
- * coluna no mesmo ritmo das construcoes (cada coluna e lida do mundo na hora; so blocos naturais sao trocados;
- * arvores nascidas no mundo caem e, nos arredores, mudas sao replantadas; estacas nos cantos dos lotes no fim), a
- * conferencia do plato antes de cada bloco das obras e o gancho das casas de jogador (cama + porta).
+ * Lado servidor da terraplenagem do plano diretor (Vilas 3.0: "coluna := altura do campo"): preco fixo de cada anel
+ * ({@link RingCost}), entregas, a obra que leva cada coluna do anel para a altura do campo de alturas no mesmo ritmo das
+ * construcoes (a altura vem do plano, que adota o campo; so blocos naturais sao trocados, coluna com bloco de jogador
+ * fica como esta; arvores nascidas no mundo caem e, nos arredores, mudas sao replantadas; estacas nos cantos dos lotes
+ * no fim) e o gancho das casas de jogador (cama + porta). Sem recalculo de volume, sem conferir plato, sem pausa.
  */
 public final class VillageTerrain {
 	/** Blocos solidos por tick (o mesmo das obras). */
 	public static final int BLOCKS_PER_TICK = VillageBuilder.BLOCKS_PER_TICK;
 	/** Colunas olhadas por tick no maximo (colunas ja prontas sao baratas). */
 	public static final int COLUMNS_PER_TICK = 48;
-	/** A cada quantos ticks uma obra parada confere de novo o plato. */
-	public static final int PAUSE_RECHECK = 100;
 
 	private static final Map<String, List<Long>> COLUMNS = new HashMap<>();
 
@@ -90,41 +88,18 @@ public final class VillageTerrain {
 		WorldTerrain terrain = new WorldTerrain(level, VillageServer.center(village));
 		VillageLayout layout = village.layout();
 		VillageData data = VillageData.get(level.getServer());
-		VillageLevel up = null;
+		// preco fixo da tabela (RingCost), abatido pela pedreira da vila; nao le o terreno
+		int credit = CraftsRules.quarryFillCredit(VillageBuildings.level(village, CraftsBuildings.QUARRY));
 		for (int ring = 1; ring <= MasterPlan.RINGS; ring++) {
 			RingWork work = village.ring(ring);
-			if (!fundable(village, ring) || work.done() || data.terrainJob(village.key()) != null && data.terrainJob(village.key()).ring == ring) {
-				continue;
-			}
-			// quarteirao inteiro na altura conta como pronto
-			Map<Integer, Boolean> ready = new HashMap<>();
-			for (long col : columns(village, plan, ring)) {
-				int x = VillageLayout.colX(col);
-				int z = VillageLayout.colZ(col);
-				MasterPlan.Block block = plan.blockAt(x, z);
-				if (block == null || terrain.playerBuilt(x, z)) {
-					continue;
-				}
-				boolean at = terrain.bed(x, z) == block.target() && terrain.water(x, z) == 0;
-				ready.merge(block.id(), at, Boolean::logicalAnd);
-			}
-			ready.forEach((id, ok) -> {
-				if (ok) {
-					plan.block(id).setPrepared(true);
-				}
-			});
-			work.setCost(RingCost.of(plan, ring, terrain, village.stockpile() + CraftsRules.quarryFillCredit(VillageBuildings.level(village, CraftsBuildings.QUARRY))));
-			if (work.state() == RingWork.State.OPEN && work.emeralds() == 0 && work.columns() > 0 && work.ready() >= work.columns()) {
-				work.setState(RingWork.State.DONE);
-				plan.setRingPrepared(ring);
-				VillageLevel u = village.recompute();
-				up = u != null ? u : up;
+			if (fundable(village, ring)) {
+				work.reprice(credit);
 			}
 		}
 		refreshPlayerLots(level, village, plan, terrain, layout);
 		VillageLevel h = village.setPlayerHouses(countPlayerHouses(level, village, plan, terrain));
 		data.changed();
-		return h != null ? h : up;
+		return h;
 	}
 
 	/** Lote do plano onde apareceu construcao de jogador vira "lote do jogador" (a vila nunca mexe nele). */
@@ -233,11 +208,6 @@ public final class VillageTerrain {
 			return false;
 		}
 		refresh(level, village);
-		if (work.state() == RingWork.State.DONE) {
-			notify(player, Component.translatable("message.mlinnotas.village.terrain.ready_by_hand", ring));
-			VillageServer.sync(server, village);
-			return true;
-		}
 		Map<String, Integer> available = new LinkedHashMap<>();
 		for (VillageCost cost : work.costs()) {
 			available.put(cost.id(), ContainerHelper.clearOrCountMatchingItems(player.getInventory(), SkillServer.matcher(cost.id()), Integer.MAX_VALUE,
@@ -373,6 +343,9 @@ public final class VillageTerrain {
 		}
 		List<Placement> placements = TerrainWork.column(x, z, s[0], s[2], target, street, (nx, nz) -> {
 			int h = plan.plannedHeight(nx, nz);
+			if (h == Integer.MIN_VALUE && plan.field() != null) {
+				h = plan.field().heightRel(nx, nz);
+			}
 			return h != Integer.MIN_VALUE ? h : natural.bed(nx, nz);
 		}, TerrainWork.sapling(plan, x, z));
 		int solids = 0;
@@ -454,7 +427,6 @@ public final class VillageTerrain {
 		RingWork work = village.ring(job.ring);
 		plan.setRingPrepared(job.ring);
 		work.setState(RingWork.State.DONE);
-		village.setStockpile(Math.max(0, village.stockpile() + work.cut() - work.filled()));
 		COLUMNS.keySet().removeIf(k -> k.startsWith(village.key() + "#" + job.ring + "#"));
 		server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.terrain.done", village.name(), job.ring)
 				.withStyle(ChatFormatting.GREEN), false);
@@ -533,16 +505,5 @@ public final class VillageTerrain {
 			plan.block(id).setPrepared(true);
 		}
 		VillageData.get(level.getServer()).changed();
-	}
-
-	// ---------------------------------------------------------------- conferencia do plato
-
-	/**
-	 * A coluna (x, z relativos) ainda esta no plato: sem agua, sem nada de jogador e o chao a no maximo 1 da altura
-	 * (o acerto fino da obra cuida de 1). Mais que isso a obra para em vez de construir torto.
-	 */
-	public static boolean plateauOk(ServerLevel level, VillageState village, int x, int z, int target) {
-		int[] s = WorldTerrain.scan(level, village.x() + x, village.z() + z, false);
-		return s[2] == 0 && s[1] == 1 && Math.abs(s[0] - target) <= 1;
 	}
 }

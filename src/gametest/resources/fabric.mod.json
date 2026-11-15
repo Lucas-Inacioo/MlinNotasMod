@@ -31,6 +31,7 @@
 			"com.mlin.notas.gametest.VillageGameTest",
 			"com.mlin.notas.gametest.Village2GameTest",
 			"com.mlin.notas.gametest.Village3GameTest",
+			"com.mlin.notas.gametest.Terrain3GameTest",
 			"com.mlin.notas.gametest.VillageFieldGameTest",
 			"com.mlin.notas.gametest.Village4GameTest",
 			"com.mlin.notas.gametest.VillagersGameTest",
@@ -89,7 +90,8 @@
 			"com.mlin.notas.gametest.CivicClientGameTest",
 			"com.mlin.notas.gametest.CraftsClientGameTest",
 			"com.mlin.notas.gametest.PolishClientGameTest",
-			"com.mlin.notas.gametest.CrownClientGameTest"
+			"com.mlin.notas.gametest.CrownClientGameTest",
+			"com.mlin.notas.gametest.Terrain3ClientGameTest"
 		]
 	},
 	"depends": {

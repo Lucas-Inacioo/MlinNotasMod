@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Terraplenagem por anel (corte, aterro, arrimo, agua), preco, niveis novos e o formato salvo de hoje. */
@@ -66,49 +67,79 @@ class TerrainWorkTest {
 	}
 
 	@Test
-	void ringPriceDropsWithWorkDoneByHandAndUsesTheStockpile() {
-		VillagePlannerTest.FakeTerrain terrain = new VillagePlannerTest.FakeTerrain((x, z) -> 64 + Math.floorDiv(x, 4));
-		MasterPlan plan = MasterPlanTest.plan(terrain, 21);
-		RingCost raw = RingCost.of(plan, 3, terrain, 0);
-		assertTrue(raw.columns() > 500, "colunas do anel 3: " + raw.columns());
-		assertTrue(raw.emeralds() >= MasterPlan.RING_EMERALDS[2] - 2, "anel cru paga quase o preco cheio: " + raw.emeralds());
-		assertTrue(raw.cut() > 0 && raw.fill() > 0);
-		// o jogador acertou metade do anel a mao
-		List<Long> cols = plan.columns(3);
-		for (int i = 0; i < cols.size() / 2; i++) {
-			int x = VillageLayout.colX(cols.get(i));
-			int z = VillageLayout.colZ(cols.get(i));
-			terrain.moved.put(VillagePlannerTest.FakeTerrain.col(x, z), plan.plannedHeight(x, z));
+	void ringPriceIsAFixedTable() {
+		int[] emeralds = {5, 10, 15, 20, 30, 40, 30};
+		int[] fill = {16, 32, 48, 64, 96, 128, 96};
+		for (int ring = 1; ring <= MasterPlan.RINGS; ring++) {
+			assertEquals(emeralds[ring - 1], RingCost.emeralds(ring), "esmeraldas do anel " + ring);
+			assertEquals(fill[ring - 1], RingCost.fillItems(ring, 0), "terra do anel " + ring);
+			RingWork work = new RingWork(ring);
+			assertEquals(emeralds[ring - 1], work.emeralds());
+			assertEquals(fill[ring - 1], work.fill());
 		}
-		RingCost half = RingCost.of(plan, 3, terrain, 0);
-		assertTrue(half.emeralds() < raw.emeralds() && half.emeralds() >= MasterPlan.RING_EMERALDS[2] / 2 - 1, "preco nao caiu: " + half.emeralds());
-		assertTrue(half.ready() >= cols.size() / 2 - 5);
-		// estoque grande de terra paga o aterro
-		assertEquals(0, RingCost.of(plan, 3, terrain, 1_000_000).fillItems());
-		// tudo pronto: de graca
-		terrain.prepare(plan, 3);
-		RingCost done = RingCost.of(plan, 3, terrain, 0);
-		assertEquals(0, done.emeralds());
-		assertEquals(done.columns(), done.ready());
+		// a pedreira abate a terra (credito em blocos de aterro, 4 por item), nunca abaixo de zero
+		assertEquals(96 - 320 / RingWork.FILL_PER_ITEM, RingCost.fillItems(5, 320));
+		assertEquals(0, RingCost.fillItems(1, 320));
+		assertEquals(16 - 60 / RingWork.FILL_PER_ITEM, RingCost.fillItems(1, 60));
 	}
 
 	@Test
 	void ringDepositsArePartialAndClose() {
 		RingWork work = new RingWork(2);
-		work.setCost(new RingCost(100, 20, 30, 50, 8, 5));
-		assertEquals(8, work.emeralds());
+		assertEquals(10, work.emeralds());
 		Map<String, Integer> first = work.deposit(Map.of(RingWork.EMERALD, 3));
 		assertEquals(Map.of(RingWork.EMERALD, 3), first);
 		assertFalse(work.paidOff());
 		work.deposit(Map.of(RingWork.EMERALD, 64, RingWork.FILL, 64));
 		assertTrue(work.paidOff());
-		assertEquals(8, work.depositedEmeralds());
-		assertEquals(5, work.depositedFill());
-		// pago: o preco nao muda mais
+		assertEquals(10, work.depositedEmeralds());
+		assertEquals(32, work.depositedFill());
+		// pago: o preco nao muda mais, nem com pedreira nova
 		work.setState(RingWork.State.QUEUED);
-		work.setCost(new RingCost(100, 100, 0, 0, 0, 0));
-		assertEquals(8, work.emeralds());
+		work.reprice(10_000);
+		assertEquals(10, work.emeralds());
+		assertEquals(32, work.fill());
+		// aberto: a pedreira baixa o que falta
+		RingWork open = new RingWork(3);
+		open.reprice(160);
+		assertEquals(48 - 40, open.fill());
 	}
+
+	@Test
+	void ringColumnsAreBroughtToTheFieldHeight() {
+		for (String name : List.of("slope", "mountain_side", "noisy")) {
+			HeightFieldBuilder.Result result = HeightFieldTest.cached(name, 11);
+			MasterPlan plan = result.plan();
+			HeightField field = result.field();
+			assertSame(field, plan.field(), "o plano esta ligado ao campo");
+			HeightFieldBuilder.Natural natural = HeightFieldTest.terrains(11).get(name);
+			int checked = 0;
+			for (int ring = 1; ring <= MasterPlan.RINGS; ring++) {
+				for (long col : plan.columns(ring)) {
+					int x = VillageLayout.colX(col);
+					int z = VillageLayout.colZ(col);
+					int target = plan.plannedHeight(x, z);
+					assertEquals(field.heightRel(x, z), target, name + ": plano segue o campo em " + x + "," + z);
+					int ground = natural.ground(x, z);
+					List<Placement> placements = TerrainWork.column(x, z, ground, 0, target, plan.ground(x, z), (nx, nz) -> {
+						int h = plan.plannedHeight(nx, nz);
+						return h != Integer.MIN_VALUE ? h : field.heightRel(nx, nz);
+					}, false);
+					// o que passa do alvo sai e o alvo vira grama/caminho (ou ja era o chao): a coluna fica no alvo
+					for (int y = target + 1; y <= ground + 1; y++) {
+						int yy = y;
+						assertTrue(placements.stream().noneMatch(p -> p.y() == yy && p.part() != VPart.AIR && p.part() != VPart.DRAIN),
+								name + ": bloco acima do alvo em " + x + "," + z);
+					}
+					assertTrue(ground == target && !plan.ground(x, z) || placements.stream().anyMatch(p -> p.y() == target
+							&& (p.part() == VPart.TURF || p.part() == VPart.PATH)), name + ": sem topo no alvo em " + x + "," + z);
+					checked++;
+				}
+			}
+			assertTrue(checked > 3000, name + ": colunas dos aneis " + checked);
+		}
+	}
+
 
 	@Test
 	void newLevelsAreAppendedAndNeedTheirRingPrepared() {
@@ -211,7 +242,6 @@ class TerrainWorkTest {
 		}
 		// e o formato novo volta igual, com a terraplenagem
 		v.ring(1).setState(RingWork.State.DONE);
-		v.setStockpile(37);
 		var json = VillageData.VILLAGE_CODEC.encodeStart(JsonOps.INSTANCE, v).getOrThrow();
 		VillageState again = VillageData.VILLAGE_CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
 		MasterPlan back = again.layout().master();
@@ -220,7 +250,6 @@ class TerrainWorkTest {
 		assertEquals(java.util.Arrays.toString(master.gridRle()), java.util.Arrays.toString(back.gridRle()));
 		assertEquals(java.util.Arrays.toString(master.streetHeights()), java.util.Arrays.toString(back.streetHeights()));
 		assertTrue(again.ring(1).done());
-		assertEquals(37, again.stockpile());
 		for (VillageLayout.Lot lot : again.layout().lots()) {
 			assertEquals(layout.lot(lot.id()).parcel(), lot.parcel());
 		}

@@ -589,28 +589,8 @@ public final class VillageServer {
 				data.endJob(job.village);
 				continue;
 			}
-			if (job.paused()) {
-				// obra parada (plato mexido): confere de novo de tempos em tempos e continua quando o chao voltar
-				if (now % VillageTerrain.PAUSE_RECHECK == 0 && VillageTerrain.plateauOk(level, village, VillageLayout.colX(job.pausedAt),
-						VillageLayout.colZ(job.pausedAt), job.ground)) {
-					job.markVerified(job.pausedAt);
-					job.pausedAt = Long.MIN_VALUE;
-					data.changed();
-					server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.resumed", village.name(),
-							projectName(job.project)).withStyle(ChatFormatting.GREEN), false);
-				}
-				continue;
-			}
 			boolean finished = VillageBuilder.step(level, village, job, VillagePalette.of(village.style(), job.variant()));
 			data.changed();
-			if (job.paused()) {
-				int px = VillageLayout.colX(job.pausedAt);
-				int pz = VillageLayout.colZ(job.pausedAt);
-				server.getPlayerList().broadcastSystemMessage(Component.translatable("message.mlinnotas.village.paused", village.name(),
-						projectName(job.project), village.x() + px, job.ground, village.z() + pz).withStyle(ChatFormatting.RED), false);
-				sync(server, village);
-				continue;
-			}
 			if (finished) {
 				finish(server, level, village, job);
 			} else if (now % 20 == 0) {
@@ -713,6 +693,10 @@ public final class VillageServer {
 			lot.setPreferred(false);
 			lot.setPaid(village.queuedPaid(job.project));
 			data.putRecord(village.key(), lot.id(), job.buildRecord());
+		}
+		if (job.project == VillageProject.WALL || job.project == VillageProject.OUTER_WALL) {
+			// blocos da muralha anotados (chave negativa) para o /village admin rebuild_walls tirar so o que a vila colocou
+			data.putRecord(village.key(), WallRebuild.recordKey(job.project), job.buildRecord());
 		}
 		VillageLevel up = village.finishBuild(job.project);
 		data.changed();

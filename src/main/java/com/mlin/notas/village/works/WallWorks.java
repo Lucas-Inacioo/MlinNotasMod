@@ -197,13 +197,11 @@ public final class WallWorks {
 			if (!gate.axis()) {
 				continue;
 			}
-			// viga na passagem e lanterna pendurada
+			// viga na passagem (a passagem fica livre ate base + 4: nada pendurado)
 			String axisState = gate.alongX() ? "[axis=x]" : "[axis=z]";
 			for (int[] c : gate.cells()) {
 				bp.above(c[0], base + 5, c[1], m.log() + axisState);
 			}
-			int[] mid = gate.cells().get(gate.cells().size() / 2);
-			bp.above(mid[0], base + 4, mid[1], Mats.lantern(true));
 			// folhas abertas nas pontas da passagem
 			String facing = gate.alongX() ? "north" : "west";
 			int[] first = gate.cells().getFirst();

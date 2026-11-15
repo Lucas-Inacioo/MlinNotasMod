@@ -204,6 +204,8 @@ public final class MasterPlan {
 	private int version = VERSION;
 	/** Colunas com decoracao das obras publicas (nao contam como construcao de jogador); preenchido pelo servidor, nao salvo. */
 	private java.util.Set<Long> ownedColumns = java.util.Set.of();
+	/** Campo de alturas fixo da vila inicial (Vilas 3.0), ligado pelo servidor; nao salvo. Null = plano sem campo (testes, vilas de fora). */
+	private HeightField field;
 
 	public MasterPlan(long seed, int extent, int plazaY, int[] grid, byte[] rings, int[] heights, List<Block> blocks, List<Parcel> parcels,
 			List<VillageState.Rect> playerAreas, List<VillageState.Rect> fixedAreas) {
@@ -224,6 +226,44 @@ public final class MasterPlan {
 
 	public void setOwnedColumns(java.util.Set<Long> columns) {
 		this.ownedColumns = columns;
+	}
+
+	/** Campo de alturas fixo ligado a este plano (null = nenhum): muralhas e portoes leem as alturas dele. */
+	public HeightField field() {
+		return field;
+	}
+
+	/**
+	 * Liga o campo de alturas e passa as alturas dele para o plano: toda altura alvo da vila (plato, rua) passa a ser a do
+	 * campo, que e a autoridade (para vila nova os dois ja concordam; vila antiga tem os pinos do que ja foi feito). A
+	 * praca fica em {@link #plazaY()}. Idempotente.
+	 */
+	public void adoptField(HeightField field) {
+		this.field = field;
+		if (field == null) {
+			return;
+		}
+		java.util.Map<Integer, java.util.Map<Integer, Integer>> votes = new java.util.HashMap<>();
+		for (int x = -extent; x <= extent; x++) {
+			for (int z = -extent; z <= extent; z++) {
+				int i = idx(x, z);
+				int h = field.heightRel(x, z);
+				if (h == Integer.MIN_VALUE) {
+					continue;
+				}
+				if (grid[i] >= BLOCK) {
+					votes.computeIfAbsent(grid[i] - BLOCK, k -> new java.util.HashMap<>()).merge(h, 1, Integer::sum);
+				} else if (grid[i] >= STREET && grid[i] < BRIDGE) {
+					heights[i] = h;
+				}
+			}
+		}
+		for (Block b : blocks) {
+			java.util.Map<Integer, Integer> v = votes.get(b.id);
+			if (v != null) {
+				b.setTarget(v.entrySet().stream().max(java.util.Map.Entry.comparingByValue()).get().getKey());
+			}
+		}
 	}
 
 	/** Versao do plano (1 = subdivisao esparsa de antes das obras publicas). */
@@ -410,7 +450,9 @@ public final class MasterPlan {
 		for (int x = -extent; x <= extent; x++) {
 			for (int z = -extent; z <= extent; z++) {
 				int i = idx(x, z);
-				if (rings[i] == ring && grid[i] >= STREET && grid[i] < BRIDGE) {
+				// avenidas que atravessam a muralha externa: os 3 blocos de cada lado da linha (rua plana do portao) vao tambem com o anel 6
+				boolean outerGate = ring == 6 && rings[i] == RuralRing.RING && HeightFieldBuilder.gateWall(this, x, z) == HeightField.Wall.OUTER;
+				if ((rings[i] == ring || outerGate) && grid[i] >= STREET && grid[i] < BRIDGE) {
 					out.add(VillageLayout.col(x, z));
 				}
 			}

@@ -145,7 +145,8 @@ public final class CrownWorks {
 		String[] flowers = {"minecraft:potted_red_tulip", "minecraft:potted_cornflower", "minecraft:potted_oxeye_daisy", "minecraft:potted_azure_bluet"};
 		for (int x = -h; x <= h; x++) {
 			for (int z = -h; z <= h; z++) {
-				if (!VillagePlanner.wallCell(x, z) || !ctx.free(x, z)) {
+				if (!VillagePlanner.wallCell(x, z) || !ctx.free(x, z) || ctx.plan().street(x, z)) {
+					// a passagem dos portoes (rua) fica livre: nada de poste nem vaso
 					continue;
 				}
 				int top = ctx.columnTop().apply(x, z);

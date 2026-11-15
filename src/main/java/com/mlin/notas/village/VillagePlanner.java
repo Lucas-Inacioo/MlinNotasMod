@@ -476,6 +476,12 @@ public final class VillagePlanner {
 	 * cada lado, com rua de terra ate a praca. Colunas que nao estao livres (casas, caminhos, agua) ficam abertas.
 	 */
 	static Planned wall(VillageState state, Terrain terrain) {
+		MasterPlan master = state.layout() == null ? null : state.layout().master();
+		if (master != null && master.field() != null) {
+			// Vilas 3.0: alturas, pes e portoes lidos do campo fixo (a muralha nunca fica enterrada nem fecha a rua)
+			StoneWallPlanner.Result r = StoneWallPlanner.plan(master.field(), terrain);
+			return new Planned(VillageProject.WALL, null, r.placements(), List.of(), r.golems().subList(0, Math.min(1, r.golems().size())));
+		}
 		List<Placement> out = new ArrayList<>();
 		int h = WALL_HALF;
 		Set<Long> towerCells = new HashSet<>();

@@ -118,7 +118,7 @@ class VillageLayoutTest {
 		}
 		VillageState v = village(VillageLevel.CAPITAL);
 		VillageLayout layout = new VillageLayout();
-		layout.addProtected(new VillageState.Rect(-40, -40, -20, -20));
+		layout.restore(0, 0, List.of(), List.of(), List.of(), List.of(new VillageState.Rect(-40, -40, -20, -20)));
 		v.setLayout(layout);
 		layout.extend(v, terrain, VillageLevel.CAPITAL);
 		for (VillageLayout.Lot lot : layout.lots()) {

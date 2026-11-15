@@ -146,12 +146,12 @@ public class VillageData extends SavedData {
 			Codec.INT.optionalFieldOf("dep_fill", 0).forGetter(RingWork::depositedFill),
 			Codec.INT.optionalFieldOf("columns", 0).forGetter(RingWork::columns),
 			Codec.INT.optionalFieldOf("ready", 0).forGetter(RingWork::ready),
-			Codec.INT.optionalFieldOf("cut", 0).forGetter(RingWork::cut),
-			Codec.INT.optionalFieldOf("filled", 0).forGetter(RingWork::filled),
+			Codec.INT.optionalFieldOf("cut", 0).forGetter(w -> 0),
+			Codec.INT.optionalFieldOf("filled", 0).forGetter(w -> 0),
 			INT_MAP.optionalFieldOf("paid", Map.of()).forGetter(RingWork::paid)
 	).apply(i, (ring, state, emeralds, fill, depE, depF, columns, ready, cut, filled, paid) -> {
 		RingWork w = new RingWork(ring);
-		w.restore(RingWork.State.byOrdinal(state), emeralds, fill, depE, depF, columns, ready, cut, filled, paid);
+		w.restore(RingWork.State.byOrdinal(state), emeralds, fill, depE, depF, columns, ready, paid);
 		return w;
 	}));
 
@@ -160,7 +160,7 @@ public class VillageData extends SavedData {
 
 	private static final Codec<TerrainPart> TERRAIN_CODEC = RecordCodecBuilder.create(i -> i.group(
 			RING_CODEC.listOf().optionalFieldOf("rings", List.of()).forGetter(TerrainPart::rings),
-			Codec.INT.optionalFieldOf("stockpile", 0).forGetter(TerrainPart::stockpile),
+			Codec.INT.optionalFieldOf("stockpile", 0).forGetter(t -> 0),
 			Codec.INT.optionalFieldOf("player_houses", 0).forGetter(TerrainPart::playerHouses)
 	).apply(i, TerrainPart::new));
 
@@ -211,13 +211,13 @@ public class VillageData extends SavedData {
 			CORE_CODEC.fieldOf("core").forGetter(VillageData::core),
 			PROGRESS_CODEC.fieldOf("progress").forGetter(VillageData::progress),
 			LAYOUT_CODEC.optionalFieldOf("layout").forGetter(v -> Optional.ofNullable(v.layout())),
-			TERRAIN_CODEC.optionalFieldOf("terrain").forGetter(v -> v.ringWorks().isEmpty() && v.stockpile() == 0 && v.playerHouses() == 0
-					? Optional.empty() : Optional.of(new TerrainPart(v.ringWorks(), v.stockpile(), v.playerHouses()))),
+			TERRAIN_CODEC.optionalFieldOf("terrain").forGetter(v -> v.ringWorks().isEmpty() && v.playerHouses() == 0
+					? Optional.empty() : Optional.of(new TerrainPart(v.ringWorks(), 0, v.playerHouses()))),
 			BuildingsCodec.CODEC.optionalFieldOf("buildings").forGetter(v -> v.buildingsState().isEmpty() ? Optional.empty()
 					: Optional.of(v.buildingsState()))
 	).apply(i, (core, progress, layout, terrain, buildings) -> {
 		VillageState v = fromParts(core, progress, layout);
-		terrain.ifPresent(t -> v.restoreTerrain(t.rings(), t.stockpile(), t.playerHouses()));
+		terrain.ifPresent(t -> v.restoreTerrain(t.rings(), t.playerHouses()));
 		buildings.ifPresent(b -> BuildingsCodec.copy(b, v.buildingsState()));
 		return v;
 	}));
@@ -276,34 +276,8 @@ public class VillageData extends SavedData {
 		private final List<Long> recordPositions = new ArrayList<>();
 		private final List<Integer> recordBlocks = new ArrayList<>();
 		private final List<String> recordPalette = new ArrayList<>();
-		/** Coluna (x, z empacotados) onde a obra parou porque o plato foi mexido; {@link Long#MIN_VALUE} = andando. */
-		public long pausedAt = Long.MIN_VALUE;
 		/** Melhoria no lugar: nivel que a obra do lote ganha no fim (0 = obra nova). */
 		public int upgradeTo;
-		/** Colunas do lote ja conferidas nesta execucao (nao salvo; as com bloco registrado contam como conferidas). */
-		private final java.util.Set<Long> verified = new java.util.HashSet<>();
-
-		public boolean paused() {
-			return pausedAt != Long.MIN_VALUE;
-		}
-
-
-		public boolean isVerified(long col) {
-			return verified.contains(col);
-		}
-
-		public void markVerified(long col) {
-			verified.add(col);
-		}
-
-		/** Colunas (x, z absolutos empacotados como col) com bloco registrado: ja comecadas antes de reiniciar. */
-		public java.util.Set<Long> recordedColumns() {
-			java.util.Set<Long> out = new java.util.HashSet<>();
-			for (long pos : recordPositions) {
-				out.add(VillageLayout.col(net.minecraft.core.BlockPos.getX(pos), net.minecraft.core.BlockPos.getZ(pos)));
-			}
-			return out;
-		}
 
 		public Job(String village, VillageProject project, long[] positions, int[] parts, int[] spawns, int[] golems, int index) {
 			this(village, project, positions, parts, spawns, golems, index, -1, 0);
@@ -393,12 +367,11 @@ public class VillageData extends SavedData {
 			longs("rec_positions").forGetter(j -> j.recordPositions.stream().mapToLong(Long::longValue)),
 			ints("rec_blocks").forGetter(j -> j.recordBlocks.stream().mapToInt(Integer::intValue)),
 			Codec.STRING.listOf().optionalFieldOf("rec_palette", List.of()).forGetter(j -> j.recordPalette),
-			Codec.LONG.optionalFieldOf("paused_at", Long.MIN_VALUE).forGetter(j -> j.pausedAt),
+			Codec.LONG.optionalFieldOf("paused_at", Long.MIN_VALUE).forGetter(j -> Long.MIN_VALUE),
 			Codec.INT.optionalFieldOf("upgrade_to", 0).forGetter(j -> j.upgradeTo)
 	).apply(i, (village, project, positions, parts, spawns, golems, index, lot, ground, recPos, recBlocks, recPalette, paused, upgradeTo) -> {
 		Job job = new Job(village, VillageProject.byId(project), positions.toArray(), parts.toArray(), spawns.toArray(), golems.toArray(), index, lot,
 				ground);
-		job.pausedAt = paused;
 		job.upgradeTo = upgradeTo;
 		long[] rp = recPos.toArray();
 		int[] rb = recBlocks.toArray();

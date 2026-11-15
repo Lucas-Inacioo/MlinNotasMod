@@ -23,18 +23,14 @@ class Village3Content {
 		text("gui.mlinnotas.village.terrain.next_level", "Abre o próximo nível da vila", "Opens the next village level");
 		text("gui.mlinnotas.village.terrain.ready_count", "%s de %s colunas já na altura", "%s of %s columns already at height");
 		text("gui.mlinnotas.village.terrain.desc",
-				"Aplaina os quarteirões e as ruas do anel %s: corta o que sobra, aterra o que falta (pedra no fundo, muro de arrimo na borda "
+				"Leva cada coluna do anel %s para a altura final da vila: corta o que sobra, aterra o que falta (pedra no fundo, muro de arrimo na borda "
 						+ "alta), seca poças rasas, corta árvores e põe estacas nos cantos dos lotes. Nenhuma obra é feita em terreno cru, e o "
-						+ "nível da vila só sobe com o anel pronto. O que você já aplainou a mão baixa o preço.",
-				"Levels the blocks and streets of ring %s: cuts what is too high, fills what is too low (stone at the bottom, retaining wall "
+						+ "nível da vila só sobe com o anel pronto.",
+				"Brings every column of ring %s to the final village height: cuts what is too high, fills what is too low (stone at the bottom, retaining wall "
 						+ "on tall edges), drains shallow puddles, fells trees and stakes the lot corners. Nothing is ever built on raw ground, "
-						+ "and the village only levels up once the ring is done. Whatever you already levelled by hand lowers the price.");
-		text("gui.mlinnotas.village.terrain.earthwork", "Corte: %s blocos · aterro: %s · estoque de terra da vila: %s",
-				"Cut: %s blocks · fill: %s · village earth stockpile: %s");
+						+ "and the village only levels up once the ring is done.");
 		text("message.mlinnotas.village.terrain.locked", "O anel %s ainda não abriu nesta vila", "Ring %s is not open in this village yet");
 		text("message.mlinnotas.village.terrain.already", "A terraplenagem do anel %s já está paga", "Ring %s earthworks are already paid");
-		text("message.mlinnotas.village.terrain.ready_by_hand", "O anel %s já está todo na altura: pronto sem custo!",
-				"Ring %s is already at height everywhere: done for free!");
 		text("message.mlinnotas.village.terrain.funded", "%s pagou a terraplenagem do anel %s de %s", "%s paid for ring %s earthworks in %s");
 		text("message.mlinnotas.village.terrain.nothing", "Você não tem nada do que falta para o anel %s",
 				"You have nothing of what ring %s still needs");
@@ -44,10 +40,6 @@ class Village3Content {
 				"%s finished ring %s earthworks: the blocks are ready for buildings");
 
 		// --- obra parada pelo terreno ---
-		text("message.mlinnotas.village.paused",
-				"A obra de %2$s em %1$s parou: o chão do lote foi mexido em %3$s, %4$s, %5$s. Acerte o chão nessa altura e ela continua sozinha.",
-				"The %2$s in %1$s stopped: the lot ground was changed at %3$s, %4$s, %5$s. Put the ground back at that height and it resumes.");
-		text("message.mlinnotas.village.resumed", "A obra de %2$s em %1$s voltou a andar", "The %2$s in %1$s is moving again");
 		text("gui.mlinnotas.village.status.paused", "parada: chão mexido", "stopped: ground changed");
 		text("gui.mlinnotas.village.status.unprepared", "falta terraplenagem", "needs earthworks");
 		text("gui.mlinnotas.village.status.player", "lote do jogador", "player lot");

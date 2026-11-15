@@ -612,8 +612,6 @@ public class VillageBoardScreen extends Screen {
 		if (rowHover && !hover(mouseX, mouseY, x + 150, y, r, y + PROJECT_ROW)) {
 			List<FormattedCharSequence> tip = new ArrayList<>(font.split(Component.translatable("gui.mlinnotas.village.terrain.desc", ring)
 					.withStyle(ChatFormatting.GRAY), 240));
-			tip.add(Component.translatable("gui.mlinnotas.village.terrain.earthwork", work.cut(), work.filled(), s.stockpile())
-					.withStyle(ChatFormatting.DARK_AQUA).getVisualOrderText());
 			graphics.setTooltipForNextFrame(font, tip, mouseX, mouseY);
 		}
 	}

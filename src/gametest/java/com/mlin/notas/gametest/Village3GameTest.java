@@ -259,7 +259,7 @@ public class Village3GameTest {
 	}
 
 	@GameTest(maxTicks = 200, environment = "mlinnotas-gametest:village3")
-	public void workDoneByHandLowersThePriceAndPlayerBlocksStay(GameTestHelper helper) {
+	public void workDoneByHandKeepsTheFixedPriceAndPlayerBlocksStay(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		int x = 72_000 + RUN;
 		site(helper, x, (dx, dz) -> Math.floorDiv(dx, 4));
@@ -288,7 +288,7 @@ public class Village3GameTest {
 		if (plan.playerAreas().isEmpty()) {
 			throw new IllegalStateException("a casa do jogador deveria virar area de jogador");
 		}
-		// preco cheio do anel 2 e depois de acertar metade a mao
+		// preco fixo do anel 2: acertar metade a mao nao muda a tabela
 		VillageTerrain.refresh(level, village);
 		int full = village.ring(2).emeralds();
 		java.util.List<Long> cols = plan.columns(2);
@@ -304,8 +304,8 @@ public class Village3GameTest {
 		}
 		VillageTerrain.refresh(level, village);
 		int half = village.ring(2).emeralds();
-		if (!(half < full)) {
-			throw new IllegalStateException("acertar o chao a mao deveria baixar o preco (" + full + " -> " + half + ")");
+		if (half != full || full != com.mlin.notas.village.RingCost.emeralds(2)) {
+			throw new IllegalStateException("o preco do anel e fixo (" + full + " -> " + half + ")");
 		}
 		// nada da casa muda com a terraplenagem dos aneis 2 e 3
 		VillageTerrain.prepareNow(level, village, 2, false);
@@ -357,7 +357,7 @@ public class Village3GameTest {
 	}
 
 	@GameTest(maxTicks = 1200, environment = "mlinnotas-gametest:village3")
-	public void builderPausesWhenTheLotGroundIsDugAndResumes(GameTestHelper helper) {
+	public void builderKeepsGoingWhenTheLotGroundIsDug(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		int x = 74_000 + RUN;
 		site(helper, x, (dx, dz) -> 0);
@@ -370,32 +370,13 @@ public class Village3GameTest {
 		}
 		VillageLayout.Lot lot = village.layout().lot(job.lot);
 		VillageState.Rect r = lot.rect();
-		// cava 2 blocos no canto do lote, longe de onde a obra comeca (de cima para baixo, o ar vai primeiro)
+		// cava 2 blocos no canto do lote: sem pausa por "chao mexido", a obra segue e termina
 		BlockPos hole = at(village, r.x1(), job.ground, r.z1());
 		level.setBlock(hole, Blocks.AIR.defaultBlockState(), 3);
 		level.setBlock(hole.below(), Blocks.AIR.defaultBlockState(), 3);
-		boolean[] paused = {false};
-		boolean[] fixed = {false};
-		helper.onEachTick(() -> {
-			VillageData.Job j = VillageData.get(level.getServer()).job(village.key());
-			if (j != null && j.paused() && !fixed[0]) {
-				paused[0] = true;
-				if (VillagePlanning.overlay(level, village, 5).lots().stream().noneMatch(i -> i.status() == com.mlin.notas.village.VillagePayloads.LotStatus.PAUSED
-						.ordinal())) {
-					throw helper.assertionException("contorno deveria marcar o lote parado");
-				}
-				// o jogador acerta o chao: a obra volta sozinha
-				level.setBlock(hole.below(), Blocks.DIRT.defaultBlockState(), 3);
-				level.setBlock(hole, Blocks.GRASS_BLOCK.defaultBlockState(), 3);
-				fixed[0] = true;
-			}
-		});
 		helper.succeedWhen(() -> {
 			if (village.built(VillageProject.HOUSE) < 1) {
-				throw helper.assertionException("casa ainda nao ficou pronta (parou: " + paused[0] + ")");
-			}
-			if (!paused[0]) {
-				throw helper.assertionException("a obra deveria parar com o chao do lote cavado");
+				throw helper.assertionException("casa ainda nao ficou pronta");
 			}
 			release(helper, village);
 		});

@@ -6,9 +6,8 @@ import java.util.Map;
 
 /**
  * Terraplenagem de um anel do plano diretor (logica pura): "Terraplenagem do anel N", paga com entregas parciais como
- * os projetos (esmeraldas fixas do anel + 1 terra/pedregulho a cada 4 blocos de aterro que o corte do proprio anel e
- * o estoque da vila nao cobrem). O custo cai junto com o que o jogador ja acertou a mao. Paga: entra na fila e a vila
- * aplaina o anel aos poucos; pronta: os quarteiroes do anel recebem obras e o nivel pode subir.
+ * os projetos, com o preco fixo de {@link RingCost} (esmeraldas + terra). Paga: entra na fila e a vila leva cada coluna
+ * do anel para a altura do campo de alturas aos poucos; pronta: os quarteiroes do anel recebem obras e o nivel pode subir.
  */
 public final class RingWork {
 	public static final String EMERALD = "minecraft:emerald";
@@ -35,16 +34,15 @@ public final class RingWork {
 	private int fill;
 	private int depositedEmeralds;
 	private int depositedFill;
-	/** Colunas do anel, ja prontas, blocos de corte e de aterro (ultima conta). */
+	/** Andamento da obra: colunas do anel e quantas ja foram aplainadas. */
 	private int columns;
 	private int ready;
-	private int cut;
-	private int filled;
 	private final Map<String, Integer> paid = new LinkedHashMap<>();
 
 	public RingWork(int ring) {
 		this.ring = ring;
-		this.emeralds = MasterPlan.RING_EMERALDS[Math.max(0, Math.min(MasterPlan.RINGS - 1, ring - 1))];
+		this.emeralds = RingCost.emeralds(ring);
+		this.fill = RingCost.fillItems(ring, 0);
 	}
 
 	public int ring() {
@@ -87,14 +85,6 @@ public final class RingWork {
 		return ready;
 	}
 
-	public int cut() {
-		return cut;
-	}
-
-	public int filled() {
-		return filled;
-	}
-
 	public Map<String, Integer> paid() {
 		return Map.copyOf(paid);
 	}
@@ -124,15 +114,14 @@ public final class RingWork {
 		return total == 0 ? 1 : (double) done / total;
 	}
 
-	/** Custo novo lido do terreno (o preco so muda enquanto aceita entregas). */
-	public void setCost(RingCost cost) {
-		columns = cost.columns();
-		ready = cost.ready();
-		cut = cost.cut();
-		filled = cost.fill();
+	/**
+	 * Preco da tabela fixa ({@link RingCost}) com o credito da pedreira da vila em blocos de aterro; so enquanto aceita
+	 * entregas (pago, o preco nao muda mais).
+	 */
+	public void reprice(int quarryCreditBlocks) {
 		if (state == State.OPEN) {
-			emeralds = cost.emeralds();
-			fill = cost.fillItems();
+			emeralds = RingCost.emeralds(ring);
+			fill = RingCost.fillItems(ring, quarryCreditBlocks);
 		}
 	}
 
@@ -167,7 +156,7 @@ public final class RingWork {
 	}
 
 	/** Restaura do arquivo. */
-	public void restore(State state, int emeralds, int fill, int depositedEmeralds, int depositedFill, int columns, int ready, int cut, int filled,
+	public void restore(State state, int emeralds, int fill, int depositedEmeralds, int depositedFill, int columns, int ready,
 			Map<String, Integer> paid) {
 		this.state = state;
 		this.emeralds = emeralds;
@@ -176,8 +165,6 @@ public final class RingWork {
 		this.depositedFill = depositedFill;
 		this.columns = columns;
 		this.ready = ready;
-		this.cut = cut;
-		this.filled = filled;
 		this.paid.clear();
 		this.paid.putAll(paid);
 	}
