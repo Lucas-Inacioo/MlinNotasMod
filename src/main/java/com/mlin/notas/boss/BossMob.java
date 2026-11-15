@@ -44,7 +44,12 @@ public abstract class BossMob extends Monster {
 	private static final EntityDataAccessor<Integer> DATA_PHASE = SynchedEntityData.defineId(BossMob.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> DATA_SPAWN_TICKS = SynchedEntityData.defineId(BossMob.class, EntityDataSerializers.INT);
 	/** Eventos de entidade 60..69 = animacao do ataque n. */
-	private static final byte EVENT_ANIM = 60;
+	/**
+	 * Base dos eventos de animacao (base + tipo, ate 10 tipos). Fica acima de todo id de {@code EntityEvent} vanilla (max 72):
+	 * o cliente intercepta alguns ids antes de chamar {@code handleEntityEvent} (63 = som do farejador, faz cast para
+	 * Sniffer), e a base antiga 60 mandava 63 no arremesso do Golem e derrubava o cliente.
+	 */
+	static final byte EVENT_ANIM = 100;
 	public static final int ANIM_TICKS = 20;
 
 	protected final ServerBossEvent bossEvent;
