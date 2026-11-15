@@ -34,6 +34,7 @@ public final class VillageCommand {
 										.executes(VillageCommand::remove)))
 						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))
 						.then(Commands.literal("rebuild_walls").executes(VillageCommand::rebuildWalls))
+						.then(PlotCommand.node())
 						.then(Commands.literal("field")
 								.then(Commands.argument("x", IntegerArgumentType.integer())
 										.then(Commands.argument("z", IntegerArgumentType.integer())

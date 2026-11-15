@@ -31,6 +31,7 @@ final class MasterPlanOverlay {
 	static final int UNPREPARED = 0xFFFF7A2E;
 	static final int CLOSED = 0xFF8A8A8A;
 	static final int PLAYER = 0xFFB070FF;
+	static final int PLOT = 0xFF3CE6B4;
 	private static final double RANGE = 88;
 
 	/** Trecho de rua (celulas seguidas na mesma linha e altura). */
@@ -193,6 +194,19 @@ final class MasterPlanOverlay {
 			var r = p.rect();
 			double px = c.getX() + (r.x0() + r.x1() + 1) / 2.0;
 			double pz = c.getZ() + (r.z0() + r.z1() + 1) / 2.0;
+			if (p.plot() && !p.retired()) {
+				// terreno do jogador (Vilas 3.0 fase 5): caixa propria e o nome, mesmo fora dos quarteiroes
+				if (eye.distanceToSqr(px, eye.y, pz) <= range2 * 4) {
+					double y = plan.plotFloor(p) + 1.05;
+					Gizmos.cuboid(new AABB(c.getX() + r.x0(), y, c.getZ() + r.z0(), c.getX() + r.x1() + 1, y + 0.06, c.getZ() + r.z1() + 1),
+							GizmoStyle.strokeAndFill((PLOT & 0x00FFFFFF) | 0xE0000000, 2.5F, (PLOT & 0x00FFFFFF) | 0x30000000));
+					Gizmos.cuboid(new AABB(c.getX() + r.x0(), y, c.getZ() + r.z0(), c.getX() + r.x1() + 1, y + 2.0, c.getZ() + r.z1() + 1),
+							GizmoStyle.stroke((PLOT & 0x00FFFFFF) | 0x90000000, 1.5F));
+					Gizmos.billboardText(Component.translatable("gui.mlinnotas.village.plan.plot").getString(), new Vec3(px, y + 3.0, pz),
+							TextGizmo.Style.forColorAndCentered(PLOT).withScale(1.4F));
+				}
+				continue;
+			}
 			if (block == null || p.retired() || reserved(o, p.id()) || eye.distanceToSqr(px, eye.y, pz) > range2) {
 				continue;
 			}

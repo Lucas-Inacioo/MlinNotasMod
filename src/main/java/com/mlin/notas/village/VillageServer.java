@@ -598,6 +598,7 @@ public final class VillageServer {
 			}
 		}
 		VillageTerrain.tick(server, data, now);
+		PlotServer.tick(server, data, now);
 		BuildingServer.tick(server, data, now);
 		CraftsServer.tick(server, data, now);
 		if (now % 20 == 0) {

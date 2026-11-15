@@ -116,7 +116,7 @@ public class VillageData extends SavedData {
 					b.ring(), b.target(), b.cells(), b.cx(), b.cz(), b.prepared() ? 1 : 0))),
 			ints("parcels").forGetter(m -> m.parcels().stream().flatMapToInt(p -> IntStream.of(p.id(),
 					p.block(), p.rect().x0(), p.rect().z0(), p.rect().x1(), p.rect().z1(), p.front().ordinal(), p.size().ordinal(), p.zone().ordinal(),
-					p.player() ? 1 : 0))),
+					p.flags()))),
 			ints("player_areas").forGetter(m -> rects(m.playerAreas())),
 			ints("fixed_areas").forGetter(m -> rects(m.fixedAreas()))
 	).apply(i, (version, seed, extent, plazaY, grid, ring, heights, blocks, parcels, player, fixed) -> {
@@ -128,8 +128,10 @@ public class VillageData extends SavedData {
 		int[] p = parcels.toArray();
 		List<MasterPlan.Parcel> parcelList = new ArrayList<>();
 		for (int k = 0; k + 9 < p.length; k += 10) {
-			parcelList.add(new MasterPlan.Parcel(p[k], p[k + 1], new VillageState.Rect(p[k + 2], p[k + 3], p[k + 4], p[k + 5]),
-					Facing.values()[Math.floorMod(p[k + 6], 4)], SizeClass.byOrdinal(p[k + 7]), Zone.byOrdinal(p[k + 8]), p[k + 9] != 0));
+			MasterPlan.Parcel parcel = new MasterPlan.Parcel(p[k], p[k + 1], new VillageState.Rect(p[k + 2], p[k + 3], p[k + 4], p[k + 5]),
+					Facing.values()[Math.floorMod(p[k + 6], 4)], SizeClass.byOrdinal(p[k + 7]), Zone.byOrdinal(p[k + 8]), false);
+			parcel.restoreFlags(p[k + 9]);
+			parcelList.add(parcel);
 		}
 		MasterPlan restored = MasterPlan.restore(seed, extent, plazaY, grid.toArray(), ring.toArray(), heights.toArray(), blockList, parcelList,
 				rects(player.toArray()), rects(fixed.toArray()));
