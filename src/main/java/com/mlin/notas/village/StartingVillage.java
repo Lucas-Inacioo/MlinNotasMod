@@ -57,6 +57,7 @@ public final class StartingVillage {
 	}
 
 	static void init() {
+		com.mlin.notas.village.gen.VillageGen.init();
 		ServerLevelEvents.LOAD.register(StartingVillage::onLevelLoad);
 		ServerLifecycleEvents.SERVER_STARTED.register(StartingVillage::onServerStarted);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -116,6 +117,15 @@ public final class StartingVillage {
 			VillageState starter = starter(data);
 			// campo de alturas ja calculado: fica disponivel para a geracao antes de qualquer chunk
 			VillageFieldServer.setActive(starter != null ? data.field(starter.key()) : data.field(VillageData.PENDING_FIELD));
+			if (starter != null) {
+				// Vilas 3.0 fase 2: vila antiga sem campo (ou com campo menor que o plano) calcula aqui, antes do spawn gerar
+				// chunks, para nenhum chunk novo nascer sem a mistura; o SERVER_STARTED so repete se isto falhar
+				try {
+					VillageFieldServer.ensureField(level, starter);
+				} catch (RuntimeException e) {
+					MlinNotas.LOGGER.error("[{}] falha ao calcular o campo de alturas no carregamento do Overworld", MlinNotas.MOD_ID, e);
+				}
+			}
 			if (stored != null) {
 				site = stored;
 				return;
@@ -408,7 +418,7 @@ public final class StartingVillage {
 					}
 					int x = near.getX() + i * 24;
 					int z = near.getZ() + j * 24;
-					double score = score(level, generator, random, x, z);
+					double score = com.mlin.notas.village.gen.VillageGen.rawDouble(() -> score(level, generator, random, x, z));
 					if (score == Double.MAX_VALUE) {
 						continue;
 					}

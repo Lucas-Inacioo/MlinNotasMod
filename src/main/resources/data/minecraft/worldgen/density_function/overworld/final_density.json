@@ -1,0 +1,5 @@
+{
+  "type": "mlinnotas:village_blend",
+  "input": "mlinnotas:village/overworld/final_density",
+  "natural_surface": "mlinnotas:village/overworld/chunk_surface_level"
+}
