@@ -208,8 +208,13 @@ public final class VillageServer {
 	}
 
 	/** Cria a vila com centro no quadro {@code board} (estilo pelo bioma; vila vanilla ja comeca como Aldeia). */
+	/** Semente da vila com o quadro em {@code board} (o plano diretor da vila inicial e calculado antes do quadro existir). */
+	public static long seedFor(ServerLevel level, BlockPos board) {
+		return level.getSeed() ^ board.asLong() * 0x5DEECE66DL;
+	}
+
 	public static VillageState create(ServerLevel level, BlockPos board, boolean starter) {
-		long seed = level.getSeed() ^ board.asLong() * 0x5DEECE66DL;
+		long seed = seedFor(level, board);
 		String biome = level.getBiome(board).unwrapKey().map(k -> k.identifier().toString()).orElse(null);
 		VillageState village = new VillageState(dimension(level), board.getX(), board.getY(), board.getZ(), seed, VillageStyle.forBiome(biome),
 				WaystoneNames.generate(seed));

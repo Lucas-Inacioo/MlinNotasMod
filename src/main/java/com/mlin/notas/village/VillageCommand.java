@@ -1,6 +1,7 @@
 package com.mlin.notas.village;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,7 +14,8 @@ import java.util.List;
 /**
  * Reparos de vila (operador): {@code /village admin list}, {@code /village admin remove <nome>} (apaga o registro da
  * vila, sem mexer nos blocos) e {@code /village admin restart_starter} (apaga o registro da vila inicial e cria outra
- * agora, longe das vilas vanilla).
+ * agora, longe das vilas vanilla) e {@code /village admin field <x> <z>} (campo de alturas da vila inicial na coluna: altura
+ * alvo, tipo, zona, peso da mistura e profundidade fechada).
  */
 public final class VillageCommand {
 	private VillageCommand() {
@@ -29,7 +31,11 @@ public final class VillageCommand {
 										.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(
 												VillageData.get(ctx.getSource().getServer()).villages().stream().map(VillageState::name), builder))
 										.executes(VillageCommand::remove)))
-						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))));
+						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))
+						.then(Commands.literal("field")
+								.then(Commands.argument("x", IntegerArgumentType.integer())
+										.then(Commands.argument("z", IntegerArgumentType.integer())
+												.executes(VillageFieldServer::describe))))));
 	}
 
 	private static int list(CommandContext<CommandSourceStack> ctx) {

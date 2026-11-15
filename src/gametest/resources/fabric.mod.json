@@ -31,6 +31,7 @@
 			"com.mlin.notas.gametest.VillageGameTest",
 			"com.mlin.notas.gametest.Village2GameTest",
 			"com.mlin.notas.gametest.Village3GameTest",
+			"com.mlin.notas.gametest.VillageFieldGameTest",
 			"com.mlin.notas.gametest.Village4GameTest",
 			"com.mlin.notas.gametest.CraftsGameTest",
 			"com.mlin.notas.gametest.SNetherGameTest",

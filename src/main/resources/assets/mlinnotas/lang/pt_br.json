@@ -2123,5 +2123,20 @@
   "village.mlinnotas.work.fields.hedge": "Cerca viva e porteiras do anel rural",
   "village.mlinnotas.work.fields.lamps": "Postes de lanterna nos campos",
   "village.mlinnotas.work.wall.historic": "Centro histórico: arcos abertos e passeio na muralha",
-  "village.mlinnotas.work.wall.barbican": "Barbacãs dos portões da muralha externa"
+  "village.mlinnotas.work.wall.barbican": "Barbacãs dos portões da muralha externa",
+  "commands.mlinnotas.village.field": "Campo em %s, %s: altura %s, %s, zona %s, peso %s%%, fechado até %s abaixo %s",
+  "commands.mlinnotas.village.field.none": "Nenhum campo de alturas cobre %s, %s",
+  "commands.mlinnotas.village.field.gate": "(portão, rua em %s)",
+  "commands.mlinnotas.village.field.pinned": "(fixo)",
+  "commands.mlinnotas.village.field.kind.natural": "chão natural",
+  "commands.mlinnotas.village.field.kind.band": "transição",
+  "commands.mlinnotas.village.field.kind.plaza": "praça",
+  "commands.mlinnotas.village.field.kind.block": "quarteirão",
+  "commands.mlinnotas.village.field.kind.street": "rua",
+  "commands.mlinnotas.village.field.kind.gate_stone": "portão da muralha de pedra",
+  "commands.mlinnotas.village.field.kind.gate_outer": "portão da muralha externa",
+  "commands.mlinnotas.village.field.kind.free": "faixa da muralha / borda",
+  "commands.mlinnotas.village.field.kind.water": "água",
+  "commands.mlinnotas.village.field.kind.keep": "área recortada",
+  "commands.mlinnotas.village.field.kind.path": "caminho do lote"
 }

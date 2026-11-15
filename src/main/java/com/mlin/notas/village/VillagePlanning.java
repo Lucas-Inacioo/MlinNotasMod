@@ -81,6 +81,10 @@ public final class VillagePlanning {
 					.withStyle(net.minecraft.ChatFormatting.GOLD), false);
 		}
 		clearRetired(level, village);
+		if (village.starter()) {
+			// Vilas 3.0: campo de alturas da vila inicial (calcula se faltar ou se o plano cresceu)
+			VillageFieldServer.ensureField(level, village);
+		}
 		return village.layout();
 	}
 
