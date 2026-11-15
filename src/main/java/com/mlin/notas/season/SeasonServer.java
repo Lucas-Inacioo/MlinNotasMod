@@ -3,6 +3,7 @@ package com.mlin.notas.season;
 import com.mlin.notas.MlinNotas;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.level.gamerules.GameRuleCategory;
 
@@ -35,6 +37,17 @@ public final class SeasonServer {
 	public static void init() {
 		SeasonBiomes.init();
 		PayloadTypeRegistry.clientboundPlay().register(SeasonSyncPayload.TYPE, SeasonSyncPayload.CODEC);
+		// os chunks do spawn sao gerados antes do SERVER_STARTED: a data precisa valer ja no carregamento do Overworld,
+		// senao eles nascem sem a neve e a temperatura da estacao (quadrado sem neve em volta do spawn no inverno)
+		ServerLevelEvents.LOAD.register((server, level) -> {
+			if (level.dimension() == Level.OVERWORLD) {
+				try {
+					refresh(server);
+				} catch (RuntimeException e) {
+					MlinNotas.LOGGER.error("[{}] falha ao carregar a estacao no Overworld", MlinNotas.MOD_ID, e);
+				}
+			}
+		});
 		ServerLifecycleEvents.SERVER_STARTED.register(SeasonServer::refresh);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			SeasonState.clear();
