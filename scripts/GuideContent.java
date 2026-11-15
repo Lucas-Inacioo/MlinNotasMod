@@ -45,8 +45,8 @@ class GuideContent {
 
 		add("exploration", List.of(
 				QuestContent.q("village_board", "mlinnotas:village_board", 4, 0, "Quadro de Missões", "Mission Board",
-						"Toda vila tem um Quadro de Missões ao lado do sino (vocês já nascem num acampamento com um). Projetos constroem casas, plantações, muralha e forja; missões do dia pagam esmeraldas; o mercado melhora conforme a vila sobe de Acampamento até Capital. Aldeões fora de vila fundada param no nível 3.",
-						"Every village has a Mission Board next to its bell (you start next to a camp with one). Projects build houses, farms, walls and a forge; daily missions pay emeralds; the market improves as the village grows from Camp to Capital. Villagers outside a founded village stop at level 3.")
+						"A vila onde vocês nascem tem um Quadro de Missões na praça. Projetos constroem casas, plantações, muralha e forja; missões do dia pagam esmeraldas; o mercado melhora conforme a vila sobe de Acampamento até Capital. Aldeões fora da sua vila param no nível 3.",
+						"Your starting village has a Mission Board on its square. Projects build houses, farms, walls and a forge; daily missions pay emeralds; the market improves as the village grows from Camp to Capital. Villagers outside your village stop at level 3.")
 						.dep("explore").check().xp(30),
 				QuestContent.q("dungeon", "minecraft:iron_bars", 4, 1, "Masmorra", "Dungeon",
 						"Ache uma masmorra (Cripta Esquecida em planícies/florestas, Fortaleza Anã em montanhas, Templo Afogado na praia, Catacumba de Areia no deserto). Desça os andares, cuidado com as placas de pressão e resolva o enigma do nicho.",
