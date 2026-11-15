@@ -2138,5 +2138,22 @@
   "commands.mlinnotas.village.field.kind.free": "wall strip / edge",
   "commands.mlinnotas.village.field.kind.water": "water",
   "commands.mlinnotas.village.field.kind.keep": "carved-out area",
-  "commands.mlinnotas.village.field.kind.path": "plot path"
+  "commands.mlinnotas.village.field.kind.path": "plot path",
+  "sign.mlinnotas.plot": "Player plot",
+  "gui.mlinnotas.village.plan.plot": "Player plot",
+  "commands.mlinnotas.village.plot.no_village": "There is no starting village.",
+  "commands.mlinnotas.village.plot.added": "Plot #%s registered from %s, %s to %s, %s (floor at y=%s); the village will level the surroundings over time.",
+  "commands.mlinnotas.village.plot.outside_field": "Warning: the plot lies outside the village height field; it was registered, but there is no levelling or path.",
+  "commands.mlinnotas.village.plot.removed": "Plot #%s removed.",
+  "commands.mlinnotas.village.plot.unknown": "There is no plot #%s.",
+  "commands.mlinnotas.village.plot.none": "No player plots.",
+  "commands.mlinnotas.village.plot.entry": "#%s: %s, %s to %s, %s, floor y=%s %s",
+  "commands.mlinnotas.village.plot.fail.too_small": "The plot is too small (minimum 4x4).",
+  "commands.mlinnotas.village.plot.fail.street": "The plot covers a village street or the plaza at %s, %s; adjust the rectangle.",
+  "commands.mlinnotas.village.plot.fail.lot": "The plot overlaps a village building or reserved lot at %s, %s.",
+  "commands.mlinnotas.village.plot.fail.plot": "A player plot already exists at %s, %s.",
+  "gui.mlinnotas.village.plots.title": "Player plots",
+  "gui.mlinnotas.village.plots.entry": "Plot %s,%s · %s",
+  "gui.mlinnotas.village.plots.house": "counts as a house",
+  "gui.mlinnotas.village.plots.empty": "free"
 }

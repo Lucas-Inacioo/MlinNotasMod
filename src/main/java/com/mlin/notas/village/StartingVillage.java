@@ -62,6 +62,7 @@ public final class StartingVillage {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			site = null;
 			VillageFieldServer.clear();
+			PlotServer.clear();
 		});
 	}
 
@@ -243,6 +244,7 @@ public final class StartingVillage {
 			VillageTerrain.prepareNow(level, village, ring, true);
 		}
 		placeBoard(level, board);
+		PlotServer.markAll(level, village);
 		return finishCamp(level, village, board, layout);
 	}
 

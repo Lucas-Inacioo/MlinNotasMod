@@ -154,6 +154,16 @@ public final class HeightFieldBuilder {
 	 */
 	public static Result forNewVillage(long seed, int centerX, int centerZ, int plazaY, Natural natural, int minY, List<VillageState.Rect> protect,
 			FieldPins pins) {
+		return forNewVillage(seed, centerX, centerZ, plazaY, natural, minY, protect, pins, 0);
+	}
+
+	/**
+	 * Como {@link #forNewVillage(long, int, int, int, Natural, int, List, FieldPins)} reservando {@code plots} terrenos do
+	 * jogador ({@link PlotPlanner}) no plano ja resolvido: o terreno e um lote de quarteirao, entao nasce plano e com
+	 * acesso a rua.
+	 */
+	public static Result forNewVillage(long seed, int centerX, int centerZ, int plazaY, Natural natural, int minY, List<VillageState.Rect> protect,
+			FieldPins pins, int plots) {
 		int[] n = grid(natural);
 		int[] filtered = filtered(n, plazaY, minY);
 		Terrain terrain = new Terrain() {
@@ -170,6 +180,10 @@ public final class HeightFieldBuilder {
 		MasterPlan plan = MasterPlan.create(seed, terrain, plazaY, List.of(), protect, Set.of(), 0);
 		plan = RuralRing.expand(plan, terrain);
 		HeightField field = solve(plan, centerX, centerZ, n, filtered, minY, pins, true);
+		if (plots > 0) {
+			PlotPlanner.reserve(plan, plots);
+			PlotPlanner.settleFloors(plan);
+		}
 		return new Result(plan, field);
 	}
 
@@ -488,9 +502,30 @@ public final class HeightFieldBuilder {
 			}
 		}
 		for (int i = 0; i < cells; i++) {
-			if (pin[i] != Integer.MIN_VALUE && (kind[i] == K_KEEP || kind[i] == K_WATER)) {
+			if (pin[i] != Integer.MIN_VALUE && (kind[i] == K_KEEP || kind[i] == K_WATER || kind[i] == K_NATURAL)) {
 				// recorte com pino (area de jogador numa vila antiga): entra nas restricoes com a altura de agora
 				kind[i] = K_FREE;
+			}
+		}
+		// terreno do jogador (fase 5): o quarteirao em volta deixa de ser plato (celulas soltas) para a rampa de 1 por bloco
+		// poder subir/descer do terreno ate a borda do quarteirao
+		if (!pins.plots().isEmpty()) {
+			java.util.Set<Integer> release = new java.util.HashSet<>();
+			for (FieldPins.Plot plot : pins.plots()) {
+				VillageState.Rect pr = plot.rect();
+				for (int x = Math.max(-EXTENT, pr.x0() - 2); x <= Math.min(EXTENT, pr.x1() + 2); x++) {
+					for (int z = Math.max(-EXTENT, pr.z0() - 2); z <= Math.min(EXTENT, pr.z1() + 2); z++) {
+						int g = group[fidx(x, z)];
+						if (g >= 0 && g < blocks) {
+							release.add(g);
+						}
+					}
+				}
+			}
+			for (int i = 0; i < cells; i++) {
+				if (group[i] >= 0 && release.contains(group[i])) {
+					group[i] = -1;
+				}
 			}
 		}
 		// grupos com pino: inteiro e na mesma altura = grupo fixo; senao as celulas pinadas saem do grupo
@@ -843,7 +878,7 @@ public final class HeightFieldBuilder {
 					found = i;
 					break;
 				}
-				if ((k == K_BLOCK || k == K_FREE || k == K_PATH) && pin[j] == Integer.MIN_VALUE) {
+				if ((k == K_BLOCK || k == K_FREE || k == K_PATH || k == K_BAND || k == K_NATURAL) && pin[j] == Integer.MIN_VALUE) {
 					parent[j] = i;
 					queue.add(j);
 				}

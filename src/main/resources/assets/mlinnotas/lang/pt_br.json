@@ -2138,5 +2138,22 @@
   "commands.mlinnotas.village.field.kind.free": "faixa da muralha / borda",
   "commands.mlinnotas.village.field.kind.water": "água",
   "commands.mlinnotas.village.field.kind.keep": "área recortada",
-  "commands.mlinnotas.village.field.kind.path": "caminho do lote"
+  "commands.mlinnotas.village.field.kind.path": "caminho do lote",
+  "sign.mlinnotas.plot": "Terreno do jogador",
+  "gui.mlinnotas.village.plan.plot": "Terreno do jogador",
+  "commands.mlinnotas.village.plot.no_village": "Não há vila inicial.",
+  "commands.mlinnotas.village.plot.added": "Terreno #%s registrado de %s, %s a %s, %s (chão em y=%s); a vila vai nivelar em volta aos poucos.",
+  "commands.mlinnotas.village.plot.outside_field": "Atenção: o terreno está fora da área do campo de alturas da vila; ele foi registrado, mas não há nivelamento nem caminho.",
+  "commands.mlinnotas.village.plot.removed": "Terreno #%s removido.",
+  "commands.mlinnotas.village.plot.unknown": "Não existe terreno #%s.",
+  "commands.mlinnotas.village.plot.none": "Nenhum terreno do jogador.",
+  "commands.mlinnotas.village.plot.entry": "#%s: %s, %s a %s, %s, chão y=%s %s",
+  "commands.mlinnotas.village.plot.fail.too_small": "O terreno é pequeno demais (mínimo 4x4).",
+  "commands.mlinnotas.village.plot.fail.street": "O terreno cobre uma rua ou a praça da vila em %s, %s; ajuste o retângulo.",
+  "commands.mlinnotas.village.plot.fail.lot": "O terreno bate numa obra ou lote reservado da vila em %s, %s.",
+  "commands.mlinnotas.village.plot.fail.plot": "Já existe um terreno do jogador em %s, %s.",
+  "gui.mlinnotas.village.plots.title": "Terrenos do jogador",
+  "gui.mlinnotas.village.plots.entry": "Terreno %s,%s · %s",
+  "gui.mlinnotas.village.plots.house": "conta como casa",
+  "gui.mlinnotas.village.plots.empty": "livre"
 }

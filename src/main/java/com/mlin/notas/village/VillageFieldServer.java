@@ -81,7 +81,7 @@ public final class VillageFieldServer {
 		int minY = minY(level);
 		int plazaY = HeightFieldBuilder.plazaHeight(natural, minY);
 		long seed = VillageServer.seedFor(level, new BlockPos(x, plazaY + 1, z));
-		HeightFieldBuilder.Result result = HeightFieldBuilder.forNewVillage(seed, x, z, plazaY, natural, minY, List.of(), FieldPins.none());
+		HeightFieldBuilder.Result result = HeightFieldBuilder.forNewVillage(seed, x, z, plazaY, natural, minY, List.of(), FieldPins.none(), PlotPlanner.COUNT);
 		p = new Prepared(x, z, plazaY, seed, result.plan(), result.field());
 		prepared = p;
 		MlinNotas.LOGGER.info("[{}] campo de alturas da vila inicial em {}, {} (praca y={}) calculado em {} ms", MlinNotas.MOD_ID, x, z, plazaY,
@@ -145,7 +145,9 @@ public final class VillageFieldServer {
 			}
 		}
 		for (MasterPlan.Parcel p : plan.parcels()) {
-			if (p.player() && !p.retired()) {
+			if (p.plot() && !p.retired()) {
+				pins.plot(p.rect(), plan.plotFloor(p));
+			} else if (p.player() && !p.retired()) {
 				pinWorld(level, village, pins, p.rect());
 			}
 		}

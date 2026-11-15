@@ -32,6 +32,7 @@ public final class VillageCommand {
 												VillageData.get(ctx.getSource().getServer()).villages().stream().map(VillageState::name), builder))
 										.executes(VillageCommand::remove)))
 						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))
+						.then(PlotCommand.node())
 						.then(Commands.literal("field")
 								.then(Commands.argument("x", IntegerArgumentType.integer())
 										.then(Commands.argument("z", IntegerArgumentType.integer())

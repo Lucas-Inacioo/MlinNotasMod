@@ -132,7 +132,7 @@ public final class VillageTerrain {
 		int open = Math.min(MasterPlan.RINGS, village.level().rings() + 1);
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (block == null || !MasterPlan.isOpen(block.ring(), open) || p.retired()) {
+			if (p.plot() || block == null || !MasterPlan.isOpen(block.ring(), open) || p.retired()) {
 				continue;
 			}
 			boolean taken = false;
@@ -181,7 +181,7 @@ public final class VillageTerrain {
 		}
 		for (MasterPlan.Parcel p : plan.parcels()) {
 			MasterPlan.Block block = plan.block(p.block());
-			if (p.player() && block != null && MasterPlan.isOpen(block.ring(), open)) {
+			if (p.plot() && !p.retired() || p.player() && block != null && MasterPlan.isOpen(block.ring(), open)) {
 				areas.add(p.rect());
 			}
 		}

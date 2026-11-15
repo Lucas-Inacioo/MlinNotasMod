@@ -120,6 +120,9 @@ public final class MasterPlan {
 		private final SizeClass size;
 		private final Zone zone;
 		private boolean player;
+		private boolean plot;
+		private boolean terraformPending;
+		private int floor = Integer.MIN_VALUE;
 
 		public Parcel(int id, int block, VillageState.Rect rect, Facing front, SizeClass size, Zone zone, boolean player) {
 			this.id = id;
@@ -164,9 +167,54 @@ public final class MasterPlan {
 			return new Parcel(old.id, old.block, new VillageState.Rect(0, 0, -1, -1), old.front, old.size, old.zone, false);
 		}
 
-		/** "Lote do jogador": apareceu construcao de jogador nele; a vila nunca mexe nem constroi aqui. */
+		/** "Lote do jogador": apareceu construcao de jogador nele, ou e um terreno do jogador ({@link #plot}); a vila nunca mexe nem constroi aqui. */
 		public boolean player() {
+			return player || plot;
+		}
+
+		/** So o "lote do jogador" achado por construcao (o terreno reservado fica de fora; e o que a varredura mexe). */
+		public boolean builtByPlayer() {
 			return player;
+		}
+
+		/** Terreno do jogador (Vilas 3.0 fase 5): reservado para o jogador construir, nunca usado pela vila. */
+		public boolean plot() {
+			return plot;
+		}
+
+		public void setPlot(boolean plot) {
+			this.plot = plot;
+		}
+
+		/** Terreno do jogador numa vila que ja existia: falta nivelar em volta (o servidor refaz do zero se o mundo reiniciar). */
+		public boolean terraformPending() {
+			return terraformPending;
+		}
+
+		public void setTerraformPending(boolean pending) {
+			this.terraformPending = pending;
+		}
+
+		/** Chao do terreno (Y do topo, como o campo de alturas); MIN_VALUE = o do quarteirao. */
+		public int floor() {
+			return floor;
+		}
+
+		public void setFloor(int floor) {
+			this.floor = floor;
+		}
+
+		/** Estado salvo: bit 1 jogador, 2 terreno, 4 nivelar; acima, chao + 1025 (so terreno). Valores antigos (0/1) continuam validos. */
+		public int flags() {
+			int v = (player ? 1 : 0) | (plot ? 2 : 0) | (terraformPending ? 4 : 0);
+			return plot && floor != Integer.MIN_VALUE ? v | ((floor + 1025) << 3) : v;
+		}
+
+		public void restoreFlags(int v) {
+			player = (v & 1) != 0;
+			plot = (v & 2) != 0;
+			terraformPending = (v & 4) != 0;
+			floor = plot && (v >> 3) > 0 ? (v >> 3) - 1025 : Integer.MIN_VALUE;
 		}
 
 		public void setPlayer(boolean player) {
@@ -452,7 +500,48 @@ public final class MasterPlan {
 				return true;
 			}
 		}
+		return insidePlot(x, z);
+	}
+
+	/** A coluna esta dentro de um terreno do jogador. */
+	public boolean insidePlot(int x, int z) {
+		for (Parcel p : parcels) {
+			if (p.plot && !p.retired() && p.rect.contains(x, z)) {
+				return true;
+			}
+		}
 		return false;
+	}
+
+	/** Terrenos do jogador (reservados na criacao ou registrados depois). */
+	public List<Parcel> plots() {
+		List<Parcel> out = new ArrayList<>();
+		for (Parcel p : parcels) {
+			if (p.plot && !p.retired()) {
+				out.add(p);
+			}
+		}
+		return out;
+	}
+
+	/** Chao do terreno: o registrado, ou o plato do quarteirao. */
+	public int plotFloor(Parcel p) {
+		if (p.floor != Integer.MIN_VALUE) {
+			return p.floor;
+		}
+		Block b = block(p.block);
+		return b != null ? b.target : plazaY;
+	}
+
+	/** Recorte novo (terreno do jogador sobre quarteirao): as celulas de quarteirao viram area recortada, nunca aplainadas. */
+	void carveCells(VillageState.Rect r) {
+		for (int x = r.x0(); x <= r.x1(); x++) {
+			for (int z = r.z0(); z <= r.z1(); z++) {
+				if (in(x, z) && grid[idx(x, z)] >= BLOCK) {
+					grid[idx(x, z)] = CARVED;
+				}
+			}
+		}
 	}
 
 	/** Celula onde o plano espera construcao da vila ou do jogador (nao conta como "coluna de jogador nova"). */
