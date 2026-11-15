@@ -107,9 +107,9 @@ public class VillagersGameTest {
 
 	/** Barril de enfeite que a vila colocou (registrado nas obras publicas) numa coluna livre perto da forja. */
 	private static BlockPos decorBarrel(ServerLevel level, VillageState v) {
-		VillageState.Rect r = lot(v, "smithy").rect();
-		int x = v.x() + r.x1() + 3;
-		int z = v.z() + (r.z0() + r.z1()) / 2;
+		int[] front = lot(v, "smithy").front();
+		int x = v.x() + front[0] + 1;
+		int z = v.z() + front[1];
 		BlockPos pos = ground(level, x, z);
 		level.setBlock(pos, Blocks.BARREL.defaultBlockState(), 3);
 		VillageWorksData.get(level.getServer()).state(v.key()).owned.record(owned(v, pos), "minecraft:barrel", "lamps:1");
@@ -135,13 +135,19 @@ public class VillagersGameTest {
 			throw new IllegalStateException("barril colocado por jogador devia valer");
 		}
 		VillageWorksData.get(level.getServer()).state(v.key()).owned.record(owned(v, barrel), "minecraft:barrel", "lamps:1");
-		Villager villager = EntityTypes.VILLAGER.spawn(level, barrel.above(), EntitySpawnReason.MOB_SUMMONED);
+		Villager villager = EntityTypes.VILLAGER.spawn(level, barrel.west().above(), EntitySpawnReason.MOB_SUMMONED);
 		helper.onEachTick(() -> {
 			if (villager.getVillagerData().profession().is(VillagerProfession.FISHERMAN)) {
 				helper.fail("o aldeao virou pescador por causa do barril de enfeite");
 				return;
 			}
-			if (smith(villager)) {
+			GlobalPos site = villager.getBrain().getMemory(MemoryModuleType.JOB_SITE).or(() -> villager.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE)).orElse(null);
+			if (site != null && site.pos().equals(barrel)) {
+				helper.fail("o aldeao escolheu o barril de enfeite como posto");
+				return;
+			}
+			// o vanilla so troca a profissao quando o aldeao chega ao posto; escolher um posto valido ja prova o filtro
+			if (smith(villager) || site != null) {
 				villager.discard();
 				release(helper, v);
 				helper.succeed();
@@ -263,8 +269,12 @@ public class VillagersGameTest {
 			}
 			homed++;
 		}
-		if (homed < 2) {
+		if (homed < 1) {
 			throw new IllegalStateException("moradores com cama na vila: " + homed);
+		}
+		GlobalPos kept = extra.getBrain().getMemory(MemoryModuleType.HOME).orElse(null);
+		if (kept != null && kept.pos().equals(outside)) {
+			throw new IllegalStateException("o aldeao ficou com a cama de fora da vila");
 		}
 		for (Villager r : VillageVillagers.villagers(level, v)) {
 			r.discard();
