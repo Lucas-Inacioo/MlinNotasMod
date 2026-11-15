@@ -54,7 +54,7 @@ Faca uma vez, no PowerShell do outro computador (Windows):
    A primeira compilacao baixa o Minecraft e as dependencias (alguns minutos).
 5. Abra o launcher, escolha o perfil `fabric-loader-0.20.1-26.3` e clique em Jogar. Ao abrir, aperte Y num mundo: o Livro de Quests do mod deve aparecer.
 
-**Atualizar depois** (quando houver versao nova): na pasta do projeto, `git pull` e de novo `.\gradlew.bat installToMinecraft` (com o `$env:JAVA_HOME` do passo 4).
+**Atualizar depois** (quando houver versao nova): siga [ATUALIZAR.md](ATUALIZAR.md).
 
 **Jogar junto:** os dois precisam do mesmo jar (mesma versao do repositorio). Na mesma rede, quem cria o mundo abre **Esc > Abrir para LAN** e o outro entra por **Multijogador**. O progresso de habilidades, quests e vilas e do mundo, entao fica salvo no computador de quem hospeda.
 
