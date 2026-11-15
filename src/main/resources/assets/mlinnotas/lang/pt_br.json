@@ -2153,5 +2153,6 @@
   "gui.mlinnotas.village.plots.title": "Terrenos do jogador",
   "gui.mlinnotas.village.plots.entry": "Terreno %s,%s · %s",
   "gui.mlinnotas.village.plots.house": "conta como casa",
-  "gui.mlinnotas.village.plots.empty": "livre"
+  "gui.mlinnotas.village.plots.empty": "livre",
+  "commands.mlinnotas.village.regrade": "Terreno de %s levado ao campo de alturas: %s colunas"
 }

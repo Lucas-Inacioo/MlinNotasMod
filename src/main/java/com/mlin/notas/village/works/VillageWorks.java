@@ -619,6 +619,34 @@ public final class VillageWorks {
 		return reopened;
 	}
 
+	/**
+	 * Terreno refeito ({@code /village admin regrade}): as estradas para fora do plano foram feitas no chao antigo e
+	 * ficariam em cima de cristas; tira o que as obras de estrada anotaram e reabre as feitas para refazer no chao novo.
+	 */
+	public static int releaseRoadWorks(ServerLevel level, VillageState village) {
+		VillageWorksData works = VillageWorksData.get(level.getServer());
+		VillageWorksData.State st = works.peek(village.key());
+		if (st == null || village.layout() == null || village.layout().master() == null) {
+			return 0;
+		}
+		List<long[]> mine = new ArrayList<>();
+		int reopened = 0;
+		for (VillageWorksData.Entry e : st.entries) {
+			if (e.id.startsWith("roads:")) {
+				mine.addAll(st.owned.ofWork(e.id));
+				if (e.state == 2) {
+					e.state = 0;
+					e.index = 0;
+					reopened++;
+				}
+				CACHE.remove(cacheKey(village, e.id));
+			}
+		}
+		clear(level, village, village.layout().master(), st, mine);
+		works.changed();
+		return reopened;
+	}
+
 	/** Tira os blocos anotados que ainda sao os mesmos; o chao volta a grama. */
 	static void clear(ServerLevel level, VillageState village, MasterPlan plan, VillageWorksData.State st, List<long[]> blocks) {
 		blocks.sort(java.util.Comparator.<long[]>comparingLong(k -> -((k[0] >> 20) & 0xFFFFF)));

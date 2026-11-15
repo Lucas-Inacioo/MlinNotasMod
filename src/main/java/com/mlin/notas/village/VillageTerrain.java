@@ -316,6 +316,13 @@ public final class VillageTerrain {
 		int wx = village.x() + x;
 		int wz = village.z() + z;
 		int target = plan.plannedHeight(x, z);
+		if (target == Integer.MIN_VALUE && Math.max(Math.abs(x), Math.abs(z)) <= plan.extent()) {
+			// dentro do plano mas fora de rua/quarteirao (faixa da muralha, beira): rampa entre as alturas planejadas em volta
+			target = FieldRamp.height(plan::plannedHeight, x, z);
+		} else if (target == Integer.MIN_VALUE && plan.field() != null && plan.field().weightRel(x, z) >= FIELD_EXACT) {
+			// faixa onde o gerador ja poe a altura exata do campo: o proprio campo
+			target = plan.field().heightRel(x, z);
+		}
 		if (target == Integer.MIN_VALUE) {
 			return 0;
 		}
@@ -438,6 +445,111 @@ public final class VillageTerrain {
 		}
 		VillageServer.clearWaiting(village);
 		VillageServer.sync(server, village);
+	}
+
+	/**
+	 * Leva todas as colunas dos aneis 1..{@link MasterPlan#RINGS} a altura do campo de alturas, na hora (cirurgia de
+	 * mundo antigo, {@code /village admin regrade}). Nao muda o estado dos aneis nem derruba troncos que nao sejam de
+	 * arvore natural; colunas com bloco de jogador ou de obra continuam intocadas. Devolve quantas colunas leu.
+	 */
+	/** Peso do campo a partir do qual o gerador (Vilas 3.0 fase 2) ja poe o chao exatamente na altura do campo. */
+	static final float FIELD_EXACT = 0.35F;
+
+	public static int regrade(ServerLevel level, VillageState village) {
+		VillagePlanning.ensureLayout(level, village);
+		MasterPlan plan = village.layout() == null ? null : village.layout().master();
+		if (plan == null) {
+			return 0;
+		}
+		int e = plan.extent();
+		BlockPos c = VillageServer.center(village);
+		for (int cx = (c.getX() - e) >> 4; cx <= (c.getX() + e) >> 4; cx++) {
+			for (int cz = (c.getZ() - e) >> 4; cz <= (c.getZ() + e) >> 4; cz++) {
+				level.getChunk(cx, cz);
+			}
+		}
+		com.mlin.notas.village.works.VillageWorks.releaseRoadWorks(level, village);
+		VillagePalette palette = VillagePalette.of(village.style());
+		WorldTerrain natural = new WorldTerrain(level, c, true);
+		int n = 0;
+		java.util.Set<Long> done = new java.util.HashSet<>();
+		for (int ring = 1; ring <= MasterPlan.RINGS; ring++) {
+			for (long col : columns(village, plan, ring)) {
+				column(level, village, plan, VillageLayout.colX(col), VillageLayout.colZ(col), palette, natural, false, n);
+				done.add(col);
+				n++;
+			}
+		}
+		// o resto do campo onde o gerador ja usa a altura exata: beira do plano e a parte de dentro da faixa
+		HeightField field = plan.field();
+		if (field != null) {
+			for (int x = -field.extent(); x <= field.extent(); x++) {
+				for (int z = -field.extent(); z <= field.extent(); z++) {
+					if (field.weightRel(x, z) >= FIELD_EXACT && !done.contains(VillageLayout.col(x, z))
+							&& level.hasChunk((village.x() + x) >> 4, (village.z() + z) >> 4)
+							&& !done.contains(VillageLayout.col(x, z))) {
+						if (plan.plannedHeight(x, z) != Integer.MIN_VALUE || Math.max(Math.abs(x), Math.abs(z)) <= plan.extent()) {
+							column(level, village, plan, x, z, palette, natural, false, n);
+						} else {
+							flattenNatural(level, village.x() + x, village.z() + z, field.heightRel(x, z));
+						}
+						n++;
+					}
+				}
+			}
+		}
+		COLUMNS.keySet().removeIf(k -> k.startsWith(village.key() + "#"));
+		VillageData.get(level.getServer()).changed();
+		return n;
+	}
+
+	/**
+	 * Faixa de transicao de mundo antigo: leva uma coluna de terreno natural a {@code target} (corta ou aterra, grama no
+	 * topo). Se houver qualquer bloco que nao seja chao natural, planta ou arvore natural acima do alvo, nao mexe.
+	 */
+	static void flattenNatural(ServerLevel level, int wx, int wz, int target) {
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		int top = Integer.MIN_VALUE;
+		for (int y = target + 80; y > target - 40; y--) {
+			BlockState s = level.getBlockState(pos.set(wx, y, wz));
+			if (s.isAir()) {
+				continue;
+			}
+			boolean plant = s.canBeReplaced() || s.is(BlockTags.LEAVES) || s.is(BlockTags.LOGS) || s.is(BlockTags.FLOWERS)
+					|| s.is(BlockTags.SAPLINGS) || s.is(Blocks.SNOW) || s.is(Blocks.POWDER_SNOW);
+			if (top == Integer.MIN_VALUE && !plant && WorldTerrain.naturalGround(s)) {
+				top = y;
+			}
+			if (y > target && !plant && !WorldTerrain.naturalGround(s)) {
+				return;
+			}
+			if (y > target && (s.is(BlockTags.LEAVES) && s.getValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT))) {
+				return;
+			}
+			if (top != Integer.MIN_VALUE && y <= target) {
+				break;
+			}
+		}
+		if (top == Integer.MIN_VALUE || top == target) {
+			return;
+		}
+		for (int y = Math.max(top, target) + 30; y > target; y--) {
+			pos.set(wx, y, wz);
+			if (!level.getBlockState(pos).isAir()) {
+				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_SUPPRESS_DROPS);
+			}
+		}
+		for (int y = top + 1; y < target; y++) {
+			level.setBlock(pos.set(wx, y, wz), (y < target - 3 ? Blocks.STONE : Blocks.DIRT).defaultBlockState(), Block.UPDATE_CLIENTS);
+		}
+		level.setBlock(pos.set(wx, target, wz), Blocks.GRASS_BLOCK.defaultBlockState(), Block.UPDATE_CLIENTS);
+		if (top > target) {
+			for (int y = target - 1; y >= target - 2; y--) {
+				if (level.getBlockState(pos.set(wx, y, wz)).is(BlockTags.BASE_STONE_OVERWORLD)) {
+					level.setBlock(pos, Blocks.DIRT.defaultBlockState(), Block.UPDATE_CLIENTS);
+				}
+			}
+		}
 	}
 
 	/** Aplaina o anel inteiro na hora, de graca (vila inicial, testes, comando). */

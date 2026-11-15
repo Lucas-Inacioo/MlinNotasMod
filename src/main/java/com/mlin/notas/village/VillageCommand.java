@@ -34,6 +34,7 @@ public final class VillageCommand {
 										.executes(VillageCommand::remove)))
 						.then(Commands.literal("restart_starter").executes(VillageCommand::restartStarter))
 						.then(Commands.literal("rebuild_walls").executes(VillageCommand::rebuildWalls))
+						.then(Commands.literal("regrade").executes(VillageCommand::regrade))
 						.then(PlotCommand.node())
 						.then(Commands.literal("field")
 								.then(Commands.argument("x", IntegerArgumentType.integer())
@@ -86,6 +87,21 @@ public final class VillageCommand {
 		}
 		if (total == 0) {
 			ctx.getSource().sendFailure(Component.translatable("commands.mlinnotas.village.rebuild_walls.none"));
+		}
+		return total;
+	}
+
+	/** Leva todas as colunas dos aneis 1..7 da vila inicial a altura do campo (cirurgia de mundo antigo; nao muda o estado dos aneis). */
+	private static int regrade(CommandContext<CommandSourceStack> ctx) {
+		int total = 0;
+		for (VillageState v : List.copyOf(VillageData.get(ctx.getSource().getServer()).villages())) {
+			ServerLevel level = v.starter() ? VillageServer.levelOf(ctx.getSource().getServer(), v) : null;
+			if (level == null) {
+				continue;
+			}
+			int n = VillageTerrain.regrade(level, v);
+			total++;
+			ctx.getSource().sendSuccess(() -> Component.translatable("commands.mlinnotas.village.regrade", v.name(), n), true);
 		}
 		return total;
 	}
