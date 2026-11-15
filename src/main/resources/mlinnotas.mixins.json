@@ -5,6 +5,7 @@
 	"mixins": [
 		"AbstractFurnaceBlockEntityMixin",
 		"AbstractVillagerMixin",
+		"AcquirePoiJobSiteMixin",
 		"AnvilMenuMixin",
 		"BeaconBlockEntityAccessor",
 		"BeaconBlockEntityMixin",
