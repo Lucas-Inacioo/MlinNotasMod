@@ -121,7 +121,7 @@ public class VillagersGameTest {
 		return profession.is(VillagerProfession.ARMORER) || profession.is(VillagerProfession.WEAPONSMITH) || profession.is(VillagerProfession.TOOLSMITH);
 	}
 
-	@GameTest(maxTicks = 900, environment = "mlinnotas-gametest:v3_villagers")
+	@GameTest(maxTicks = 400, environment = "mlinnotas-gametest:v3_villagers")
 	public void decorBarrelBesideSmithyMakesASmithNotAFisherman(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		VillageState v = village(helper, 100_000 + RUN, VillageLevel.VILLAGE, VillageProject.HOUSE, VillageProject.SMITHY);
@@ -135,19 +135,43 @@ public class VillagersGameTest {
 			throw new IllegalStateException("barril colocado por jogador devia valer");
 		}
 		VillageWorksData.get(level.getServer()).state(v.key()).owned.record(owned(v, barrel), "minecraft:barrel", "lamps:1");
-		Villager villager = EntityTypes.VILLAGER.spawn(level, barrel.west().above(), EntitySpawnReason.MOB_SUMMONED);
+		// determinista: o aldeao nasce dentro da forja, em cima da pedra de amolar, com o barril de enfeite colado nele;
+		// roda a mesma aquisicao de posto do vanilla (com o filtro do mixin) e confere o que foi escolhido
+		var rec = VillageData.get(level.getServer()).record(v.key(), lot(v, "smithy").id());
+		BlockPos stand = null;
+		for (int i = 0; i < rec.size(); i++) {
+			if (rec.block(i).equals("minecraft:grindstone")) {
+				stand = BlockPos.of(rec.positions[i]).above();
+			}
+		}
+		if (stand == null) {
+			throw new IllegalStateException("forja sem pedra de amolar");
+		}
+		BlockPos decor = stand.east();
+		level.setBlock(decor, Blocks.BARREL.defaultBlockState(), 3);
+		VillageWorksData.get(level.getServer()).state(v.key()).owned.record(owned(v, decor), "minecraft:barrel", "lamps:1");
+		if (VillageVillagers.jobSiteAllowed(level, decor)) {
+			throw new IllegalStateException("barril colado no aldeao nao devia valer");
+		}
+		Villager villager = EntityTypes.VILLAGER.spawn(level, stand, EntitySpawnReason.MOB_SUMMONED);
+		var acquire = net.minecraft.world.entity.ai.behavior.AcquirePoi.create(villager.getVillagerData().profession().value().acquirableJobSite(),
+				MemoryModuleType.JOB_SITE, MemoryModuleType.POTENTIAL_JOB_SITE, true, java.util.Optional.empty(), (l, p) -> true);
+		long t0 = level.getGameTime();
+		acquire.tryStart(level, villager, t0);
+		// o vanilla so tenta de verdade depois do atraso sorteado na 1a chamada; repete a cada 10 ticks (caminho pode falhar uma vez)
 		helper.onEachTick(() -> {
-			if (villager.getVillagerData().profession().is(VillagerProfession.FISHERMAN)) {
-				helper.fail("o aldeao virou pescador por causa do barril de enfeite");
+			long now = level.getGameTime();
+			if (now - t0 < 25 || now % 10 != 0) {
 				return;
 			}
-			GlobalPos site = villager.getBrain().getMemory(MemoryModuleType.JOB_SITE).or(() -> villager.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE)).orElse(null);
-			if (site != null && site.pos().equals(barrel)) {
-				helper.fail("o aldeao escolheu o barril de enfeite como posto");
+			acquire.tryStart(level, villager, now);
+			GlobalPos site = villager.getBrain().getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).or(() -> villager.getBrain().getMemory(MemoryModuleType.JOB_SITE)).orElse(null);
+			if (site == null) {
 				return;
 			}
-			// o vanilla so troca a profissao quando o aldeao chega ao posto; escolher um posto valido ja prova o filtro
-			if (smith(villager) || site != null) {
+			if (site.pos().equals(decor) || level.getBlockState(site.pos()).is(Blocks.BARREL)) {
+				helper.fail("escolheu barril como posto: " + site.pos());
+			} else {
 				villager.discard();
 				release(helper, v);
 				helper.succeed();
