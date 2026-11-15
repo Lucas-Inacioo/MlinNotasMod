@@ -2153,5 +2153,6 @@
   "gui.mlinnotas.village.plots.title": "Player plots",
   "gui.mlinnotas.village.plots.entry": "Plot %s,%s · %s",
   "gui.mlinnotas.village.plots.house": "counts as a house",
-  "gui.mlinnotas.village.plots.empty": "free"
+  "gui.mlinnotas.village.plots.empty": "free",
+  "commands.mlinnotas.village.regrade": "Terrain of %s brought to the height field: %s columns"
 }

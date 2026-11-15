@@ -41,7 +41,7 @@ public final class WorldTerrain implements Terrain {
 	/** Chao natural (o topo do terreno que a vila pode aplainar). */
 	public static boolean naturalGround(BlockState state) {
 		return state.is(BlockTags.SUBSTRATE_OVERWORLD) || state.is(BlockTags.SAND) || state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(Blocks.GRAVEL)
-				|| state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.CLAY) || state.is(Blocks.SANDSTONE) || state.is(Blocks.RED_SANDSTONE)
+				|| state.is(Blocks.SNOW_BLOCK) || state.is(Blocks.POWDER_SNOW) || state.is(Blocks.PACKED_ICE) || state.is(Blocks.ICE) || state.is(Blocks.CLAY) || state.is(Blocks.SANDSTONE) || state.is(Blocks.RED_SANDSTONE)
 				|| state.is(Blocks.TERRACOTTA) || state.is(Blocks.CALCITE) || state.is(ORES) || state.is(Blocks.DRIPSTONE_BLOCK) || state.is(Blocks.SMOOTH_BASALT);
 	}
 
