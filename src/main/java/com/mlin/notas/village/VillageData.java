@@ -509,7 +509,8 @@ public class VillageData extends SavedData {
 			RECORD_CODEC.listOf().optionalFieldOf("records", List.of()).forGetter(VillageData::recordList),
 			ints("starter_site").forGetter(d -> d.starterSite == null ? IntStream.empty()
 					: IntStream.of(d.starterSite)),
-			ints("starter_protect").forGetter(d -> rects(d.starterProtect)),
+			// so lido (formato antigo: areas protegidas do reparo de mundo antigo); nao e mais usado nem gravado
+			ints("starter_protect").forGetter(d -> IntStream.empty()),
 			TERRAIN_JOB_CODEC.listOf().optionalFieldOf("terrain_jobs", List.of()).forGetter(d -> List.copyOf(d.terrainJobs.values())),
 			FIELD_CODEC.listOf().optionalFieldOf("height_fields", List.of()).forGetter(d -> d.fields.entrySet().stream()
 					.map(e -> Optional.of(new FieldEntry(e.getKey(), e.getValue()))).toList())
@@ -525,7 +526,6 @@ public class VillageData extends SavedData {
 		}
 		int[] s = site.toArray();
 		data.starterSite = s.length >= 2 ? new int[] {s[0], s[1]} : null;
-		data.starterProtect.addAll(rects(protect.toArray()));
 		for (Optional<FieldEntry> e : fields) {
 			e.ifPresent(entry -> {
 				if (entry.village().equals(PENDING_FIELD) || data.villages.containsKey(entry.village())) {
@@ -545,8 +545,6 @@ public class VillageData extends SavedData {
 	private boolean starterChecked;
 	/** Centro (x, z) escolhido para a vila inicial antes de gerar os chunks (vilas vanilla perto sao suprimidas). */
 	private int[] starterSite;
-	/** Areas ja geradas quando a vila inicial foi escolhida num mundo antigo (a vila nunca planeja nada nelas). */
-	private final List<VillageState.Rect> starterProtect = new ArrayList<>();
 
 	public VillageData() {
 	}
@@ -620,7 +618,6 @@ public class VillageData extends SavedData {
 	public void resetStarter() {
 		starterChecked = false;
 		starterSite = null;
-		starterProtect.clear();
 		setDirty();
 	}
 
@@ -628,15 +625,9 @@ public class VillageData extends SavedData {
 		return starterSite == null ? null : starterSite.clone();
 	}
 
-	public void setStarterSite(int x, int z, List<VillageState.Rect> protect) {
+	public void setStarterSite(int x, int z) {
 		starterSite = new int[] {x, z};
-		starterProtect.clear();
-		starterProtect.addAll(protect);
 		setDirty();
-	}
-
-	public List<VillageState.Rect> starterProtect() {
-		return List.copyOf(starterProtect);
 	}
 
 	public BuildRecord record(String village, int lot) {

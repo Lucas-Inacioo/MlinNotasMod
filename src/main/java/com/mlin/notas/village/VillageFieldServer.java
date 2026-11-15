@@ -12,7 +12,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,10 +68,10 @@ public final class VillageFieldServer {
 
 	/**
 	 * Vila inicial nova com centro em (x, z): chao da praca, semente (a mesma que {@link VillageServer#create} vai dar
-	 * com o quadro em {@code plazaY + 1}), plano diretor ja com o anel rural e o campo. {@code protect}: areas absolutas
-	 * onde a vila nunca mexe. Fica guardado para {@link StartingVillage} usar quando criar a vila.
+	 * com o quadro em {@code plazaY + 1}), plano diretor ja com o anel rural e o campo.
+ * Fica guardado para {@link StartingVillage} usar quando criar a vila.
 	 */
-	static Prepared prepareStarter(ServerLevel level, int x, int z, List<VillageState.Rect> protect) {
+	static Prepared prepareStarter(ServerLevel level, int x, int z) {
 		Prepared p = prepared;
 		if (p != null && p.x == x && p.z == z) {
 			return p;
@@ -82,11 +81,7 @@ public final class VillageFieldServer {
 		int minY = minY(level);
 		int plazaY = HeightFieldBuilder.plazaHeight(natural, minY);
 		long seed = VillageServer.seedFor(level, new BlockPos(x, plazaY + 1, z));
-		List<VillageState.Rect> relative = new ArrayList<>();
-		for (VillageState.Rect r : protect) {
-			relative.add(new VillageState.Rect(r.x0() - x, r.z0() - z, r.x1() - x, r.z1() - z));
-		}
-		HeightFieldBuilder.Result result = HeightFieldBuilder.forNewVillage(seed, x, z, plazaY, natural, minY, relative, FieldPins.none());
+		HeightFieldBuilder.Result result = HeightFieldBuilder.forNewVillage(seed, x, z, plazaY, natural, minY, List.of(), FieldPins.none());
 		p = new Prepared(x, z, plazaY, seed, result.plan(), result.field());
 		prepared = p;
 		MlinNotas.LOGGER.info("[{}] campo de alturas da vila inicial em {}, {} (praca y={}) calculado em {} ms", MlinNotas.MOD_ID, x, z, plazaY,

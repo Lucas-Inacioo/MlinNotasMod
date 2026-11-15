@@ -101,6 +101,26 @@ public class VillageGameTest {
 		return new AABB(v.x() - radius, v.y() - 10, v.z() - radius, v.x() + radius, v.y() + 20, v.z() + radius);
 	}
 
+	/** Quadro solto (fora de qualquer vila) nao funda vila: so avisa. */
+	@GameTest(maxTicks = 200, environment = "mlinnotas-gametest:villages")
+	public void strayBoardDoesNotFoundVillage(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		int x = 36000 + RUN;
+		level.setChunkForced(x >> 4, 0, true);
+		BlockPos board = ground(level, x, 0);
+		VillageBoardBlock.placeAt(level, ModBlocks.VILLAGE_BOARD.defaultBlockState(), board, 3);
+		int before = VillageData.get(level.getServer()).villages().size();
+		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		VillageServer.use(player, level, board);
+		boolean founded = VillageData.get(level.getServer()).villages().size() != before || VillageServer.forBoard(level, board) != null;
+		level.setBlock(board, Blocks.AIR.defaultBlockState(), 3);
+		level.setChunkForced(x >> 4, 0, false);
+		if (founded) {
+			throw new IllegalStateException("quadro solto fundou uma vila");
+		}
+		helper.succeed();
+	}
+
 	@GameTest(maxTicks = 2400, environment = "mlinnotas-gametest:villages")
 	public void depositBuildsHouseOnFreeGroundOnly(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();

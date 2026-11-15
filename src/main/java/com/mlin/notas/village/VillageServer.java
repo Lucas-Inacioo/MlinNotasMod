@@ -106,7 +106,6 @@ public final class VillageServer {
 			VIEWING.clear();
 		});
 		ServerPlayerEvents.JOIN.register(StartingVillage::greet);
-		VillageBoardFeature.init();
 		com.mlin.notas.village.works.VillageWorks.init();
 		StartingVillage.init();
 		FoodBuildingsServer.init();
@@ -207,23 +206,21 @@ public final class VillageServer {
 		return village == null ? 0 : village.level().discount();
 	}
 
-	/** Cria a vila com centro no quadro {@code board} (estilo pelo bioma; vila vanilla ja comeca como Aldeia). */
 	/** Semente da vila com o quadro em {@code board} (o plano diretor da vila inicial e calculado antes do quadro existir). */
 	public static long seedFor(ServerLevel level, BlockPos board) {
 		return level.getSeed() ^ board.asLong() * 0x5DEECE66DL;
 	}
 
+	/**
+	 * Cria o registro de uma vila com centro no quadro {@code board} (estilo pelo bioma). Nenhum caminho do jogo funda
+	 * vila por aqui: a vila inicial vem de {@link StartingVillage} e os testes chamam direto.
+	 */
 	public static VillageState create(ServerLevel level, BlockPos board, boolean starter) {
 		long seed = seedFor(level, board);
 		String biome = level.getBiome(board).unwrapKey().map(k -> k.identifier().toString()).orElse(null);
 		VillageState village = new VillageState(dimension(level), board.getX(), board.getY(), board.getZ(), seed, VillageStyle.forBiome(biome),
 				WaystoneNames.generate(seed));
 		village.setStarter(starter);
-		if (!starter && level.structureManager().getStructureWithPieceAt(board, StructureTags.VILLAGE).isValid()) {
-			// vila do worldgen: ja tem casas e moradores
-			village.setLevel(VillageLevel.HAMLET);
-			village.addProsperity(VillageLevel.HAMLET.prosperity());
-		}
 		village.refreshBounties(day(level.getServer()));
 		VillageData.get(level.getServer()).add(village);
 		return village;
@@ -235,15 +232,24 @@ public final class VillageServer {
 
 	// ---------------------------------------------------------------- quadro
 
-	/** Botao direito no quadro: acha (ou funda) a vila e abre a tela. */
+	/**
+	 * Vila a que o quadro em {@code board} pertence: a que tem o plano cobrindo o quadro, ou a de centro a ate
+	 * {@link #JOIN_RADIUS}. Null = quadro solto.
+	 */
+	public static VillageState forBoard(ServerLevel level, BlockPos board) {
+		VillageState village = planVillageAt(level, board);
+		return village != null ? village : nearest(level, board, JOIN_RADIUS);
+	}
+
+	/**
+	 * Botao direito no quadro: abre a tela da vila a que ele pertence (a vila inicial; um quadro colocado pelo jogador
+	 * dentro do plano dela serve). Quadro solto avisa que so a vila inicial cresce: o mod nao funda mais vilas.
+	 */
 	public static void use(ServerPlayer player, ServerLevel level, BlockPos board) {
-		VillageState village = nearest(level, board, JOIN_RADIUS);
+		VillageState village = forBoard(level, board);
 		if (village == null) {
-			village = create(level, board, false);
-			player.sendSystemMessage(Component.translatable("message.mlinnotas.village.founded", village.name()).withStyle(ChatFormatting.GOLD));
-			VillagePlanning.ensureLayout(level, village);
-			VillagePlanning.showNearby(level, village, VillagePlanning.AUTO_SECONDS, Component.translatable("message.mlinnotas.village.area_shown",
-					VillagePlanning.AUTO_SECONDS).withStyle(ChatFormatting.AQUA));
+			player.sendSystemMessage(Component.translatable("message.mlinnotas.village.only_starter").withStyle(ChatFormatting.YELLOW));
+			return;
 		}
 		if (village.refreshBounties(day(level.getServer()))) {
 			VillageData.get(level.getServer()).changed();
@@ -272,8 +278,7 @@ public final class VillageServer {
 	public static void sync(MinecraftServer server, VillageState village) {
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			BlockPos board = VIEWING.get(player.getUUID());
-			if (board != null && dimension(player.level()).equals(village.dimension()) && village.distanceSq(board.getX(), board.getZ())
-					<= (long) JOIN_RADIUS * JOIN_RADIUS) {
+			if (board != null && dimension(player.level()).equals(village.dimension()) && village == forBoard(player.level(), board)) {
 				send(player, village, board, false);
 			}
 		}
@@ -289,7 +294,7 @@ public final class VillageServer {
 		if (!player.blockPosition().closerThan(board, range) || !(level.getBlockState(board).getBlock() instanceof VillageBoardBlock)) {
 			return;
 		}
-		VillageState village = nearest(level, board, JOIN_RADIUS);
+		VillageState village = forBoard(level, board);
 		if (village == null) {
 			return;
 		}

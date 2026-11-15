@@ -83,6 +83,7 @@ public final class DefenseServer {
 			if (t % 100 == 0) {
 				guards(server, level, village);
 				ruralShelter(level, village);
+				com.mlin.notas.village.VillageVillagers.sweep(level, village);
 			}
 			if (t % 80 == 0) {
 				beacon(server, level, village);

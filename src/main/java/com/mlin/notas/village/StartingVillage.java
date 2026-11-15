@@ -14,24 +14,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.StructureTags;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.LevelData;
-import net.minecraft.world.level.storage.LevelResource;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,9 +39,8 @@ import java.util.Set;
  *
  * <p>O lugar e escolhido no {@link ServerLevelEvents#LOAD} do Overworld, antes do spawn vanilla gerar qualquer chunk;
  * dali em diante as vilas vanilla que comecariam perto ({@link #SUPPRESS_RADIUS}) nao sao geradas (mixin no inicio de
- * estrutura) e o quadro do worldgen nao aparece perto. Num mundo antigo sem vila inicial (reparo), a busca evita os
- * chunks que ja existem em disco (com folga de {@link #PROTECT_MARGIN}); num mundo ja muito explorado, a vila vai
- * para longe (200+ blocos) de qualquer vila vanilla.
+ * estrutura). Esta e a unica vila que o mod gerencia: mundo sem vila inicial (antigo) nao ganha uma sozinho; so o
+ * comando de operador {@code /village admin restart_starter} cria uma (num mundo ja gerado).
  */
 public final class StartingVillage {
 	/** Raio da busca de lugar em volta do spawn vanilla. */
@@ -57,16 +49,8 @@ public final class StartingVillage {
 	public static final int CAMP_RADIUS = 28;
 	/** Inicio de vila vanilla a menos disso do centro da vila inicial nao e gerado (raio da Capital + 40 + pecas). */
 	public static final int SUPPRESS_RADIUS = VillageLevel.CROWN_CITY.radius() + 40 + 80;
-	/** Quadro do worldgen nunca a menos disso da vila inicial. */
-	public static final int BOARD_RADIUS = 160;
-	/** Folga em volta de chunks ja existentes (mundo antigo) onde a vila nao planeja nada. */
-	public static final int PROTECT_MARGIN = 12;
-	/** Distancia minima de uma vila vanilla quando o lugar nao foi escolhido cedo. */
-	public static final int FALLBACK_DISTANCE = 200;
-	/** Mundo com mais chunks que isso em volta do spawn e "jogado": vai pelo caminho de longe das vilas. */
-	private static final int PLAYED_CHUNKS = 256;
 
-	/** Centro (x, z) da vila inicial do servidor atual (lido pelo mixin de estruturas e pelo quadro do worldgen). */
+	/** Centro (x, z) da vila inicial do servidor atual (lido pelo mixin de estruturas). */
 	private static volatile int[] site;
 
 	private StartingVillage() {
@@ -101,17 +85,6 @@ public final class StartingVillage {
 		long dx = (chunkX << 4) + 8 - s[0];
 		long dz = (chunkZ << 4) + 8 - s[1];
 		return dx * dx + dz * dz <= (long) SUPPRESS_RADIUS * SUPPRESS_RADIUS;
-	}
-
-	/** Quadro do worldgen em {@code pos} ficaria perto demais da vila inicial? */
-	public static boolean nearSite(BlockPos pos) {
-		int[] s = site;
-		if (s == null) {
-			return false;
-		}
-		long dx = pos.getX() - s[0];
-		long dz = pos.getZ() - s[1];
-		return dx * dx + dz * dz <= (long) BOARD_RADIUS * BOARD_RADIUS;
 	}
 
 	static VillageState starter(VillageData data) {
@@ -155,29 +128,18 @@ public final class StartingVillage {
 				return;
 			}
 			boolean fresh = !server.getWorldData().overworldData().isInitialized();
-			BlockPos near;
-			List<VillageState.Rect> protect = List.of();
-			if (fresh) {
-				ChunkPos origin = level.getChunkSource().getGenerator().getOrigin(level.getChunkSource().randomState());
-				near = new BlockPos(origin.getMinBlockX() + 8, 0, origin.getMinBlockZ() + 8);
-			} else {
-				near = level.getRespawnData().pos();
-				List<ChunkPos> existing = existingChunks(server, near, SEARCH_RADIUS + 64);
-				if (existing.size() > PLAYED_CHUNKS) {
-					// mundo ja explorado: o lugar sai depois, longe das vilas vanilla que ja existem
-					MlinNotas.LOGGER.info("[{}] mundo antigo com {} chunks perto do spawn: vila inicial longe das vilas vanilla", MlinNotas.MOD_ID,
-							existing.size());
-					return;
-				}
-				protect = protectedAreas(existing);
+			if (!fresh) {
+				// mundo antigo sem vila inicial: o mod nao cria uma sozinho (so /village admin restart_starter)
+				return;
 			}
-			int[] chosen = findSite(level, near, protect);
-			data.setStarterSite(chosen[0], chosen[1], protect);
+			ChunkPos origin = level.getChunkSource().getGenerator().getOrigin(level.getChunkSource().randomState());
+			BlockPos near = new BlockPos(origin.getMinBlockX() + 8, 0, origin.getMinBlockZ() + 8);
+			int[] chosen = findSite(level, near);
+			data.setStarterSite(chosen[0], chosen[1]);
 			site = chosen;
-			MlinNotas.LOGGER.info("[{}] lugar da vila inicial escolhido em {}, {} ({} areas protegidas)", MlinNotas.MOD_ID, chosen[0], chosen[1],
-					protect.size());
+			MlinNotas.LOGGER.info("[{}] lugar da vila inicial escolhido em {}, {}", MlinNotas.MOD_ID, chosen[0], chosen[1]);
 			// Vilas 3.0: plano diretor e campo de alturas pelo gerador, antes de o spawn gerar chunks
-			VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, chosen[0], chosen[1], protect);
+			VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, chosen[0], chosen[1]);
 			data.putField(VillageData.PENDING_FIELD, prep.field());
 			VillageFieldServer.setActive(prep.field());
 		} catch (RuntimeException e) {
@@ -214,22 +176,15 @@ public final class StartingVillage {
 		}
 	}
 
-	/** Cria a vila no lugar escolhido cedo, ou (sem lugar) num lugar longe das vilas vanilla perto do spawn. */
+	/** Cria a vila no lugar escolhido cedo (sem lugar escolhido, nao cria nada). */
 	static VillageState createAtSite(ServerLevel level, VillageData data) {
 		int[] chosen = data.starterSite();
-		List<VillageState.Rect> protect = data.starterProtect();
-		if (chosen == null) {
-			chosen = findSafeSite(level, level.getRespawnData().pos());
-			data.setStarterSite(chosen[0], chosen[1], List.of());
-			site = chosen;
-			return buildLegacy(level, chosen[0], chosen[1], protect);
-		}
-		return build(level, chosen[0], chosen[1], protect);
+		return chosen == null ? null : build(level, chosen[0], chosen[1]);
 	}
 
 	/**
 	 * Reparo pelo comando: tira o registro da vila inicial, marca para procurar de novo e cria agora (num mundo ja
-	 * gerado, longe das vilas vanilla e de construcoes de jogador).
+	 * gerado, num lugar de chao natural, sem construcoes de jogador).
 	 */
 	public static VillageState restart(MinecraftServer server) {
 		VillageData data = VillageData.get(server);
@@ -242,35 +197,32 @@ public final class StartingVillage {
 		site = null;
 		ServerLevel level = server.overworld();
 		data.setStarterChecked();
-		int[] chosen = findSafeSite(level, level.getRespawnData().pos());
-		data.setStarterSite(chosen[0], chosen[1], List.of());
+		int[] chosen = findNaturalSite(level, level.getRespawnData().pos());
+		data.setStarterSite(chosen[0], chosen[1]);
 		site = chosen;
-		return buildLegacy(level, chosen[0], chosen[1], List.of());
+		return buildLegacy(level, chosen[0], chosen[1]);
 	}
 
 	/** Funda e constroi o acampamento perto de {@code near} e move o spawn do mundo para a praca (testes). */
 	public static VillageState create(ServerLevel level, BlockPos near) {
-		int[] chosen = findSite(level, near, List.of());
-		return build(level, chosen[0], chosen[1], List.of());
+		int[] chosen = findSite(level, near);
+		return build(level, chosen[0], chosen[1]);
 	}
 
 	/**
-	 * Constroi o acampamento com centro em (x, z): quadro, plano da vila (com as areas protegidas), fogueira, duas
+	 * Constroi o acampamento com centro em (x, z): quadro, plano da vila, fogueira, duas
 	 * casas e a plantacao nos lotes do plano, ja com o terreno preparado; move o spawn para a frente do quadro.
 	 */
-	static VillageState build(ServerLevel level, int x, int z, List<VillageState.Rect> protect) {
+	static VillageState build(ServerLevel level, int x, int z) {
 		// Vilas 3.0: o plano diretor (ja com o anel rural) e o campo de alturas saem do gerador antes dos chunks; o quadro
 		// fica exatamente no centro do campo, em cima da praca
-		VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, x, z, protect);
+		VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, x, z);
 		BlockPos board = new BlockPos(x, prep.plazaY() + 1, z);
 		VillageState village = VillageServer.create(level, board, true);
 		if (village.seed() != prep.seed()) {
 			MlinNotas.LOGGER.warn("[{}] semente da vila inicial diferente da do plano pre-calculado", MlinNotas.MOD_ID);
 		}
 		VillageLayout layout = new VillageLayout();
-		for (VillageState.Rect r : protect) {
-			layout.addProtected(new VillageState.Rect(r.x0() - board.getX(), r.z0() - board.getZ(), r.x1() - board.getX(), r.z1() - board.getZ()));
-		}
 		village.setLayout(layout);
 		layout.ensureRadius(VillageLevel.CAMP.radius());
 		layout.setMaster(prep.plan());
@@ -306,10 +258,11 @@ public final class StartingVillage {
 	}
 
 	/**
-	 * Vila inicial num mundo ja gerado (reparo pelo comando, mundo antigo sem lugar escolhido cedo): plano diretor lido do
-	 * mundo de agora, como antes das Vilas 3.0; o campo de alturas sai depois, com o que ja existe pinado.
+	 * Vila inicial num mundo ja gerado (reparo pelo comando {@code restart_starter}): plano diretor lido do mundo de agora,
+	 * como antes das Vilas 3.0 (respeita o que o jogador construiu); o campo de alturas sai depois, com o que ja existe
+	 * pinado.
 	 */
-	static VillageState buildLegacy(ServerLevel level, int x, int z, List<VillageState.Rect> protect) {
+	static VillageState buildLegacy(ServerLevel level, int x, int z) {
 		BlockPos board = boardSpot(level, x, z);
 		VillageBoardBlock.placeAt(level, ModBlocks.VILLAGE_BOARD.defaultBlockState().setValue(VillageBoardBlock.FACING, Direction.SOUTH), board,
 				3);
@@ -318,9 +271,6 @@ public final class StartingVillage {
 		VillageBuilder.clearTrees(level, village, -9, -9, 9, 9, board.getY() - 4, board.getY() + 16, true);
 		WorldTerrain terrain = new WorldTerrain(level, board, true);
 		VillageLayout layout = new VillageLayout();
-		for (VillageState.Rect r : protect) {
-			layout.addProtected(new VillageState.Rect(r.x0() - board.getX(), r.z0() - board.getZ(), r.x1() - board.getX(), r.z1() - board.getZ()));
-		}
 		village.setLayout(layout);
 		layout.ensureRadius(VillageLevel.CAMP.radius());
 		// plano diretor e os aneis do Acampamento ja aplainados (presente do mundo novo: arvores cortadas)
@@ -404,28 +354,22 @@ public final class StartingVillage {
 
 	/**
 	 * Melhor centro perto de {@code near} pelo gerador (sem gerar chunks): seco, acima do mar, pouco desnivel num
-	 * quadrado de 42 blocos, bioma aberto e longe das areas protegidas. Devolve {x, z}.
+	 * quadrado de 42 blocos, bioma aberto. Devolve {x, z}.
 	 */
-	static int[] findSite(ServerLevel level, BlockPos near, List<VillageState.Rect> protect) {
-		List<Candidate> list = candidates(level, near, protect, true);
+	static int[] findSite(ServerLevel level, BlockPos near) {
+		List<Candidate> list = candidates(level, near, true);
 		return list.isEmpty() ? new int[] {near.getX(), near.getZ()} : new int[] {list.getFirst().x, list.getFirst().z};
 	}
 
 	/**
-	 * Como {@link #findSite} num mundo ja gerado: o lugar fica a {@link #FALLBACK_DISTANCE}+ de qualquer vila vanilla e
-	 * com o centro quase todo de chao natural (sem construcoes de jogador).
+	 * Como {@link #findSite} num mundo ja gerado (so o reparo de operador): o centro e quase todo de chao natural (sem construcoes de jogador).
 	 */
-	static int[] findSafeSite(ServerLevel level, BlockPos near) {
-		List<Candidate> list = candidates(level, near, List.of(), false);
+	static int[] findNaturalSite(ServerLevel level, BlockPos near) {
+		List<Candidate> list = candidates(level, near, false);
 		int tried = 0;
 		for (Candidate c : list) {
 			if (tried++ >= 24) {
 				break;
-			}
-			BlockPos pos = new BlockPos(c.x, level.getSeaLevel(), c.z);
-			BlockPos village = level.findNearestMapStructure(StructureTags.VILLAGE, pos, FALLBACK_DISTANCE / 16 + 1, false);
-			if (village != null && Math.hypot(village.getX() - c.x, village.getZ() - c.z) < FALLBACK_DISTANCE) {
-				continue;
 			}
 			if (naturalRatio(level, c.x, c.z, 16) < 0.9) {
 				continue;
@@ -451,7 +395,7 @@ public final class StartingVillage {
 		return total == 0 ? 0 : (double) free / total;
 	}
 
-	private static List<Candidate> candidates(ServerLevel level, BlockPos near, List<VillageState.Rect> protect, boolean stopEarly) {
+	private static List<Candidate> candidates(ServerLevel level, BlockPos near, boolean stopEarly) {
 		ChunkGenerator generator = level.getChunkSource().getGenerator();
 		RandomState random = level.getChunkSource().randomState();
 		List<Candidate> out = new ArrayList<>();
@@ -464,9 +408,6 @@ public final class StartingVillage {
 					}
 					int x = near.getX() + i * 24;
 					int z = near.getZ() + j * 24;
-					if (tooClose(protect, x, z)) {
-						continue;
-					}
 					double score = score(level, generator, random, x, z);
 					if (score == Double.MAX_VALUE) {
 						continue;
@@ -482,19 +423,6 @@ public final class StartingVillage {
 		}
 		out.sort(Comparator.comparingDouble(Candidate::score));
 		return out;
-	}
-
-	/** Centro perto demais de uma area protegida (a praca e o primeiro anel de lotes ficam fora dela). */
-	private static boolean tooClose(List<VillageState.Rect> protect, int x, int z) {
-		int margin = VillagePlanner.PLAZA_RADIUS + 11;
-		for (VillageState.Rect r : protect) {
-			int dx = Math.max(Math.max(r.x0() - x, x - r.x1()), 0);
-			int dz = Math.max(Math.max(r.z0() - z, z - r.z1()), 0);
-			if (dx * dx + dz * dz < margin * margin) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static double score(ServerLevel level, ChunkGenerator generator, RandomState random, int x, int z) {
@@ -537,58 +465,6 @@ public final class StartingVillage {
 			return 9;
 		}
 		return 15;
-	}
-
-	// ---------------------------------------------------------------- chunks ja existentes (mundo antigo)
-
-	/**
-	 * Chunks do Overworld que ja existem em disco a ate {@code radius} de {@code near} (le so o cabecalho dos arquivos
-	 * de regiao: entrada diferente de zero = chunk salvo).
-	 */
-	static List<ChunkPos> existingChunks(MinecraftServer server, BlockPos near, int radius) {
-		Path dir = DimensionType.getStorageFolder(Level.OVERWORLD, server.getWorldPath(LevelResource.ROOT)).resolve("region");
-		List<ChunkPos> out = new ArrayList<>();
-		int c0x = (near.getX() - radius) >> 4;
-		int c1x = (near.getX() + radius) >> 4;
-		int c0z = (near.getZ() - radius) >> 4;
-		int c1z = (near.getZ() + radius) >> 4;
-		for (int rx = c0x >> 5; rx <= c1x >> 5; rx++) {
-			for (int rz = c0z >> 5; rz <= c1z >> 5; rz++) {
-				Path file = dir.resolve("r." + rx + "." + rz + ".mca");
-				if (!Files.isRegularFile(file)) {
-					continue;
-				}
-				try (RandomAccessFile raf = new RandomAccessFile(file.toFile(), "r")) {
-					if (raf.length() < 4096) {
-						continue;
-					}
-					for (int i = 0; i < 1024; i++) {
-						int entry = raf.readInt();
-						if (entry == 0) {
-							continue;
-						}
-						int cx = (rx << 5) + (i & 31);
-						int cz = (rz << 5) + (i >> 5);
-						if (cx >= c0x && cx <= c1x && cz >= c0z && cz <= c1z) {
-							out.add(new ChunkPos(cx, cz));
-						}
-					}
-				} catch (IOException e) {
-					MlinNotas.LOGGER.warn("[{}] nao deu para ler {}", MlinNotas.MOD_ID, file, e);
-				}
-			}
-		}
-		return out;
-	}
-
-	/** Cada chunk existente vira um retangulo (absoluto) com {@link #PROTECT_MARGIN} de folga. */
-	static List<VillageState.Rect> protectedAreas(List<ChunkPos> chunks) {
-		List<VillageState.Rect> out = new ArrayList<>();
-		for (ChunkPos c : chunks) {
-			out.add(new VillageState.Rect(c.getMinBlockX() - PROTECT_MARGIN, c.getMinBlockZ() - PROTECT_MARGIN, c.getMaxBlockX() + PROTECT_MARGIN,
-					c.getMaxBlockZ() + PROTECT_MARGIN));
-		}
-		return out;
 	}
 
 	// ---------------------------------------------------------------- jogadores

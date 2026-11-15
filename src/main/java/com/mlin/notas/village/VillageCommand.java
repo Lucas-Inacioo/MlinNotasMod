@@ -14,8 +14,8 @@ import java.util.List;
 /**
  * Reparos de vila (operador): {@code /village admin list}, {@code /village admin remove <nome>} (apaga o registro da
  * vila, sem mexer nos blocos) e {@code /village admin restart_starter} (apaga o registro da vila inicial e cria outra
- * agora, longe das vilas vanilla) e {@code /village admin field <x> <z>} (campo de alturas da vila inicial na coluna: altura
- * alvo, tipo, zona, peso da mistura e profundidade fechada).
+ * agora, num lugar de chao natural perto do spawn) e {@code /village admin field <x> <z>} (campo de alturas da vila
+ * inicial na coluna: altura alvo, tipo, zona, peso da mistura e profundidade fechada).
  */
 public final class VillageCommand {
 	private VillageCommand() {

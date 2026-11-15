@@ -38,19 +38,13 @@ class VillageContent {
 				+ "{\"from\":[2,13,6],\"to\":[14,15,10]," + roof + "}]}");
 		ContentGen.simpleItem("village_board", "item/generated");
 		ContentGen.name("block", "village_board", "Quadro de Missões", "Village Quest Board");
-		text("block.mlinnotas.village_board.tooltip", "Funda uma vila (ou abre a vila perto): projetos, missões do dia e mercado",
-				"Founds a village (or opens the nearby one): projects, daily bounties and market");
+		text("block.mlinnotas.village_board.tooltip", "Abre a vila inicial: projetos, missões do dia e mercado",
+				"Opens the starting village: projects, daily bounties and market");
 		ContentGen.write("data/mlinnotas/loot_table/blocks/village_board.json", "{\"type\":\"minecraft:block\",\"pools\":[{\"condition\":{\"type\":"
 				+ "\"minecraft:survives_explosion\"},\"entries\":[{\"type\":\"minecraft:item\",\"condition\":{\"type\":\"minecraft:match_block\","
 				+ "\"blocks\":\"mlinnotas:village_board\",\"state\":{\"half\":\"lower\"}},\"name\":\"mlinnotas:village_board\"}],\"rolls\":1}],"
 				+ "\"random_sequence\":\"mlinnotas:blocks/village_board\"}");
 		ContentGen.tag("block", "minecraft:mineable/axe", List.of("mlinnotas:village_board"), false);
-		ContentGen.shaped("village_board", "SSS|PBP|F F", Map.of("S", "#minecraft:wooden_slabs", "P", "minecraft:paper", "B", "#minecraft:planks",
-				"F", "#minecraft:wooden_fences"), "misc");
-
-		// --- quadro nas vilas vanilla (feature no fim da geracao, ver VillageBoardFeature) ---
-		ContentGen.write("data/mlinnotas/worldgen/feature/village_board.json", "{\"type\":\"mlinnotas:village_board\"}");
-		ContentGen.write("data/mlinnotas/worldgen/placed_feature/village_board.json", "{\"feature\":\"mlinnotas:village_board\",\"placement\":[]}");
 
 		// --- tags de custo ---
 		ContentGen.tag("item", "mlinnotas:village/stone", List.of("minecraft:cobblestone", "minecraft:stone", "minecraft:stone_bricks",
@@ -203,7 +197,7 @@ class VillageContent {
 		text("gui.mlinnotas.village.footer.idle", "%s obras prontas: entregue materiais!", "%s projects done: deliver materials!");
 
 		// --- mensagens ---
-		text("message.mlinnotas.village.founded", "Vila %s fundada! Use o quadro para fazê-la crescer.", "Village %s founded! Use the board to grow it.");
+		text("message.mlinnotas.village.only_starter", "Só a vila onde vocês nasceram pode crescer: este quadro fica fora dela.", "Only the village you started in can grow: this board is outside it.");
 		text("message.mlinnotas.village.welcome", "Bem-vindo ao acampamento %s! Abra o quadro de missões para fazê-lo crescer.",
 				"Welcome to the %s camp! Open the quest board to make it grow.");
 		text("message.mlinnotas.village.deposited", "%s: entrega registrada", "%s: delivery recorded");
