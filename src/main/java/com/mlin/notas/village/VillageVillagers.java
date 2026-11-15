@@ -146,17 +146,28 @@ public final class VillageVillagers {
 		GlobalPos potential = brain.getMemory(MemoryModuleType.POTENTIAL_JOB_SITE).orElse(null);
 		if (potential != null && potential.dimension() == level.dimension() && !jobSiteAllowed(level, potential.pos())) {
 			brain.eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
-			level.getPoiManager().release(potential.pos());
+			release(level, potential.pos());
 			changed = true;
 		}
 		GlobalPos job = brain.getMemory(MemoryModuleType.JOB_SITE).orElse(null);
 		if (job != null && job.dimension() == level.dimension() && !jobSiteAllowed(level, job.pos())
 				&& v.getVillagerXp() == 0 && v.getVillagerData().level() <= 1) {
 			brain.eraseMemory(MemoryModuleType.JOB_SITE);
-			level.getPoiManager().release(job.pos());
+			release(level, job.pos());
 			changed = true;
 		}
 		return changed;
+	}
+
+	/**
+	 * Solta a reserva de um POI so se ele ainda existir: a cama ou o posto pode ter sumido (melhoria de casa, bloco
+	 * quebrado) e o {@code PoiManager.release} vanilla derruba o servidor com "POI never registered".
+	 */
+	static void release(ServerLevel level, BlockPos pos) {
+		PoiManager poi = level.getPoiManager();
+		if (poi.getType(pos).isPresent()) {
+			poi.release(pos);
+		}
 	}
 
 	private static boolean isBed(ServerLevel level, BlockPos pos) {
@@ -181,7 +192,9 @@ public final class VillageVillagers {
 		if (bed.isEmpty()) {
 			if (home != null) {
 				// sem cama livre na vila: larga a cama de fora (ou invalida) em vez de dormir fora da area
-				poi.release(home.pos());
+				if (home.dimension() == level.dimension()) {
+					release(level, home.pos());
+				}
 				brain.eraseMemory(MemoryModuleType.HOME);
 			}
 			return false;
@@ -190,8 +203,8 @@ public final class VillageVillagers {
 		if (poi.take(p -> p.is(PoiTypes.HOME), (t, pp) -> pp.equals(target), target, 1).isEmpty()) {
 			return false;
 		}
-		if (home != null) {
-			poi.release(home.pos());
+		if (home != null && home.dimension() == level.dimension()) {
+			release(level, home.pos());
 		}
 		brain.setMemory(MemoryModuleType.HOME, GlobalPos.of(level.dimension(), target));
 		return true;

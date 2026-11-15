@@ -258,6 +258,27 @@ public class VillagersGameTest {
 		return head;
 	}
 
+	/** Cama sumida (melhoria de casa tira a planta antiga): soltar a reserva nao pode derrubar o servidor. */
+	@GameTest(maxTicks = 200, environment = "mlinnotas-gametest:v3_villagers")
+	public void removedBedDoesNotCrashTheSweep(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		VillageState v = village(helper, 104_000 + RUN, VillageLevel.VILLAGE, VillageProject.HOUSE);
+		int half = VillageServer.planHalf(v);
+		VillageLayout.Lot house = lot(v, "house");
+		BlockPos at = ground(level, v.x() + house.rect().x0(), v.z() + house.rect().z0());
+		BlockPos gone = bedAt(level, at.getX() + 2, at.getZ() + 2);
+		Villager villager = EntityTypes.VILLAGER.spawn(level, at.above(), EntitySpawnReason.MOB_SUMMONED);
+		villager.getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(level.dimension(), gone));
+		villager.getBrain().setMemory(MemoryModuleType.JOB_SITE, GlobalPos.of(level.dimension(), gone.below(2)));
+		level.setBlock(gone, Blocks.AIR.defaultBlockState(), 3);
+		level.setBlock(gone.west(), Blocks.AIR.defaultBlockState(), 3);
+		helper.runAfterDelay(2, () -> {
+			VillageVillagers.ensureHome(level, v, villager, half);
+			VillageVillagers.clearInvalidSites(level, villager);
+			helper.succeed();
+		});
+	}
+
 	@GameTest(maxTicks = 200, environment = "mlinnotas-gametest:v3_villagers")
 	public void everyResidentGetsABedInsideTheVillage(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
