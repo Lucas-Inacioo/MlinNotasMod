@@ -115,8 +115,17 @@ public final class StreetWorks {
 		return bp;
 	}
 
-	/** Eixo da avenida: sem rua de outro tipo, nem ponte, nem praca, por perto. */
+	private static final StreetPlanner.Octagon STONE_WALL = StreetPlanner.Octagon.of(com.mlin.notas.village.VillagePlanner.WALL_HALF, null);
+	private static final StreetPlanner.Octagon OUTER_WALL = StreetPlanner.Octagon.of(com.mlin.notas.village.RuralRing.WALL, null);
+	/** Distancia da linha das muralhas sem canteiro, arvore nem poste no eixo da avenida (passagem do arco do portao). */
+	static final double GATE_CLEAR = 6.5;
+
+	/** Eixo da avenida: sem rua de outro tipo, nem ponte, nem praca, por perto, e fora da passagem dos portoes. */
 	static boolean medianCandidate(MasterPlan plan, int x, int z) {
+		if (Math.abs(STONE_WALL.f(x, z)) <= GATE_CLEAR || (plan.rural() && Math.abs(OUTER_WALL.f(x, z)) <= GATE_CLEAR)) {
+			// passagem dos portoes livre para o arco (Vilas 3.0: rua plana de 3 de cada lado da muralha)
+			return false;
+		}
 		if (x * x + z * z < 10 * 10) {
 			return false;
 		}

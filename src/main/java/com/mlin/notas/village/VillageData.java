@@ -432,6 +432,56 @@ public class VillageData extends SavedData {
 			Codec.INT.optionalFieldOf("index", 0).forGetter(j -> j.index)
 	).apply(i, TerrainJob::new));
 
+
+	/** Chave do campo de alturas da vila inicial calculado antes de a vila existir (lugar escolhido, quadro ainda nao). */
+	public static final String PENDING_FIELD = "";
+
+	private record FieldEntry(String village, HeightField field) {
+	}
+
+	/**
+	 * Campo de alturas (Vilas 3.0) guardado a parte da vila: o {@link #VILLAGE_CODEC} tambem vai no pacote da tela e o
+	 * campo nao precisa ir para o cliente. Campo de formato desconhecido some (o servidor recalcula).
+	 */
+	private static final Codec<Optional<FieldEntry>> FIELD_CODEC = RecordCodecBuilder.create(i -> i.group(
+			Codec.STRING.fieldOf("village").forGetter(e -> e.map(FieldEntry::village).orElse("")),
+			Codec.INT_STREAM.fieldOf("header").forGetter(e -> IntStream.of(e.map(x -> x.field().header()).orElse(new int[0]))),
+			Codec.BYTE_BUFFER.fieldOf("heights").forGetter(e -> java.nio.ByteBuffer.wrap(e.map(x -> x.field().encodeHeights()).orElse(new byte[0]))),
+			Codec.BYTE_BUFFER.fieldOf("kinds").forGetter(e -> java.nio.ByteBuffer.wrap(e.map(x -> x.field().encodeKinds()).orElse(new byte[0])))
+	).apply(i, (village, header, heights, kinds) -> {
+		try {
+			HeightField field = HeightField.decode(header.toArray(), bytes(heights), bytes(kinds));
+			return field == null ? Optional.empty() : Optional.of(new FieldEntry(village, field));
+		} catch (RuntimeException e) {
+			MlinNotas.LOGGER.warn("[{}] campo de alturas de {} ilegivel; sera recalculado", MlinNotas.MOD_ID, village, e);
+			return Optional.empty();
+		}
+	}));
+
+	private static byte[] bytes(java.nio.ByteBuffer buffer) {
+		java.nio.ByteBuffer b = buffer.duplicate();
+		byte[] out = new byte[b.remaining()];
+		b.get(out);
+		return out;
+	}
+
+	private final Map<String, HeightField> fields = new LinkedHashMap<>();
+
+	/** Campo de alturas da vila (ou {@link #PENDING_FIELD}); null se ainda nao foi calculado. */
+	public HeightField field(String village) {
+		return fields.get(village);
+	}
+
+	public void putField(String village, HeightField field) {
+		fields.put(village, field);
+		setDirty();
+	}
+
+	public void removeField(String village) {
+		if (fields.remove(village) != null) {
+			setDirty();
+		}
+	}
 	private final Map<String, TerrainJob> terrainJobs = new LinkedHashMap<>();
 
 	public TerrainJob terrainJob(String village) {
@@ -461,8 +511,10 @@ public class VillageData extends SavedData {
 					: IntStream.of(d.starterSite)),
 			// so lido (formato antigo: areas protegidas do reparo de mundo antigo); nao e mais usado nem gravado
 			ints("starter_protect").forGetter(d -> IntStream.empty()),
-			TERRAIN_JOB_CODEC.listOf().optionalFieldOf("terrain_jobs", List.of()).forGetter(d -> List.copyOf(d.terrainJobs.values()))
-	).apply(i, (villages, jobs, checked, records, site, protect, terrainJobs) -> {
+			TERRAIN_JOB_CODEC.listOf().optionalFieldOf("terrain_jobs", List.of()).forGetter(d -> List.copyOf(d.terrainJobs.values())),
+			FIELD_CODEC.listOf().optionalFieldOf("height_fields", List.of()).forGetter(d -> d.fields.entrySet().stream()
+					.map(e -> Optional.of(new FieldEntry(e.getKey(), e.getValue()))).toList())
+	).apply(i, (villages, jobs, checked, records, site, protect, terrainJobs, fields) -> {
 		VillageData data = new VillageData(villages, jobs, checked);
 		for (TerrainJob job : terrainJobs) {
 			if (data.villages.containsKey(job.village)) {
@@ -474,6 +526,13 @@ public class VillageData extends SavedData {
 		}
 		int[] s = site.toArray();
 		data.starterSite = s.length >= 2 ? new int[] {s[0], s[1]} : null;
+		for (Optional<FieldEntry> e : fields) {
+			e.ifPresent(entry -> {
+				if (entry.village().equals(PENDING_FIELD) || data.villages.containsKey(entry.village())) {
+					data.fields.put(entry.village(), entry.field());
+				}
+			});
+		}
 		return data;
 	}));
 
@@ -524,6 +583,7 @@ public class VillageData extends SavedData {
 		jobs.remove(key);
 		records.remove(key);
 		terrainJobs.remove(key);
+		fields.remove(key);
 		setDirty();
 	}
 

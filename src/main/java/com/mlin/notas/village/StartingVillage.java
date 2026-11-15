@@ -59,7 +59,10 @@ public final class StartingVillage {
 	static void init() {
 		ServerLevelEvents.LOAD.register(StartingVillage::onLevelLoad);
 		ServerLifecycleEvents.SERVER_STARTED.register(StartingVillage::onServerStarted);
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> site = null);
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			site = null;
+			VillageFieldServer.clear();
+		});
 	}
 
 	/** Centro da vila inicial (x, z) ou null. */
@@ -106,10 +109,13 @@ public final class StartingVillage {
 			return;
 		}
 		site = null;
+		VillageFieldServer.clear();
 		try {
 			VillageData data = VillageData.get(server);
 			int[] stored = data.starterSite();
 			VillageState starter = starter(data);
+			// campo de alturas ja calculado: fica disponivel para a geracao antes de qualquer chunk
+			VillageFieldServer.setActive(starter != null ? data.field(starter.key()) : data.field(VillageData.PENDING_FIELD));
 			if (stored != null) {
 				site = stored;
 				return;
@@ -132,6 +138,10 @@ public final class StartingVillage {
 			data.setStarterSite(chosen[0], chosen[1]);
 			site = chosen;
 			MlinNotas.LOGGER.info("[{}] lugar da vila inicial escolhido em {}, {}", MlinNotas.MOD_ID, chosen[0], chosen[1]);
+			// Vilas 3.0: plano diretor e campo de alturas pelo gerador, antes de o spawn gerar chunks
+			VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, chosen[0], chosen[1]);
+			data.putField(VillageData.PENDING_FIELD, prep.field());
+			VillageFieldServer.setActive(prep.field());
 		} catch (RuntimeException e) {
 			MlinNotas.LOGGER.error("[{}] falha ao escolher o lugar da vila inicial", MlinNotas.MOD_ID, e);
 		}
@@ -139,6 +149,15 @@ public final class StartingVillage {
 
 	static void onServerStarted(MinecraftServer server) {
 		VillageData data = VillageData.get(server);
+		VillageState existing = starter(data);
+		if (existing != null) {
+			// vila inicial de antes das Vilas 3.0 (ou que ganhou o anel rural): campo de alturas com o que ja existe pinado
+			try {
+				VillageFieldServer.ensureField(server.overworld(), existing);
+			} catch (RuntimeException e) {
+				MlinNotas.LOGGER.error("[{}] falha ao calcular o campo de alturas da vila inicial", MlinNotas.MOD_ID, e);
+			}
+		}
 		if (data.starterChecked()) {
 			return;
 		}
@@ -181,7 +200,7 @@ public final class StartingVillage {
 		int[] chosen = findNaturalSite(level, level.getRespawnData().pos());
 		data.setStarterSite(chosen[0], chosen[1]);
 		site = chosen;
-		return build(level, chosen[0], chosen[1]);
+		return buildLegacy(level, chosen[0], chosen[1]);
 	}
 
 	/** Funda e constroi o acampamento perto de {@code near} e move o spawn do mundo para a praca (testes). */
@@ -195,6 +214,55 @@ public final class StartingVillage {
 	 * casas e a plantacao nos lotes do plano, ja com o terreno preparado; move o spawn para a frente do quadro.
 	 */
 	static VillageState build(ServerLevel level, int x, int z) {
+		// Vilas 3.0: o plano diretor (ja com o anel rural) e o campo de alturas saem do gerador antes dos chunks; o quadro
+		// fica exatamente no centro do campo, em cima da praca
+		VillageFieldServer.Prepared prep = VillageFieldServer.prepareStarter(level, x, z);
+		BlockPos board = new BlockPos(x, prep.plazaY() + 1, z);
+		VillageState village = VillageServer.create(level, board, true);
+		if (village.seed() != prep.seed()) {
+			MlinNotas.LOGGER.warn("[{}] semente da vila inicial diferente da do plano pre-calculado", MlinNotas.MOD_ID);
+		}
+		VillageLayout layout = new VillageLayout();
+		village.setLayout(layout);
+		layout.ensureRadius(VillageLevel.CAMP.radius());
+		layout.setMaster(prep.plan());
+		VillageData data = VillageData.get(level.getServer());
+		data.putField(village.key(), prep.field());
+		data.removeField(VillageData.PENDING_FIELD);
+		VillageFieldServer.setActive(prep.field());
+		// clareira em volta do quadro e os aneis do Acampamento ja aplainados (presente do mundo novo: arvores cortadas). O
+		// plano veio do gerador: os chunks dos aneis ainda nao existem e a terraplenagem pula coluna de chunk descarregado
+		int reach = StreetPlanner.RING_STREETS[Math.min(VillageLevel.CAMP.rings(), StreetPlanner.RING_STREETS.length) - 1] + 6;
+		for (int cx = (x - reach) >> 4; cx <= (x + reach) >> 4; cx++) {
+			for (int cz = (z - reach) >> 4; cz <= (z + reach) >> 4; cz++) {
+				level.getChunk(cx, cz);
+			}
+		}
+		VillageBuilder.clearTrees(level, village, -9, -9, 9, 9, board.getY() - 4, board.getY() + 16, true);
+		for (int ring = 1; ring <= VillageLevel.CAMP.rings(); ring++) {
+			VillageTerrain.prepareNow(level, village, ring, true);
+		}
+		placeBoard(level, board);
+		return finishCamp(level, village, board, layout);
+	}
+
+	/** Quadro na praca ja aplainada (o que sobrou de natural no lugar sai). */
+	private static void placeBoard(ServerLevel level, BlockPos board) {
+		for (BlockPos p : new BlockPos[] {board, board.above()}) {
+			if (!level.getBlockState(p).isAir() && WorldTerrain.replaceable(level.getBlockState(p), true)) {
+				level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+			}
+		}
+		VillageBoardBlock.placeAt(level, ModBlocks.VILLAGE_BOARD.defaultBlockState().setValue(VillageBoardBlock.FACING, Direction.SOUTH), board,
+				3);
+	}
+
+	/**
+	 * Vila inicial num mundo ja gerado (reparo pelo comando {@code restart_starter}): plano diretor lido do mundo de agora,
+	 * como antes das Vilas 3.0 (respeita o que o jogador construiu); o campo de alturas sai depois, com o que ja existe
+	 * pinado.
+	 */
+	static VillageState buildLegacy(ServerLevel level, int x, int z) {
 		BlockPos board = boardSpot(level, x, z);
 		VillageBoardBlock.placeAt(level, ModBlocks.VILLAGE_BOARD.defaultBlockState().setValue(VillageBoardBlock.FACING, Direction.SOUTH), board,
 				3);
@@ -210,7 +278,14 @@ public final class StartingVillage {
 		for (int ring = 1; ring <= VillageLevel.CAMP.rings(); ring++) {
 			VillageTerrain.prepareNow(level, village, ring, true);
 		}
-		terrain = new WorldTerrain(level, board, true);
+		VillageState out = finishCamp(level, village, board, layout);
+		VillageFieldServer.ensureField(level, out);
+		return out;
+	}
+
+	/** Fogueira, duas casas e a plantacao nos lotes do plano; spawn na frente do quadro. */
+	private static VillageState finishCamp(ServerLevel level, VillageState village, BlockPos board, VillageLayout layout) {
+		WorldTerrain terrain = new WorldTerrain(level, board, true);
 		Random random = new Random(village.seed());
 		VillageData data = VillageData.get(level.getServer());
 		VillageLayout.Lot fire = layout.addNear(VillageLayout.CAMPFIRE, village.style(), village.seed(), terrain, random, 0);

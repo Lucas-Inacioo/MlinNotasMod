@@ -206,12 +206,17 @@ public final class VillageServer {
 		return village == null ? 0 : village.level().discount();
 	}
 
+	/** Semente da vila com o quadro em {@code board} (o plano diretor da vila inicial e calculado antes do quadro existir). */
+	public static long seedFor(ServerLevel level, BlockPos board) {
+		return level.getSeed() ^ board.asLong() * 0x5DEECE66DL;
+	}
+
 	/**
 	 * Cria o registro de uma vila com centro no quadro {@code board} (estilo pelo bioma). Nenhum caminho do jogo funda
 	 * vila por aqui: a vila inicial vem de {@link StartingVillage} e os testes chamam direto.
 	 */
 	public static VillageState create(ServerLevel level, BlockPos board, boolean starter) {
-		long seed = level.getSeed() ^ board.asLong() * 0x5DEECE66DL;
+		long seed = seedFor(level, board);
 		String biome = level.getBiome(board).unwrapKey().map(k -> k.identifier().toString()).orElse(null);
 		VillageState village = new VillageState(dimension(level), board.getX(), board.getY(), board.getZ(), seed, VillageStyle.forBiome(biome),
 				WaystoneNames.generate(seed));

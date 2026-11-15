@@ -343,7 +343,9 @@ public final class StreetPlanner {
 		double o = offsets[0];
 		pts.add(world(ux, uz, t, o));
 		for (int i = 1; i < AVENUE_STOPS.length; i++) {
-			double start = AVENUE_STOPS[i - 1] + (i - 1 == 0 ? 0 : 3);
+			// depois da muralha de pedra (48 -> portao em 50) a avenida segue reta ate 53: a rua do portao fica plana e reta por
+			// 3 blocos dos dois lados da muralha (Vilas 3.0, {@link HeightFieldBuilder#GATE_HALF})
+			double start = AVENUE_STOPS[i - 1] + (i - 1 == 0 ? 0 : AVENUE_STOPS[i - 1] == 48 ? 5 : 3);
 			double target = offsets[i];
 			if (target != o && start < AVENUE_STOPS[i]) {
 				pts.add(world(ux, uz, start, o));

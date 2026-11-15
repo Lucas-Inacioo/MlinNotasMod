@@ -2123,5 +2123,20 @@
   "village.mlinnotas.work.fields.hedge": "Hedge and gateposts of the rural ring",
   "village.mlinnotas.work.fields.lamps": "Lamp posts in the fields",
   "village.mlinnotas.work.wall.historic": "Historic centre: open arches and a promenade on the wall",
-  "village.mlinnotas.work.wall.barbican": "Barbicans of the outer wall gates"
+  "village.mlinnotas.work.wall.barbican": "Barbicans of the outer wall gates",
+  "commands.mlinnotas.village.field": "Field at %s, %s: height %s, %s, zone %s, weight %s%%, closed down to %s below %s",
+  "commands.mlinnotas.village.field.none": "No height field covers %s, %s",
+  "commands.mlinnotas.village.field.gate": "(gate, street at %s)",
+  "commands.mlinnotas.village.field.pinned": "(pinned)",
+  "commands.mlinnotas.village.field.kind.natural": "natural ground",
+  "commands.mlinnotas.village.field.kind.band": "transition",
+  "commands.mlinnotas.village.field.kind.plaza": "plaza",
+  "commands.mlinnotas.village.field.kind.block": "city block",
+  "commands.mlinnotas.village.field.kind.street": "street",
+  "commands.mlinnotas.village.field.kind.gate_stone": "stone wall gate",
+  "commands.mlinnotas.village.field.kind.gate_outer": "outer wall gate",
+  "commands.mlinnotas.village.field.kind.free": "wall strip / edge",
+  "commands.mlinnotas.village.field.kind.water": "water",
+  "commands.mlinnotas.village.field.kind.keep": "carved-out area",
+  "commands.mlinnotas.village.field.kind.path": "plot path"
 }
