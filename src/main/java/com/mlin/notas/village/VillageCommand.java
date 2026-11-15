@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Reparos de vila (operador): {@code /village admin list}, {@code /village admin remove <nome>} (apaga o registro da
  * vila, sem mexer nos blocos) e {@code /village admin restart_starter} (apaga o registro da vila inicial e cria outra
- * agora, longe das vilas vanilla).
+ * agora, num lugar de chao natural perto do spawn).
  */
 public final class VillageCommand {
 	private VillageCommand() {

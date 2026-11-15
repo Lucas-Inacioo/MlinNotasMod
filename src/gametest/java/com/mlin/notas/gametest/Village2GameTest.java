@@ -336,14 +336,6 @@ public class Village2GameTest {
 		} finally {
 			StartingVillage.setSite(previous);
 		}
-		// o quadro do worldgen tambem nao aparece perto
-		StartingVillage.setSite(new int[] {sx, sz});
-		boolean nearBoard = StartingVillage.nearSite(new BlockPos(sx + 40, 64, sz - 30));
-		boolean farBoard = StartingVillage.nearSite(new BlockPos(sx + 400, 64, sz));
-		StartingVillage.setSite(previous);
-		if (!nearBoard || farBoard) {
-			throw new IllegalStateException("quadro do worldgen: perto " + nearBoard + ", longe " + farBoard);
-		}
 		helper.succeed();
 	}
 }

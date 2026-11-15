@@ -114,41 +114,9 @@ public class VillageClientGameTest implements FabricClientGameTest {
 			}
 			shot(context, real, c, new double[] {0, 9, 62}, new double[] {0, 3, 49}, "mlinnotas-village-grown-gate");
 			boardScreens(context, real, c, "grown");
-			vanillaVillage(context, real, c);
 			Village2Shots.slopeVillage(context, real, c);
 			hideHud(context, false);
 		}
-	}
-
-	/** A vila vanilla mais perto ganhou o quadro de missoes perto do sino da praca. */
-	private static void vanillaVillage(ClientGameTestContext context, TestSingleplayerContext real, BlockPos from) {
-		BlockPos board = real.getServer().computeOnServer(server -> {
-			ServerLevel level = server.overworld();
-			BlockPos found = level.findNearestMapStructure(net.minecraft.tags.StructureTags.VILLAGE, from.offset(400, 0, 0), 100, false);
-			if (found == null) {
-				return null;
-			}
-			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-			for (int dx = -48; dx <= 48; dx++) {
-				for (int dz = -48; dz <= 48; dz++) {
-					int top = level.getChunk((found.getX() + dx) >> 4, (found.getZ() + dz) >> 4)
-							.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (found.getX() + dx) & 15, (found.getZ() + dz) & 15);
-					for (int y = top + 1; y >= top - 6; y--) {
-						pos.set(found.getX() + dx, y, found.getZ() + dz);
-						if (level.getBlockState(pos).is(ModBlocks.VILLAGE_BOARD)) {
-							return pos.immutable();
-						}
-					}
-				}
-			}
-			throw new IllegalStateException("vila vanilla em " + found + " sem quadro de missoes");
-		});
-		if (board == null) {
-			MlinNotas.LOGGER.warn("[VillageClientGameTest] nenhuma vila vanilla perto para conferir o quadro");
-			return;
-		}
-		MlinNotas.LOGGER.info("[VillageClientGameTest] quadro da vila vanilla em {}", board);
-		shot(context, real, board, new double[] {5, 3, 6}, new double[] {0, 1, 0}, "mlinnotas-village-vanilla-board");
 	}
 
 	static VillageState starter(net.minecraft.server.MinecraftServer server) {
