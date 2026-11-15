@@ -55,8 +55,7 @@ final class Village2Shots {
 		real.getServer().runOnServer(server -> {
 			VillageState village = VillageClientGameTest.starter(server);
 			com.mlin.notas.village.VillageTerrain.prepareNow(server.overworld(), village, 3, false);
-			MlinNotas.LOGGER.info("[VillageClientGameTest] anel 3 aplainado: {} colunas, corte {}, aterro {}", village.ring(3).columns(),
-					village.ring(3).cut(), village.ring(3).filled());
+			MlinNotas.LOGGER.info("[VillageClientGameTest] anel 3 aplainado: {} colunas", village.ring(3).columns());
 		});
 		showOverlay(real, context, c);
 		VillageClientGameTest.shot(context, real, c, new double[] {-50, 36, 50}, new double[] {0, 0, 0}, "mlinnotas-village-ring3-overlay");

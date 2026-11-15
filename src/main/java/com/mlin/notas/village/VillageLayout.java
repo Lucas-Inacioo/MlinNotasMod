@@ -312,10 +312,6 @@ public final class VillageLayout {
 		return Collections.unmodifiableList(protect);
 	}
 
-	public void addProtected(VillageState.Rect rect) {
-		protect.add(rect);
-		roads.removeIf(k -> rect.contains(colX(k), colZ(k)));
-	}
 
 	public static long col(int x, int z) {
 		return ((long) x << 32) | (z & 0xFFFFFFFFL);

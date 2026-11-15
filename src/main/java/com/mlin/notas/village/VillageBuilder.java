@@ -45,13 +45,6 @@ public final class VillageBuilder {
 	 */
 	public static boolean step(ServerLevel level, VillageState village, VillageData.Job job, VillagePalette palette) {
 		VillageState.Rect rect = lotRect(village, job);
-		if (job.paused()) {
-			return false;
-		}
-		// obra num lote do plano diretor: antes do primeiro bloco de cada coluna, confere se o plato continua na altura
-		boolean check = rect != null && village.layout() != null && village.layout().master() != null && village.layout().lot(job.lot) != null
-				&& village.layout().lot(job.lot).parcel() >= 0;
-		java.util.Set<Long> started = null;
 		int budget = BLOCKS_PER_TICK;
 		int airBudget = 64;
 		while (!job.done() && budget > 0 && airBudget > 0) {
@@ -59,22 +52,6 @@ public final class VillageBuilder {
 			BlockPos pos = world(village, p.x(), p.y(), p.z());
 			if (!level.isLoaded(pos)) {
 				return false;
-			}
-			if (check && rect.contains(p.x(), p.z())) {
-				long col = VillageLayout.col(p.x(), p.z());
-				if (!job.isVerified(col)) {
-					if (started == null) {
-						started = new java.util.HashSet<>();
-						for (long c : job.recordedColumns()) {
-							started.add(VillageLayout.col(VillageLayout.colX(c) - village.x(), VillageLayout.colZ(c) - village.z()));
-						}
-					}
-					if (!started.contains(col) && !VillageTerrain.plateauOk(level, village, p.x(), p.z(), job.ground)) {
-						job.pausedAt = col;
-						return false;
-					}
-					job.markVerified(col);
-				}
 			}
 			boolean placed = place(level, palette, pos, p, job.index);
 			if (placed) {
@@ -104,7 +81,8 @@ public final class VillageBuilder {
 
 	/** Anota o bloco que a obra colocou dentro do lote (demolir tira so o que a vila construiu). */
 	static void record(ServerLevel level, VillageData.Job job, VillageState.Rect rect, Placement p, BlockPos pos) {
-		if (rect == null || p.part().earthwork() || p.part() == VPart.AIR || !rect.contains(p.x(), p.z())) {
+		boolean wall = job.project == VillageProject.WALL || job.project == VillageProject.OUTER_WALL;
+		if (p.part().earthwork() || p.part() == VPart.AIR || (rect == null ? !wall : !rect.contains(p.x(), p.z()))) {
 			return;
 		}
 		BlockState state = level.getBlockState(pos);

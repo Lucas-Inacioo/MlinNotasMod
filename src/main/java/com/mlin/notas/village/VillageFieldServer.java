@@ -102,6 +102,7 @@ public final class VillageFieldServer {
 		HeightField field = data.field(village.key());
 		if (field != null && field.planExtent() >= plan.extent() && field.centerX() == village.x() && field.centerZ() == village.z()) {
 			active = field;
+			plan.adoptField(field);
 			return field;
 		}
 		long start = System.nanoTime();
@@ -109,6 +110,7 @@ public final class VillageFieldServer {
 		field = HeightFieldBuilder.forPlan(plan, village.x(), village.z(), natural(level, village.x(), village.z()), minY(level), pins);
 		data.putField(village.key(), field);
 		active = field;
+		plan.adoptField(field);
 		MlinNotas.LOGGER.info("[{}] campo de alturas da vila {} calculado em {} ms ({} colunas pinadas)", MlinNotas.MOD_ID, village.name(),
 				(System.nanoTime() - start) / 1_000_000, pins.size());
 		return field;

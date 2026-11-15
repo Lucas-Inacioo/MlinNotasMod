@@ -83,7 +83,7 @@ public final class OuterWallPlanner {
 				for (int[] c : cells) {
 					cx += c[0];
 					cz += c[1];
-					base = Math.max(base, terrain.ground(c[0], c[1]));
+					base = Math.max(base, groundAt(plan, terrain, c[0], c[1]));
 					if (plan.ground(c[0], c[1])) {
 						base = Math.max(base, plan.streetHeight(c[0], c[1]));
 					}
@@ -196,7 +196,7 @@ public final class OuterWallPlanner {
 				if (layer == 0 || gateCells.contains(key) || towerCells.contains(key) || blocked.contains(key)) {
 					continue;
 				}
-				int g = terrain.water(x, z) > 0 ? terrain.ground(x, z) + 1 : terrain.ground(x, z);
+				int g = terrain.water(x, z) > 0 ? terrain.ground(x, z) + 1 : foot(plan, terrain, x, z);
 				boolean pillar = nextTo(gateCells, x, z) || nextTo(blocked, x, z);
 				int ref = ref(plan, terrain, x, z);
 				for (Facing f : Facing.values()) {
@@ -236,6 +236,10 @@ public final class OuterWallPlanner {
 	 * (plato ou rua do anel 6): numa encosta a muralha sobe do chao de fora ate acima do nivel da cidade.
 	 */
 	static int ref(MasterPlan plan, Terrain terrain, int x, int z) {
+		if (plan.field() != null) {
+			// campo fixo: o maior chao do campo em volta (dentro e fora da linha), a muralha nunca fica abaixo dele
+			return Math.max(window(plan.field(), x, z, 3, true, plan.field().heightRel(x, z)), terrain.ground(x, z));
+		}
 		int ref = terrain.ground(x, z);
 		for (int dx = -3; dx <= 3; dx++) {
 			for (int dz = -3; dz <= 3; dz++) {
@@ -248,6 +252,38 @@ public final class OuterWallPlanner {
 			}
 		}
 		return ref;
+	}
+
+	/** Chao da coluna: o do campo fixo quando o plano tem um, senao o lido do mundo. */
+	static int groundAt(MasterPlan plan, Terrain terrain, int x, int z) {
+		if (plan.field() != null) {
+			int h = plan.field().heightRel(x, z);
+			if (h != Integer.MIN_VALUE) {
+				return h;
+			}
+		}
+		return terrain.ground(x, z);
+	}
+
+	/** Pe da coluna da muralha: o menor chao do campo num raio de 2 (lado de dentro e de fora); sem campo, o chao da coluna. */
+	static int foot(MasterPlan plan, Terrain terrain, int x, int z) {
+		if (plan.field() != null && plan.field().heightRel(x, z) != Integer.MIN_VALUE) {
+			return Math.min(window(plan.field(), x, z, 2, false, plan.field().heightRel(x, z)), terrain.ground(x, z));
+		}
+		return terrain.ground(x, z);
+	}
+
+	private static int window(HeightField field, int x, int z, int r, boolean max, int start) {
+		int best = start;
+		for (int dx = -r; dx <= r; dx++) {
+			for (int dz = -r; dz <= r; dz++) {
+				int h = field.heightRel(x + dx, z + dz);
+				if (h != Integer.MIN_VALUE) {
+					best = max ? Math.max(best, h) : Math.min(best, h);
+				}
+			}
+		}
+		return best;
 	}
 
 	private static boolean nextTo(Set<Long> cells, int x, int z) {
@@ -283,7 +319,7 @@ public final class OuterWallPlanner {
 			cells.add(VillageLayout.col(x, z));
 			boolean edge = Math.abs(x - cx) == 2 || Math.abs(z - cz) == 2;
 			boolean corner = Math.abs(x - cx) == 2 && Math.abs(z - cz) == 2;
-			int g = terrain.water(x, z) > 0 ? terrain.ground(x, z) + 1 : terrain.ground(x, z);
+			int g = terrain.water(x, z) > 0 ? terrain.ground(x, z) + 1 : foot(plan, terrain, x, z);
 			out.add(new Placement(x, g, z, VPart.FOUNDATION, null, true));
 			for (int y = g + 1; y <= top; y++) {
 				boolean slit = edge && !corner && (x == cx || z == cz) && (y == base + 5 || y == base + 9);
@@ -309,12 +345,12 @@ public final class OuterWallPlanner {
 			int x = c[0];
 			int z = c[1];
 			int g = plan.ground(x, z) ? plan.streetHeight(x, z) : terrain.ground(x, z);
+			if (plan.field() != null) {
+				// chao da passagem no nivel do campo (so troca terreno natural: o calcamento da avenida nunca e sobrescrito)
+				out.add(new Placement(x, g, z, VPart.PATH, null, true));
+			}
 			for (int y = g + 1; y <= base + 4; y++) {
 				out.add(new Placement(x, y, z, VPart.AIR, null, false));
-			}
-			boolean middle = c[0] == gate.center()[2] && c[1] == gate.center()[3];
-			if (middle) {
-				out.add(new Placement(x, base + 4, z, VPart.LANTERN_HANGING, null, false));
 			}
 			for (int y = base + 5; y <= top; y++) {
 				out.add(new Placement(x, y, z, y == base + 5 || y == top ? VPart.BRICK : VPart.STONE, null, false));

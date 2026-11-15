@@ -248,7 +248,10 @@ public class VillageGameTest {
 		if (village.level() != VillageLevel.CAMP || accessor.mlinnotas$shouldIncreaseLevel()) {
 			throw new IllegalStateException("no Acampamento o aldeao para no nivel 2 (aprendiz)");
 		}
-		// a vila cresce: Aldeia libera nivel 3
+		// a vila cresce: Aldeia libera nivel 3 (com os aneis 1-3 da terraplenagem prontos: preco fixo, nao fecha sozinho em terreno plano)
+		for (int ring = 1; ring <= 3; ring++) {
+			village.ring(ring).setState(com.mlin.notas.village.RingWork.State.DONE);
+		}
 		village.addBuilt(VillageProject.HOUSE);
 		village.addBuilt(VillageProject.HOUSE);
 		village.addBuilt(VillageProject.FARM);

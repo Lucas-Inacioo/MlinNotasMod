@@ -86,8 +86,6 @@ public final class VillageState {
 	private final List<Map<String, Integer>> queuePaid = new ArrayList<>();
 	/** Terraplenagem de cada anel do plano diretor (indice = anel - 1). */
 	private final RingWork[] rings = new RingWork[MasterPlan.RINGS];
-	/** Terra cortada sobrando (blocos), que paga aterro de outros aneis. */
-	private int stockpile;
 	/** Lotes de jogador dentro da vila com cama e porta: contam como casas (moradia e pontos de obra). */
 	private int playerHouses;
 	/** Niveis das construcoes, melhorias, moradores contados (Vilas 2.0, fase 4). */
@@ -441,14 +439,6 @@ public final class VillageState {
 		return layout != null && layout.master() != null;
 	}
 
-	public int stockpile() {
-		return stockpile;
-	}
-
-	public void setStockpile(int stockpile) {
-		this.stockpile = Math.max(0, stockpile);
-	}
-
 	public int playerHouses() {
 		return playerHouses;
 	}
@@ -627,14 +617,13 @@ public final class VillageState {
 	}
 
 	/** Restaura a terraplenagem (formato novo; o antigo nao tem e comeca vazio). */
-	public void restoreTerrain(List<RingWork> works, int stockpile, int playerHouses) {
+	public void restoreTerrain(List<RingWork> works, int playerHouses) {
 		java.util.Arrays.fill(rings, null);
 		for (RingWork w : works) {
 			if (w.ring() >= 1 && w.ring() <= MasterPlan.RINGS) {
 				rings[w.ring() - 1] = w;
 			}
 		}
-		this.stockpile = Math.max(0, stockpile);
 		this.playerHouses = Math.max(0, playerHouses);
 	}
 

@@ -590,6 +590,35 @@ public final class VillageWorks {
 		works.changed();
 	}
 
+	/**
+	 * Muralha refeita nas alturas do campo ({@code /village admin rebuild_walls}): tira o que as obras de muralha anotaram
+	 * (ameias, centro historico, barbacas, portoes) e reabre as obras feitas para refazer nas alturas novas. Bloco de
+	 * jogador nunca esta nas anotacoes. Devolve quantas obras foram reabertas.
+	 */
+	public static int releaseWallWorks(ServerLevel level, VillageState village) {
+		VillageWorksData works = VillageWorksData.get(level.getServer());
+		VillageWorksData.State st = works.peek(village.key());
+		if (st == null || village.layout() == null || village.layout().master() == null) {
+			return 0;
+		}
+		List<long[]> mine = new ArrayList<>();
+		for (String id : List.of("wall:battlements", "wall:historic", "wall:barbican", "wall:palisade", "wall:gates")) {
+			mine.addAll(st.owned.ofWork(id));
+		}
+		clear(level, village, village.layout().master(), st, mine);
+		int reopened = 0;
+		for (VillageWorksData.Entry e : st.entries) {
+			if (e.id.startsWith("wall:") && e.state == 2) {
+				e.state = 0;
+				e.index = 0;
+				CACHE.remove(cacheKey(village, e.id));
+				reopened++;
+			}
+		}
+		works.changed();
+		return reopened;
+	}
+
 	/** Tira os blocos anotados que ainda sao os mesmos; o chao volta a grama. */
 	static void clear(ServerLevel level, VillageState village, MasterPlan plan, VillageWorksData.State st, List<long[]> blocks) {
 		blocks.sort(java.util.Comparator.<long[]>comparingLong(k -> -((k[0] >> 20) & 0xFFFFF)));

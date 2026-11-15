@@ -217,14 +217,8 @@ public final class VillagePlanning {
 			int ground = block != null ? block.target() : TerrainPrep.target(terrain, r);
 			VillagePayloads.LotStatus status;
 			if (job != null && job.lot == lot.id()) {
-				status = job.paused() ? VillagePayloads.LotStatus.PAUSED : VillagePayloads.LotStatus.BUILDING;
+				status = VillagePayloads.LotStatus.BUILDING;
 				ground = job.ground;
-				if (job.paused() && obstacles.size() < MAX_OBSTACLES) {
-					int px = VillageLayout.colX(job.pausedAt);
-					int pz = VillageLayout.colZ(job.pausedAt);
-					obstacles.add(VillageBuilder.world(village, px, terrain.ground(px, pz), pz).asLong());
-					kinds.add(WorldTerrain.Obstacle.PLAYER.ordinal());
-				}
 			} else if (lot.built()) {
 				status = VillagePayloads.LotStatus.BUILT;
 			} else if (parcel != null && parcel.player()) {
